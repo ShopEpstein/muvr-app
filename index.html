@@ -623,27 +623,46 @@ async function loadWallet(){
   c.innerHTML=l.map(function(e){return'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-zinc-800"><div><span class="font-mono text-xs bg-zinc-800 px-2 py-0.5 rounded-full">'+e.type.toUpperCase()+'</span><span class="text-sm ml-2 text-zinc-300">'+esc(e.description||'')+'</span></div><div class="font-mono '+(e.amount_mv>0?'text-emerald-400':'text-red-400')+'">'+(e.amount_mv>0?'+':'')+e.amount_mv+' MV</div></div>'}).join('')
 }
 function toggleBalance(){balRevealed=!balRevealed;loadWallet()}
-async function sendMV(){var to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'));if(!to||!amt||amt<1)return toast('Enter recipient and amount','error');if(amt>(profile&&profile.mv_balance||0))return toast('Insufficient MV','error');var{data,error}=await sb.rpc('send_mv',{p_sender_id:user.id,p_recipient_identifier:to,p_amount:amt});if(error){toast('Error: '+error.message,'error');return};if(data&&data.success){profile.mv_balance-=amt;hideModal('send-modal');gi('send-to').value='';gi('send-amount').value='';loadWallet();toast(amt+' MV sent!')}else{toast((data&&data.error)||'Send failed','error')}}
+async function sendMV(){
+  var to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'))
+  if(!to||!amt||amt<1)return toast('Enter recipient and amount','error')
+  if(amt>(profile?.mv_balance||0))return toast('Insufficient MV','error')
+  // Find recipient
+  var res=await authFetch('users?email=eq.'+encodeURIComponent(to)+'&select=id,mv_balance,email')
+  if(!res)return toast('Error finding recipient','error')
+  var recipients=await res.json()
+  if(!recipients?.length){
+    // Try username lookup
+    res=await authFetch('users?username=eq.'+encodeURIComponent(to.replace('@',''))+'&select=id,mv_balance,email')
+    if(res)recipients=await res.json()
+  }
+  if(!recipients?.length)return toast('Recipient not found','error')
+  var r=recipients[0]
+  // Update balances
+  await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:(profile.mv_balance||0)-amt})})
+  await authFetch('users?id=eq.'+r.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:(r.mv_balance||0)+amt})})
+  // Ledger entries with unique hashes
+  var h1='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
+  var h2='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
+  await authFetch('mv_ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:user.id,type:'send',amount_mv:-amt,description:'Sent to '+r.email,tx_hash:h1,related_user_id:r.id})})
+  await authFetch('mv_ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:r.id,type:'receive',amount_mv:amt,description:'From '+user.email,tx_hash:h2,related_user_id:user.id})})
+  profile.mv_balance-=amt;hideModal('send-modal');gi('send-to').value='';gi('send-amount').value='';loadWallet();toast(amt+' MV sent!')
+}
 
 async function loadMV(amt){
   if(!amt||amt<5)return toast('Minimum $5','error')
   if(!user||!user.id)return toast('Not signed in','error')
   if(!confirm('Load '+amt+' MV ($'+amt+')?'))return
   try{
-    console.log('loadMV calling beta_load_mv with:',user.id,amt)
-    var{data,error}=await sb.rpc('beta_load_mv',{p_user_id:user.id,p_amount:amt})
-    console.log('beta_load_mv response:',JSON.stringify(data),error)
-    if(error){toast('RPC error: '+error.message,'error');console.error('RPC error:',error);return}
-    if(data&&data.success){
-      toast(amt+' MV loaded! Balance: '+(data.balance||'?'))
-    }else if(data&&data.error){
-      toast(data.error,'error')
-    }else{
-      toast('Unexpected response','error')
-      console.error('Unexpected:',data)
-    }
+    var newBal=(profile?.mv_balance||0)+amt
+    await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:newBal})})
+    var h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
+    await authFetch('mv_ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:user.id,type:'load',amount_mv:amt,description:'Loaded '+amt+' MV (beta)',tx_hash:h})})
+    // Update supply
+    await authFetch('mv_supply?id=eq.1',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({total_minted:((profile?.total_minted||5)+amt)})})
+    toast(amt+' MV loaded!')
     hideModal('load-modal');await loadProfile();loadWallet()
-  }catch(err){console.error('loadMV catch:',err);toast('Error: '+err.message,'error')}
+  }catch(err){console.error('loadMV error:',err);toast('Error loading MV','error')}
 }
 
 // BLOG
