@@ -719,7 +719,7 @@ async function manageJob(jobId){
 async function acceptApp(jobId,appId,workerId){
   await sb.from('applications').update({status:'accepted'}).eq('id',appId)
   await sb.from('applications').update({status:'rejected'}).eq('job_id',jobId).neq('id',appId).eq('status','pending')
-  await sb.from('jobs').update({status:'in_progress',worker_id:workerId,assigned_at:new Date().toISOString()}).eq('id',jobId)
+  await sb.from('jobs').update({status:'in_progress',awarded_to:workerId,assigned_at:new Date().toISOString()}).eq('id',jobId)
   hideModal('job-detail-modal');loadJobs();toast('Worker accepted! Job in progress.')
 }
 
@@ -735,13 +735,13 @@ async function releaseEscrow(jobId){
   if(error){
     // Fallback manual release
     const{data:esc}=await sb.from('escrow').select('*').eq('job_id',jobId).single()
-    const{data:job}=await sb.from('jobs').select('worker_id').eq('id',jobId).single()
-    if(esc&&job?.worker_id){
+    const{data:job}=await sb.from('jobs').select('awarded_to').eq('id',jobId).single()
+    if(esc&&job?.awarded_to){
       await sb.from('escrow').update({status:'released',released_at:new Date().toISOString()}).eq('id',esc.id)
-      const{data:w}=await sb.from('users').select('mv_balance').eq('id',job.worker_id).single()
-      await sb.from('users').update({mv_balance:(w?.mv_balance||0)+esc.amount_mv}).eq('id',job.worker_id)
+      const{data:w}=await sb.from('users').select('mv_balance').eq('id',job?.awarded_to).single()
+      await sb.from('users').update({mv_balance:(w?.mv_balance||0)+esc.amount_mv}).eq('id',job?.awarded_to)
       await sb.from('users').update({mv_escrowed:(profile.mv_escrowed||0)-(esc.amount_mv+esc.fee_mv)}).eq('id',user.id)
-      await sb.from('mv_ledger').insert({user_id:job.worker_id,type:'escrow_release',amount_mv:esc.amount_mv,description:'Payment for job',related_job_id:jobId})
+      await sb.from('mv_ledger').insert({user_id:job?.awarded_to,type:'escrow_release',amount_mv:esc.amount_mv,description:'Payment for job',related_job_id:jobId})
       await sb.from('jobs').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',jobId)
     }
   }
