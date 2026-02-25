@@ -379,10 +379,13 @@ const ADMIN_EMAILS=['contactfire757@gmail.com','biggernbetter24@gmail.com']
 
 function toast(msg,type='success'){const c=gi('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='all .3s';setTimeout(()=>t.remove(),300)},3500)}
 
+let authToken=null
 async function init(){
   const{data:{session}}=await sb.auth.getSession()
-  if(session){user=session.user;await loadProfile()}
+  if(session){user=session.user;authToken=session.access_token;console.log('init: token ready, uid=',user.id);await loadProfile()}
   updateUI();showTab('jobs');setupRealtime();renderSkills();renderCats()
+  // Listen for auth changes
+  sb.auth.onAuthStateChange((ev,sess)=>{if(sess){authToken=sess.access_token}})
 }
 
 // AUTH
@@ -404,7 +407,7 @@ async function signIn(){
   if(!e||!p)return authErr('Enter email and password')
   const{data,error}=await sb.auth.signInWithPassword({email:e,password:p})
   if(error)return authErr(error.message)
-  user=data.user;hideModal('login-modal');await loadProfile();updateUI();checkLegal();toast('Welcome back!')
+  user=data.user;authToken=data.session?.access_token;hideModal('login-modal');await loadProfile();updateUI();checkLegal();toast('Welcome back!')
 }
 function authErr(m){const el=gi('auth-error');el.textContent=m;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),5000)}
 async function logout(){await sb.auth.signOut();user=null;profile=null;updateUI();showTab('jobs');toast('Signed out','info')}
@@ -418,10 +421,9 @@ function isAdmin(){return user&&ADMIN_EMAILS.includes(user.email)}
 
 // PROFILE
 async function authFetch(path,opts={}){
-  const sess=await sb.auth.getSession()
-  const token=sess.data.session?.access_token
-  if(!token){console.error('No auth token');return null}
-  const headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+token,...(opts.headers||{})}
+  if(!authToken){const sess=await sb.auth.getSession();authToken=sess.data.session?.access_token}
+  if(!authToken){console.error('No auth token');return null}
+  const headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+authToken,...(opts.headers||{})}
   return fetch(SUPA_URL+'/rest/v1/'+path,{...opts,headers})
 }
 async function loadProfile(){
