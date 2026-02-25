@@ -597,6 +597,7 @@ async function loadSupply(){var{data}=await sb.from('mv_supply').select('*').sin
 function fmtNum(n){if(!n)return'0';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toLocaleString()}
 async function loadWallet(){
   if(!user)return;await loadProfile();loadSupply()
+  console.log('loadWallet profile:',profile?.email,profile?.mv_balance)
   var b=profile&&profile.mv_balance||0;gi('balance-display').textContent=balRevealed?b.toFixed(2)+' MV':'------';gi('balance-toggle').textContent=balRevealed?'HIDE':'REVEAL'
   var{data:escs}=await sb.from('escrow').select('*,jobs(title)').eq('poster_id',user.id).eq('status','locked')
   var el=gi('escrow-list');if(escs&&escs.length){el.innerHTML=escs.map(function(e){return'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-yellow-900"><span class="text-sm font-bold">'+esc(e.jobs&&e.jobs.title||'Job')+'</span><span class="font-mono text-yellow-400">'+(e.amount_mv+e.fee_mv)+' MV</span></div>'}).join('')}else{el.innerHTML='<div class="text-zinc-500 text-sm py-2">None</div>'}
@@ -609,18 +610,23 @@ async function sendMV(){var to=gv('send-to').trim(),amt=parseFloat(gv('send-amou
 
 async function loadMV(amt){
   if(!amt||amt<5)return toast('Minimum $5','error')
+  if(!user||!user.id)return toast('Not signed in','error')
   if(!confirm('Load '+amt+' MV ($'+amt+')?'))return
   try{
+    console.log('loadMV calling beta_load_mv with:',user.id,amt)
     var{data,error}=await sb.rpc('beta_load_mv',{p_user_id:user.id,p_amount:amt})
-    console.log('beta_load_mv result:',data,error)
-    if(error){toast('Load failed: '+error.message,'error');return}
+    console.log('beta_load_mv response:',JSON.stringify(data),error)
+    if(error){toast('RPC error: '+error.message,'error');console.error('RPC error:',error);return}
     if(data&&data.success){
-      toast(amt+' MV loaded!')
+      toast(amt+' MV loaded! Balance: '+(data.balance||'?'))
+    }else if(data&&data.error){
+      toast(data.error,'error')
     }else{
-      toast((data&&data.error)||'Load failed','error')
+      toast('Unexpected response','error')
+      console.error('Unexpected:',data)
     }
     hideModal('load-modal');await loadProfile();loadWallet()
-  }catch(err){console.error(err);toast('Error loading MV','error')}
+  }catch(err){console.error('loadMV catch:',err);toast('Error: '+err.message,'error')}
 }
 
 // BLOG
@@ -688,4 +694,5 @@ function renderSkills(){var c=gi('skill-boxes');if(!c)return;c.innerHTML=SKILLS.
 window.onload=init
 </script>
 </body>
-</html>
+</html>    
+  
