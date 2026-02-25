@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MUVR - Pensacola / Floribama</title>
-  <meta name="description" content="MUVR - Post a job, get it done. On-demand workers in Pensacola.">
+  <title>MUVR - Move Everything</title>
+  <meta name="description" content="MUVR - Post a job, get it done. On-demand workers powered by MV.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -31,29 +30,33 @@
     #map{height:280px;border-radius:16px;border:1px solid #27272a}
     .avatar-ring{background:conic-gradient(#14F1C6 0deg,#14F1C6 120deg,#facc15 120deg,#facc15 240deg,#f87171 240deg,#f87171 360deg);padding:3px;border-radius:50%}
     .skill-tag{transition:all .15s}.skill-tag:has(input:checked){background:#14F1C6;color:#000}
+    .blog-card{transition:all .2s}.blog-card:hover{border-color:#14F1C6;transform:translateY(-2px)}
+    #exchange-btn{position:fixed;bottom:80px;right:16px;z-index:90;width:56px;height:56px;border-radius:50%;background:#14F1C6;color:#000;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(20,241,198,.3);transition:all .2s;font-size:20px;font-weight:800}
+    #exchange-btn:hover{transform:scale(1.1)}
+    #exchange-panel{position:fixed;bottom:150px;right:16px;width:340px;max-height:480px;z-index:91;border-radius:20px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+    @media(max-width:640px){#exchange-panel{right:8px;left:8px;width:auto;bottom:140px}}
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
 <div id="toast-container"></div>
 
 <!-- LIABILITY BANNER -->
-
 <div class="bg-red-700/90 text-center py-1.5 text-xs font-bold tracking-widest">
   MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL WORKERS ARE INDEPENDENT CONTRACTORS
 </div>
 
 <!-- HEADER -->
-
 <header class="border-b border-zinc-800 bg-zinc-900/95 sticky top-0 z-50 backdrop-blur-md">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2 cursor-pointer" onclick="showTab('jobs')">
       <span class="text-2xl">&#x1F9BE;</span>
       <span class="text-2xl font-extrabold tracking-tighter">MU<span class="text-[#14F1C6]">V</span>R</span>
     </div>
-    <nav class="hidden sm:flex gap-6 text-sm font-bold">
+    <nav class="hidden sm:flex gap-5 text-sm font-bold">
       <button onclick="showTab('jobs')" class="tab-btn active" data-tab="jobs">JOBS</button>
       <button onclick="showTab('go')" class="tab-btn" data-tab="go">MUVR GO</button>
       <button onclick="showTab('wallet')" class="tab-btn" data-tab="wallet">WALLET</button>
+      <button onclick="showTab('blog')" class="tab-btn" data-tab="blog">BLOG</button>
       <button onclick="showTab('profile')" class="tab-btn" data-tab="profile">PROFILE</button>
     </nav>
     <div id="user-info">
@@ -62,20 +65,20 @@
   </div>
   <div class="bg-black py-1 overflow-hidden text-[#14F1C6] text-[10px] font-mono tracking-wider">
     <div class="ticker whitespace-nowrap flex gap-8">
-      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - PENSACOLA - FLORIBAMA -</span>
-      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - PENSACOLA - FLORIBAMA -</span>
-      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - PENSACOLA - FLORIBAMA -</span>
+      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - DEFLATIONARY - HARD CAP 100M - ALL TRANSACTIONS PERMANENT -</span>
+      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - DEFLATIONARY - HARD CAP 100M - ALL TRANSACTIONS PERMANENT -</span>
+      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - DEFLATIONARY - HARD CAP 100M - ALL TRANSACTIONS PERMANENT -</span>
     </div>
   </div>
 </header>
 
 <!-- MOBILE NAV -->
-
 <div id="mobile-nav" class="sm:hidden fixed bottom-0 left-0 right-0 bg-zinc-900/95 border-t border-zinc-800 z-50 hidden backdrop-blur-md">
   <div class="flex justify-around py-3">
     <button onclick="showTab('jobs')" class="flex flex-col items-center text-xs gap-1 mob-tab active" data-tab="jobs"><i class="fas fa-briefcase text-lg"></i>Jobs</button>
     <button onclick="showTab('go')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="go"><i class="fas fa-bolt text-lg"></i>GO</button>
     <button onclick="showTab('wallet')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="wallet"><i class="fas fa-wallet text-lg"></i>MV</button>
+    <button onclick="showTab('blog')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="blog"><i class="fas fa-newspaper text-lg"></i>Blog</button>
     <button onclick="showTab('profile')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="profile"><i class="fas fa-user text-lg"></i>Me</button>
   </div>
 </div>
@@ -83,7 +86,6 @@
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 sm:pb-6">
 
 <!-- JOBS TAB -->
-
 <div id="jobs-tab" class="tab-content">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-3xl font-extrabold">Open Jobs</h1>
@@ -103,19 +105,17 @@
 </div>
 
 <!-- GO TAB -->
-
 <div id="go-tab" class="tab-content hidden">
   <h1 class="text-3xl font-extrabold mb-1">MUVR GO</h1>
-  <p class="text-zinc-400 text-sm mb-4">Live workers near you. Tap to request.</p>
+  <p class="text-zinc-400 text-sm mb-4">Live workers near you</p>
   <div id="map" class="mb-5"></div>
   <div class="flex gap-2 mb-5 overflow-x-auto pb-2" id="category-filters"></div>
   <div id="worker-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F50D;</div><p class="font-bold">No workers live right now</p><p class="text-sm mt-1">Go to Profile and toggle Live!</p></div>
+    <div class="text-zinc-500 text-center py-16 col-span-full"><p class="font-bold">No workers live right now</p></div>
   </div>
 </div>
 
 <!-- WALLET TAB -->
-
 <div id="wallet-tab" class="tab-content hidden">
   <h1 class="text-3xl font-extrabold mb-5">MV Wallet</h1>
   <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-5">
@@ -149,8 +149,24 @@
   </div>
 </div>
 
-<!-- PROFILE TAB -->
+<!-- BLOG TAB -->
+<div id="blog-tab" class="tab-content hidden">
+  <div class="flex items-center justify-between mb-6">
+    <div><h1 class="text-3xl font-extrabold">Blog</h1><p class="text-zinc-400 text-sm">News, guides, and ecosystem updates</p></div>
+    <span id="blog-admin-btn"></span>
+  </div>
+  <div id="blog-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F4DD;</div><p class="font-bold">No posts yet</p><p class="text-sm mt-1">Coming soon from MUXI HQ</p></div>
+  </div>
+</div>
 
+<!-- BLOG POST VIEW -->
+<div id="blog-post-tab" class="tab-content hidden">
+  <button onclick="showTab('blog')" class="text-zinc-400 text-sm mb-4 hover:text-white">&larr; Back to Blog</button>
+  <div id="blog-post-content"></div>
+</div>
+
+<!-- PROFILE TAB -->
 <div id="profile-tab" class="tab-content hidden">
   <div id="profile-content" class="max-w-lg mx-auto"><div class="text-zinc-500 py-12 text-center">Sign in to view your profile</div></div>
 </div>
@@ -158,9 +174,7 @@
 </main>
 
 <!-- ====== MODALS ====== -->
-
 <!-- LOGIN -->
-
 <div id="login-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <h2 class="text-xl font-extrabold mb-1">Welcome to MUVR &#x1F9BE;</h2>
@@ -174,18 +188,17 @@
 </div>
 
 <!-- LEGAL -->
-
 <div id="legal-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-extrabold mb-4">Before You Start</h2>
     <div class="bg-zinc-800 rounded-xl p-4 mb-4 text-sm space-y-2">
       <h3 class="font-bold text-[#14F1C6]">Terms of Service</h3>
-      <p>MUVR is a technology marketplace operated by TransBid LLC (Delaware). MUVR connects independent service providers with customers. MUVR is NOT an employer, staffing agency, or service provider.</p>
-      <p>MV is a platform credit (1 MV = $1 USD). MV is not currency, cryptocurrency, or a financial instrument. All transactions are final and recorded on an immutable ledger.</p>
+      <p>MUVR is a technology marketplace operated by TransBid LLC (Delaware). MUVR connects independent service providers with customers. MUVR is NOT an employer.</p>
+      <p>MV is a platform credit (1 MV = $1 USD). MV is not currency, cryptocurrency, or a financial instrument.</p>
     </div>
     <div class="bg-zinc-800 rounded-xl p-4 mb-4 text-sm space-y-2">
       <h3 class="font-bold text-[#14F1C6]">Independent Contractor Agreement</h3>
-      <p>You are an independent contractor, NOT an employee. You control your schedule, methods, tools, and rates. You are responsible for your own taxes (1099), insurance, licenses, and compliance.</p>
+      <p>You are an independent contractor, NOT an employee. You control your schedule, methods, tools, and rates. You are responsible for your own taxes, insurance, and compliance.</p>
     </div>
     <div class="space-y-3 mb-6">
       <label class="flex items-start gap-3 cursor-pointer"><input type="checkbox" id="accept-tos" onchange="updateLegalBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I accept the <strong>Terms of Service</strong></span></label>
@@ -197,14 +210,12 @@
 </div>
 
 <!-- RIDESHARE WAIVER -->
-
 <div id="rideshare-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-red-600 max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-extrabold mb-4 text-red-400">Rideshare Waiver</h2>
     <div class="bg-red-950 border border-red-800 rounded-xl p-4 mb-4 text-sm space-y-2">
-      <p><strong>Vehicle condition is SELF-REPORTED.</strong> MUVR does NOT inspect or guarantee any vehicle.</p>
+      <p><strong>Vehicle condition is SELF-REPORTED.</strong> MUVR does NOT inspect any vehicle.</p>
       <p>MUVR does NOT verify driver's license, insurance, or driving record.</p>
-      <p class="text-red-400 font-bold">Use at your own discretion.</p>
     </div>
     <label class="flex items-start gap-3 cursor-pointer mb-6"><input type="checkbox" id="accept-rideshare" onchange="updateRideBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I understand and accept all risks</span></label>
     <div class="flex gap-3">
@@ -215,7 +226,6 @@
 </div>
 
 <!-- POST JOB -->
-
 <div id="post-job-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Post a Job</h2><button onclick="hideModal('post-job-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -225,7 +235,7 @@
       <select id="job-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="physical">Physical</option><option value="digital">Digital</option><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="hauling">Hauling</option></select>
       <select id="job-urgency" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="asap">ASAP</option><option value="today">Today</option><option value="this_week">This Week</option><option value="flexible">Flexible</option></select>
       <div><label class="text-xs text-zinc-400 mb-1 block">Budget (MV) = $1 each</label><input id="job-budget" type="number" min="1" placeholder="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3" oninput="updateFee()"></div>
-      <input id="job-address" placeholder="Location (Pensacola area)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+      <input id="job-address" placeholder="Location / Address" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
       <div class="bg-zinc-800 rounded-xl p-3 text-sm">
         <div class="flex justify-between"><span class="text-zinc-400">Budget</span><span id="fee-budget">0 MV</span></div>
         <div class="flex justify-between"><span class="text-zinc-400">Platform Fee</span><span>1 MV <span class="text-red-400 text-[10px]">burned forever</span></span></div>
@@ -238,7 +248,6 @@
 </div>
 
 <!-- APPLY -->
-
 <div id="apply-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Apply</h2><button onclick="hideModal('apply-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -251,7 +260,6 @@
 </div>
 
 <!-- SEND MV -->
-
 <div id="send-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Send MV</h2><button onclick="hideModal('send-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -262,12 +270,11 @@
 </div>
 
 <!-- LOAD MV -->
-
 <div id="load-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-3"><h2 class="text-xl font-extrabold">Load MV</h2><button onclick="hideModal('load-modal')" class="text-zinc-400 text-xl">&times;</button></div>
     <p class="text-[#14F1C6] text-sm font-bold mb-1">1 MV = $1 USD. Always.</p>
-    <p class="text-zinc-400 text-xs mb-4">No fees to load. Your money enters 1:1.</p>
+    <p class="text-zinc-400 text-xs mb-4">No fees to load. 1:1 every time.</p>
     <div class="grid grid-cols-2 gap-3 mb-4">
       <button onclick="loadMV(5)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$5<br><span class="text-[#14F1C6] text-sm">5 MV</span></button>
       <button onclick="loadMV(10)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$10<br><span class="text-[#14F1C6] text-sm">10 MV</span></button>
@@ -279,42 +286,23 @@
 </div>
 
 <!-- PROFILE EDIT -->
-
 <div id="profile-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4"><div><h2 class="text-xl font-extrabold">Your Profile</h2><p class="text-zinc-400 text-xs">Make it shine</p></div><button onclick="hideModal('profile-modal')" class="text-zinc-400 text-xl">&times;</button></div>
     <div class="space-y-4">
       <div class="flex items-center gap-4">
-        <div id="avatar-preview" onclick="uploadAvatar()" class="w-20 h-20 rounded-full bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-[#14F1C6] transition-all overflow-hidden shrink-0">
-          <span id="avatar-placeholder" class="text-3xl">&#x1F60E;</span>
-        </div>
-        <div class="flex-1">
-          <input id="p-name" placeholder="Your name" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-1">
-          <p class="text-[10px] text-zinc-500">Tap pic to upload a photo</p>
-        </div>
+        <div id="avatar-preview" onclick="uploadAvatar()" class="w-20 h-20 rounded-full bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-[#14F1C6] transition-all overflow-hidden shrink-0"><span id="avatar-placeholder" class="text-3xl">&#x1F60E;</span></div>
+        <div class="flex-1"><input id="p-name" placeholder="Your name" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-1"><p class="text-[10px] text-zinc-500">Tap pic to upload a photo</p></div>
       </div>
-      <div>
-        <label class="text-xs text-zinc-400 mb-1 block">ABOUT YOU</label>
-        <textarea id="p-about" placeholder="Hey! I'm great at moving, hauling, and getting things done. Pensacola local!" rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" maxlength="280" oninput="gi('about-count').textContent=this.value.length"></textarea>
-        <p class="text-[10px] text-zinc-500 text-right"><span id="about-count">0</span>/280</p>
-      </div>
+      <div><label class="text-xs text-zinc-400 mb-1 block">ABOUT YOU</label><textarea id="p-about" placeholder="Tell people what you're great at!" rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" maxlength="280" oninput="gi('about-count').textContent=this.value.length"></textarea><p class="text-[10px] text-zinc-500 text-right"><span id="about-count">0</span>/280</p></div>
       <select id="p-role" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="both">Work AND post jobs</option><option value="worker">Work (earn MV)</option><option value="poster">Post jobs (hire)</option></select>
-      <div><label class="text-xs text-zinc-400 mb-2 block">SKILLS <span class="text-zinc-600">(pick all that fit)</span></label><div class="flex flex-wrap gap-2" id="skill-boxes"></div></div>
-      <div><label class="text-xs text-zinc-400 mb-2 block">WORK PHOTOS <span class="text-zinc-600">(builds trust!)</span></label>
-        <div class="flex gap-2 overflow-x-auto pb-2" id="work-photos-edit">
-          <button onclick="uploadWorkPhoto()" class="w-20 h-20 rounded-xl bg-zinc-800 border-2 border-dashed border-zinc-600 flex flex-col items-center justify-center cursor-pointer hover:border-[#14F1C6] shrink-0"><span class="text-xl">+</span><span class="text-[9px] text-zinc-500">Add</span></button>
-        </div>
-      </div>
+      <div><label class="text-xs text-zinc-400 mb-2 block">SKILLS</label><div class="flex flex-wrap gap-2" id="skill-boxes"></div></div>
+      <div><label class="text-xs text-zinc-400 mb-2 block">WORK PHOTOS <span class="text-zinc-600">(builds trust!)</span></label><div class="flex gap-2 overflow-x-auto pb-2" id="work-photos-edit"><button onclick="uploadWorkPhoto()" class="w-20 h-20 rounded-xl bg-zinc-800 border-2 border-dashed border-zinc-600 flex flex-col items-center justify-center cursor-pointer hover:border-[#14F1C6] shrink-0"><span class="text-xl">+</span><span class="text-[9px] text-zinc-500">Add</span></button></div></div>
       <label class="flex items-center gap-2 cursor-pointer bg-zinc-800 px-4 py-3 rounded-xl"><input type="checkbox" id="p-vehicle" onchange="gi('v-fields').classList.toggle('hidden',!this.checked)" class="w-5 h-5"><span class="text-sm">I have a vehicle</span></label>
       <div id="v-fields" class="hidden space-y-3">
         <select id="p-vtype" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="">Type</option><option value="car">Car</option><option value="truck">Truck</option><option value="van">Van</option><option value="suv">SUV</option></select>
-        <div class="grid grid-cols-3 gap-2">
-          <input id="p-vyear" type="number" placeholder="Year" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3">
-          <input id="p-vmake" placeholder="Make" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3">
-          <input id="p-vmodel" placeholder="Model" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3">
-        </div>
+        <div class="grid grid-cols-3 gap-2"><input id="p-vyear" type="number" placeholder="Year" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3"><input id="p-vmake" placeholder="Make" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3"><input id="p-vmodel" placeholder="Model" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3"></div>
         <select id="p-vcond" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="">Condition (BE HONEST)</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="rough_but_running">Rough but running</option></select>
-        <div class="bg-red-950 border border-red-800 rounded-xl p-3 text-xs text-red-300">Vehicle condition is self-reported. MUVR does NOT inspect vehicles.</div>
         <div class="flex flex-wrap gap-2">
           <label class="flex items-center gap-2 bg-zinc-800 px-3 py-2 rounded-lg"><input type="checkbox" id="p-ride"><span class="text-sm">Rideshare</span></label>
           <label class="flex items-center gap-2 bg-zinc-800 px-3 py-2 rounded-lg"><input type="checkbox" id="p-deliver"><span class="text-sm">Delivery</span></label>
@@ -326,8 +314,23 @@
   </div>
 </div>
 
-<!-- JOB DETAIL -->
+<!-- BLOG EDITOR (admin) -->
+<div id="blog-editor-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-2xl border border-zinc-700 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Write Post</h2><button onclick="hideModal('blog-editor-modal')" class="text-zinc-400 text-xl">&times;</button></div>
+    <div class="space-y-3">
+      <input id="blog-title" placeholder="Post title" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-lg font-bold">
+      <input id="blog-slug" placeholder="url-slug (auto-generated)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono">
+      <input id="blog-cover" placeholder="Cover image URL (optional)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+      <input id="blog-tags" placeholder="Tags (comma separated)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+      <textarea id="blog-body" placeholder="Write your post... (Markdown supported)" rows="12" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono"></textarea>
+      <select id="blog-status" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="published">Publish Now</option><option value="draft">Save Draft</option></select>
+      <button onclick="publishPost()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">PUBLISH</button>
+    </div>
+  </div>
+</div>
 
+<!-- JOB DETAIL -->
 <div id="job-detail-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Job Details</h2><button onclick="hideModal('job-detail-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -335,8 +338,26 @@
   </div>
 </div>
 
+<!-- EXCHANGE CHATBOT -->
+<div id="exchange-btn" onclick="toggleExchange()"><i class="fas fa-comment-dots"></i></div>
+<div id="exchange-panel">
+  <div class="bg-zinc-800 px-4 py-3 flex justify-between items-center border-b border-zinc-700">
+    <div class="flex items-center gap-2"><span class="text-[#14F1C6] font-extrabold">EXCHANGE</span><span class="text-zinc-400 text-xs">by MUVR</span></div>
+    <button onclick="toggleExchange()" class="text-zinc-400">&times;</button>
+  </div>
+  <div id="exchange-messages" class="bg-zinc-900 flex-1 overflow-y-auto p-4 space-y-3" style="height:320px">
+    <div class="bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%]">
+      <p class="text-sm">Hey! I'm <strong class="text-[#14F1C6]">EXCHANGE</strong>, your MUVR assistant. I can help you post jobs, find workers, understand MV, or navigate the ecosystem. What's up?</p>
+    </div>
+  </div>
+  <div class="bg-zinc-800 p-3 flex gap-2">
+    <input id="exchange-input" placeholder="Ask anything..." class="flex-1 bg-zinc-700 border border-zinc-600 rounded-xl px-4 py-2 text-sm" onkeypress="if(event.key==='Enter')sendExchange()">
+    <button onclick="sendExchange()" class="bg-[#14F1C6] text-black px-4 rounded-xl font-bold text-sm">Send</button>
+  </div>
+</div>
+
 <footer class="border-t border-zinc-800 mt-12 py-8 text-center text-xs text-zinc-600 px-4">
-  <p class="mb-2">MUVR is operated by TransBid LLC (Delaware) - Pensacola, FL</p>
+  <p class="mb-2">MUVR is operated by TransBid LLC (Delaware)</p>
   <p class="mb-2">MUVR does not employ, endorse, certify, insure, or guarantee any service provider.</p>
   <p>&#x00A9; 2026 TransBid LLC. All rights reserved.</p>
 </footer>
@@ -345,10 +366,11 @@
 const SUPA_URL='https://cfenkstusggrcthehffn.supabase.co'
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o'
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY)
-let user=null,profile=null,balRevealed=false,jobFilter='all',allJobs=[],pendingRide=null,lmap=null,markers=[]
+let user=null,profile=null,balRevealed=false,jobFilter='all',allJobs=[],pendingRide=null,lmap=null,markers=[],exchangeOpen=false
 const SKILLS=['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Other']
+const ADMIN_EMAILS=['contactfire757@gmail.com','biggernbetter24@gmail.com']
 
-function toast(msg,type='success'){const c=document.getElementById('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='all .3s';setTimeout(()=>t.remove(),300)},3500)}
+function toast(msg,type='success'){const c=gi('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='all .3s';setTimeout(()=>t.remove(),300)},3500)}
 
 async function init(){
   const{data:{session}}=await sb.auth.getSession()
@@ -366,9 +388,9 @@ async function signUp(){
     if(error)return authErr(error.message)
     if(!data.session){const{data:d2,error:e2}=await sb.auth.signInWithPassword({email:e,password:p});if(e2)return authErr('Check email to confirm, then sign in.');user=d2.user}else{user=data.user}
     hideModal('login-modal')
-    try{await sb.from('users').upsert({id:user.id,email:e,city:'Pensacola',state:'FL'})}catch(ue){}
+    try{await sb.from('users').upsert({id:user.id,email:e})}catch(ue){console.warn('upsert:',ue)}
     await loadProfile();updateUI();showModal('legal-modal');toast('Welcome to MUVR!')
-  }catch(err){authErr('Connection error. Try again.')}
+  }catch(err){authErr('Connection error.')}
 }
 async function signIn(){
   const e=gv('auth-email').trim(),p=gv('auth-password')
@@ -385,12 +407,19 @@ function updateUI(){
   else{info.innerHTML='<button onclick="showModal(\'login-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm">Sign In</button>';mn.classList.add('hidden')}
 }
 function requireAuth(fn){if(!user){showModal('login-modal');return}fn()}
+function isAdmin(){return user&&ADMIN_EMAILS.includes(user.email)}
 
 // PROFILE
 async function loadProfile(){
   if(!user)return
-  let{data}=await sb.from('users').select('*').eq('id',user.id).single()
-  if(!data){await sb.from('users').upsert({id:user.id,email:user.email,city:'Pensacola',state:'FL'});data={id:user.id,email:user.email,mv_balance:0}}
+  let{data,error}=await sb.from('users').select('*').eq('id',user.id).single()
+  if(error||!data){
+    console.warn('loadProfile: no row, creating...',error)
+    const{error:ie}=await sb.from('users').upsert({id:user.id,email:user.email})
+    if(ie)console.warn('upsert fail:',ie)
+    const{data:d2}=await sb.from('users').select('*').eq('id',user.id).single()
+    data=d2||{id:user.id,email:user.email,mv_balance:0}
+  }
   profile=data
 }
 async function saveProfile(){
@@ -400,221 +429,256 @@ async function saveProfile(){
   if(u.has_vehicle){
     u.vehicle_type=gv('p-vtype');u.vehicle_year=parseInt(gv('p-vyear'))||null;u.vehicle_make=gv('p-vmake');u.vehicle_model=gv('p-vmodel')
     u.vehicle_condition=gv('p-vcond');u.can_rideshare=gi('p-ride').checked;u.can_deliver=gi('p-deliver').checked;u.can_haul=gi('p-haul').checked
-    if(u.can_rideshare){u.rideshare_waiver_accepted=true;u.rideshare_waiver_accepted_at=new Date().toISOString();await sb.from('legal_agreements').insert({user_id:user.id,agreement_type:'rideshare_waiver',ip_address:'client',user_agent:navigator.userAgent})}
   }
+  // Get geolocation for map
+  if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await sb.from('users').update({latitude:pos.coords.latitude,longitude:pos.coords.longitude}).eq('id',user.id)},()=>{})}
   const{error}=await sb.from('users').update(u).eq('id',user.id)
-  if(error){console.error('Save failed:',error);toast('Save failed: '+error.message,'error');return}
-  await loadProfile();hideModal('profile-modal');updateUI();renderProfile();toast('Profile saved! You are live!')
+  if(error){console.error('Save:',error);toast('Save failed','error');return}
+  await loadProfile();hideModal('profile-modal');updateUI();renderProfile();toast('Profile saved!')
 }
 
 function renderProfile(){
   const c=gi('profile-content');if(!profile){c.innerHTML='<div class="text-zinc-500 py-12 text-center">Sign in to view profile</div>';return}
   const ts=trustScore(profile),badge=trustBadge(ts)
-  const avatarUrl=profile.avatar_url?`<img src="${profile.avatar_url}" class="w-full h-full object-cover">`:'<span class="text-4xl">&#x1F60E;</span>'
+  const avatarUrl=profile.avatar_url?'<img src="'+profile.avatar_url+'" class="w-full h-full object-cover">':'<span class="text-4xl">&#x1F60E;</span>'
   const photos=profile.work_photos||[]
-  c.innerHTML=`
-    <div class="space-y-5">
-      <!-- HERO CARD -->
-      <div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 text-center">
-        <div class="avatar-ring w-24 h-24 rounded-full mx-auto mb-3"><div class="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">${avatarUrl}</div></div>
-        <h2 class="text-2xl font-extrabold">${esc(profile.full_name||'Set up your profile')}</h2>
-        <p class="text-zinc-400 text-sm">${esc(profile.email||'')}</p>
-        <div class="flex items-center justify-center gap-3 mt-3">
-          <span class="text-[#14F1C6] font-bold text-sm">${badge}</span>
-          <span class="text-zinc-500 text-xs">${ts} pts</span>
-          <button onclick="toggleLive()" class="px-4 py-1.5 rounded-full font-bold text-sm ${profile.is_available?'bg-emerald-600':'bg-zinc-700'}">${profile.is_available?'LIVE':'Go Live'}</button>
-        </div>
-      </div>
-      ${!profile.full_name?'<button onclick="showModal(\'profile-modal\')" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">Complete Profile</button>':''}
-      <!-- ABOUT -->
-      ${profile.about_me?`<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-2 font-bold">ABOUT</p><p class="text-sm leading-relaxed">${esc(profile.about_me)}</p></div>`:''}
-      <!-- SKILLS -->
-      ${profile.skills?.length?`<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">SKILLS</p><div class="flex flex-wrap gap-2">${profile.skills.map(s=>'<span class="bg-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold">'+s+'</span>').join('')}</div></div>`:''}
-      <!-- WORK PHOTOS -->
-      ${photos.length?`<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">WORK PHOTOS</p><div class="flex gap-2 overflow-x-auto pb-2">${photos.map(p=>'<img src="'+p+'" class="w-28 h-28 rounded-xl object-cover shrink-0">').join('')}</div></div>`:''}
-      <!-- VEHICLE -->
-      ${profile.has_vehicle?`<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-2 font-bold">VEHICLE</p><p class="text-sm font-bold">${profile.vehicle_year||''} ${profile.vehicle_make||''} ${profile.vehicle_model||''}</p><p class="text-xs text-zinc-500">Condition: ${profile.vehicle_condition||'N/A'}</p>${profile.can_rideshare?'<span class="text-xs bg-red-950 text-red-400 px-2 py-1 rounded-full mt-2 inline-block">Rideshare</span>':''}</div>`:''}
-      <!-- STATS -->
-      <div class="grid grid-cols-3 gap-3 text-center">
-        <div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold">${profile.jobs_completed||0}</div><div class="text-xs text-zinc-400">Done</div></div>
-        <div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold">${profile.rating||'--'}</div><div class="text-xs text-zinc-400">Rating</div></div>
-        <div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold text-[#14F1C6]">${profile.mv_balance||0}</div><div class="text-xs text-zinc-400">MV</div></div>
-      </div>
-      <!-- VERIFICATIONS -->
-      <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">VERIFICATIONS <span class="text-zinc-600">(earn trust)</span></p><div class="space-y-2">
-        ${['Gov ID|gov_id|15','Insurance|liability_insurance|20','Vehicle Ins|vehicle_insurance|15','BG Check|bg_check|20'].map(v=>{const[n,t,p]=v.split('|');return'<div class="flex justify-between items-center bg-zinc-800 rounded-xl px-4 py-3"><span class="text-sm">'+n+' (+'+p+'pts)</span><button onclick="uploadVerif(\''+t+'\')" class="text-xs bg-zinc-700 px-3 py-1 rounded-lg font-bold">Upload</button></div>'}).join('')}
-      </div></div>
-      <button onclick="showModal('profile-modal')" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-bold text-sm">Edit Profile</button>
-    </div>`
+  c.innerHTML='<div class="space-y-5">'+
+    '<div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 text-center">'+
+      '<div class="avatar-ring w-24 h-24 rounded-full mx-auto mb-3"><div class="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">'+avatarUrl+'</div></div>'+
+      '<h2 class="text-2xl font-extrabold">'+esc(profile.full_name||'Set up your profile')+'</h2>'+
+      '<p class="text-zinc-400 text-sm">'+esc(profile.email||'')+'</p>'+
+      '<div class="flex items-center justify-center gap-3 mt-3">'+
+        '<span class="text-[#14F1C6] font-bold text-sm">'+badge+'</span>'+
+        '<span class="text-zinc-500 text-xs">'+ts+' pts</span>'+
+        '<button onclick="toggleLive()" class="px-4 py-1.5 rounded-full font-bold text-sm '+(profile.is_available?'bg-emerald-600':'bg-zinc-700')+'">'+(profile.is_available?'LIVE':'Go Live')+'</button>'+
+      '</div>'+
+    '</div>'+
+    (!profile.full_name?'<button onclick="showModal(\'profile-modal\')" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">Complete Profile</button>':'')+
+    (profile.about_me?'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-2 font-bold">ABOUT</p><p class="text-sm leading-relaxed">'+esc(profile.about_me)+'</p></div>':'')+
+    (profile.skills?.length?'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">SKILLS</p><div class="flex flex-wrap gap-2">'+profile.skills.map(function(s){return'<span class="bg-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold">'+s+'</span>'}).join('')+'</div></div>':'')+
+    (photos.length?'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">WORK PHOTOS</p><div class="flex gap-2 overflow-x-auto pb-2">'+photos.map(function(p){return'<img src="'+p+'" class="w-28 h-28 rounded-xl object-cover shrink-0">'}).join('')+'</div></div>':'')+
+    (profile.has_vehicle?'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-2 font-bold">VEHICLE</p><p class="text-sm font-bold">'+(profile.vehicle_year||'')+' '+(profile.vehicle_make||'')+' '+(profile.vehicle_model||'')+'</p><p class="text-xs text-zinc-500">Condition: '+(profile.vehicle_condition||'N/A')+'</p></div>':'')+
+    '<div class="grid grid-cols-3 gap-3 text-center">'+
+      '<div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold">'+(profile.jobs_completed||0)+'</div><div class="text-xs text-zinc-400">Done</div></div>'+
+      '<div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold">'+(profile.rating||'--')+'</div><div class="text-xs text-zinc-400">Rating</div></div>'+
+      '<div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold text-[#14F1C6]">'+(profile.mv_balance||0)+'</div><div class="text-xs text-zinc-400">MV</div></div>'+
+    '</div>'+
+    '<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">VERIFICATIONS</p><div class="space-y-2">'+
+      ['Gov ID|gov_id|15','Insurance|liability_insurance|20','Vehicle Ins|vehicle_insurance|15','BG Check|bg_check|20'].map(function(v){var p=v.split('|');return'<div class="flex justify-between items-center bg-zinc-800 rounded-xl px-4 py-3"><span class="text-sm">'+p[0]+' (+'+p[2]+'pts)</span><button onclick="uploadVerif(\''+p[1]+'\')" class="text-xs bg-zinc-700 px-3 py-1 rounded-lg font-bold">Upload</button></div>'}).join('')+
+    '</div></div>'+
+    '<button onclick="showModal(\'profile-modal\')" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-bold text-sm">Edit Profile</button>'+
+  '</div>'
 }
-async function toggleLive(){const v=!profile.is_available;await sb.from('users').update({is_available:v}).eq('id',user.id);profile.is_available=v;renderProfile();toast(v?'You are LIVE!':'Offline','info')}
+async function toggleLive(){
+  const v=!profile.is_available
+  if(v&&navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await sb.from('users').update({is_available:v,latitude:pos.coords.latitude,longitude:pos.coords.longitude}).eq('id',user.id)},async()=>{await sb.from('users').update({is_available:v}).eq('id',user.id)})}
+  else{await sb.from('users').update({is_available:v}).eq('id',user.id)}
+  profile.is_available=v;renderProfile();toast(v?'You are LIVE!':'Offline','info')
+}
 
-// AVATAR & PHOTO UPLOADS
+// UPLOADS
 async function uploadAvatar(){
-  const i=document.createElement('input');i.type='file';i.accept='image/*'
-  i.onchange=async(e)=>{
-    const f=e.target.files[0];if(!f)return
-    const path=user.id+'/avatar-'+Date.now()+'-'+f.name
-    const{data,error}=await sb.storage.from('verifications').upload(path,f)
+  var i=document.createElement('input');i.type='file';i.accept='image/*'
+  i.onchange=async function(e){
+    var f=e.target.files[0];if(!f)return
+    var path=user.id+'/avatar-'+Date.now()+'-'+f.name
+    var{data,error}=await sb.storage.from('verifications').upload(path,f)
     if(error){toast('Upload failed','error');return}
-    const url=SUPA_URL+'/storage/v1/object/public/verifications/'+data.path
+    var url=SUPA_URL+'/storage/v1/object/public/verifications/'+data.path
     await sb.from('users').update({avatar_url:url}).eq('id',user.id)
-    profile.avatar_url=url;renderProfile()
-    gi('avatar-preview').innerHTML='<img src="'+url+'" class="w-full h-full object-cover">'
-    toast('Avatar updated!')
+    profile.avatar_url=url;renderProfile();toast('Avatar updated!')
   };i.click()
 }
 async function uploadWorkPhoto(){
-  const i=document.createElement('input');i.type='file';i.accept='image/*'
-  i.onchange=async(e)=>{
-    const f=e.target.files[0];if(!f)return
-    const path=user.id+'/work-'+Date.now()+'-'+f.name
-    const{data,error}=await sb.storage.from('verifications').upload(path,f)
+  var i=document.createElement('input');i.type='file';i.accept='image/*'
+  i.onchange=async function(e){
+    var f=e.target.files[0];if(!f)return
+    var path=user.id+'/work-'+Date.now()+'-'+f.name
+    var{data,error}=await sb.storage.from('verifications').upload(path,f)
     if(error){toast('Upload failed','error');return}
-    const url=SUPA_URL+'/storage/v1/object/public/verifications/'+data.path
-    const photos=(profile.work_photos||[]).concat(url)
+    var url=SUPA_URL+'/storage/v1/object/public/verifications/'+data.path
+    var photos=(profile.work_photos||[]).concat(url)
     await sb.from('users').update({work_photos:photos}).eq('id',user.id)
-    profile.work_photos=photos
-    const container=gi('work-photos-edit')
-    const btn=container.querySelector('button')
-    const img=document.createElement('img');img.src=url;img.className='w-20 h-20 rounded-xl object-cover shrink-0'
-    container.insertBefore(img,btn)
-    toast('Photo added!')
+    profile.work_photos=photos;toast('Photo added!')
   };i.click()
 }
 async function uploadVerif(type){
-  const i=document.createElement('input');i.type='file';i.accept='image/*,.pdf'
-  i.onchange=async(e)=>{
-    const f=e.target.files[0];if(!f)return
-    const path=user.id+'/'+Date.now()+'-'+f.name
-    const{data,error}=await sb.storage.from('verifications').upload(path,f)
+  var i=document.createElement('input');i.type='file';i.accept='image/*,.pdf'
+  i.onchange=async function(e){
+    var f=e.target.files[0];if(!f)return
+    var path=user.id+'/'+Date.now()+'-'+f.name
+    var{data,error}=await sb.storage.from('verifications').upload(path,f)
     if(error)return toast('Upload failed','error')
-    await sb.from('verifications').insert({user_id:user.id,type,file_path:data.path,status:'pending'})
+    await sb.from('verifications').insert({user_id:user.id,type:type,file_path:data.path,status:'pending'})
     toast('Uploaded! Pending review.')
   };i.click()
 }
 
 // TRUST
-function trustScore(p){if(!p)return 0;let s=0;if(p.phone_verified)s+=5;if(p.id_uploaded)s+=15;if(p.selfie_verified)s+=10;if(p.bg_check_status==='clear')s+=20;if(p.has_liability_insurance)s+=20;if(p.has_vehicle_insurance)s+=15;if(p.has_workers_comp)s+=15;if(p.certifications?.length)s+=p.certifications.length*5;s+=(p.jobs_completed||0)*3;return Math.min(100,s)}
+function trustScore(p){if(!p)return 0;var s=0;if(p.phone_verified)s+=5;if(p.id_uploaded)s+=15;if(p.selfie_verified)s+=10;if(p.bg_check_status==='clear')s+=20;if(p.has_liability_insurance)s+=20;if(p.has_vehicle_insurance)s+=15;if(p.has_workers_comp)s+=15;if(p.certifications&&p.certifications.length)s+=p.certifications.length*5;s+=(p.jobs_completed||0)*3;return Math.min(100,s)}
 function trustBadge(s){return s>=81?'Elite':s>=61?'Pro':s>=41?'Trusted':s>=21?'Verified':'New'}
 
 // LEGAL
-async function checkLegal(){const{data}=await sb.from('legal_agreements').select('agreement_type').eq('user_id',user.id);const a=new Set((data||[]).map(d=>d.agreement_type));if(!a.has('tos')||!a.has('contractor_agreement'))showModal('legal-modal');else if(!profile?.full_name)showModal('profile-modal')}
-function updateLegalBtn(){const ok=gi('accept-tos').checked&&gi('accept-contractor').checked&&gi('accept-age').checked;const b=gi('legal-btn');b.disabled=!ok;b.className=ok?'w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold':'w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-bold';b.textContent=ok?'Accept & Continue':'Check all boxes'}
-async function acceptLegal(){await sb.from('legal_agreements').insert([{user_id:user.id,agreement_type:'tos',ip_address:'client',user_agent:navigator.userAgent},{user_id:user.id,agreement_type:'contractor_agreement',ip_address:'client',user_agent:navigator.userAgent}]);await sb.from('users').update({tos_accepted:true,tos_accepted_at:new Date().toISOString(),contractor_agreement_accepted:true,contractor_agreement_accepted_at:new Date().toISOString()}).eq('id',user.id);hideModal('legal-modal');if(!profile?.full_name)showModal('profile-modal');toast('Agreements accepted')}
-function updateRideBtn(){const c=gi('accept-rideshare').checked,b=gi('ride-btn');b.disabled=!c;b.style.opacity=c?1:0.5}
+async function checkLegal(){var{data}=await sb.from('legal_agreements').select('agreement_type').eq('user_id',user.id);var a=new Set((data||[]).map(function(d){return d.agreement_type}));if(!a.has('tos')||!a.has('contractor_agreement'))showModal('legal-modal');else if(!profile||!profile.full_name)showModal('profile-modal')}
+function updateLegalBtn(){var ok=gi('accept-tos').checked&&gi('accept-contractor').checked&&gi('accept-age').checked;var b=gi('legal-btn');b.disabled=!ok;b.className=ok?'w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold':'w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-bold';b.textContent=ok?'Accept & Continue':'Check all boxes'}
+async function acceptLegal(){await sb.from('legal_agreements').insert([{user_id:user.id,agreement_type:'tos',ip_address:'client',user_agent:navigator.userAgent},{user_id:user.id,agreement_type:'contractor_agreement',ip_address:'client',user_agent:navigator.userAgent}]);await sb.from('users').update({tos_accepted:true,tos_accepted_at:new Date().toISOString(),contractor_agreement_accepted:true,contractor_agreement_accepted_at:new Date().toISOString()}).eq('id',user.id);hideModal('legal-modal');if(!profile||!profile.full_name)showModal('profile-modal');toast('Agreements accepted')}
+function updateRideBtn(){var c=gi('accept-rideshare').checked,b=gi('ride-btn');b.disabled=!c;b.style.opacity=c?1:0.5}
 function confirmRideshare(){sb.from('legal_agreements').insert({user_id:user.id,agreement_type:'rideshare_waiver',ip_address:'client',user_agent:navigator.userAgent});hideModal('rideshare-modal');if(pendingRide){pendingRide();pendingRide=null}}
 
 // JOBS
-async function loadJobs(){const{data}=await sb.from('jobs').select('*').eq('status','open').order('created_at',{ascending:false});allJobs=data||[];renderJobs()}
+async function loadJobs(){var{data}=await sb.from('jobs').select('*').eq('status','open').order('created_at',{ascending:false});allJobs=data||[];renderJobs()}
 function renderJobs(){
-  const list=jobFilter==='all'?allJobs:allJobs.filter(j=>j.job_type===jobFilter)
-  const c=gi('job-list')
-  if(!list.length){c.innerHTML='<div class="text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F9BE;</div><p class="font-bold text-zinc-400">No open jobs yet</p></div>';return}
-  c.innerHTML=list.map(j=>'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">'+esc(j.title)+'</h3><span class="text-[#14F1C6] font-mono font-extrabold">'+j.budget_mv+' MV</span></div><p class="text-zinc-400 text-sm mb-3">'+esc(j.description||'')+'</p><div class="flex gap-2 mb-3 flex-wrap"><span class="bg-zinc-800 px-2 py-1 rounded-full text-xs font-bold">'+j.job_type+'</span><span class="bg-zinc-800 px-2 py-1 rounded-full text-xs">'+( j.urgency||'flexible')+'</span>'+(j.fraud_verdict==='CLEAN'?'<span class="bg-emerald-950 text-emerald-400 px-2 py-1 rounded-full text-xs">Verified</span>':'')+'<span class="bg-zinc-800 px-2 py-1 rounded-full text-xs">Escrowed</span></div>'+(j.address?'<p class="text-zinc-500 text-xs mb-3">'+esc(j.address)+'</p>':'')+'<div class="flex gap-2"><button onclick="requireAuth(()=>{gi(\'apply-job-id\').value=\''+j.id+'\';showModal(\'apply-modal\')})" class="flex-1 bg-zinc-800 hover:bg-teal-900 py-2.5 rounded-xl text-sm font-bold">Apply</button>'+(user&&j.poster_id===user.id?'<button onclick="manageJob(\''+j.id+'\')" class="bg-zinc-700 px-4 py-2.5 rounded-xl text-sm">Manage</button>':'')+'</div></div>').join('')
+  var list=jobFilter==='all'?allJobs:allJobs.filter(function(j){return j.job_type===jobFilter})
+  var c=gi('job-list')
+  if(!list.length){c.innerHTML='<div class="text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F9BE;</div><p class="font-bold text-zinc-400">No open jobs</p></div>';return}
+  c.innerHTML=list.map(function(j){return'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">'+esc(j.title)+'</h3><span class="text-[#14F1C6] font-mono font-extrabold">'+j.budget_mv+' MV</span></div><p class="text-zinc-400 text-sm mb-3">'+esc(j.description||'')+'</p><div class="flex gap-2 mb-3 flex-wrap"><span class="bg-zinc-800 px-2 py-1 rounded-full text-xs font-bold">'+j.job_type+'</span><span class="bg-zinc-800 px-2 py-1 rounded-full text-xs">'+(j.urgency||'flexible')+'</span></div>'+(j.address?'<p class="text-zinc-500 text-xs mb-3">'+esc(j.address)+'</p>':'')+'<div class="flex gap-2"><button onclick="requireAuth(function(){gi(\'apply-job-id\').value=\''+j.id+'\';showModal(\'apply-modal\')})" class="flex-1 bg-zinc-800 hover:bg-teal-900 py-2.5 rounded-xl text-sm font-bold">Apply</button>'+(user&&j.poster_id===user.id?'<button onclick="manageJob(\''+j.id+'\')" class="bg-zinc-700 px-4 py-2.5 rounded-xl text-sm">Manage</button>':'')+'</div></div>'}).join('')
 }
-function filterJobs(t){jobFilter=t;document.querySelectorAll('.job-filter').forEach(b=>{const m=t==='all'?b.textContent.includes('All'):b.textContent.toLowerCase().includes(t);b.className='job-filter '+(m?'bg-[#14F1C6] text-black':'bg-zinc-800')+' px-4 py-2 rounded-full text-sm whitespace-nowrap'+(m?' font-bold':'')});renderJobs()}
-function updateFee(){const b=parseFloat(gv('job-budget'))||0;gi('fee-budget').textContent=b+' MV';gi('fee-total').textContent=(b+1)+' MV'}
+function filterJobs(t){jobFilter=t;document.querySelectorAll('.job-filter').forEach(function(b){var m=t==='all'?b.textContent.includes('All'):b.textContent.toLowerCase().includes(t);b.className='job-filter '+(m?'bg-[#14F1C6] text-black':'bg-zinc-800')+' px-4 py-2 rounded-full text-sm whitespace-nowrap'+(m?' font-bold':'')});renderJobs()}
+function updateFee(){var b=parseFloat(gv('job-budget'))||0;gi('fee-budget').textContent=b+' MV';gi('fee-total').textContent=(b+1)+' MV'}
 
 async function postJob(){
-  const title=gv('job-title').trim(),desc=gv('job-desc').trim(),jt=gv('job-type'),urg=gv('job-urgency'),budget=parseFloat(gv('job-budget')),addr=gv('job-address').trim()
+  var title=gv('job-title').trim(),desc=gv('job-desc').trim(),jt=gv('job-type'),urg=gv('job-urgency'),budget=parseFloat(gv('job-budget')),addr=gv('job-address').trim()
   if(!title)return toast('Enter a title','error');if(!budget||budget<1)return toast('Budget must be 1+ MV','error')
-  const total=budget+1;if((profile?.mv_balance||0)<total)return toast('Need '+total+' MV. Load MV first.','error')
-  if(jt==='rideshare'){const{data:w}=await sb.from('legal_agreements').select('id').eq('user_id',user.id).eq('agreement_type','rideshare_waiver');if(!w?.length){pendingRide=()=>postJob();showModal('rideshare-modal');return}}
-  const btn=gi('post-btn');btn.disabled=true;btn.textContent='Scanning...'
-  const fr=fraudCheck(title,desc,budget)
-  if(fr.verdict==='BLOCKED'){btn.disabled=false;btn.textContent='POST JOB & ESCROW MV';gi('fraud-result').innerHTML='<div class="bg-red-950 border border-red-800 rounded-xl p-3 text-sm text-red-300">BLOCKED - '+fr.verdict_text+'</div>';gi('fraud-result').classList.remove('hidden');return}
-  const{data:job,error}=await sb.from('jobs').insert({poster_id:user.id,title,description:desc,job_type:jt,urgency:urg,budget_mv:budget,fee_mv:1,total_escrowed:total,address:addr,city:'Pensacola',state:'FL',fraud_score:fr.score,fraud_verdict:fr.verdict,fraud_flags:fr.flags}).select().single()
+  var total=budget+1;if((profile&&profile.mv_balance||0)<total)return toast('Need '+total+' MV. Load MV first.','error')
+  var btn=gi('post-btn');btn.disabled=true;btn.textContent='Posting...'
+  var fr=fraudCheck(title,desc,budget)
+  if(fr.verdict==='BLOCKED'){btn.disabled=false;btn.textContent='POST JOB & ESCROW MV';return}
+  var{data:job,error}=await sb.from('jobs').insert({poster_id:user.id,title:title,description:desc,job_type:jt,urgency:urg,budget_mv:budget,fee_mv:1,total_escrowed:total,address:addr,fraud_score:fr.score,fraud_verdict:fr.verdict,fraud_flags:fr.flags}).select().single()
   if(error){btn.disabled=false;btn.textContent='POST JOB & ESCROW MV';return toast(error.message,'error')}
-  const{error:escErr}=await sb.rpc('lock_escrow',{p_user_id:user.id,p_job_id:job.id,p_amount:budget,p_fee:1})
-  if(escErr){await sb.from('escrow').insert({job_id:job.id,poster_id:user.id,amount_mv:budget,fee_mv:1,status:'locked'});await sb.from('users').update({mv_balance:(profile.mv_balance||0)-total,mv_escrowed:(profile.mv_escrowed||0)+total}).eq('id',user.id);await sb.from('mv_ledger').insert([{user_id:user.id,type:'escrow_lock',amount_mv:-budget,description:'Escrow: '+title,related_job_id:job.id},{user_id:user.id,type:'fee',amount_mv:-1,description:'Platform fee (burned)',related_job_id:job.id}])}
-  await sb.from('fraud_log').insert({job_id:job.id,poster_id:user.id,score:fr.score,verdict:fr.verdict,flags:fr.flags})
+  var{error:escErr}=await sb.rpc('lock_escrow',{p_user_id:user.id,p_job_id:job.id,p_amount:budget,p_fee:1})
+  if(escErr){await sb.from('escrow').insert({job_id:job.id,poster_id:user.id,amount_mv:budget,fee_mv:1,status:'locked'});await sb.from('users').update({mv_balance:(profile.mv_balance||0)-total,mv_escrowed:(profile.mv_escrowed||0)+total}).eq('id',user.id)}
   profile.mv_balance=(profile.mv_balance||0)-total;btn.disabled=false;btn.textContent='POST JOB & ESCROW MV'
-  gi('job-title').value='';gi('job-desc').value='';gi('job-budget').value='';gi('job-address').value='';gi('fraud-result').classList.add('hidden')
+  gi('job-title').value='';gi('job-desc').value='';gi('job-budget').value='';gi('job-address').value=''
   hideModal('post-job-modal');loadJobs();toast('Job posted! '+total+' MV escrowed.')
 }
-function fraudCheck(t,d,b){let s=85;const flags=[],txt=(t+' '+d).toLowerCase();['wire transfer','western union','bitcoin','crypto','send money','advance payment','lottery','inheritance'].forEach(f=>{if(txt.includes(f)){s-=25;flags.push(f)}});if(b>10000){s-=10;flags.push('high budget')};if((d||'').length<10){s-=15;flags.push('short desc')};s=Math.max(0,Math.min(100,s));return{score:s,verdict:s<40?'BLOCKED':s<70?'WARNING':'CLEAN',verdict_text:s<40?'Flagged as fraudulent':s<70?'Red flags':'OK',flags}}
-async function applyJob(){const jid=gv('apply-job-id'),pitch=gv('apply-pitch'),rate=parseFloat(gv('apply-rate')),turn=gv('apply-turn');const{error}=await sb.from('applications').insert({job_id:jid,worker_id:user.id,pitch,rate_mv:rate||null,turnaround:turn});if(error){if(error.code==='23505')return toast('Already applied','error');return toast(error.message,'error')};hideModal('apply-modal');gi('apply-pitch').value='';gi('apply-rate').value='';gi('apply-turn').value='';toast('Applied!')}
+function fraudCheck(t,d,b){var s=85,flags=[],txt=(t+' '+d).toLowerCase();['wire transfer','western union','bitcoin','crypto','send money','advance payment','lottery','inheritance'].forEach(function(f){if(txt.indexOf(f)>=0){s-=25;flags.push(f)}});if(b>10000){s-=10;flags.push('high budget')};if((d||'').length<10){s-=15;flags.push('short desc')};s=Math.max(0,Math.min(100,s));return{score:s,verdict:s<40?'BLOCKED':s<70?'WARNING':'CLEAN',flags:flags}}
+async function applyJob(){var jid=gv('apply-job-id'),pitch=gv('apply-pitch'),rate=parseFloat(gv('apply-rate')),turn=gv('apply-turn');var{error}=await sb.from('applications').insert({job_id:jid,worker_id:user.id,pitch:pitch,rate_mv:rate||null,turnaround:turn});if(error){if(error.code==='23505')return toast('Already applied','error');return toast(error.message,'error')};hideModal('apply-modal');toast('Applied!')}
 
 // JOB MANAGEMENT
 async function manageJob(jobId){
-  const{data:job}=await sb.from('jobs').select('*').eq('id',jobId).single();if(!job)return
-  const{data:apps}=await sb.from('applications').select('*').eq('job_id',jobId)
-  const{data:esc}=await sb.from('escrow').select('*').eq('job_id',jobId).single()
-  let h='<div class="space-y-3"><div class="flex justify-between"><h3 class="text-xl font-extrabold">'+esc(job.title)+'</h3><span class="text-[#14F1C6] font-mono text-xl">'+job.budget_mv+' MV</span></div><p class="text-zinc-400">'+esc(job.description||'')+'</p>'
-  if(apps?.length){h+='<h3 class="font-bold mt-4">Applications ('+apps.length+')</h3>';for(const a of apps){const{data:w}=await sb.from('users').select('full_name,email,rating,jobs_completed').eq('id',a.worker_id).single();h+='<div class="bg-zinc-800 rounded-xl p-4 mb-2"><div class="flex justify-between"><strong>'+esc(w?.full_name||w?.email||'Worker')+'</strong><span class="text-[#14F1C6] font-mono">'+(a.rate_mv||'--')+' MV</span></div><p class="text-sm text-zinc-400 mt-1">'+esc(a.pitch||'')+'</p>'+(a.status==='pending'?'<div class="flex gap-2 mt-2"><button onclick="acceptApp(\''+jobId+'\',\''+a.id+'\',\''+a.worker_id+'\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-lg text-sm font-bold">Accept</button><button onclick="rejectApp(\''+a.id+'\')" class="bg-zinc-700 px-4 py-2 rounded-lg text-sm">Decline</button></div>':'<span class="text-xs mt-2 inline-block '+(a.status==='accepted'?'text-emerald-400':'text-zinc-500')+'">'+a.status.toUpperCase()+'</span>')+'</div>'}}
+  var{data:job}=await sb.from('jobs').select('*').eq('id',jobId).single();if(!job)return
+  var{data:apps}=await sb.from('applications').select('*').eq('job_id',jobId)
+  var{data:esc}=await sb.from('escrow').select('*').eq('job_id',jobId).single()
+  var h='<div class="space-y-3"><div class="flex justify-between"><h3 class="text-xl font-extrabold">'+esc(job.title)+'</h3><span class="text-[#14F1C6] font-mono text-xl">'+job.budget_mv+' MV</span></div><p class="text-zinc-400">'+esc(job.description||'')+'</p>'
+  if(apps&&apps.length){h+='<h3 class="font-bold mt-4">Applications ('+apps.length+')</h3>';for(var a of apps){var{data:w}=await sb.from('users').select('full_name,email,rating,jobs_completed').eq('id',a.worker_id).single();h+='<div class="bg-zinc-800 rounded-xl p-4 mb-2"><div class="flex justify-between"><strong>'+esc(w&&w.full_name||w&&w.email||'Worker')+'</strong><span class="text-[#14F1C6] font-mono">'+(a.rate_mv||'--')+' MV</span></div><p class="text-sm text-zinc-400 mt-1">'+esc(a.pitch||'')+'</p>'+(a.status==='pending'?'<div class="flex gap-2 mt-2"><button onclick="acceptApp(\''+jobId+'\',\''+a.id+'\',\''+a.worker_id+'\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-lg text-sm font-bold">Accept</button></div>':'<span class="text-xs mt-2 inline-block '+(a.status==='accepted'?'text-emerald-400':'text-zinc-500')+'">'+a.status.toUpperCase()+'</span>')+'</div>'}}
   if(esc&&esc.status==='locked'&&job.status==='in_progress'){h+='<div class="mt-4 flex gap-2"><button onclick="releaseEscrow(\''+jobId+'\')" class="flex-1 bg-emerald-600 py-3 rounded-xl font-bold">Release Payment</button><button onclick="refundEscrow(\''+jobId+'\')" class="flex-1 bg-red-800 py-3 rounded-xl font-bold">Refund</button></div>'}
   h+='</div>';gi('job-detail-content').innerHTML=h;showModal('job-detail-modal')
 }
-async function acceptApp(jid,aid,wid){await sb.from('applications').update({status:'accepted'}).eq('id',aid);await sb.from('applications').update({status:'rejected'}).eq('job_id',jid).neq('id',aid).eq('status','pending');await sb.from('jobs').update({status:'in_progress',awarded_to:wid,assigned_at:new Date().toISOString()}).eq('id',jid);hideModal('job-detail-modal');loadJobs();toast('Worker accepted!')}
-async function rejectApp(aid){await sb.from('applications').update({status:'rejected'}).eq('id',aid);toast('Declined','info');hideModal('job-detail-modal')}
-async function releaseEscrow(jid){if(!confirm('Release payment? This is final.'))return;const{error}=await sb.rpc('release_escrow',{p_job_id:jid,p_poster_id:user.id});if(error){const{data:e}=await sb.from('escrow').select('*').eq('job_id',jid).single();const{data:j}=await sb.from('jobs').select('awarded_to').eq('id',jid).single();if(e&&j?.awarded_to){await sb.from('escrow').update({status:'released',released_at:new Date().toISOString()}).eq('id',e.id);const{data:w}=await sb.from('users').select('mv_balance').eq('id',j.awarded_to).single();await sb.from('users').update({mv_balance:(w?.mv_balance||0)+e.amount_mv}).eq('id',j.awarded_to);await sb.from('jobs').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',jid)}};hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet();toast('Payment released!')}
-async function refundEscrow(jid){if(!confirm('Refund and cancel?'))return;const{error}=await sb.rpc('refund_escrow',{p_job_id:jid,p_poster_id:user.id});if(error){const{data:e}=await sb.from('escrow').select('*').eq('job_id',jid).single();if(e){const t=e.amount_mv+e.fee_mv;await sb.from('escrow').update({status:'refunded'}).eq('id',e.id);await sb.from('users').update({mv_balance:(profile.mv_balance||0)+t}).eq('id',user.id);await sb.from('jobs').update({status:'cancelled'}).eq('id',jid)}};hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet();toast('Refunded','info')}
+async function acceptApp(jid,aid,wid){await sb.from('applications').update({status:'accepted'}).eq('id',aid);await sb.from('jobs').update({status:'in_progress',awarded_to:wid,assigned_at:new Date().toISOString()}).eq('id',jid);hideModal('job-detail-modal');loadJobs();toast('Worker accepted!')}
+async function releaseEscrow(jid){if(!confirm('Release payment? This is final.'))return;var{error}=await sb.rpc('release_escrow',{p_job_id:jid,p_poster_id:user.id});if(error){var{data:e}=await sb.from('escrow').select('*').eq('job_id',jid).single();var{data:j}=await sb.from('jobs').select('awarded_to').eq('id',jid).single();if(e&&j&&j.awarded_to){await sb.from('escrow').update({status:'released',released_at:new Date().toISOString()}).eq('id',e.id);var{data:w}=await sb.from('users').select('mv_balance').eq('id',j.awarded_to).single();await sb.from('users').update({mv_balance:(w&&w.mv_balance||0)+e.amount_mv}).eq('id',j.awarded_to);await sb.from('jobs').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',jid)}};hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet();toast('Payment released!')}
+async function refundEscrow(jid){if(!confirm('Refund?'))return;var{error}=await sb.rpc('refund_escrow',{p_job_id:jid,p_poster_id:user.id});if(error){var{data:e}=await sb.from('escrow').select('*').eq('job_id',jid).single();if(e){var t=e.amount_mv+e.fee_mv;await sb.from('escrow').update({status:'refunded'}).eq('id',e.id);await sb.from('users').update({mv_balance:(profile.mv_balance||0)+t}).eq('id',user.id);await sb.from('jobs').update({status:'cancelled'}).eq('id',jid)}};hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet();toast('Refunded','info')}
 
 // MUVR GO + MAP
-function renderCats(){const cats=['All','Rideshare','Delivery','Moving','Hauling','Cleaning','Handyman','Yard','Labor','Errands'];gi('category-filters').innerHTML=cats.map(c=>'<button onclick="loadWorkers(\''+c.toLowerCase()+'\')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">'+c+'</button>').join('')}
-function initMap(){if(lmap)return;lmap=L.map('map',{zoomControl:false}).setView([30.4213,-87.2169],12);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CARTO',maxZoom:19}).addTo(lmap);L.control.zoom({position:'topright'}).addTo(lmap);setTimeout(()=>lmap.invalidateSize(),200)}
-function updateMapMarkers(workers){markers.forEach(m=>lmap.removeLayer(m));markers=[];if(!workers?.length)return;workers.forEach(w=>{if(!w.latitude||!w.longitude)return;const icon=L.divIcon({className:'',html:'<div style="background:#14F1C6;color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5);font-family:Nunito">'+(w.can_rideshare?'&#x1F697; ':'')+ esc(w.full_name||'Worker')+'</div>',iconSize:[0,0]});const m=L.marker([w.latitude,w.longitude],{icon}).addTo(lmap);m.bindPopup('<div style="color:#000;font-size:13px"><strong>'+esc(w.full_name||'Worker')+'</strong><br>'+trustBadge(trustScore(w))+'<br>'+(w.skills?.slice(0,3).join(', ')||'Available')+(w.can_rideshare?'<br><span style="color:red">Vehicle self-reported</span>':'')+'</div>');markers.push(m)});if(markers.length)lmap.fitBounds(L.featureGroup(markers).getBounds().pad(0.2))}
+function renderCats(){var cats=['All','Rideshare','Delivery','Moving','Hauling','Cleaning','Handyman','Yard','Labor','Errands'];gi('category-filters').innerHTML=cats.map(function(c){return'<button onclick="loadWorkers(\''+c.toLowerCase()+'\')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">'+c+'</button>'}).join('')}
+function initMap(){if(lmap)return;lmap=L.map('map',{zoomControl:false}).setView([30.4213,-87.2169],11);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CARTO',maxZoom:19}).addTo(lmap);L.control.zoom({position:'topright'}).addTo(lmap);setTimeout(function(){lmap.invalidateSize()},200)}
+function updateMapMarkers(workers){markers.forEach(function(m){lmap.removeLayer(m)});markers=[];if(!workers||!workers.length)return;workers.forEach(function(w){if(!w.latitude||!w.longitude)return;var icon=L.divIcon({className:'',html:'<div style="background:#14F1C6;color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5);font-family:Nunito">'+esc(w.full_name||'Worker')+'</div>',iconSize:[0,0]});var m=L.marker([w.latitude,w.longitude],{icon:icon}).addTo(lmap);markers.push(m)});if(markers.length)lmap.fitBounds(L.featureGroup(markers).getBounds().pad(0.3))}
 async function loadWorkers(f){
-  let q=sb.from('users').select('*').eq('is_available',true)
+  var q=sb.from('users').select('*').eq('is_available',true)
   if(f&&f!=='all'){if(f==='rideshare')q=q.eq('can_rideshare',true);else if(f==='delivery')q=q.eq('can_deliver',true);else if(f==='hauling')q=q.eq('can_haul',true);else q=q.contains('skills',[f.charAt(0).toUpperCase()+f.slice(1)])}
-  const{data}=await q;if(lmap)updateMapMarkers(data)
-  const c=gi('worker-grid')
-  if(!data?.length){c.innerHTML='<div class="text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F50D;</div><p class="font-bold text-zinc-400">No workers live</p></div>';return}
-  c.innerHTML=data.map(w=>{const ts=trustScore(w),b=trustBadge(ts),av=w.avatar_url?'<img src="'+w.avatar_url+'" class="w-12 h-12 rounded-full object-cover">':'<div class="w-12 h-12 rounded-full bg-zinc-700 flex items-center justify-center text-xl">&#x1F60E;</div>'
-    return'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover"><div class="flex gap-3 mb-3"><div class="shrink-0">'+av+'</div><div class="flex-1 min-w-0"><div class="font-extrabold truncate">'+esc(w.full_name||'Worker')+'</div><div class="text-xs text-zinc-400">'+b+' - '+ts+'pts'+(w.rating?' - &#x2B50; '+w.rating:'')+'</div></div><div class="text-right text-xs text-zinc-500">'+( w.jobs_completed||0)+' jobs</div></div>'+(w.about_me?'<p class="text-sm text-zinc-400 mb-3 line-clamp-2">'+esc(w.about_me)+'</p>':'')+(w.skills?.length?'<div class="flex flex-wrap gap-1 mb-3">'+w.skills.slice(0,4).map(s=>'<span class="bg-zinc-800 px-2 py-0.5 rounded-full text-xs">'+s+'</span>').join('')+'</div>':'')+(w.can_rideshare?'<div class="bg-zinc-800 rounded-xl p-2 mb-3 text-sm">'+(w.vehicle_year||'')+' '+(w.vehicle_make||'')+' '+(w.vehicle_model||'')+' <span class="text-xs text-zinc-400">'+(w.vehicle_condition||'')+'</span></div><div class="bg-red-950 border border-red-800 rounded-xl p-2 mb-3 text-[10px] text-red-300">Vehicle self-reported. MUVR does NOT inspect.</div>':'')+'<button onclick="requireAuth(()=>reqWorker(\''+w.id+'\','+!!w.can_rideshare+'))" class="w-full bg-[#14F1C6] text-black py-2.5 rounded-xl font-bold text-sm">Request</button></div>'}).join('')
+  var{data}=await q;if(lmap)updateMapMarkers(data)
+  var c=gi('worker-grid')
+  if(!data||!data.length){c.innerHTML='<div class="text-center py-16 col-span-full"><p class="font-bold text-zinc-400">No workers live</p></div>';return}
+  c.innerHTML=data.map(function(w){var ts=trustScore(w),b=trustBadge(ts),av=w.avatar_url?'<img src="'+w.avatar_url+'" class="w-12 h-12 rounded-full object-cover">':'<div class="w-12 h-12 rounded-full bg-zinc-700 flex items-center justify-center text-xl">&#x1F60E;</div>'
+    return'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover"><div class="flex gap-3 mb-3"><div class="shrink-0">'+av+'</div><div class="flex-1 min-w-0"><div class="font-extrabold truncate">'+esc(w.full_name||'Worker')+'</div><div class="text-xs text-zinc-400">'+b+' - '+ts+'pts</div></div></div>'+(w.about_me?'<p class="text-sm text-zinc-400 mb-3 line-clamp-2">'+esc(w.about_me)+'</p>':'')+(w.skills&&w.skills.length?'<div class="flex flex-wrap gap-1 mb-3">'+w.skills.slice(0,4).map(function(s){return'<span class="bg-zinc-800 px-2 py-0.5 rounded-full text-xs">'+s+'</span>'}).join('')+'</div>':'')+'<button onclick="requireAuth(function(){toast(\'Request sent!\',\'info\')})" class="w-full bg-[#14F1C6] text-black py-2.5 rounded-xl font-bold text-sm">Request</button></div>'}).join('')
 }
-async function reqWorker(wid,ride){if(ride){const{data:w}=await sb.from('legal_agreements').select('id').eq('user_id',user.id).eq('agreement_type','rideshare_waiver');if(!w?.length){pendingRide=()=>reqWorker(wid,ride);showModal('rideshare-modal');return}};toast('Request sent!','info')}
 
 // WALLET
-async function loadSupply(){const{data}=await sb.from('mv_supply').select('*').single();if(data){gi('supply-total').textContent=fmtNum(data.max_supply);gi('supply-minted').textContent=fmtNum(data.total_minted);gi('supply-escrowed').textContent=fmtNum(data.total_escrowed||data.escrowed);gi('supply-burned').textContent=fmtNum(data.total_burned||data.burned)}}
+async function loadSupply(){var{data}=await sb.from('mv_supply').select('*').single();if(data){gi('supply-total').textContent=fmtNum(data.max_supply);gi('supply-minted').textContent=fmtNum(data.total_minted);gi('supply-escrowed').textContent=fmtNum(data.total_escrowed||data.escrowed||0);gi('supply-burned').textContent=fmtNum(data.total_burned||data.burned||0)}}
 function fmtNum(n){if(!n)return'0';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toLocaleString()}
 async function loadWallet(){
   if(!user)return;await loadProfile();loadSupply()
-  const b=profile?.mv_balance||0;gi('balance-display').textContent=balRevealed?b.toFixed(2)+' MV':'------';gi('balance-toggle').textContent=balRevealed?'HIDE':'REVEAL'
-  const{data:escs}=await sb.from('escrow').select('*,jobs(title)').eq('poster_id',user.id).eq('status','locked')
-  const el=gi('escrow-list');if(escs?.length){el.innerHTML=escs.map(e=>'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-yellow-900"><span class="text-sm font-bold">'+esc(e.jobs?.title||'Job')+'</span><span class="font-mono text-yellow-400">'+(e.amount_mv+e.fee_mv)+' MV</span></div>').join('')}else{el.innerHTML='<div class="text-zinc-500 text-sm py-2">None</div>'}
-  const{data:l}=await sb.from('mv_ledger').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(50)
-  const c=gi('ledger-list');if(!l?.length){c.innerHTML='<div class="text-zinc-500 text-sm py-4">No transactions yet</div>';return}
-  c.innerHTML=l.map(e=>'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-zinc-800"><div><span class="font-mono text-xs bg-zinc-800 px-2 py-0.5 rounded-full">'+e.type.toUpperCase()+'</span><span class="text-sm ml-2 text-zinc-300">'+esc(e.description||'')+'</span></div><div class="text-right"><div class="font-mono '+(e.amount_mv>0?'text-emerald-400':'text-red-400')+'">'+(e.amount_mv>0?'+':'')+e.amount_mv+' MV</div></div></div>').join('')
+  var b=profile&&profile.mv_balance||0;gi('balance-display').textContent=balRevealed?b.toFixed(2)+' MV':'------';gi('balance-toggle').textContent=balRevealed?'HIDE':'REVEAL'
+  var{data:escs}=await sb.from('escrow').select('*,jobs(title)').eq('poster_id',user.id).eq('status','locked')
+  var el=gi('escrow-list');if(escs&&escs.length){el.innerHTML=escs.map(function(e){return'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-yellow-900"><span class="text-sm font-bold">'+esc(e.jobs&&e.jobs.title||'Job')+'</span><span class="font-mono text-yellow-400">'+(e.amount_mv+e.fee_mv)+' MV</span></div>'}).join('')}else{el.innerHTML='<div class="text-zinc-500 text-sm py-2">None</div>'}
+  var{data:l}=await sb.from('mv_ledger').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(50)
+  var c=gi('ledger-list');if(!l||!l.length){c.innerHTML='<div class="text-zinc-500 text-sm py-4">No transactions yet</div>';return}
+  c.innerHTML=l.map(function(e){return'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-zinc-800"><div><span class="font-mono text-xs bg-zinc-800 px-2 py-0.5 rounded-full">'+e.type.toUpperCase()+'</span><span class="text-sm ml-2 text-zinc-300">'+esc(e.description||'')+'</span></div><div class="font-mono '+(e.amount_mv>0?'text-emerald-400':'text-red-400')+'">'+(e.amount_mv>0?'+':'')+e.amount_mv+' MV</div></div>'}).join('')
 }
 function toggleBalance(){balRevealed=!balRevealed;loadWallet()}
-async function sendMV(){const to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'));if(!to||!amt||amt<1)return toast('Enter recipient and amount','error');if(amt>(profile?.mv_balance||0))return toast('Insufficient MV','error');const{data:r}=await sb.from('users').select('id,mv_balance').eq('email',to).single();if(!r)return toast('Recipient not found','error');await sb.from('users').update({mv_balance:(profile.mv_balance||0)-amt}).eq('id',user.id);await sb.from('users').update({mv_balance:(r.mv_balance||0)+amt}).eq('id',r.id);const h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16);await sb.from('mv_ledger').insert([{user_id:user.id,type:'send',amount_mv:-amt,description:'Sent to '+to,tx_hash:h,related_user_id:r.id},{user_id:r.id,type:'receive',amount_mv:amt,description:'From '+user.email,tx_hash:h,related_user_id:user.id}]);profile.mv_balance-=amt;hideModal('send-modal');gi('send-to').value='';gi('send-amount').value='';loadWallet();toast(amt+' MV sent!')}
+async function sendMV(){var to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'));if(!to||!amt||amt<1)return toast('Enter recipient and amount','error');if(amt>(profile&&profile.mv_balance||0))return toast('Insufficient MV','error');var{data:r}=await sb.from('users').select('id,mv_balance').eq('email',to).single();if(!r)return toast('Recipient not found','error');await sb.from('users').update({mv_balance:(profile.mv_balance||0)-amt}).eq('id',user.id);await sb.from('users').update({mv_balance:(r.mv_balance||0)+amt}).eq('id',r.id);var h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16);await sb.from('mv_ledger').insert([{user_id:user.id,type:'send',amount_mv:-amt,description:'Sent to '+to,tx_hash:h,related_user_id:r.id},{user_id:r.id,type:'receive',amount_mv:amt,description:'From '+user.email,tx_hash:h,related_user_id:user.id}]);profile.mv_balance-=amt;hideModal('send-modal');loadWallet();toast(amt+' MV sent!')}
 
 async function loadMV(amt){
   if(!amt||amt<5)return toast('Minimum $5','error')
   if(!confirm('Load '+amt+' MV ($'+amt+')?'))return
   try{
-    let ok=false
-    const{data:rpcData,error:mintErr}=await sb.rpc('mint_mv',{p_recipient_id:user.id,p_amount:amt,p_reason:'user_load',p_authorized_by:'stripe_beta',p_stripe_payment_id:'beta_'+Date.now()})
+    var ok=false
+    var{data:rpcData,error:mintErr}=await sb.rpc('mint_mv',{p_recipient_id:user.id,p_amount:amt,p_reason:'user_load',p_authorized_by:'stripe_beta',p_stripe_payment_id:'beta_'+Date.now()})
     if(!mintErr&&rpcData&&rpcData.success){ok=true}
     else{
       console.warn('RPC fallback:',mintErr||rpcData)
-      const{error:ue}=await sb.from('users').update({mv_balance:(profile.mv_balance||0)+amt}).eq('id',user.id)
-      if(!ue)ok=true
-      const h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
+      var{error:ue}=await sb.from('users').update({mv_balance:(profile.mv_balance||0)+amt}).eq('id',user.id)
+      if(!ue)ok=true;else console.error('Update fail:',ue)
+      var h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
       await sb.from('mv_ledger').insert({user_id:user.id,type:'load',amount_mv:amt,description:'Loaded '+amt+' MV',tx_hash:h})
     }
-    if(ok){profile.mv_balance=(profile.mv_balance||0)+amt;toast(amt+' MV loaded!')}
-    else{toast('Load may have failed','error')}
+    if(ok){toast(amt+' MV loaded!')}else{toast('Load may have failed','error')}
     hideModal('load-modal');await loadProfile();loadWallet()
   }catch(err){console.error(err);toast('Error loading MV','error')}
 }
 
+// BLOG
+async function loadBlog(){
+  if(isAdmin())gi('blog-admin-btn').innerHTML='<button onclick="showModal(\'blog-editor-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm">+ New Post</button>'
+  var{data}=await sb.from('blog_posts').select('*').eq('status','published').order('created_at',{ascending:false})
+  var c=gi('blog-list')
+  if(!data||!data.length){c.innerHTML='<div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F4DD;</div><p class="font-bold">No posts yet</p></div>';return}
+  c.innerHTML=data.map(function(p){return'<div class="blog-card bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden cursor-pointer" onclick="viewPost(\''+p.id+'\')">'+(p.cover_url?'<img src="'+p.cover_url+'" class="w-full h-40 object-cover">':'<div class="h-40 bg-zinc-800 flex items-center justify-center text-4xl">&#x1F4DD;</div>')+'<div class="p-5"><h3 class="font-extrabold text-lg mb-1">'+esc(p.title)+'</h3><p class="text-zinc-400 text-sm mb-2">'+esc((p.body||'').slice(0,120))+'...</p><div class="flex gap-2 text-xs text-zinc-500">'+(p.tags?p.tags.map(function(t){return'<span class="bg-zinc-800 px-2 py-0.5 rounded-full">'+t+'</span>'}).join(''):'')+'<span>'+new Date(p.created_at).toLocaleDateString()+'</span></div></div></div>'}).join('')
+}
+async function viewPost(id){
+  var{data:p}=await sb.from('blog_posts').select('*').eq('id',id).single();if(!p)return
+  var html='<article class="max-w-2xl mx-auto">'+(p.cover_url?'<img src="'+p.cover_url+'" class="w-full h-56 object-cover rounded-2xl mb-6">':'')+'<h1 class="text-3xl font-extrabold mb-2">'+esc(p.title)+'</h1><p class="text-zinc-500 text-sm mb-6">'+new Date(p.created_at).toLocaleDateString()+(p.author_name?' - '+esc(p.author_name):'')+'</p><div class="prose prose-invert text-zinc-300 leading-relaxed space-y-4">'+markdownToHtml(p.body||'')+'</div></article>'
+  gi('blog-post-content').innerHTML=html
+  document.querySelectorAll('.tab-content').forEach(function(e){e.classList.add('hidden')});gi('blog-post-tab').classList.remove('hidden')
+}
+async function publishPost(){
+  var title=gv('blog-title').trim(),body=gv('blog-body').trim()
+  if(!title||!body)return toast('Title and body required','error')
+  var slug=gv('blog-slug').trim()||title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
+  var tags=gv('blog-tags').split(',').map(function(t){return t.trim()}).filter(Boolean)
+  var{error}=await sb.from('blog_posts').insert({title:title,slug:slug,body:body,cover_url:gv('blog-cover').trim()||null,tags:tags,author_id:user.id,author_name:profile&&profile.full_name||user.email,status:gv('blog-status')})
+  if(error){toast('Error: '+error.message,'error');return}
+  hideModal('blog-editor-modal');gi('blog-title').value='';gi('blog-body').value='';gi('blog-slug').value='';gi('blog-cover').value='';gi('blog-tags').value=''
+  loadBlog();toast('Published!')
+}
+function markdownToHtml(md){return md.replace(/^### (.*$)/gm,'<h3 class="text-lg font-extrabold text-white mt-6">$1</h3>').replace(/^## (.*$)/gm,'<h2 class="text-xl font-extrabold text-white mt-8">$1</h2>').replace(/^# (.*$)/gm,'<h1 class="text-2xl font-extrabold text-white mt-8">$1</h1>').replace(/\*\*(.*?)\*\*/g,'<strong class="text-white">$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/!\[(.*?)\]\((.*?)\)/g,'<img src="$2" alt="$1" class="rounded-xl my-4 w-full">').replace(/\[(.*?)\]\((.*?)\)/g,'<a href="$2" class="text-[#14F1C6] underline" target="_blank">$1</a>').replace(/\n\n/g,'</p><p class="text-zinc-300">').replace(/\n/g,'<br>')}
+
+// EXCHANGE CHATBOT
+function toggleExchange(){exchangeOpen=!exchangeOpen;gi('exchange-panel').style.display=exchangeOpen?'flex':'none'}
+async function sendExchange(){
+  var input=gi('exchange-input'),msg=input.value.trim();if(!msg)return;input.value=''
+  var mc=gi('exchange-messages')
+  mc.innerHTML+='<div class="bg-zinc-700 rounded-2xl rounded-tr-sm p-3 max-w-[85%] ml-auto"><p class="text-sm">'+esc(msg)+'</p></div>'
+  mc.scrollTop=mc.scrollHeight
+  // Smart auto-responses
+  var r=getExchangeResponse(msg)
+  setTimeout(function(){mc.innerHTML+='<div class="bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%]"><p class="text-sm">'+r+'</p></div>';mc.scrollTop=mc.scrollHeight},600)
+}
+function getExchangeResponse(msg){
+  var m=msg.toLowerCase()
+  if(m.indexOf('mv')>=0||m.indexOf('money')>=0||m.indexOf('currency')>=0)return'<strong class="text-[#14F1C6]">MV</strong> is our platform credit. 1 MV = $1 USD, always. Load MV to post jobs or pay workers. It\'s deflationary - 1 MV is burned per job posted!'
+  if(m.indexOf('job')>=0||m.indexOf('post')>=0||m.indexOf('hire')>=0)return'To post a job: tap <strong>+ POST JOB</strong>, set a budget, and your MV gets escrowed until the work is done. Workers apply, you pick the best one!'
+  if(m.indexOf('work')>=0||m.indexOf('earn')>=0||m.indexOf('apply')>=0)return'To earn MV: go to <strong>JOBS</strong>, find one you like, and apply! Once accepted, complete the work and the poster releases your payment.'
+  if(m.indexOf('escrow')>=0)return'Escrow locks the poster\'s MV until the job is done. Worker gets paid when the poster releases it. If there\'s a dispute, MV can be refunded.'
+  if(m.indexOf('muxi')>=0||m.indexOf('agent')>=0||m.indexOf('bot')>=0)return'<strong>MUXI</strong> is our AI operations team on Telegram! 10 agents managing content, growth, support and more. I\'m EXCHANGE, the customer-facing assistant here on the site.'
+  if(m.indexOf('transbid')>=0||m.indexOf('gunr')>=0)return'MUVR is part of the <strong>TransBid ecosystem</strong>. MV works across all our platforms - MUVR, TransBid, GUNR, and more coming soon!'
+  if(m.indexOf('help')>=0)return'I can help with: posting jobs, finding workers, understanding MV, loading your wallet, or navigating the ecosystem. What do you need?'
+  if(m.indexOf('hello')>=0||m.indexOf('hi')>=0||m.indexOf('hey')>=0)return'Hey! Welcome to MUVR. Need help posting a job, finding a worker, or understanding how MV works?'
+  return'Great question! For detailed help, try asking about: <strong>MV</strong>, <strong>posting jobs</strong>, <strong>earning as a worker</strong>, <strong>escrow</strong>, or the <strong>MUXI</strong> agent team. I\'m here to help!'
+}
+
 // REALTIME
-function setupRealtime(){sb.channel('jobs-rt').on('postgres_changes',{event:'*',schema:'public',table:'jobs'},()=>{if(!gi('jobs-tab').classList.contains('hidden'))loadJobs()}).subscribe()}
+function setupRealtime(){sb.channel('jobs-rt').on('postgres_changes',{event:'*',schema:'public',table:'jobs'},function(){if(!gi('jobs-tab').classList.contains('hidden'))loadJobs()}).subscribe()}
 
 // HELPERS
-function showTab(t){document.querySelectorAll('.tab-content').forEach(e=>e.classList.add('hidden'));gi(t+'-tab')?.classList.remove('hidden');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-btn[data-tab="'+t+'"]')?.classList.add('active');document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('active'));document.querySelector('.mob-tab[data-tab="'+t+'"]')?.classList.add('active');if(t==='jobs')loadJobs();if(t==='go'){initMap();loadWorkers('all')};if(t==='wallet')loadWallet();if(t==='profile')renderProfile()}
-function showModal(id){gi(id)?.classList.remove('hidden')}
-function hideModal(id){gi(id)?.classList.add('hidden')}
-function gv(id){return gi(id)?.value||''}
+function showTab(t){document.querySelectorAll('.tab-content').forEach(function(e){e.classList.add('hidden')});var el=gi(t+'-tab');if(el)el.classList.remove('hidden');document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});var tb=document.querySelector('.tab-btn[data-tab="'+t+'"]');if(tb)tb.classList.add('active');document.querySelectorAll('.mob-tab').forEach(function(b){b.classList.remove('active')});var mb=document.querySelector('.mob-tab[data-tab="'+t+'"]');if(mb)mb.classList.add('active');if(t==='jobs')loadJobs();if(t==='go'){initMap();loadWorkers('all')};if(t==='wallet')loadWallet();if(t==='profile')renderProfile();if(t==='blog')loadBlog()}
+function showModal(id){var el=gi(id);if(el)el.classList.remove('hidden')}
+function hideModal(id){var el=gi(id);if(el)el.classList.add('hidden')}
+function gv(id){var el=gi(id);return el&&el.value||''}
 function gi(id){return document.getElementById(id)}
-function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
-function renderSkills(){const c=gi('skill-boxes');if(!c)return;c.innerHTML=SKILLS.map(s=>'<label class="skill-tag flex items-center gap-1.5 bg-zinc-800 px-3 py-1.5 rounded-full cursor-pointer text-sm font-bold"><input type="checkbox" value="'+s+'" class="sk hidden">'+s+'</label>').join('')}
+function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function renderSkills(){var c=gi('skill-boxes');if(!c)return;c.innerHTML=SKILLS.map(function(s){return'<label class="skill-tag flex items-center gap-1.5 bg-zinc-800 px-3 py-1.5 rounded-full cursor-pointer text-sm font-bold"><input type="checkbox" value="'+s+'" class="sk hidden">'+s+'</label>'}).join('')}
 
 window.onload=init
 </script>
-
 </body>
 </html>
