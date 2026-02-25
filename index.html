@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUVR • Pensacola / Floribama</title>
+  <meta name="description" content="MUVR - Post a job, get it done. On-demand workers in Pensacola. Rideshare, moving, delivery, hauling, handyman and more. Pay instantly with MV.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+    body{font-family:'Inter',sans-serif}
+    .font-mono{font-family:'JetBrains Mono',monospace}
+    .ticker{animation:ticker 30s linear infinite}
+    @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    .tab-btn{transition:all .2s;padding:4px 0;border-bottom:2px solid transparent}
+    .tab-btn.active{color:#14F1C6;border-bottom-color:#14F1C6}
+    .card-hover:hover{border-color:#14F1C6;transition:border-color .2s}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:#14F1C6}
+    .mob-tab.active{color:#14F1C6}
+  </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+<!-- LIABILITY BANNER -->
+<div class="bg-red-700 text-center py-1.5 text-xs font-bold tracking-widest">
+  ⚠ MUVR IS A MARKETPLACE ONLY • NOT AN EMPLOYER • NOT AN INSURER • ALL WORKERS ARE INDEPENDENT CONTRACTORS
+</div>
+
+<!-- HEADER -->
+<header class="border-b border-zinc-800 bg-zinc-900/95 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="showTab('jobs')">
+      <span class="text-2xl">🦾</span>
+      <span class="text-2xl font-bold tracking-tighter">MU<span class="text-[#14F1C6]">V</span>R</span>
+    </div>
+    <nav id="main-nav" class="hidden sm:flex gap-6 text-sm font-medium">
+      <button onclick="showTab('jobs')" class="tab-btn active" data-tab="jobs">JOBS</button>
+      <button onclick="showTab('go')" class="tab-btn" data-tab="go">MUVR GO</button>
+      <button onclick="showTab('wallet')" class="tab-btn" data-tab="wallet">WALLET</button>
+      <button onclick="showTab('profile')" class="tab-btn" data-tab="profile">PROFILE</button>
+    </nav>
+    <div id="user-info">
+      <button onclick="showModal('login-modal')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-xl font-semibold text-sm">Sign In</button>
+    </div>
+  </div>
+  <div class="bg-black py-1 overflow-hidden text-[#14F1C6] text-[10px] font-mono tracking-wider">
+    <div class="ticker whitespace-nowrap flex gap-8">
+      <span>⛓ IMMUTABLE LEDGER • ALL MV TRANSACTIONS ARE PERMANENT • 1 MV = $1 USD • MUVR • PENSACOLA • FLORIBAMA •</span>
+      <span>⛓ IMMUTABLE LEDGER • ALL MV TRANSACTIONS ARE PERMANENT • 1 MV = $1 USD • MUVR • PENSACOLA • FLORIBAMA •</span>
+      <span>⛓ IMMUTABLE LEDGER • ALL MV TRANSACTIONS ARE PERMANENT • 1 MV = $1 USD • MUVR • PENSACOLA • FLORIBAMA •</span>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<div id="mobile-nav" class="sm:hidden fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 z-50 hidden">
+  <div class="flex justify-around py-3">
+    <button onclick="showTab('jobs')" class="flex flex-col items-center text-xs gap-1 mob-tab active" data-tab="jobs"><i class="fas fa-briefcase text-lg"></i>JOBS</button>
+    <button onclick="showTab('go')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="go"><i class="fas fa-bolt text-lg"></i>GO</button>
+    <button onclick="showTab('wallet')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="wallet"><i class="fas fa-wallet text-lg"></i>MV</button>
+    <button onclick="showTab('profile')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="profile"><i class="fas fa-user text-lg"></i>ME</button>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 sm:pb-6">
+
+<!-- JOBS TAB -->
+<div id="jobs-tab" class="tab-content">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold">Open Jobs</h1>
+    <button onclick="requireAuth(()=>showModal('post-job-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-5 py-2.5 rounded-xl font-semibold text-sm">+ POST JOB</button>
+  </div>
+  <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+    <button onclick="filterJobs('all')" class="job-filter bg-[#14F1C6] text-black px-4 py-2 rounded-xl text-sm whitespace-nowrap">All</button>
+    <button onclick="filterJobs('physical')" class="job-filter bg-zinc-800 px-4 py-2 rounded-xl text-sm whitespace-nowrap">Physical</button>
+    <button onclick="filterJobs('digital')" class="job-filter bg-zinc-800 px-4 py-2 rounded-xl text-sm whitespace-nowrap">Digital</button>
+    <button onclick="filterJobs('rideshare')" class="job-filter bg-zinc-800 px-4 py-2 rounded-xl text-sm whitespace-nowrap">🚗 Rideshare</button>
+    <button onclick="filterJobs('delivery')" class="job-filter bg-zinc-800 px-4 py-2 rounded-xl text-sm whitespace-nowrap">📦 Delivery</button>
+    <button onclick="filterJobs('hauling')" class="job-filter bg-zinc-800 px-4 py-2 rounded-xl text-sm whitespace-nowrap">🚛 Hauling</button>
+  </div>
+  <div id="job-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-4xl mb-4">🦾</div><p>No open jobs yet. Be the first to post!</p></div>
+  </div>
+</div>
+
+<!-- GO TAB -->
+<div id="go-tab" class="tab-content hidden">
+  <h1 class="text-3xl font-bold mb-2">MUVR GO</h1>
+  <p class="text-zinc-400 text-sm mb-6">On-demand workers in Pensacola. Request now, get it done today.</p>
+  <div class="flex gap-2 mb-6 overflow-x-auto pb-2" id="category-filters"></div>
+  <div id="worker-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-4xl mb-4">🔍</div><p>No workers live right now. Be the first — go to Profile and toggle Live!</p></div>
+  </div>
+</div>
+
+<!-- WALLET TAB -->
+<div id="wallet-tab" class="tab-content hidden">
+  <h1 class="text-3xl font-bold mb-6">MV Wallet</h1>
+  <div class="bg-zinc-900 rounded-2xl p-6 max-w-md border border-zinc-800">
+    <p class="text-zinc-500 text-xs tracking-wider mb-1">AVAILABLE BALANCE</p>
+    <div class="flex items-end justify-between mb-6">
+      <p id="balance-display" class="text-5xl font-mono font-bold text-[#14F1C6]">••••••</p>
+      <button onclick="toggleBalance()" id="balance-toggle" class="text-zinc-400 hover:text-white text-sm">REVEAL</button>
+    </div>
+    <div class="grid grid-cols-3 gap-3">
+      <button onclick="requireAuth(()=>showModal('send-modal'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-semibold">SEND</button>
+      <button onclick="requireAuth(()=>showModal('load-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black py-4 rounded-xl text-sm font-semibold">LOAD</button>
+      <button onclick="requireAuth(()=>alert('Withdrawals coming soon.'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-semibold">CASH OUT</button>
+    </div>
+  </div>
+  <div class="mt-8">
+    <h2 class="text-lg font-semibold mb-3">Transaction Ledger <span class="text-[#14F1C6] text-xs">⛓ immutable</span></h2>
+    <div id="ledger-list" class="space-y-2"><div class="text-zinc-500 text-sm py-4">No transactions yet</div></div>
+  </div>
+</div>
+
+<!-- PROFILE TAB -->
+<div id="profile-tab" class="tab-content hidden">
+  <h1 class="text-3xl font-bold mb-6">Your Profile</h1>
+  <div id="profile-content" class="max-w-lg"><div class="text-zinc-500 py-12 text-center">Sign in to view your profile</div></div>
+</div>
+
+</main>
+
+<!-- ====== MODALS ====== -->
+
+<!-- LOGIN -->
+<div id="login-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
+    <h2 class="text-xl font-bold mb-1">Welcome to MUVR</h2>
+    <p class="text-zinc-400 text-sm mb-6">Sign up or sign in with email</p>
+    <input id="auth-email" type="email" placeholder="you@email.com" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3">
+    <input id="auth-password" type="password" placeholder="Password (min 6 chars)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4">
+    <button onclick="signUp()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-semibold mb-2">SIGN UP</button>
+    <button onclick="signIn()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-semibold mb-3">SIGN IN</button>
+    <p id="auth-error" class="text-red-400 text-xs text-center hidden"></p>
+    <p class="text-center text-[10px] text-zinc-600 mt-4">Pensacola / Floribama</p>
+  </div>
+</div>
+
+<!-- LEGAL AGREEMENTS -->
+<div id="legal-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
+    <h2 class="text-xl font-bold mb-4">Before You Start</h2>
+    <div class="bg-zinc-800 rounded-xl p-4 mb-4 text-sm space-y-2">
+      <h3 class="font-bold text-[#14F1C6]">Terms of Service</h3>
+      <p>MUVR is a technology marketplace operated by TransBid LLC (Delaware). MUVR connects independent service providers with customers. MUVR is NOT an employer, staffing agency, or service provider.</p>
+      <p>MV is a platform credit (1 MV = $1 USD). MV is not currency, cryptocurrency, or a financial instrument.</p>
+      <p>All transactions are final and recorded on an immutable ledger. MUVR's total liability is capped at fees paid in the last 12 months. Users indemnify MUVR against all claims. Florida governing law. Binding arbitration, no class actions.</p>
+    </div>
+    <div class="bg-zinc-800 rounded-xl p-4 mb-4 text-sm space-y-2">
+      <h3 class="font-bold text-[#14F1C6]">Independent Contractor Agreement</h3>
+      <p>You are an independent contractor, NOT an employee of MUVR. You control your own schedule, methods, tools, and rates. You may decline any job for any reason.</p>
+      <p>You are solely responsible for: your own taxes (1099), insurance, all licenses and permits, and compliance with all applicable laws.</p>
+      <p>MUVR does not provide training, equipment, benefits, or workers' compensation.</p>
+    </div>
+    <div class="space-y-3 mb-6">
+      <label class="flex items-start gap-3 cursor-pointer"><input type="checkbox" id="accept-tos" onchange="updateLegalBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I accept the <strong>Terms of Service</strong></span></label>
+      <label class="flex items-start gap-3 cursor-pointer"><input type="checkbox" id="accept-contractor" onchange="updateLegalBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I accept the <strong>Independent Contractor Agreement</strong></span></label>
+      <label class="flex items-start gap-3 cursor-pointer"><input type="checkbox" id="accept-age" onchange="updateLegalBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I am <strong>18 years or older</strong></span></label>
+    </div>
+    <button onclick="acceptLegal()" id="legal-btn" class="w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-semibold" disabled>Check all boxes to continue</button>
+  </div>
+</div>
+
+<!-- RIDESHARE WAIVER -->
+<div id="rideshare-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-red-600 max-h-[90vh] overflow-y-auto">
+    <h2 class="text-xl font-bold mb-4 text-red-400">⚠ Rideshare Waiver</h2>
+    <div class="bg-red-950 border border-red-800 rounded-xl p-4 mb-4 text-sm space-y-2">
+      <p><strong>Vehicle condition is SELF-REPORTED.</strong> MUVR does NOT inspect, certify, or guarantee any vehicle.</p>
+      <p>MUVR does NOT verify driver's license, insurance, or driving record. MUVR is NOT a transportation company.</p>
+      <p>Both drivers and riders waive all claims against MUVR for accidents, injuries, or property damage.</p>
+      <p class="text-red-400 font-bold">This may not comply with your state's TNC/rideshare laws. Use at your own discretion.</p>
+    </div>
+    <label class="flex items-start gap-3 cursor-pointer mb-6"><input type="checkbox" id="accept-rideshare" onchange="updateRideBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I understand and accept all risks.</span></label>
+    <div class="flex gap-3">
+      <button onclick="hideModal('rideshare-modal')" class="flex-1 bg-zinc-800 py-3 rounded-xl">Cancel</button>
+      <button onclick="confirmRideshare()" id="ride-btn" class="flex-1 bg-red-600 py-3 rounded-xl font-semibold opacity-50" disabled>Accept Waiver</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST JOB -->
+<div id="post-job-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">Post a Job</h2>
+      <button onclick="hideModal('post-job-modal')" class="text-zinc-400 text-xl">&times;</button>
+    </div>
+    <div class="space-y-3">
+      <input id="job-title" placeholder="Job title" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+      <textarea id="job-desc" placeholder="Describe what you need..." rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"></textarea>
+      <select id="job-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+        <option value="physical">Physical Labor</option>
+        <option value="digital">Digital / Remote</option>
+        <option value="rideshare">Rideshare</option>
+        <option value="delivery">Delivery</option>
+        <option value="hauling">Hauling / Junk Removal</option>
+      </select>
+      <select id="job-urgency" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+        <option value="asap">ASAP</option><option value="today">Today</option><option value="this_week">This Week</option><option value="flexible">Flexible</option>
+      </select>
+      <div>
+        <label class="text-xs text-zinc-400 mb-1 block">Budget (MV) — 1 MV = $1</label>
+        <input id="job-budget" type="number" min="1" placeholder="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3" oninput="updateFee()">
+      </div>
+      <input id="job-address" placeholder="Location (Pensacola area)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+      <div class="bg-zinc-800 rounded-xl p-3 text-sm">
+        <div class="flex justify-between"><span class="text-zinc-400">Budget</span><span id="fee-budget">0 MV</span></div>
+        <div class="flex justify-between"><span class="text-zinc-400">Platform Fee</span><span>1 MV</span></div>
+        <div class="flex justify-between font-bold border-t border-zinc-700 pt-2 mt-2"><span>Total Escrowed</span><span id="fee-total" class="text-[#14F1C6]">1 MV</span></div>
+      </div>
+      <div id="fraud-result" class="hidden"></div>
+      <button onclick="postJob()" id="post-btn" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-semibold">POST JOB & ESCROW MV</button>
+    </div>
+  </div>
+</div>
+
+<!-- APPLY -->
+<div id="apply-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700">
+    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Apply</h2><button onclick="hideModal('apply-modal')" class="text-zinc-400 text-xl">&times;</button></div>
+    <input type="hidden" id="apply-job-id">
+    <textarea id="apply-pitch" placeholder="Why you're the right person..." rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3"></textarea>
+    <input id="apply-rate" type="number" placeholder="Your rate (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3">
+    <input id="apply-turn" placeholder="Turnaround (e.g. '2 hours')" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4">
+    <button onclick="applyJob()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-semibold">SUBMIT APPLICATION</button>
+  </div>
+</div>
+
+<!-- SEND MV -->
+<div id="send-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
+    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Send MV</h2><button onclick="hideModal('send-modal')" class="text-zinc-400 text-xl">&times;</button></div>
+    <input id="send-to" type="email" placeholder="Recipient email" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3">
+    <input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4">
+    <button onclick="sendMV()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-semibold">SEND MV ⛓</button>
+  </div>
+</div>
+
+<!-- LOAD MV -->
+<div id="load-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
+    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Load MV</h2><button onclick="hideModal('load-modal')" class="text-zinc-400 text-xl">&times;</button></div>
+    <p class="text-zinc-400 text-sm mb-4">1 MV = $1 USD</p>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <button onclick="loadMV(10)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$10<br><span class="text-[#14F1C6] text-sm">10 MV</span></button>
+      <button onclick="loadMV(25)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$25<br><span class="text-[#14F1C6] text-sm">25 MV</span></button>
+      <button onclick="loadMV(50)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$50<br><span class="text-[#14F1C6] text-sm">50 MV</span></button>
+      <button onclick="loadMV(100)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$100<br><span class="text-[#14F1C6] text-sm">100 MV</span></button>
+    </div>
+    <p class="text-zinc-600 text-[10px] text-center">Processed by Stripe. No load fees.</p>
+  </div>
+</div>
+
+<!-- PROFILE SETUP -->
+<div id="profile-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
+    <h2 class="text-xl font-bold mb-2">Complete Your Profile</h2>
+    <p class="text-zinc-400 text-sm mb-4">60 seconds. Start earning immediately.</p>
+    <div class="space-y-3">
+      <input id="p-name" placeholder="Full name" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+      <select id="p-role" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+        <option value="both">Work AND post jobs</option><option value="worker">Work (earn MV)</option><option value="poster">Post jobs (hire people)</option>
+      </select>
+      <p class="text-xs text-zinc-400 mt-2">SKILLS (select all that apply)</p>
+      <div class="flex flex-wrap gap-2" id="skill-boxes"></div>
+      <label class="flex items-center gap-2 cursor-pointer mt-4"><input type="checkbox" id="p-vehicle" onchange="document.getElementById('v-fields').classList.toggle('hidden',!this.checked)"><span class="text-sm">I have a vehicle</span></label>
+      <div id="v-fields" class="hidden space-y-3">
+        <select id="p-vtype" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+          <option value="">Vehicle type</option><option value="car">Car</option><option value="truck">Truck</option><option value="van">Van</option><option value="suv">SUV</option>
+        </select>
+        <div class="grid grid-cols-3 gap-2">
+          <input id="p-vyear" type="number" placeholder="Year" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3">
+          <input id="p-vmake" placeholder="Make" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3">
+          <input id="p-vmodel" placeholder="Model" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3">
+        </div>
+        <select id="p-vcond" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
+          <option value="">Condition (BE HONEST)</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="rough_but_running">Rough but running</option>
+        </select>
+        <div class="bg-red-950 border border-red-800 rounded-xl p-3 text-xs text-red-300">⚠ Vehicle condition is your self-report. MUVR does NOT inspect vehicles. Customers see this and decide.</div>
+        <label class="flex items-center gap-2"><input type="checkbox" id="p-ride"><span class="text-sm">Rideshare</span></label>
+        <label class="flex items-center gap-2"><input type="checkbox" id="p-deliver"><span class="text-sm">Delivery</span></label>
+        <label class="flex items-center gap-2"><input type="checkbox" id="p-haul"><span class="text-sm">Hauling</span></label>
+      </div>
+      <button onclick="saveProfile()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-semibold mt-4">SAVE & GO LIVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="border-t border-zinc-800 mt-12 py-8 text-center text-xs text-zinc-600 px-4">
+  <p class="mb-2">MUVR is operated by TransBid LLC (Delaware) • 11000 Tanton Lane, Pensacola, FL 32506</p>
+  <p class="mb-2">MUVR does not employ, endorse, certify, insure, or guarantee any service provider. All workers are independent contractors.</p>
+  <p>© 2026 TransBid LLC. All rights reserved.</p>
+</footer>
+
+<script>
+// =============================================
+// SUPABASE CONFIG
+// =============================================
+const SUPA_URL='https://cfenkstusggrcthehffn.supabase.co'
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o'
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY)
+
+let user=null, profile=null, balRevealed=false, jobFilter='all', allJobs=[], pendingRide=null
+const SKILLS=['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Other']
+
+// =============================================
+// INIT
+// =============================================
+async function init(){
+  const{data:{session}}=await sb.auth.getSession()
+  if(session){user=session.user;await loadProfile()}
+  updateUI()
+  showTab('jobs')
+  setupRealtime()
+  renderSkills()
+  renderCats()
+}
+
+// =============================================
+// AUTH
+// =============================================
+async function signUp(){
+  const e=gv('auth-email').trim(),p=gv('auth-password')
+  if(!e||!p)return authErr('Enter email and password')
+  if(p.length<6)return authErr('Password: 6+ characters')
+  const{data,error}=await sb.auth.signUp({email:e,password:p})
+  if(error)return authErr(error.message)
+  user=data.user
+  hideModal('login-modal')
+  await sb.from('users').upsert({id:user.id,email:e,city:'Pensacola',state:'FL'})
+  await loadProfile()
+  updateUI()
+  showModal('legal-modal')
+}
+
+async function signIn(){
+  const e=gv('auth-email').trim(),p=gv('auth-password')
+  if(!e||!p)return authErr('Enter email and password')
+  const{data,error}=await sb.auth.signInWithPassword({email:e,password:p})
+  if(error)return authErr(error.message)
+  user=data.user
+  hideModal('login-modal')
+  await loadProfile()
+  updateUI()
+  checkLegal()
+}
+
+function authErr(m){const el=document.getElementById('auth-error');el.textContent=m;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),5000)}
+async function logout(){await sb.auth.signOut();user=null;profile=null;updateUI();showTab('jobs')}
+
+function updateUI(){
+  const info=document.getElementById('user-info'),mn=document.getElementById('mobile-nav')
+  if(user){
+    const n=profile?.full_name||profile?.email||user.email||'User'
+    info.innerHTML=`<span class="text-emerald-400 text-xs">● Live</span><span class="text-sm">${n}</span><button onclick="logout()" class="text-zinc-400 text-xs ml-2">Logout</button>`
+    mn.classList.remove('hidden')
+  }else{
+    info.innerHTML='<button onclick="showModal(\'login-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-xl font-semibold text-sm">Sign In</button>'
+    mn.classList.add('hidden')
+  }
+}
+
+function requireAuth(fn){if(!user){showModal('login-modal');return}fn()}
+
+// =============================================
+// PROFILE
+// =============================================
+async function loadProfile(){
+  if(!user)return
+  let{data}=await sb.from('users').select('*').eq('id',user.id).single()
+  if(!data){
+    await sb.from('users').upsert({id:user.id,email:user.email,city:'Pensacola',state:'FL'})
+    data={id:user.id,email:user.email,mv_balance:0}
+  }
+  profile=data
+}
+
+async function saveProfile(){
+  const name=gv('p-name').trim()
+  if(!name)return alert('Enter your name')
+  const skills=[];document.querySelectorAll('.sk:checked').forEach(c=>skills.push(c.value))
+  const u={full_name:name,role:gv('p-role'),skills,has_vehicle:gi('p-vehicle').checked,is_available:gv('p-role')!=='poster'}
+  if(u.has_vehicle){
+    u.vehicle_type=gv('p-vtype');u.vehicle_year=parseInt(gv('p-vyear'))||null;u.vehicle_make=gv('p-vmake');u.vehicle_model=gv('p-vmodel')
+    u.vehicle_condition=gv('p-vcond');u.can_rideshare=gi('p-ride').checked;u.can_deliver=gi('p-deliver').checked;u.can_haul=gi('p-haul').checked
+    if(u.can_rideshare){
+      u.rideshare_waiver_accepted=true;u.rideshare_waiver_accepted_at=new Date().toISOString()
+      await sb.from('legal_agreements').insert({user_id:user.id,agreement_type:'rideshare_waiver',ip_address:'client',user_agent:navigator.userAgent})
+    }
+  }
+  await sb.from('users').update(u).eq('id',user.id)
+  await loadProfile();hideModal('profile-modal');updateUI();renderProfile()
+  alert('Profile saved! You are live on MUVR.')
+}
+
+function renderProfile(){
+  const c=document.getElementById('profile-content')
+  if(!profile){c.innerHTML='<div class="text-zinc-500 py-12 text-center">Sign in to view profile</div>';return}
+  const ts=trustScore(profile),badge=trustBadge(ts)
+  c.innerHTML=`
+    <div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 space-y-6">
+      <div class="flex justify-between"><div><h2 class="text-2xl font-bold">${esc(profile.full_name||'Complete profile')}</h2><p class="text-zinc-400 text-sm">${esc(profile.email||'')}</p></div>
+      <div class="text-right"><div class="text-[#14F1C6] font-bold">${badge}</div><div class="text-xs text-zinc-400">${ts} pts</div></div></div>
+      ${!profile.full_name?'<button onclick="showModal(\'profile-modal\')" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-semibold">Complete Profile</button>':''}
+      <div><p class="text-xs text-zinc-400 mb-2">AVAILABILITY</p>
+        <button onclick="toggleLive()" class="px-6 py-2 rounded-xl font-semibold ${profile.is_available?'bg-emerald-600':'bg-zinc-700'}">${profile.is_available?'🟢 LIVE':'⚫ Go Live'}</button>
+      </div>
+      ${profile.skills?.length?`<div><p class="text-xs text-zinc-400 mb-2">SKILLS</p><div class="flex flex-wrap gap-2">${profile.skills.map(s=>`<span class="bg-zinc-800 px-3 py-1 rounded-lg text-sm">${s}</span>`).join('')}</div></div>`:''}
+      ${profile.has_vehicle?`<div><p class="text-xs text-zinc-400 mb-2">VEHICLE</p><p class="text-sm">${profile.vehicle_year||''} ${profile.vehicle_make||''} ${profile.vehicle_model||''}</p><p class="text-xs text-zinc-500">Condition: ${profile.vehicle_condition||'N/A'}</p>${profile.can_rideshare?'<span class="text-xs bg-red-950 text-red-400 px-2 py-1 rounded mt-1 inline-block">🚗 Rideshare</span>':''}</div>`:''}
+      <div><p class="text-xs text-zinc-400 mb-2">STATS</p><div class="grid grid-cols-3 gap-3 text-center">
+        <div class="bg-zinc-800 rounded-xl p-3"><div class="text-xl font-bold">${profile.jobs_completed||0}</div><div class="text-xs text-zinc-400">Done</div></div>
+        <div class="bg-zinc-800 rounded-xl p-3"><div class="text-xl font-bold">${profile.rating||'—'}</div><div class="text-xs text-zinc-400">Rating</div></div>
+        <div class="bg-zinc-800 rounded-xl p-3"><div class="text-xl font-bold text-[#14F1C6]">${profile.mv_balance||0}</div><div class="text-xs text-zinc-400">MV</div></div>
+      </div></div>
+      <div><p class="text-xs text-zinc-400 mb-2">VERIFICATIONS (optional — earn trust)</p><div class="space-y-2">
+        ${['Government ID|gov_id|15','Liability Insurance|liability_insurance|20','Vehicle Insurance|vehicle_insurance|15','Background Check|bg_check|20'].map(v=>{const[n,t,p]=v.split('|');return`<div class="flex justify-between items-center bg-zinc-800 rounded-xl px-4 py-3"><span class="text-sm">${n} (+${p}pts)</span><button onclick="uploadVerif('${t}')" class="text-xs bg-zinc-700 px-3 py-1 rounded-lg">Upload</button></div>`}).join('')}
+      </div></div>
+      <button onclick="showModal('profile-modal')" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-semibold text-sm">Edit Profile</button>
+    </div>`
+}
+
+async function toggleLive(){
+  const v=!profile.is_available
+  await sb.from('users').update({is_available:v}).eq('id',user.id)
+  profile.is_available=v;renderProfile()
+}
+
+async function uploadVerif(type){
+  const i=document.createElement('input');i.type='file';i.accept='image/*,.pdf'
+  i.onchange=async(e)=>{
+    const f=e.target.files[0];if(!f)return
+    const path=`${user.id}/${Date.now()}-${f.name}`
+    const{data,error}=await sb.storage.from('verifications').upload(path,f)
+    if(error)return alert('Upload failed: '+error.message)
+    await sb.from('verifications').insert({user_id:user.id,type,file_path:data.path,status:'pending'})
+    alert('Uploaded! Pending review.')
+  };i.click()
+}
+
+// =============================================
+// TRUST
+// =============================================
+function trustScore(p){
+  if(!p)return 0;let s=0
+  if(p.phone_verified)s+=5;if(p.id_uploaded)s+=15;if(p.selfie_verified)s+=10
+  if(p.bg_check_status==='clear')s+=20;if(p.has_liability_insurance)s+=20
+  if(p.has_vehicle_insurance)s+=15;if(p.has_workers_comp)s+=15
+  if(p.certifications?.length)s+=p.certifications.length*5
+  s+=(p.jobs_completed||0)*3;return Math.min(100,s)
+}
+function trustBadge(s){return s>=81?'⚡ Elite':s>=61?'🏆 Pro':s>=41?'✅ Trusted':s>=21?'🔵 Verified':'🆕 New'}
+
+// =============================================
+// LEGAL
+// =============================================
+async function checkLegal(){
+  const{data}=await sb.from('legal_agreements').select('agreement_type').eq('user_id',user.id)
+  const a=new Set((data||[]).map(d=>d.agreement_type))
+  if(!a.has('tos')||!a.has('contractor_agreement'))showModal('legal-modal')
+  else if(!profile?.full_name)showModal('profile-modal')
+}
+
+function updateLegalBtn(){
+  const ok=gi('accept-tos').checked&&gi('accept-contractor').checked&&gi('accept-age').checked
+  const b=document.getElementById('legal-btn');b.disabled=!ok
+  b.className=ok?'w-full bg-[#14F1C6] text-black py-3 rounded-xl font-semibold':'w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-semibold'
+  b.textContent=ok?'Accept & Continue':'Check all boxes to continue'
+}
+
+async function acceptLegal(){
+  await sb.from('legal_agreements').insert([
+    {user_id:user.id,agreement_type:'tos',ip_address:'client',user_agent:navigator.userAgent},
+    {user_id:user.id,agreement_type:'contractor_agreement',ip_address:'client',user_agent:navigator.userAgent}
+  ])
+  await sb.from('users').update({tos_accepted:true,tos_accepted_at:new Date().toISOString(),contractor_agreement_accepted:true,contractor_agreement_accepted_at:new Date().toISOString()}).eq('id',user.id)
+  hideModal('legal-modal')
+  if(!profile?.full_name)showModal('profile-modal')
+}
+
+function updateRideBtn(){const c=gi('accept-rideshare').checked,b=document.getElementById('ride-btn');b.disabled=!c;b.style.opacity=c?1:0.5}
+function confirmRideshare(){
+  sb.from('legal_agreements').insert({user_id:user.id,agreement_type:'rideshare_waiver',ip_address:'client',user_agent:navigator.userAgent})
+  hideModal('rideshare-modal');if(pendingRide){pendingRide();pendingRide=null}
+}
+
+// =============================================
+// JOBS
+// =============================================
+async function loadJobs(){
+  const{data}=await sb.from('jobs').select('*').eq('status','open').order('created_at',{ascending:false})
+  allJobs=data||[];renderJobs()
+}
+
+function renderJobs(){
+  const list=jobFilter==='all'?allJobs:allJobs.filter(j=>j.job_type===jobFilter)
+  const c=document.getElementById('job-list')
+  if(!list.length){c.innerHTML='<div class="text-center py-16 col-span-full"><div class="text-4xl mb-4">🦾</div><p class="text-zinc-400">No open jobs yet. Be the first!</p></div>';return}
+  c.innerHTML=list.map(j=>`
+    <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover">
+      <div class="flex justify-between items-start mb-2"><h3 class="font-semibold text-lg">${esc(j.title)}</h3><span class="text-[#14F1C6] font-mono font-bold">${j.budget_mv} MV</span></div>
+      <p class="text-zinc-400 text-sm mb-3">${esc(j.description||'')}</p>
+      <div class="flex gap-2 mb-3 flex-wrap">
+        <span class="bg-zinc-800 px-2 py-1 rounded text-xs">${j.job_type}</span>
+        <span class="bg-zinc-800 px-2 py-1 rounded text-xs">${j.urgency||'flexible'}</span>
+        ${j.fraud_verdict==='CLEAN'?'<span class="bg-emerald-950 text-emerald-400 px-2 py-1 rounded text-xs">🛡 Verified</span>':''}
+        <span class="bg-zinc-800 px-2 py-1 rounded text-xs">🔒 Escrowed</span>
+      </div>
+      ${j.address?`<p class="text-zinc-500 text-xs mb-3">📍 ${esc(j.address)}</p>`:''}
+      <button onclick="requireAuth(()=>{document.getElementById('apply-job-id').value='${j.id}';showModal('apply-modal')})" class="w-full bg-zinc-800 hover:bg-teal-900 py-2.5 rounded-xl text-sm font-semibold">Apply Now</button>
+    </div>`).join('')
+}
+
+function filterJobs(t){
+  jobFilter=t;document.querySelectorAll('.job-filter').forEach(b=>{b.className=b.textContent.trim().toLowerCase().includes(t)||t==='all'&&b.textContent.includes('All')?'job-filter bg-[#14F1C6] text-black px-4 py-2 rounded-xl text-sm whitespace-nowrap':'job-filter bg-zinc-800 px-4 py-2 rounded-xl text-sm whitespace-nowrap'})
+  renderJobs()
+}
+
+function updateFee(){const b=parseFloat(gv('job-budget'))||0;document.getElementById('fee-budget').textContent=b+' MV';document.getElementById('fee-total').textContent=(b+1)+' MV'}
+
+async function postJob(){
+  const title=gv('job-title').trim(),desc=gv('job-desc').trim(),jt=gv('job-type'),urg=gv('job-urgency'),budget=parseFloat(gv('job-budget')),addr=gv('job-address').trim()
+  if(!title)return alert('Enter title');if(!budget||budget<1)return alert('Budget must be 1+ MV')
+  const total=budget+1
+  if((profile?.mv_balance||0)<total)return alert('Need '+total+' MV ('+budget+' + 1 fee). Load MV first.')
+  
+  if(jt==='rideshare'){
+    const{data:w}=await sb.from('legal_agreements').select('id').eq('user_id',user.id).eq('agreement_type','rideshare_waiver')
+    if(!w?.length){pendingRide=()=>postJob();showModal('rideshare-modal');return}
+  }
+  
+  const btn=document.getElementById('post-btn');btn.disabled=true;btn.textContent='🔍 Scanning...'
+  const fr=fraudCheck(title,desc,budget)
+  
+  if(fr.verdict==='BLOCKED'){
+    btn.disabled=false;btn.textContent='POST JOB & ESCROW MV'
+    document.getElementById('fraud-result').innerHTML='<div class="bg-red-950 border border-red-800 rounded-xl p-3 text-sm text-red-300">🚫 BLOCKED — '+fr.verdict_text+'</div>'
+    document.getElementById('fraud-result').classList.remove('hidden');return
+  }
+  
+  const{data:job,error}=await sb.from('jobs').insert({poster_id:user.id,title,description:desc,job_type:jt,urgency:urg,budget_mv:budget,fee_mv:1,total_escrowed:total,address:addr,city:'Pensacola',state:'FL',fraud_score:fr.score,fraud_verdict:fr.verdict,fraud_flags:fr.flags}).select().single()
+  if(error){btn.disabled=false;btn.textContent='POST JOB & ESCROW MV';return alert('Error: '+error.message)}
+  
+  await sb.from('escrow').insert({job_id:job.id,poster_id:user.id,amount_mv:budget,fee_mv:1,status:'locked'})
+  await sb.from('users').update({mv_balance:(profile.mv_balance||0)-total,mv_escrowed:(profile.mv_escrowed||0)+total}).eq('id',user.id)
+  await sb.from('mv_ledger').insert([
+    {user_id:user.id,type:'escrow_lock',amount_mv:-budget,description:'Escrow: '+title,related_job_id:job.id},
+    {user_id:user.id,type:'fee',amount_mv:-1,description:'Platform fee',related_job_id:job.id}
+  ])
+  await sb.from('fraud_log').insert({job_id:job.id,poster_id:user.id,score:fr.score,verdict:fr.verdict,flags:fr.flags})
+  
+  profile.mv_balance=(profile.mv_balance||0)-total
+  btn.disabled=false;btn.textContent='POST JOB & ESCROW MV'
+  gi('job-title').value='';gi('job-desc').value='';gi('job-budget').value='';gi('job-address').value=''
+  document.getElementById('fraud-result').classList.add('hidden')
+  hideModal('post-job-modal');loadJobs();alert('Job posted! '+total+' MV escrowed.')
+}
+
+function fraudCheck(t,d,b){
+  let s=85;const flags=[],txt=(t+' '+d).toLowerCase()
+  ;['wire transfer','western union','bitcoin','crypto','send money','advance payment','lottery','inheritance'].forEach(f=>{if(txt.includes(f)){s-=25;flags.push(f)}})
+  if(b>10000){s-=10;flags.push('high budget')}
+  if((d||'').length<10){s-=15;flags.push('short description')}
+  s=Math.max(0,Math.min(100,s))
+  return{score:s,verdict:s<40?'BLOCKED':s<70?'WARNING':'CLEAN',verdict_text:s<40?'Flagged as potentially fraudulent':s<70?'Some red flags':'Looks good',flags}
+}
+
+async function applyJob(){
+  const jid=gv('apply-job-id'),pitch=gv('apply-pitch'),rate=parseFloat(gv('apply-rate')),turn=gv('apply-turn')
+  const{error}=await sb.from('applications').insert({job_id:jid,worker_id:user.id,pitch,rate_mv:rate||null,turnaround:turn})
+  if(error){if(error.code==='23505')return alert('Already applied');return alert(error.message)}
+  hideModal('apply-modal');gi('apply-pitch').value='';gi('apply-rate').value='';gi('apply-turn').value=''
+  alert('Applied! Poster will review.')
+}
+
+// =============================================
+// MUVR GO
+// =============================================
+function renderCats(){
+  const cats=['All','🚗 Rideshare','📦 Delivery','🏠 Moving','🚛 Hauling','🧹 Cleaning','🔨 Handyman','🌿 Yard Work','💪 Labor','🏃 Errands','⚡ Other']
+  document.getElementById('category-filters').innerHTML=cats.map(c=>`<button onclick="loadWorkers('${c.replace(/[^\w]/g,'').toLowerCase()||'all'}')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-xl text-sm whitespace-nowrap">${c}</button>`).join('')
+}
+
+async function loadWorkers(f){
+  let q=sb.from('users').select('*').eq('is_available',true)
+  if(f&&f!=='all'){
+    if(f==='rideshare')q=q.eq('can_rideshare',true)
+    else if(f==='delivery')q=q.eq('can_deliver',true)
+    else if(f==='hauling')q=q.eq('can_haul',true)
+    else q=q.contains('skills',[f.charAt(0).toUpperCase()+f.slice(1)])
+  }
+  const{data}=await q
+  const c=document.getElementById('worker-grid')
+  if(!data?.length){c.innerHTML='<div class="text-center py-16 col-span-full"><div class="text-4xl mb-4">🔍</div><p class="text-zinc-400">No workers live right now.</p><p class="text-zinc-500 text-sm mt-2">Are you a worker? <button onclick="showTab(\'profile\')" class="text-[#14F1C6] underline">Go live</button></p></div>';return}
+  c.innerHTML=data.map(w=>{
+    const ts=trustScore(w),b=trustBadge(ts)
+    return`<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover">
+      <div class="flex justify-between items-start mb-3"><div><div class="font-bold">${esc(w.full_name||'Worker')}</div><div class="text-xs">${b} • ${ts}pts</div></div>
+      <div class="text-right text-xs">${w.rating?'⭐ '+w.rating:''}<br>${w.jobs_completed||0} jobs</div></div>
+      ${w.skills?.length?`<div class="flex flex-wrap gap-1 mb-3">${w.skills.slice(0,4).map(s=>`<span class="bg-zinc-800 px-2 py-0.5 rounded text-xs">${s}</span>`).join('')}</div>`:''}
+      ${w.can_rideshare?`<div class="bg-zinc-800 rounded-xl p-3 mb-3 text-sm"><span>🚗 ${w.vehicle_year||''} ${w.vehicle_make||''} ${w.vehicle_model||''}</span> <span class="text-xs text-zinc-400">${w.vehicle_condition||''}</span></div>
+      <div class="bg-red-950 border border-red-800 rounded-xl p-2 mb-3 text-[10px] text-red-300">⚠ Vehicle self-reported. MUVR does NOT inspect or certify. Ride at own discretion.</div>`:''}
+      <button onclick="requireAuth(()=>reqWorker('${w.id}',${!!w.can_rideshare}))" class="w-full bg-[#14F1C6] text-black py-2.5 rounded-xl font-semibold text-sm">Request Now</button>
+    </div>`}).join('')
+}
+
+async function reqWorker(wid,ride){
+  if(ride){
+    const{data:w}=await sb.from('legal_agreements').select('id').eq('user_id',user.id).eq('agreement_type','rideshare_waiver')
+    if(!w?.length){pendingRide=()=>reqWorker(wid,ride);showModal('rideshare-modal');return}
+  }
+  alert('Request sent! Full auto-assign coming soon.')
+}
+
+// =============================================
+// WALLET
+// =============================================
+async function loadWallet(){
+  if(!user)return;await loadProfile()
+  const b=profile?.mv_balance||0
+  document.getElementById('balance-display').textContent=balRevealed?b.toFixed(2)+' MV':'••••••'
+  document.getElementById('balance-toggle').textContent=balRevealed?'HIDE':'REVEAL'
+  const{data:l}=await sb.from('mv_ledger').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(50)
+  const c=document.getElementById('ledger-list')
+  if(!l?.length){c.innerHTML='<div class="text-zinc-500 text-sm py-4">No transactions yet. Load MV to start.</div>';return}
+  c.innerHTML=l.map(e=>`<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-zinc-800">
+    <div><span class="font-mono text-xs bg-zinc-800 px-2 py-0.5 rounded">${e.type.toUpperCase()}</span><span class="text-sm ml-2 text-zinc-300">${esc(e.description||'')}</span></div>
+    <div class="text-right"><div class="font-mono ${e.amount_mv>0?'text-emerald-400':'text-red-400'}">${e.amount_mv>0?'+':''}${e.amount_mv} MV</div>
+    <div class="text-[10px] text-zinc-600 font-mono">⛓ ${(e.tx_hash||'').slice(0,12)}</div></div></div>`).join('')
+}
+
+function toggleBalance(){balRevealed=!balRevealed;loadWallet()}
+
+async function sendMV(){
+  const to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'))
+  if(!to||!amt||amt<1)return alert('Enter recipient and amount')
+  if(amt>(profile?.mv_balance||0))return alert('Insufficient MV')
+  const{data:r}=await sb.from('users').select('id,mv_balance').eq('email',to).single()
+  if(!r)return alert('Recipient not found')
+  await sb.from('users').update({mv_balance:(profile.mv_balance||0)-amt}).eq('id',user.id)
+  await sb.from('users').update({mv_balance:(r.mv_balance||0)+amt}).eq('id',r.id)
+  const h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
+  await sb.from('mv_ledger').insert([
+    {user_id:user.id,type:'send',amount_mv:-amt,description:'Sent to '+to,tx_hash:h,related_user_id:r.id},
+    {user_id:r.id,type:'receive',amount_mv:amt,description:'From '+user.email,tx_hash:h,related_user_id:user.id}
+  ])
+  profile.mv_balance-=amt;hideModal('send-modal');gi('send-to').value='';gi('send-amount').value='';loadWallet()
+  alert(amt+' MV sent ⛓')
+}
+
+async function loadMV(amt){
+  if(!confirm('Load '+amt+' MV ($'+amt+') via Stripe?\n\n(Beta: credited instantly)'))return
+  await sb.from('users').update({mv_balance:(profile.mv_balance||0)+amt}).eq('id',user.id)
+  const h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
+  await sb.from('mv_ledger').insert({user_id:user.id,type:'load',amount_mv:amt,description:'Loaded '+amt+' MV',tx_hash:h})
+  profile.mv_balance=(profile.mv_balance||0)+amt;hideModal('load-modal');loadWallet();alert(amt+' MV loaded! ⛓')
+}
+
+// =============================================
+// REALTIME
+// =============================================
+function setupRealtime(){
+  sb.channel('jobs-rt').on('postgres_changes',{event:'*',schema:'public',table:'jobs'},()=>{
+    if(!document.getElementById('jobs-tab').classList.contains('hidden'))loadJobs()
+  }).subscribe()
+}
+
+// =============================================
+// HELPERS
+// =============================================
+function showTab(t){
+  document.querySelectorAll('.tab-content').forEach(e=>e.classList.add('hidden'))
+  document.getElementById(t+'-tab')?.classList.remove('hidden')
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'))
+  document.querySelector('.tab-btn[data-tab="'+t+'"]')?.classList.add('active')
+  document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('active'))
+  document.querySelector('.mob-tab[data-tab="'+t+'"]')?.classList.add('active')
+  if(t==='jobs')loadJobs();if(t==='go')loadWorkers('all');if(t==='wallet')loadWallet();if(t==='profile')renderProfile()
+}
+function showModal(id){document.getElementById(id)?.classList.remove('hidden')}
+function hideModal(id){document.getElementById(id)?.classList.add('hidden')}
+function gv(id){return document.getElementById(id)?.value||''}
+function gi(id){return document.getElementById(id)}
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function renderSkills(){
+  const c=document.getElementById('skill-boxes');if(!c)return
+  c.innerHTML=SKILLS.map(s=>`<label class="flex items-center gap-1.5 bg-zinc-800 px-3 py-1.5 rounded-lg cursor-pointer text-sm"><input type="checkbox" value="${s}" class="sk">${s}</label>`).join('')
+}
+
+window.onload=init
+</script>
+</body>
+</html>
