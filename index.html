@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -42,13 +41,11 @@
 <div id="toast-container"></div>
 
 <!-- LIABILITY BANNER -->
-
 <div class="bg-red-700/90 text-center py-1.5 text-xs font-bold tracking-widest">
   MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL WORKERS ARE INDEPENDENT CONTRACTORS
 </div>
 
 <!-- HEADER -->
-
 <header class="border-b border-zinc-800 bg-zinc-900/95 sticky top-0 z-50 backdrop-blur-md">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2 cursor-pointer" onclick="showTab('jobs')">
@@ -76,7 +73,6 @@
 </header>
 
 <!-- MOBILE NAV -->
-
 <div id="mobile-nav" class="sm:hidden fixed bottom-0 left-0 right-0 bg-zinc-900/95 border-t border-zinc-800 z-50 hidden backdrop-blur-md">
   <div class="flex justify-around py-3">
     <button onclick="showTab('jobs')" class="flex flex-col items-center text-xs gap-1 mob-tab active" data-tab="jobs"><i class="fas fa-briefcase text-lg"></i>Jobs</button>
@@ -90,7 +86,6 @@
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 sm:pb-6">
 
 <!-- JOBS TAB -->
-
 <div id="jobs-tab" class="tab-content">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-3xl font-extrabold">Open Jobs</h1>
@@ -117,7 +112,6 @@
 </div>
 
 <!-- GO TAB -->
-
 <div id="go-tab" class="tab-content hidden">
   <h1 class="text-3xl font-extrabold mb-1">MUVR GO</h1>
   <p class="text-zinc-400 text-sm mb-4">Live workers near you</p>
@@ -129,7 +123,6 @@
 </div>
 
 <!-- WALLET TAB -->
-
 <div id="wallet-tab" class="tab-content hidden">
   <h1 class="text-3xl font-extrabold mb-5">MV Wallet</h1>
   <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-5">
@@ -164,7 +157,6 @@
 </div>
 
 <!-- BLOG TAB -->
-
 <div id="blog-tab" class="tab-content hidden">
   <div class="flex items-center justify-between mb-6">
     <div><h1 class="text-3xl font-extrabold">Blog</h1><p class="text-zinc-400 text-sm">News, guides, and ecosystem updates</p></div>
@@ -176,14 +168,12 @@
 </div>
 
 <!-- BLOG POST VIEW -->
-
 <div id="blog-post-tab" class="tab-content hidden">
   <button onclick="showTab('blog')" class="text-zinc-400 text-sm mb-4 hover:text-white">&larr; Back to Blog</button>
   <div id="blog-post-content"></div>
 </div>
 
 <!-- PROFILE TAB -->
-
 <div id="profile-tab" class="tab-content hidden">
   <div id="profile-content" class="max-w-lg mx-auto"><div class="text-zinc-500 py-12 text-center">Sign in to view your profile</div></div>
 </div>
@@ -191,9 +181,7 @@
 </main>
 
 <!-- ====== MODALS ====== -->
-
 <!-- LOGIN -->
-
 <div id="login-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <h2 class="text-xl font-extrabold mb-1">Welcome to MUVR &#x1F9BE;</h2>
@@ -207,7 +195,6 @@
 </div>
 
 <!-- LEGAL -->
-
 <div id="legal-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-extrabold mb-4">Before You Start</h2>
@@ -230,7 +217,6 @@
 </div>
 
 <!-- RIDESHARE WAIVER -->
-
 <div id="rideshare-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-red-600 max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-extrabold mb-4 text-red-400">Rideshare Waiver</h2>
@@ -247,7 +233,6 @@
 </div>
 
 <!-- POST JOB -->
-
 <div id="post-job-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Post a Job</h2><button onclick="hideModal('post-job-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -270,7 +255,6 @@
 </div>
 
 <!-- APPLY -->
-
 <div id="apply-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Apply</h2><button onclick="hideModal('apply-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -283,7 +267,6 @@
 </div>
 
 <!-- SEND MV -->
-
 <div id="send-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Send MV</h2><button onclick="hideModal('send-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -294,7 +277,6 @@
 </div>
 
 <!-- LOAD MV -->
-
 <div id="load-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-3"><h2 class="text-xl font-extrabold">Load MV</h2><button onclick="hideModal('load-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -311,7 +293,6 @@
 </div>
 
 <!-- PROFILE EDIT -->
-
 <div id="profile-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4"><div><h2 class="text-xl font-extrabold">Your Profile</h2><p class="text-zinc-400 text-xs">Make it shine</p></div><button onclick="hideModal('profile-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -341,7 +322,6 @@
 </div>
 
 <!-- BLOG EDITOR (admin) -->
-
 <div id="blog-editor-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-2xl border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Write Post</h2><button onclick="hideModal('blog-editor-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -358,7 +338,6 @@
 </div>
 
 <!-- JOB DETAIL -->
-
 <div id="job-detail-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Job Details</h2><button onclick="hideModal('job-detail-modal')" class="text-zinc-400 text-xl">&times;</button></div>
@@ -367,7 +346,6 @@
 </div>
 
 <!-- EXCHANGE CHATBOT -->
-
 <div id="exchange-btn" onclick="toggleExchange()"><i class="fas fa-comment-dots"></i></div>
 <div id="exchange-panel">
   <div class="bg-zinc-800 px-4 py-3 flex justify-between items-center border-b border-zinc-700">
@@ -439,29 +417,29 @@ function requireAuth(fn){if(!user){showModal('login-modal');return}fn()}
 function isAdmin(){return user&&ADMIN_EMAILS.includes(user.email)}
 
 // PROFILE
+async function authFetch(path,opts={}){
+  const sess=await sb.auth.getSession()
+  const token=sess.data.session?.access_token
+  if(!token){console.error('No auth token');return null}
+  const headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+token,...(opts.headers||{})}
+  return fetch(SUPA_URL+'/rest/v1/'+path,{...opts,headers})
+}
 async function loadProfile(){
   if(!user)return
   try{
-    // Use raw fetch - proven to work when sb.from() doesn't
-    const sess=await sb.auth.getSession()
-    const token=sess.data.session?.access_token||SUPA_KEY
-    const res=await fetch(SUPA_URL+'/rest/v1/users?id=eq.'+user.id+'&select=*',{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
-    })
+    const res=await authFetch('users?id=eq.'+user.id+'&select=*')
+    if(!res){profile={id:user.id,email:user.email,mv_balance:0};return}
     const rows=await res.json()
     console.log('loadProfile fetch:',rows?.length,'rows',rows?.[0]?.email,rows?.[0]?.mv_balance)
     if(rows&&rows.length>0){profile=rows[0];return}
     // No row — create one
     console.log('loadProfile: creating row for',user.id)
-    await fetch(SUPA_URL+'/rest/v1/users',{
-      method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'},
+    await authFetch('users',{
+      method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation'},
       body:JSON.stringify({id:user.id,email:user.email,mv_balance:0})
     })
-    // Re-read
-    const res2=await fetch(SUPA_URL+'/rest/v1/users?id=eq.'+user.id+'&select=*',{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
-    })
-    const rows2=await res2.json()
+    const res2=await authFetch('users?id=eq.'+user.id+'&select=*')
+    const rows2=res2?await res2.json():[]
     profile=rows2?.[0]||{id:user.id,email:user.email,mv_balance:0}
     console.log('loadProfile final:',profile.email,profile.mv_balance)
   }catch(err){console.error('loadProfile error:',err);profile={id:user.id,email:user.email,mv_balance:0}}
@@ -477,9 +455,9 @@ async function saveProfile(){
     u.vehicle_condition=gv('p-vcond');u.can_rideshare=gi('p-ride').checked;u.can_deliver=gi('p-deliver').checked;u.can_haul=gi('p-haul').checked
   }
   // Get geolocation for map
-  if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await sb.from('users').update({latitude:pos.coords.latitude,longitude:pos.coords.longitude}).eq('id',user.id)},()=>{})}
-  const{error}=await sb.from('users').update(u).eq('id',user.id)
-  if(error){console.error('Save:',error);toast('Save failed','error');return}
+  if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({latitude:pos.coords.latitude,longitude:pos.coords.longitude})})},()=>{})}
+  const res=await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(u)})
+  if(!res||!res.ok){console.error('Save failed:',res?.status);toast('Save failed','error');return}
   await loadProfile();hideModal('profile-modal');updateUI();renderProfile();toast('Profile saved!')
 }
 
@@ -730,6 +708,5 @@ function renderSkills(){var c=gi('skill-boxes');if(!c)return;c.innerHTML=SKILLS.
 
 window.onload=init
 </script>
-
 </body>
 </html>
