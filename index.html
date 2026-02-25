@@ -113,22 +113,44 @@
 <div id="wallet-tab" class="tab-content hidden">
   <h1 class="text-3xl font-bold mb-6">MV Wallet</h1>
   <!-- SUPPLY DASHBOARD -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
-      <p class="text-[10px] text-zinc-500 tracking-wider">TOTAL SUPPLY</p>
-      <p id="supply-total" class="text-lg font-mono font-bold text-[#14F1C6]">100M</p>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="font-bold text-sm tracking-wider">MV SUPPLY <span class="text-[#14F1C6]">LIVE</span></h2>
+        <p class="text-zinc-500 text-[10px]">1 MV = $1 USD • Deflationary • Hard cap 100M</p>
+      </div>
+      <span class="text-[10px] bg-zinc-800 px-3 py-1 rounded-lg text-zinc-400">⛓ PUBLIC LEDGER</span>
     </div>
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
-      <p class="text-[10px] text-zinc-500 tracking-wider">MINTED</p>
-      <p id="supply-minted" class="text-lg font-mono font-bold">0</p>
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div class="bg-zinc-800 rounded-xl p-3 text-center">
+        <p class="text-[10px] text-zinc-500 tracking-wider">MAX SUPPLY</p>
+        <p id="supply-total" class="text-lg font-mono font-bold text-[#14F1C6]">100M</p>
+      </div>
+      <div class="bg-zinc-800 rounded-xl p-3 text-center">
+        <p class="text-[10px] text-zinc-500 tracking-wider">MINTED</p>
+        <p id="supply-minted" class="text-lg font-mono font-bold">0</p>
+      </div>
+      <div class="bg-zinc-800 rounded-xl p-3 text-center">
+        <p class="text-[10px] text-zinc-500 tracking-wider">CIRCULATING</p>
+        <p id="supply-circulating" class="text-lg font-mono font-bold text-emerald-400">0</p>
+      </div>
+      <div class="bg-zinc-800 rounded-xl p-3 text-center">
+        <p class="text-[10px] text-zinc-500 tracking-wider">🔒 ESCROWED</p>
+        <p id="supply-escrowed" class="text-lg font-mono font-bold text-yellow-400">0</p>
+      </div>
+      <div class="bg-zinc-800 rounded-xl p-3 text-center">
+        <p class="text-[10px] text-zinc-500 tracking-wider">🔥 BURNED</p>
+        <p id="supply-burned" class="text-lg font-mono font-bold text-red-400">0</p>
+        <p class="text-[8px] text-red-400 mt-1">GONE FOREVER</p>
+      </div>
     </div>
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
-      <p class="text-[10px] text-zinc-500 tracking-wider">ESCROWED</p>
-      <p id="supply-escrowed" class="text-lg font-mono font-bold text-yellow-400">0</p>
+    <div class="mt-3 bg-zinc-800 rounded-lg h-2 overflow-hidden">
+      <div id="supply-bar-minted" class="h-full bg-[#14F1C6] float-left" style="width:0%"></div>
+      <div id="supply-bar-escrowed" class="h-full bg-yellow-500 float-left" style="width:0%"></div>
+      <div id="supply-bar-burned" class="h-full bg-red-500 float-left" style="width:0%"></div>
     </div>
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
-      <p class="text-[10px] text-zinc-500 tracking-wider">BURNED</p>
-      <p id="supply-burned" class="text-lg font-mono font-bold text-red-400">0</p>
+    <div class="flex justify-between mt-1 text-[8px] text-zinc-500">
+      <span>🟢 Circulating</span><span>🟡 Escrowed</span><span>🔴 Burned forever</span><span>⚫ Unminted</span>
     </div>
   </div>
   <!-- BALANCE CARD -->
@@ -250,7 +272,7 @@
       <input id="job-address" placeholder="Location (Pensacola area)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
       <div class="bg-zinc-800 rounded-xl p-3 text-sm">
         <div class="flex justify-between"><span class="text-zinc-400">Budget</span><span id="fee-budget">0 MV</span></div>
-        <div class="flex justify-between"><span class="text-zinc-400">Platform Fee</span><span>1 MV</span></div>
+        <div class="flex justify-between"><span class="text-zinc-400">Platform Fee</span><span>1 MV <span class="text-red-400 text-[10px]">🔥 burned</span></span></div>
         <div class="flex justify-between font-bold border-t border-zinc-700 pt-2 mt-2"><span>Total Escrowed</span><span id="fee-total" class="text-[#14F1C6]">1 MV</span></div>
       </div>
       <div id="fraud-result" class="hidden"></div>
@@ -285,14 +307,26 @@
 <div id="load-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Load MV</h2><button onclick="hideModal('load-modal')" class="text-zinc-400 text-xl">&times;</button></div>
-    <p class="text-zinc-400 text-sm mb-4">1 MV = $1 USD</p>
+    <p class="text-[#14F1C6] text-sm font-semibold mb-1">1 MV = $1 USD • Always.</p>
+    <p class="text-zinc-400 text-xs mb-4">No fees to load. Your money enters the system 1:1.</p>
     <div class="grid grid-cols-2 gap-3 mb-4">
+      <button onclick="loadMV(5)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$5<br><span class="text-[#14F1C6] text-sm">5 MV</span></button>
       <button onclick="loadMV(10)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$10<br><span class="text-[#14F1C6] text-sm">10 MV</span></button>
       <button onclick="loadMV(25)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$25<br><span class="text-[#14F1C6] text-sm">25 MV</span></button>
       <button onclick="loadMV(50)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$50<br><span class="text-[#14F1C6] text-sm">50 MV</span></button>
       <button onclick="loadMV(100)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$100<br><span class="text-[#14F1C6] text-sm">100 MV</span></button>
+      <div class="bg-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center">
+        <input id="custom-load" type="number" min="5" placeholder="Custom $" class="bg-zinc-700 border border-zinc-600 rounded-lg px-3 py-2 w-full text-center text-sm mb-2">
+        <button onclick="loadMV(parseInt(gv('custom-load')))" class="text-[#14F1C6] text-xs font-semibold">LOAD CUSTOM</button>
+      </div>
     </div>
-    <p class="text-zinc-600 text-[10px] text-center">Processed by Stripe. No load fees.</p>
+    <div class="bg-zinc-800 rounded-xl p-3 text-[10px] text-zinc-400 space-y-1">
+      <p>🔥 <strong class="text-red-400">Deflationary:</strong> 1 MV burned per job post — permanently destroyed</p>
+      <p>🔒 <strong class="text-yellow-400">Escrowed:</strong> Job funds locked until work is done</p>
+      <p>⛓ <strong class="text-[#14F1C6]">Immutable:</strong> Every transaction recorded forever</p>
+      <p>💰 <strong class="text-white">Cash out anytime</strong> at 1 MV = $1 (0.5% fee)</p>
+    </div>
+    <p class="text-zinc-600 text-[10px] text-center mt-3">Minimum $5 • Processed by Stripe • No load fees</p>
   </div>
 </div>
 
@@ -853,10 +887,19 @@ async function reqWorker(wid,ride){
 async function loadSupply(){
   const{data}=await sb.from('mv_supply').select('*').single()
   if(data){
-    document.getElementById('supply-total').textContent=fmtNum(data.max_supply)
+    const max=data.max_supply||100000000
+    document.getElementById('supply-total').textContent=fmtNum(max)
     document.getElementById('supply-minted').textContent=fmtNum(data.total_minted)
-    document.getElementById('supply-escrowed').textContent=fmtNum(data.total_escrowed)
-    document.getElementById('supply-burned').textContent=fmtNum(data.total_burned)
+    document.getElementById('supply-circulating').textContent=fmtNum(data.circulating)
+    document.getElementById('supply-escrowed').textContent=fmtNum(data.total_escrowed||data.escrowed)
+    document.getElementById('supply-burned').textContent=fmtNum(data.total_burned||data.burned)
+    // Progress bar
+    const mintPct=((data.circulating||0)/max*100).toFixed(2)
+    const escPct=((data.escrowed||0)/max*100).toFixed(2)
+    const burnPct=((data.burned||0)/max*100).toFixed(2)
+    document.getElementById('supply-bar-minted').style.width=mintPct+'%'
+    document.getElementById('supply-bar-escrowed').style.width=escPct+'%'
+    document.getElementById('supply-bar-burned').style.width=burnPct+'%'
   }
 }
 
@@ -916,6 +959,8 @@ async function sendMV(){
 }
 
 async function loadMV(amt){
+  if(!amt||amt<5)return toast('Minimum load is $5 (5 MV)','error')
+  if(amt>10000)return toast('Maximum single load is $10,000','error')
   if(!confirm('Load '+amt+' MV ($'+amt+') via Stripe?\n\n(Beta: credited instantly)'))return
   try{
     // Try RPC mint_mv first
