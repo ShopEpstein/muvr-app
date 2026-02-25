@@ -419,15 +419,17 @@ function isAdmin(){return user&&ADMIN_EMAILS.includes(user.email)}
 // PROFILE
 async function loadProfile(){
   if(!user)return
-  let{data,error}=await sb.from('users').select('*').eq('id',user.id).single()
-  if(error||!data){
-    console.warn('loadProfile: no row, creating...',error)
-    const{error:ie}=await sb.from('users').upsert({id:user.id,email:user.email})
-    if(ie)console.warn('upsert fail:',ie)
-    const{data:d2}=await sb.from('users').select('*').eq('id',user.id).single()
-    data=d2||{id:user.id,email:user.email,mv_balance:0}
-  }
-  profile=data
+  // Always try SELECT first
+  var{data,error}=await sb.from('users').select('*').eq('id',user.id).maybeSingle()
+  console.log('loadProfile SELECT:',data?.email,data?.mv_balance,error?.message)
+  if(data){profile=data;return}
+  // No row found — try to create one
+  console.log('loadProfile: creating row for',user.id)
+  await sb.from('users').insert({id:user.id,email:user.email}).single()
+  // Re-read after insert
+  var{data:d2}=await sb.from('users').select('*').eq('id',user.id).maybeSingle()
+  profile=d2||{id:user.id,email:user.email,mv_balance:0}
+  console.log('loadProfile final:',profile.email,profile.mv_balance)
 }
 async function saveProfile(){
   const name=gv('p-name').trim();if(!name)return toast('Enter your name','error')
@@ -694,5 +696,4 @@ function renderSkills(){var c=gi('skill-boxes');if(!c)return;c.innerHTML=SKILLS.
 window.onload=init
 </script>
 </body>
-</html>    
-  
+</html>
