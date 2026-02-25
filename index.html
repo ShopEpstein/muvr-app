@@ -93,11 +93,18 @@
   </div>
   <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
     <button onclick="filterJobs('all')" class="job-filter bg-[#14F1C6] text-black px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">All</button>
-    <button onclick="filterJobs('physical')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Physical</button>
+    <button onclick="filterJobs('physical')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Labor</button>
     <button onclick="filterJobs('digital')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Digital</button>
     <button onclick="filterJobs('rideshare')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Rideshare</button>
     <button onclick="filterJobs('delivery')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Delivery</button>
     <button onclick="filterJobs('hauling')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Hauling</button>
+    <button onclick="filterJobs('caregiving')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Caregiving</button>
+    <button onclick="filterJobs('cleaning')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Cleaning</button>
+    <button onclick="filterJobs('callcenter')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Call Center</button>
+    <button onclick="filterJobs('handyman')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Handyman</button>
+    <button onclick="filterJobs('events')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Events</button>
+    <button onclick="filterJobs('childcare')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Child Care</button>
+    <button onclick="filterJobs('petcare')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Pet Care</button>
   </div>
   <div id="job-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F9BE;</div><p class="font-bold">No open jobs yet</p><p class="text-sm mt-1">Be the first to post!</p></div>
@@ -232,7 +239,7 @@
     <div class="space-y-3">
       <input id="job-title" placeholder="Job title" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
       <textarea id="job-desc" placeholder="Describe what you need..." rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"></textarea>
-      <select id="job-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="physical">Physical</option><option value="digital">Digital</option><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="hauling">Hauling</option></select>
+      <select id="job-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="physical">Physical Labor</option><option value="digital">Digital / Remote</option><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="hauling">Hauling / Moving</option><option value="cleaning">Cleaning</option><option value="caregiving">Home Health / Caregiving</option><option value="childcare">Child Care</option><option value="handyman">Handyman / Repairs</option><option value="yardwork">Yard Work / Landscaping</option><option value="callcenter">Call Center / Phone Work</option><option value="dataentry">Data Entry / VA</option><option value="events">Event Staff / Bartending</option><option value="security">Security</option><option value="petcare">Pet Care</option><option value="other">Other</option></select>
       <select id="job-urgency" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="asap">ASAP</option><option value="today">Today</option><option value="this_week">This Week</option><option value="flexible">Flexible</option></select>
       <div><label class="text-xs text-zinc-400 mb-1 block">Budget (MV) = $1 each</label><input id="job-budget" type="number" min="1" placeholder="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3" oninput="updateFee()"></div>
       <input id="job-address" placeholder="Location / Address" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
@@ -263,7 +270,7 @@
 <div id="send-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Send MV</h2><button onclick="hideModal('send-modal')" class="text-zinc-400 text-xl">&times;</button></div>
-    <input id="send-to" type="email" placeholder="Recipient email" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3">
+    <input id="send-to" type="text" placeholder="@handle or email" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3">
     <input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4">
     <button onclick="sendMV()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">SEND</button>
   </div>
@@ -292,7 +299,7 @@
     <div class="space-y-4">
       <div class="flex items-center gap-4">
         <div id="avatar-preview" onclick="uploadAvatar()" class="w-20 h-20 rounded-full bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-[#14F1C6] transition-all overflow-hidden shrink-0"><span id="avatar-placeholder" class="text-3xl">&#x1F60E;</span></div>
-        <div class="flex-1"><input id="p-name" placeholder="Your name" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-1"><p class="text-[10px] text-zinc-500">Tap pic to upload a photo</p></div>
+        <div class="flex-1"><input id="p-name" placeholder="Your name" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-1"><input id="p-username" placeholder="@handle (unique)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono mb-1"><p class="text-[10px] text-zinc-500">Tap pic to upload photo</p></div>
       </div>
       <div><label class="text-xs text-zinc-400 mb-1 block">ABOUT YOU</label><textarea id="p-about" placeholder="Tell people what you're great at!" rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" maxlength="280" oninput="gi('about-count').textContent=this.value.length"></textarea><p class="text-[10px] text-zinc-500 text-right"><span id="about-count">0</span>/280</p></div>
       <select id="p-role" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="both">Work AND post jobs</option><option value="worker">Work (earn MV)</option><option value="poster">Post jobs (hire)</option></select>
@@ -367,7 +374,7 @@ const SUPA_URL='https://cfenkstusggrcthehffn.supabase.co'
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o'
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY)
 let user=null,profile=null,balRevealed=false,jobFilter='all',allJobs=[],pendingRide=null,lmap=null,markers=[],exchangeOpen=false
-const SKILLS=['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Other']
+const SKILLS=['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Home Health Aide','Caregiving','Elder Care','Child Care','Call Center','Customer Service','Data Entry','Virtual Assistant','Bookkeeping','Personal Training','Massage','Security','Event Staff','Bartending','Other']
 const ADMIN_EMAILS=['contactfire757@gmail.com','biggernbetter24@gmail.com']
 
 function toast(msg,type='success'){const c=gi('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='all .3s';setTimeout(()=>t.remove(),300)},3500)}
@@ -425,7 +432,9 @@ async function loadProfile(){
 async function saveProfile(){
   const name=gv('p-name').trim();if(!name)return toast('Enter your name','error')
   const skills=[];document.querySelectorAll('.sk:checked').forEach(c=>skills.push(c.value))
+  var uname=gv('p-username').trim().toLowerCase().replace(/[^a-z0-9_]/g,'')
   const u={full_name:name,role:gv('p-role'),skills,about_me:gv('p-about').trim(),has_vehicle:gi('p-vehicle').checked,is_available:gv('p-role')!=='poster'}
+  if(uname)u.username=uname
   if(u.has_vehicle){
     u.vehicle_type=gv('p-vtype');u.vehicle_year=parseInt(gv('p-vyear'))||null;u.vehicle_make=gv('p-vmake');u.vehicle_model=gv('p-vmodel')
     u.vehicle_condition=gv('p-vcond');u.can_rideshare=gi('p-ride').checked;u.can_deliver=gi('p-deliver').checked;u.can_haul=gi('p-haul').checked
@@ -446,6 +455,7 @@ function renderProfile(){
     '<div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 text-center">'+
       '<div class="avatar-ring w-24 h-24 rounded-full mx-auto mb-3"><div class="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">'+avatarUrl+'</div></div>'+
       '<h2 class="text-2xl font-extrabold">'+esc(profile.full_name||'Set up your profile')+'</h2>'+
+      (profile.username?'<p class="text-[#14F1C6] text-sm font-mono font-bold">@'+esc(profile.username)+'</p>':'')+
       '<p class="text-zinc-400 text-sm">'+esc(profile.email||'')+'</p>'+
       '<div class="flex items-center justify-center gap-3 mt-3">'+
         '<span class="text-[#14F1C6] font-bold text-sm">'+badge+'</span>'+
@@ -595,23 +605,20 @@ async function loadWallet(){
   c.innerHTML=l.map(function(e){return'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-zinc-800"><div><span class="font-mono text-xs bg-zinc-800 px-2 py-0.5 rounded-full">'+e.type.toUpperCase()+'</span><span class="text-sm ml-2 text-zinc-300">'+esc(e.description||'')+'</span></div><div class="font-mono '+(e.amount_mv>0?'text-emerald-400':'text-red-400')+'">'+(e.amount_mv>0?'+':'')+e.amount_mv+' MV</div></div>'}).join('')
 }
 function toggleBalance(){balRevealed=!balRevealed;loadWallet()}
-async function sendMV(){var to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'));if(!to||!amt||amt<1)return toast('Enter recipient and amount','error');if(amt>(profile&&profile.mv_balance||0))return toast('Insufficient MV','error');var{data:r}=await sb.from('users').select('id,mv_balance').eq('email',to).single();if(!r)return toast('Recipient not found','error');await sb.from('users').update({mv_balance:(profile.mv_balance||0)-amt}).eq('id',user.id);await sb.from('users').update({mv_balance:(r.mv_balance||0)+amt}).eq('id',r.id);var h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16);await sb.from('mv_ledger').insert([{user_id:user.id,type:'send',amount_mv:-amt,description:'Sent to '+to,tx_hash:h,related_user_id:r.id},{user_id:r.id,type:'receive',amount_mv:amt,description:'From '+user.email,tx_hash:h,related_user_id:user.id}]);profile.mv_balance-=amt;hideModal('send-modal');loadWallet();toast(amt+' MV sent!')}
+async function sendMV(){var to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'));if(!to||!amt||amt<1)return toast('Enter recipient and amount','error');if(amt>(profile&&profile.mv_balance||0))return toast('Insufficient MV','error');var{data,error}=await sb.rpc('send_mv',{p_sender_id:user.id,p_recipient_identifier:to,p_amount:amt});if(error){toast('Error: '+error.message,'error');return};if(data&&data.success){profile.mv_balance-=amt;hideModal('send-modal');gi('send-to').value='';gi('send-amount').value='';loadWallet();toast(amt+' MV sent!')}else{toast((data&&data.error)||'Send failed','error')}}
 
 async function loadMV(amt){
   if(!amt||amt<5)return toast('Minimum $5','error')
   if(!confirm('Load '+amt+' MV ($'+amt+')?'))return
   try{
-    var ok=false
-    var{data:rpcData,error:mintErr}=await sb.rpc('mint_mv',{p_recipient_id:user.id,p_amount:amt,p_reason:'user_load',p_authorized_by:'stripe_beta',p_stripe_payment_id:'beta_'+Date.now()})
-    if(!mintErr&&rpcData&&rpcData.success){ok=true}
-    else{
-      console.warn('RPC fallback:',mintErr||rpcData)
-      var{error:ue}=await sb.from('users').update({mv_balance:(profile.mv_balance||0)+amt}).eq('id',user.id)
-      if(!ue)ok=true;else console.error('Update fail:',ue)
-      var h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
-      await sb.from('mv_ledger').insert({user_id:user.id,type:'load',amount_mv:amt,description:'Loaded '+amt+' MV',tx_hash:h})
+    var{data,error}=await sb.rpc('beta_load_mv',{p_user_id:user.id,p_amount:amt})
+    console.log('beta_load_mv result:',data,error)
+    if(error){toast('Load failed: '+error.message,'error');return}
+    if(data&&data.success){
+      toast(amt+' MV loaded!')
+    }else{
+      toast((data&&data.error)||'Load failed','error')
     }
-    if(ok){toast(amt+' MV loaded!')}else{toast('Load may have failed','error')}
     hideModal('load-modal');await loadProfile();loadWallet()
   }catch(err){console.error(err);toast('Error loading MV','error')}
 }
