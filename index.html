@@ -8,9 +8,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
-    body{font-family:'Inter',sans-serif}
+    body{font-family:'Inter',sans-serif;margin:0}
     .font-mono{font-family:'JetBrains Mono',monospace}
     .ticker{animation:ticker 30s linear infinite}
     @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -19,9 +21,19 @@
     .card-hover:hover{border-color:#14F1C6;transition:border-color .2s}
     input:focus,textarea:focus,select:focus{outline:none;border-color:#14F1C6}
     .mob-tab.active{color:#14F1C6}
+    #toast-container{position:fixed;top:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+    .toast{padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;animation:slideIn .3s ease;max-width:340px}
+    .toast-success{background:#065f46;color:#6ee7b7;border:1px solid #047857}
+    .toast-error{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+    .toast-info{background:#1e3a5f;color:#93c5fd;border:1px solid #1e40af}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    #map{height:300px;border-radius:16px;border:1px solid #27272a}
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
 
 <!-- LIABILITY BANNER -->
 <div class="bg-red-700 text-center py-1.5 text-xs font-bold tracking-widest">
@@ -88,7 +100,9 @@
 <!-- GO TAB -->
 <div id="go-tab" class="tab-content hidden">
   <h1 class="text-3xl font-bold mb-2">MUVR GO</h1>
-  <p class="text-zinc-400 text-sm mb-6">On-demand workers in Pensacola. Request now, get it done today.</p>
+  <p class="text-zinc-400 text-sm mb-4">On-demand workers in Pensacola. Request now, get it done today.</p>
+  <!-- LIVE MAP -->
+  <div id="map" class="mb-6"></div>
   <div class="flex gap-2 mb-6 overflow-x-auto pb-2" id="category-filters"></div>
   <div id="worker-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-4xl mb-4">🔍</div><p>No workers live right now. Be the first — go to Profile and toggle Live!</p></div>
@@ -98,6 +112,26 @@
 <!-- WALLET TAB -->
 <div id="wallet-tab" class="tab-content hidden">
   <h1 class="text-3xl font-bold mb-6">MV Wallet</h1>
+  <!-- SUPPLY DASHBOARD -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+      <p class="text-[10px] text-zinc-500 tracking-wider">TOTAL SUPPLY</p>
+      <p id="supply-total" class="text-lg font-mono font-bold text-[#14F1C6]">100M</p>
+    </div>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+      <p class="text-[10px] text-zinc-500 tracking-wider">MINTED</p>
+      <p id="supply-minted" class="text-lg font-mono font-bold">0</p>
+    </div>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+      <p class="text-[10px] text-zinc-500 tracking-wider">ESCROWED</p>
+      <p id="supply-escrowed" class="text-lg font-mono font-bold text-yellow-400">0</p>
+    </div>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+      <p class="text-[10px] text-zinc-500 tracking-wider">BURNED</p>
+      <p id="supply-burned" class="text-lg font-mono font-bold text-red-400">0</p>
+    </div>
+  </div>
+  <!-- BALANCE CARD -->
   <div class="bg-zinc-900 rounded-2xl p-6 max-w-md border border-zinc-800">
     <p class="text-zinc-500 text-xs tracking-wider mb-1">AVAILABLE BALANCE</p>
     <div class="flex items-end justify-between mb-6">
@@ -107,9 +141,15 @@
     <div class="grid grid-cols-3 gap-3">
       <button onclick="requireAuth(()=>showModal('send-modal'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-semibold">SEND</button>
       <button onclick="requireAuth(()=>showModal('load-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black py-4 rounded-xl text-sm font-semibold">LOAD</button>
-      <button onclick="requireAuth(()=>alert('Withdrawals coming soon.'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-semibold">CASH OUT</button>
+      <button onclick="requireAuth(()=>toast('Withdrawals coming soon','info'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-semibold">CASH OUT</button>
     </div>
   </div>
+  <!-- ACTIVE ESCROWS -->
+  <div class="mt-8" id="escrow-section">
+    <h2 class="text-lg font-semibold mb-3">Active Escrows <span class="text-yellow-400 text-xs">🔒 locked</span></h2>
+    <div id="escrow-list" class="space-y-2"><div class="text-zinc-500 text-sm py-2">No active escrows</div></div>
+  </div>
+  <!-- LEDGER -->
   <div class="mt-8">
     <h2 class="text-lg font-semibold mb-3">Transaction Ledger <span class="text-[#14F1C6] text-xs">⛓ immutable</span></h2>
     <div id="ledger-list" class="space-y-2"><div class="text-zinc-500 text-sm py-4">No transactions yet</div></div>
@@ -140,7 +180,7 @@
   </div>
 </div>
 
-<!-- LEGAL AGREEMENTS -->
+<!-- LEGAL -->
 <div id="legal-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-bold mb-4">Before You Start</h2>
@@ -291,9 +331,17 @@
   </div>
 </div>
 
+<!-- JOB DETAIL / MANAGE -->
+<div id="job-detail-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Job Details</h2><button onclick="hideModal('job-detail-modal')" class="text-zinc-400 text-xl">&times;</button></div>
+    <div id="job-detail-content"></div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer class="border-t border-zinc-800 mt-12 py-8 text-center text-xs text-zinc-600 px-4">
-  <p class="mb-2">MUVR is operated by TransBid LLC (Delaware) • 11000 Tanton Lane, Pensacola, FL 32506</p>
+  <p class="mb-2">MUVR is operated by TransBid LLC (Delaware) • Pensacola, FL</p>
   <p class="mb-2">MUVR does not employ, endorse, certify, insure, or guarantee any service provider. All workers are independent contractors.</p>
   <p>© 2026 TransBid LLC. All rights reserved.</p>
 </footer>
@@ -306,8 +354,20 @@ const SUPA_URL='https://cfenkstusggrcthehffn.supabase.co'
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o'
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY)
 
-let user=null, profile=null, balRevealed=false, jobFilter='all', allJobs=[], pendingRide=null
+let user=null,profile=null,balRevealed=false,jobFilter='all',allJobs=[],pendingRide=null,lmap=null,markers=[]
 const SKILLS=['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Other']
+
+// =============================================
+// TOAST SYSTEM
+// =============================================
+function toast(msg,type='success'){
+  const c=document.getElementById('toast-container')
+  const t=document.createElement('div')
+  t.className='toast toast-'+type
+  t.textContent=msg
+  c.appendChild(t)
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100%)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300)},3500)
+}
 
 // =============================================
 // INIT
@@ -329,14 +389,26 @@ async function signUp(){
   const e=gv('auth-email').trim(),p=gv('auth-password')
   if(!e||!p)return authErr('Enter email and password')
   if(p.length<6)return authErr('Password: 6+ characters')
-  const{data,error}=await sb.auth.signUp({email:e,password:p})
-  if(error)return authErr(error.message)
-  user=data.user
-  hideModal('login-modal')
-  await sb.from('users').upsert({id:user.id,email:e,city:'Pensacola',state:'FL'})
-  await loadProfile()
-  updateUI()
-  showModal('legal-modal')
+  try{
+    const{data,error}=await sb.auth.signUp({email:e,password:p})
+    if(error)return authErr(error.message)
+    if(!data.session){
+      // Email confirmation is ON — try to auto-sign-in
+      const{data:d2,error:e2}=await sb.auth.signInWithPassword({email:e,password:p})
+      if(e2)return authErr('Account created! Check email to confirm, then sign in.')
+      user=d2.user
+    }else{
+      user=data.user
+    }
+    hideModal('login-modal')
+    try{
+      await sb.from('users').upsert({id:user.id,email:e,city:'Pensacola',state:'FL'})
+    }catch(ue){console.warn('User upsert failed, will retry on next load:',ue)}
+    await loadProfile()
+    updateUI()
+    showModal('legal-modal')
+    toast('Welcome to MUVR!')
+  }catch(err){authErr('Connection error. Try again.')}
 }
 
 async function signIn(){
@@ -349,16 +421,17 @@ async function signIn(){
   await loadProfile()
   updateUI()
   checkLegal()
+  toast('Welcome back!')
 }
 
 function authErr(m){const el=document.getElementById('auth-error');el.textContent=m;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),5000)}
-async function logout(){await sb.auth.signOut();user=null;profile=null;updateUI();showTab('jobs')}
+async function logout(){await sb.auth.signOut();user=null;profile=null;updateUI();showTab('jobs');toast('Signed out','info')}
 
 function updateUI(){
   const info=document.getElementById('user-info'),mn=document.getElementById('mobile-nav')
   if(user){
     const n=profile?.full_name||profile?.email||user.email||'User'
-    info.innerHTML=`<span class="text-emerald-400 text-xs">● Live</span><span class="text-sm">${n}</span><button onclick="logout()" class="text-zinc-400 text-xs ml-2">Logout</button>`
+    info.innerHTML=`<span class="text-emerald-400 text-xs">● Live</span> <span class="text-sm">${esc(n)}</span> <button onclick="logout()" class="text-zinc-400 text-xs ml-2">Logout</button>`
     mn.classList.remove('hidden')
   }else{
     info.innerHTML='<button onclick="showModal(\'login-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-xl font-semibold text-sm">Sign In</button>'
@@ -383,7 +456,7 @@ async function loadProfile(){
 
 async function saveProfile(){
   const name=gv('p-name').trim()
-  if(!name)return alert('Enter your name')
+  if(!name)return toast('Enter your name','error')
   const skills=[];document.querySelectorAll('.sk:checked').forEach(c=>skills.push(c.value))
   const u={full_name:name,role:gv('p-role'),skills,has_vehicle:gi('p-vehicle').checked,is_available:gv('p-role')!=='poster'}
   if(u.has_vehicle){
@@ -396,7 +469,7 @@ async function saveProfile(){
   }
   await sb.from('users').update(u).eq('id',user.id)
   await loadProfile();hideModal('profile-modal');updateUI();renderProfile()
-  alert('Profile saved! You are live on MUVR.')
+  toast('Profile saved! You are live on MUVR.')
 }
 
 function renderProfile(){
@@ -429,6 +502,7 @@ async function toggleLive(){
   const v=!profile.is_available
   await sb.from('users').update({is_available:v}).eq('id',user.id)
   profile.is_available=v;renderProfile()
+  toast(v?'You are now LIVE':'You are now offline','info')
 }
 
 async function uploadVerif(type){
@@ -437,9 +511,9 @@ async function uploadVerif(type){
     const f=e.target.files[0];if(!f)return
     const path=`${user.id}/${Date.now()}-${f.name}`
     const{data,error}=await sb.storage.from('verifications').upload(path,f)
-    if(error)return alert('Upload failed: '+error.message)
+    if(error)return toast('Upload failed: '+error.message,'error')
     await sb.from('verifications').insert({user_id:user.id,type,file_path:data.path,status:'pending'})
-    alert('Uploaded! Pending review.')
+    toast('Uploaded! Pending review.')
   };i.click()
 }
 
@@ -481,6 +555,7 @@ async function acceptLegal(){
   await sb.from('users').update({tos_accepted:true,tos_accepted_at:new Date().toISOString(),contractor_agreement_accepted:true,contractor_agreement_accepted_at:new Date().toISOString()}).eq('id',user.id)
   hideModal('legal-modal')
   if(!profile?.full_name)showModal('profile-modal')
+  toast('Agreements accepted')
 }
 
 function updateRideBtn(){const c=gi('accept-rideshare').checked,b=document.getElementById('ride-btn');b.disabled=!c;b.style.opacity=c?1:0.5}
@@ -512,22 +587,28 @@ function renderJobs(){
         <span class="bg-zinc-800 px-2 py-1 rounded text-xs">🔒 Escrowed</span>
       </div>
       ${j.address?`<p class="text-zinc-500 text-xs mb-3">📍 ${esc(j.address)}</p>`:''}
-      <button onclick="requireAuth(()=>{document.getElementById('apply-job-id').value='${j.id}';showModal('apply-modal')})" class="w-full bg-zinc-800 hover:bg-teal-900 py-2.5 rounded-xl text-sm font-semibold">Apply Now</button>
+      <div class="flex gap-2">
+        <button onclick="requireAuth(()=>{document.getElementById('apply-job-id').value='${j.id}';showModal('apply-modal')})" class="flex-1 bg-zinc-800 hover:bg-teal-900 py-2.5 rounded-xl text-sm font-semibold">Apply Now</button>
+        ${user&&j.poster_id===user.id?`<button onclick="manageJob('${j.id}')" class="bg-zinc-700 hover:bg-zinc-600 px-4 py-2.5 rounded-xl text-sm">Manage</button>`:''}
+      </div>
     </div>`).join('')
 }
 
 function filterJobs(t){
-  jobFilter=t;document.querySelectorAll('.job-filter').forEach(b=>{b.className=b.textContent.trim().toLowerCase().includes(t)||t==='all'&&b.textContent.includes('All')?'job-filter bg-[#14F1C6] text-black px-4 py-2 rounded-xl text-sm whitespace-nowrap':'job-filter bg-zinc-800 px-4 py-2 rounded-xl text-sm whitespace-nowrap'})
-  renderJobs()
+  jobFilter=t;document.querySelectorAll('.job-filter').forEach(b=>{
+    const match=t==='all'?b.textContent.includes('All'):b.textContent.toLowerCase().includes(t)
+    b.className='job-filter '+(match?'bg-[#14F1C6] text-black':'bg-zinc-800')+' px-4 py-2 rounded-xl text-sm whitespace-nowrap'
+  });renderJobs()
 }
 
 function updateFee(){const b=parseFloat(gv('job-budget'))||0;document.getElementById('fee-budget').textContent=b+' MV';document.getElementById('fee-total').textContent=(b+1)+' MV'}
 
 async function postJob(){
   const title=gv('job-title').trim(),desc=gv('job-desc').trim(),jt=gv('job-type'),urg=gv('job-urgency'),budget=parseFloat(gv('job-budget')),addr=gv('job-address').trim()
-  if(!title)return alert('Enter title');if(!budget||budget<1)return alert('Budget must be 1+ MV')
+  if(!title)return toast('Enter a job title','error')
+  if(!budget||budget<1)return toast('Budget must be at least 1 MV','error')
   const total=budget+1
-  if((profile?.mv_balance||0)<total)return alert('Need '+total+' MV ('+budget+' + 1 fee). Load MV first.')
+  if((profile?.mv_balance||0)<total)return toast('Need '+total+' MV ('+budget+' + 1 fee). Load MV first.','error')
   
   if(jt==='rideshare'){
     const{data:w}=await sb.from('legal_agreements').select('id').eq('user_id',user.id).eq('agreement_type','rideshare_waiver')
@@ -543,22 +624,28 @@ async function postJob(){
     document.getElementById('fraud-result').classList.remove('hidden');return
   }
   
+  // Use RPC lock_escrow if available, fallback to direct insert
   const{data:job,error}=await sb.from('jobs').insert({poster_id:user.id,title,description:desc,job_type:jt,urgency:urg,budget_mv:budget,fee_mv:1,total_escrowed:total,address:addr,city:'Pensacola',state:'FL',fraud_score:fr.score,fraud_verdict:fr.verdict,fraud_flags:fr.flags}).select().single()
-  if(error){btn.disabled=false;btn.textContent='POST JOB & ESCROW MV';return alert('Error: '+error.message)}
+  if(error){btn.disabled=false;btn.textContent='POST JOB & ESCROW MV';return toast('Error: '+error.message,'error')}
   
-  await sb.from('escrow').insert({job_id:job.id,poster_id:user.id,amount_mv:budget,fee_mv:1,status:'locked'})
-  await sb.from('users').update({mv_balance:(profile.mv_balance||0)-total,mv_escrowed:(profile.mv_escrowed||0)+total}).eq('id',user.id)
-  await sb.from('mv_ledger').insert([
-    {user_id:user.id,type:'escrow_lock',amount_mv:-budget,description:'Escrow: '+title,related_job_id:job.id},
-    {user_id:user.id,type:'fee',amount_mv:-1,description:'Platform fee',related_job_id:job.id}
-  ])
+  // Call lock_escrow RPC
+  const{error:escErr}=await sb.rpc('lock_escrow',{p_user_id:user.id,p_job_id:job.id,p_amount:budget,p_fee:1})
+  if(escErr){
+    // Fallback: manual escrow
+    await sb.from('escrow').insert({job_id:job.id,poster_id:user.id,amount_mv:budget,fee_mv:1,status:'locked'})
+    await sb.from('users').update({mv_balance:(profile.mv_balance||0)-total,mv_escrowed:(profile.mv_escrowed||0)+total}).eq('id',user.id)
+    await sb.from('mv_ledger').insert([
+      {user_id:user.id,type:'escrow_lock',amount_mv:-budget,description:'Escrow: '+title,related_job_id:job.id},
+      {user_id:user.id,type:'fee',amount_mv:-1,description:'Platform fee',related_job_id:job.id}
+    ])
+  }
   await sb.from('fraud_log').insert({job_id:job.id,poster_id:user.id,score:fr.score,verdict:fr.verdict,flags:fr.flags})
   
   profile.mv_balance=(profile.mv_balance||0)-total
   btn.disabled=false;btn.textContent='POST JOB & ESCROW MV'
   gi('job-title').value='';gi('job-desc').value='';gi('job-budget').value='';gi('job-address').value=''
   document.getElementById('fraud-result').classList.add('hidden')
-  hideModal('post-job-modal');loadJobs();alert('Job posted! '+total+' MV escrowed.')
+  hideModal('post-job-modal');loadJobs();toast('Job posted! '+total+' MV escrowed. ⛓')
 }
 
 function fraudCheck(t,d,b){
@@ -573,17 +660,156 @@ function fraudCheck(t,d,b){
 async function applyJob(){
   const jid=gv('apply-job-id'),pitch=gv('apply-pitch'),rate=parseFloat(gv('apply-rate')),turn=gv('apply-turn')
   const{error}=await sb.from('applications').insert({job_id:jid,worker_id:user.id,pitch,rate_mv:rate||null,turnaround:turn})
-  if(error){if(error.code==='23505')return alert('Already applied');return alert(error.message)}
+  if(error){if(error.code==='23505')return toast('Already applied','error');return toast(error.message,'error')}
   hideModal('apply-modal');gi('apply-pitch').value='';gi('apply-rate').value='';gi('apply-turn').value=''
-  alert('Applied! Poster will review.')
+  toast('Applied! Poster will review.')
 }
 
 // =============================================
-// MUVR GO
+// JOB MANAGEMENT (Escrow Release/Refund)
+// =============================================
+async function manageJob(jobId){
+  const{data:job}=await sb.from('jobs').select('*').eq('id',jobId).single()
+  if(!job)return toast('Job not found','error')
+  const{data:apps}=await sb.from('applications').select('*').eq('job_id',jobId)
+  const{data:esc}=await sb.from('escrow').select('*').eq('job_id',jobId).single()
+  
+  let appHtml=''
+  if(apps?.length){
+    appHtml='<h3 class="font-semibold mt-4 mb-2">Applications ('+apps.length+')</h3>'
+    for(const a of apps){
+      const{data:w}=await sb.from('users').select('full_name,email,rating,jobs_completed').eq('id',a.worker_id).single()
+      appHtml+=`<div class="bg-zinc-800 rounded-xl p-4 mb-2">
+        <div class="flex justify-between"><strong>${esc(w?.full_name||w?.email||'Worker')}</strong><span class="text-[#14F1C6] font-mono">${a.rate_mv||'—'} MV</span></div>
+        <p class="text-sm text-zinc-400 mt-1">${esc(a.pitch||'')}</p>
+        <p class="text-xs text-zinc-500">${a.turnaround||''} • ${w?.jobs_completed||0} jobs • ⭐ ${w?.rating||'new'}</p>
+        ${a.status==='pending'?`<div class="flex gap-2 mt-2">
+          <button onclick="acceptApp('${jobId}','${a.id}','${a.worker_id}')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-lg text-sm font-semibold">Accept</button>
+          <button onclick="rejectApp('${a.id}')" class="bg-zinc-700 px-4 py-2 rounded-lg text-sm">Decline</button>
+        </div>`:`<span class="text-xs mt-2 inline-block ${a.status==='accepted'?'text-emerald-400':'text-zinc-500'}">${a.status.toUpperCase()}</span>`}
+      </div>`
+    }
+  }else{
+    appHtml='<p class="text-zinc-500 text-sm mt-4">No applications yet</p>'
+  }
+  
+  let escrowHtml=''
+  if(esc&&esc.status==='locked'&&job.status==='in_progress'){
+    escrowHtml=`<div class="mt-4 flex gap-2">
+      <button onclick="releaseEscrow('${jobId}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-semibold">✅ Release Payment</button>
+      <button onclick="refundEscrow('${jobId}')" class="flex-1 bg-red-800 hover:bg-red-700 py-3 rounded-xl font-semibold">↩ Refund & Cancel</button>
+    </div>`
+  }
+  
+  document.getElementById('job-detail-content').innerHTML=`
+    <div class="space-y-3">
+      <div class="flex justify-between"><h3 class="text-xl font-bold">${esc(job.title)}</h3><span class="text-[#14F1C6] font-mono text-xl">${job.budget_mv} MV</span></div>
+      <p class="text-zinc-400">${esc(job.description||'')}</p>
+      <div class="flex gap-2 flex-wrap">
+        <span class="bg-zinc-800 px-3 py-1 rounded-lg text-sm">${job.job_type}</span>
+        <span class="bg-zinc-800 px-3 py-1 rounded-lg text-sm">${job.status}</span>
+        ${esc?`<span class="bg-yellow-950 text-yellow-400 px-3 py-1 rounded-lg text-sm">🔒 ${esc.amount_mv} MV escrowed</span>`:''}
+      </div>
+      ${appHtml}
+      ${escrowHtml}
+    </div>`
+  showModal('job-detail-modal')
+}
+
+async function acceptApp(jobId,appId,workerId){
+  await sb.from('applications').update({status:'accepted'}).eq('id',appId)
+  await sb.from('applications').update({status:'rejected'}).eq('job_id',jobId).neq('id',appId).eq('status','pending')
+  await sb.from('jobs').update({status:'in_progress',worker_id:workerId,assigned_at:new Date().toISOString()}).eq('id',jobId)
+  hideModal('job-detail-modal');loadJobs();toast('Worker accepted! Job in progress.')
+}
+
+async function rejectApp(appId){
+  await sb.from('applications').update({status:'rejected'}).eq('id',appId)
+  toast('Application declined','info')
+  hideModal('job-detail-modal')
+}
+
+async function releaseEscrow(jobId){
+  if(!confirm('Release payment to worker? This is final.'))return
+  const{error}=await sb.rpc('release_escrow',{p_job_id:jobId,p_poster_id:user.id})
+  if(error){
+    // Fallback manual release
+    const{data:esc}=await sb.from('escrow').select('*').eq('job_id',jobId).single()
+    const{data:job}=await sb.from('jobs').select('worker_id').eq('id',jobId).single()
+    if(esc&&job?.worker_id){
+      await sb.from('escrow').update({status:'released',released_at:new Date().toISOString()}).eq('id',esc.id)
+      const{data:w}=await sb.from('users').select('mv_balance').eq('id',job.worker_id).single()
+      await sb.from('users').update({mv_balance:(w?.mv_balance||0)+esc.amount_mv}).eq('id',job.worker_id)
+      await sb.from('users').update({mv_escrowed:(profile.mv_escrowed||0)-(esc.amount_mv+esc.fee_mv)}).eq('id',user.id)
+      await sb.from('mv_ledger').insert({user_id:job.worker_id,type:'escrow_release',amount_mv:esc.amount_mv,description:'Payment for job',related_job_id:jobId})
+      await sb.from('jobs').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',jobId)
+    }
+  }
+  hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet()
+  toast('Payment released! ⛓')
+}
+
+async function refundEscrow(jobId){
+  if(!confirm('Refund escrow and cancel job?'))return
+  const{error}=await sb.rpc('refund_escrow',{p_job_id:jobId,p_poster_id:user.id})
+  if(error){
+    // Fallback manual refund
+    const{data:esc}=await sb.from('escrow').select('*').eq('job_id',jobId).single()
+    if(esc){
+      const total=esc.amount_mv+esc.fee_mv
+      await sb.from('escrow').update({status:'refunded',released_at:new Date().toISOString()}).eq('id',esc.id)
+      await sb.from('users').update({mv_balance:(profile.mv_balance||0)+total,mv_escrowed:(profile.mv_escrowed||0)-total}).eq('id',user.id)
+      await sb.from('mv_ledger').insert({user_id:user.id,type:'escrow_refund',amount_mv:total,description:'Refund for cancelled job',related_job_id:jobId})
+      await sb.from('jobs').update({status:'cancelled'}).eq('id',jobId)
+    }
+  }
+  hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet()
+  toast('Escrow refunded','info')
+}
+
+// =============================================
+// MUVR GO + LIVE MAP
 // =============================================
 function renderCats(){
   const cats=['All','🚗 Rideshare','📦 Delivery','🏠 Moving','🚛 Hauling','🧹 Cleaning','🔨 Handyman','🌿 Yard Work','💪 Labor','🏃 Errands','⚡ Other']
   document.getElementById('category-filters').innerHTML=cats.map(c=>`<button onclick="loadWorkers('${c.replace(/[^\w]/g,'').toLowerCase()||'all'}')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-xl text-sm whitespace-nowrap">${c}</button>`).join('')
+}
+
+function initMap(){
+  if(lmap)return
+  lmap=L.map('map',{zoomControl:false}).setView([30.4213,-87.2169],12)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'© <a href="https://carto.com/">CARTO</a>',maxZoom:19
+  }).addTo(lmap)
+  L.control.zoom({position:'topright'}).addTo(lmap)
+  setTimeout(()=>lmap.invalidateSize(),200)
+}
+
+function updateMapMarkers(workers){
+  markers.forEach(m=>lmap.removeLayer(m))
+  markers=[]
+  if(!workers?.length)return
+  workers.forEach(w=>{
+    if(!w.latitude||!w.longitude)return
+    const icon=L.divIcon({
+      className:'',
+      html:`<div style="background:#14F1C6;color:#000;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)">${w.can_rideshare?'🚗':'🦾'} ${esc(w.full_name||'Worker')}</div>`,
+      iconSize:[0,0],iconAnchor:[0,0]
+    })
+    const m=L.marker([w.latitude,w.longitude],{icon}).addTo(lmap)
+    const popup=`<div style="color:#000;font-size:13px">
+      <strong>${esc(w.full_name||'Worker')}</strong><br>
+      ${trustBadge(trustScore(w))} • ${trustScore(w)}pts<br>
+      ${w.skills?.slice(0,3).join(', ')||'Available'}
+      ${w.can_rideshare?`<br><span style="color:red">⚠ Vehicle self-reported. MUVR does NOT inspect.</span>`:''}
+    </div>`
+    m.bindPopup(popup)
+    markers.push(m)
+  })
+  if(markers.length){
+    const group=L.featureGroup(markers)
+    lmap.fitBounds(group.getBounds().pad(0.2))
+  }
 }
 
 async function loadWorkers(f){
@@ -595,6 +821,10 @@ async function loadWorkers(f){
     else q=q.contains('skills',[f.charAt(0).toUpperCase()+f.slice(1)])
   }
   const{data}=await q
+  
+  // Update map
+  if(lmap)updateMapMarkers(data)
+  
   const c=document.getElementById('worker-grid')
   if(!data?.length){c.innerHTML='<div class="text-center py-16 col-span-full"><div class="text-4xl mb-4">🔍</div><p class="text-zinc-400">No workers live right now.</p><p class="text-zinc-500 text-sm mt-2">Are you a worker? <button onclick="showTab(\'profile\')" class="text-[#14F1C6] underline">Go live</button></p></div>';return}
   c.innerHTML=data.map(w=>{
@@ -614,17 +844,49 @@ async function reqWorker(wid,ride){
     const{data:w}=await sb.from('legal_agreements').select('id').eq('user_id',user.id).eq('agreement_type','rideshare_waiver')
     if(!w?.length){pendingRide=()=>reqWorker(wid,ride);showModal('rideshare-modal');return}
   }
-  alert('Request sent! Full auto-assign coming soon.')
+  toast('Request sent! Worker will be notified.','info')
 }
 
 // =============================================
-// WALLET
+// WALLET + SUPPLY DASHBOARD
 // =============================================
+async function loadSupply(){
+  const{data}=await sb.from('mv_supply').select('*').single()
+  if(data){
+    document.getElementById('supply-total').textContent=fmtNum(data.max_supply)
+    document.getElementById('supply-minted').textContent=fmtNum(data.total_minted)
+    document.getElementById('supply-escrowed').textContent=fmtNum(data.total_escrowed)
+    document.getElementById('supply-burned').textContent=fmtNum(data.total_burned)
+  }
+}
+
+function fmtNum(n){
+  if(!n)return '0'
+  if(n>=1e6)return(n/1e6).toFixed(1)+'M'
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K'
+  return n.toLocaleString()
+}
+
 async function loadWallet(){
   if(!user)return;await loadProfile()
+  loadSupply()
   const b=profile?.mv_balance||0
   document.getElementById('balance-display').textContent=balRevealed?b.toFixed(2)+' MV':'••••••'
   document.getElementById('balance-toggle').textContent=balRevealed?'HIDE':'REVEAL'
+  
+  // Load active escrows
+  const{data:escs}=await sb.from('escrow').select('*,jobs(title)').eq('poster_id',user.id).eq('status','locked')
+  const el=document.getElementById('escrow-list')
+  if(escs?.length){
+    el.innerHTML=escs.map(e=>`<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-yellow-900">
+      <div><span class="text-sm font-semibold">${esc(e.jobs?.title||'Job')}</span><span class="text-xs text-zinc-400 ml-2">🔒 locked</span></div>
+      <span class="font-mono text-yellow-400">${e.amount_mv+e.fee_mv} MV</span>
+    </div>`).join('')
+  }else{
+    el.innerHTML='<div class="text-zinc-500 text-sm py-2">No active escrows</div>'
+  }
+  
+  // Load ledger
   const{data:l}=await sb.from('mv_ledger').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(50)
   const c=document.getElementById('ledger-list')
   if(!l?.length){c.innerHTML='<div class="text-zinc-500 text-sm py-4">No transactions yet. Load MV to start.</div>';return}
@@ -638,10 +900,10 @@ function toggleBalance(){balRevealed=!balRevealed;loadWallet()}
 
 async function sendMV(){
   const to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'))
-  if(!to||!amt||amt<1)return alert('Enter recipient and amount')
-  if(amt>(profile?.mv_balance||0))return alert('Insufficient MV')
+  if(!to||!amt||amt<1)return toast('Enter recipient and amount','error')
+  if(amt>(profile?.mv_balance||0))return toast('Insufficient MV','error')
   const{data:r}=await sb.from('users').select('id,mv_balance').eq('email',to).single()
-  if(!r)return alert('Recipient not found')
+  if(!r)return toast('Recipient not found','error')
   await sb.from('users').update({mv_balance:(profile.mv_balance||0)-amt}).eq('id',user.id)
   await sb.from('users').update({mv_balance:(r.mv_balance||0)+amt}).eq('id',r.id)
   const h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
@@ -650,15 +912,31 @@ async function sendMV(){
     {user_id:r.id,type:'receive',amount_mv:amt,description:'From '+user.email,tx_hash:h,related_user_id:user.id}
   ])
   profile.mv_balance-=amt;hideModal('send-modal');gi('send-to').value='';gi('send-amount').value='';loadWallet()
-  alert(amt+' MV sent ⛓')
+  toast(amt+' MV sent ⛓')
 }
 
 async function loadMV(amt){
   if(!confirm('Load '+amt+' MV ($'+amt+') via Stripe?\n\n(Beta: credited instantly)'))return
-  await sb.from('users').update({mv_balance:(profile.mv_balance||0)+amt}).eq('id',user.id)
-  const h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
-  await sb.from('mv_ledger').insert({user_id:user.id,type:'load',amount_mv:amt,description:'Loaded '+amt+' MV',tx_hash:h})
-  profile.mv_balance=(profile.mv_balance||0)+amt;hideModal('load-modal');loadWallet();alert(amt+' MV loaded! ⛓')
+  try{
+    // Try RPC mint_mv first
+    const{data:rpcData,error:mintErr}=await sb.rpc('mint_mv',{p_recipient_id:user.id,p_amount:amt,p_reason:'user_load',p_authorized_by:'stripe_beta',p_stripe_payment_id:'beta_'+Date.now()})
+    if(mintErr){
+      console.warn('mint_mv RPC failed, using fallback:',mintErr)
+      // Fallback: direct update
+      const{error:ue}=await sb.from('users').update({mv_balance:(profile.mv_balance||0)+amt}).eq('id',user.id)
+      if(ue)console.error('User balance update failed:',ue)
+      const h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
+      const{error:le}=await sb.from('mv_ledger').insert({user_id:user.id,type:'load',amount_mv:amt,description:'Loaded '+amt+' MV',tx_hash:h})
+      if(le)console.warn('Ledger insert failed (RLS?):',le)
+    }else{
+      console.log('mint_mv success:',rpcData)
+    }
+    profile.mv_balance=(profile.mv_balance||0)+amt;hideModal('load-modal');loadWallet()
+    toast(amt+' MV loaded! ⛓')
+  }catch(err){
+    console.error('loadMV error:',err)
+    toast('Failed to load MV. Check console.','error')
+  }
 }
 
 // =============================================
@@ -680,7 +958,10 @@ function showTab(t){
   document.querySelector('.tab-btn[data-tab="'+t+'"]')?.classList.add('active')
   document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('active'))
   document.querySelector('.mob-tab[data-tab="'+t+'"]')?.classList.add('active')
-  if(t==='jobs')loadJobs();if(t==='go')loadWorkers('all');if(t==='wallet')loadWallet();if(t==='profile')renderProfile()
+  if(t==='jobs')loadJobs()
+  if(t==='go'){initMap();loadWorkers('all')}
+  if(t==='wallet')loadWallet()
+  if(t==='profile')renderProfile()
 }
 function showModal(id){document.getElementById(id)?.classList.remove('hidden')}
 function hideModal(id){document.getElementById(id)?.classList.add('hidden')}
