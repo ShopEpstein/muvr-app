@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MUVR - Earn More. Keep More. Own More.</title>
-  <meta name="description" content="MUVR - Zero commission marketplace powered by MV deflationary currency. Earn 25-50% more than Uber/Fiverr/Upwork.">
+  <title>MUVR - Zero Commission. Instant Payouts. Your Wealth Grows.</title>
+  <meta name="description" content="MUVR: Earn 25-50% more than Uber/Fiverr/Upwork. Zero commission. Instant payouts. Deflationary currency. Transparent. Borderless.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -12,7 +12,27 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
-    *{box-sizing:border-box}body{font-family:'Nunito',sans-serif;margin:0;background:#0a0e27;color:#fff}.font-mono{font-family:'JetBrains Mono',monospace}.ticker{animation:ticker 30s linear infinite}@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}.tab-btn{transition:all .2s;padding:4px 0;border-bottom:2px solid transparent;cursor:pointer}.tab-btn.active{color:#14F1C6;border-bottom-color:#14F1C6}.card-hover{transition:all .2s;cursor:pointer}.card-hover:hover{border-color:#14F1C6;transform:translateY(-2px)}.modal-hidden{display:none}.modal-visible{display:flex}.mob-tab.active{color:#14F1C6}#toast-container{position:fixed;top:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}.toast{padding:12px 20px;border-radius:16px;font-size:14px;font-weight:700;animation:slideIn .3s ease;max-width:340px;backdrop-filter:blur(12px);opacity:1}.toast-success{background:rgba(6,95,70,.9);color:#6ee7b7;border:1px solid #047857}.toast-error{background:rgba(127,29,29,.9);color:#fca5a5;border:1px solid #991b1b}.toast-info{background:rgba(30,58,95,.9);color:#93c5fd;border:1px solid #1e40af}@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}#map{height:280px;border-radius:16px;border:1px solid #27272a}.avatar-ring{background:conic-gradient(#14F1C6 0deg,#14F1C6 120deg,#facc15 120deg,#facc15 240deg,#f87171 240deg,#f87171 360deg);padding:3px;border-radius:50%;display:inline-flex}.skill-tag{transition:all .15s;cursor:pointer}.skill-tag:has(input:checked){background:#14F1C6;color:#000}.blog-card{transition:all .2s}.blog-card:hover{border-color:#14F1C6;transform:translateY(-2px)}.exchange-hidden{display:none}.exchange-visible{display:flex}.hidden{display:none}input:focus,textarea:focus,select:focus{outline:none;border-color:#14F1C6 !important}#exchange-btn{position:fixed;bottom:80px;right:16px;z-index:90;width:56px;height:56px;border-radius:50%;background:#14F1C6;color:#000;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(20,241,198,.3);transition:all .2s;font-size:20px;font-weight:800}#exchange-btn:hover{transform:scale(1.1)}#exchange-panel{position:fixed;bottom:150px;right:16px;width:340px;z-index:91;border-radius:20px;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);display:none}#exchange-panel.show{display:flex}.mv-price{font-size:2rem;font-weight:800;color:#14F1C6;font-family:'JetBrains Mono'}.hero-gradient{background:linear-gradient(135deg,#14F1C6 0%,#06af86 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    *{box-sizing:border-box}body{font-family:'Nunito',sans-serif;margin:0;background:#0a0e27;color:#fff;overflow-x:hidden}
+    .font-mono{font-family:'JetBrains Mono',monospace}
+    .ticker{animation:ticker 30s linear infinite}
+    @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    .tab-btn{transition:all .2s;padding:4px 0;border-bottom:2px solid transparent;cursor:pointer}
+    .tab-btn.active{color:#14F1C6;border-bottom-color:#14F1C6}
+    .card-hover{transition:all .2s;cursor:pointer}.card-hover:hover{border-color:#14F1C6;transform:translateY(-2px)}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:#14F1C6 !important}
+    .modal-hidden{display:none}.modal-visible{display:flex}
+    .mob-tab.active{color:#14F1C6}
+    #toast-container{position:fixed;top:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+    .toast{padding:12px 20px;border-radius:16px;font-size:14px;font-weight:700;animation:slideIn .3s ease;max-width:340px;backdrop-filter:blur(12px);opacity:1}
+    .toast-success{background:rgba(6,95,70,.9);color:#6ee7b7;border:1px solid #047857}
+    .toast-error{background:rgba(127,29,29,.9);color:#fca5a5;border:1px solid #991b1b}
+    .toast-info{background:rgba(30,58,95,.9);color:#93c5fd;border:1px solid #1e40af}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    #map{height:280px;border-radius:16px;border:1px solid #27272a}
+    .hero-gradient{background:linear-gradient(135deg,#14F1C6 0%,#06af86 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .mv-price{font-size:2rem;font-weight:800;color:#14F1C6;font-family:'JetBrains Mono'}
+    @media(max-width:640px){.hide-mobile{display:none}.show-mobile{display:block}}
+    @media(min-width:641px){.show-mobile{display:none}}
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
@@ -24,8 +44,8 @@
   MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL WORKERS ARE INDEPENDENT CONTRACTORS
 </div>
 
-<!-- HEADER -->
-<header class="border-b border-zinc-800 bg-zinc-900/95 sticky top-0 z-50 backdrop-blur-md">
+<!-- HEADER (Hidden when not logged in) -->
+<header id="app-header" class="border-b border-zinc-800 bg-zinc-900/95 sticky top-0 z-50 backdrop-blur-md hidden">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2 cursor-pointer" onclick="showTab('jobs')">
       <span class="text-2xl">💸</span>
@@ -36,11 +56,10 @@
       <button onclick="showTab('jobs')" class="tab-btn active" data-tab="jobs">JOBS</button>
       <button onclick="showTab('go')" class="tab-btn" data-tab="go">WORKERS</button>
       <button onclick="showTab('wallet')" class="tab-btn" data-tab="wallet">WALLET</button>
-      <button onclick="showTab('blog')" class="tab-btn" data-tab="blog">LEARN</button>
       <button onclick="showTab('profile')" class="tab-btn" data-tab="profile">PROFILE</button>
     </nav>
     <div id="user-info">
-      <button onclick="showModal('login-modal')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm">Sign In</button>
+      <button onclick="logout()" class="text-zinc-400 hover:text-white text-sm font-bold">sign out</button>
     </div>
   </div>
   <div class="bg-black py-1 overflow-hidden text-[#14F1C6] text-[10px] font-mono tracking-wider">
@@ -52,67 +71,223 @@
   </div>
 </header>
 
-<!-- MOBILE NAV -->
+<!-- MOBILE NAV (Hidden when not logged in) -->
 <div id="mobile-nav" class="sm:hidden fixed bottom-0 left-0 right-0 bg-zinc-900/95 border-t border-zinc-800 z-50 hidden backdrop-blur-md">
   <div class="flex justify-around py-3">
     <button onclick="showTab('jobs')" class="flex flex-col items-center text-xs gap-1 mob-tab active" data-tab="jobs"><i class="fas fa-briefcase text-lg"></i>Jobs</button>
     <button onclick="showTab('go')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="go"><i class="fas fa-map text-lg"></i>Map</button>
     <button onclick="showTab('wallet')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="wallet"><i class="fas fa-coins text-lg"></i>MV</button>
-    <button onclick="showTab('blog')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="blog"><i class="fas fa-book text-lg"></i>Learn</button>
     <button onclick="showTab('profile')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="profile"><i class="fas fa-user text-lg"></i>Me</button>
   </div>
 </div>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 sm:pb-6">
+<!-- LANDING PAGE (Shown before login) -->
+<div id="landing-page" class="min-h-screen pb-16 sm:pb-0">
+  <!-- HERO -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+    <div class="text-center mb-12">
+      <div class="inline-flex items-center gap-3 mb-6">
+        <span class="text-5xl sm:text-6xl">💸</span>
+        <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tighter">
+          MU<span class="text-[#14F1C6]">V</span>R
+        </h1>
+      </div>
+      <p class="text-4xl sm:text-5xl font-extrabold mb-4 leading-tight">
+        Earn 25-50% More.<br/>Keep 100%.<br/>
+        <span class="hero-gradient">Your Wealth Grows.</span>
+      </p>
+      <p class="text-zinc-400 text-lg sm:text-xl max-w-2xl mx-auto mb-8">
+        Zero commission marketplace. Instant payouts. Deflationary currency that appreciates over time. Transparent. Borderless. Built for workers.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="showModal('login-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-8 py-4 rounded-full font-bold text-lg transition">
+          GET STARTED
+        </button>
+        <button onclick="scrollTo('how-it-works')" class="border-2 border-[#14F1C6] text-[#14F1C6] hover:bg-[#14F1C6]/10 px-8 py-4 rounded-full font-bold text-lg transition">
+          LEARN MORE
+        </button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
+        <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">0%</p>
+        <p class="font-bold text-lg mb-2">Commission</p>
+        <p class="text-sm text-zinc-400">Keep 100% of your rate. Only 1 MV burned per job (removes inflation).</p>
+      </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
+        <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">⚡</p>
+        <p class="font-bold text-lg mb-2">Instant Payouts</p>
+        <p class="text-sm text-zinc-400">No 7-14 day delays. No currency risk. 1 MV = $1 USD always.</p>
+      </div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
+        <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">📈</p>
+        <p class="font-bold text-lg mb-2">Your Wealth Grows</p>
+        <p class="text-sm text-zinc-400">Deflationary currency. Hard cap 100M. Your MV appreciates over time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section id="how-it-works" class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+    <h2 class="text-3xl sm:text-4xl font-extrabold mb-12 text-center">Why Workers Choose MUVR</h2>
+    
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm sm:text-base">
+          <thead>
+            <tr class="border-b border-zinc-700">
+              <th class="px-4 sm:px-6 py-4 text-left font-bold">Platform</th>
+              <th class="px-4 sm:px-6 py-4 text-center font-bold">Commission</th>
+              <th class="px-4 sm:px-6 py-4 text-center font-bold">Payouts</th>
+              <th class="px-4 sm:px-6 py-4 text-center font-bold">Transparent</th>
+              <th class="px-4 sm:px-6 py-4 text-center font-bold">Worker Equity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-zinc-700 hover:bg-zinc-800/50">
+              <td class="px-4 sm:px-6 py-4 font-bold">Uber</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">25-30%</td>
+              <td class="px-4 sm:px-6 py-4 text-center">Real-time</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">❌</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">❌</td>
+            </tr>
+            <tr class="border-b border-zinc-700 hover:bg-zinc-800/50">
+              <td class="px-4 sm:px-6 py-4 font-bold">Fiverr</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">20%</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">14+ days</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">❌</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">❌</td>
+            </tr>
+            <tr class="border-b border-zinc-700 hover:bg-zinc-800/50">
+              <td class="px-4 sm:px-6 py-4 font-bold">Upwork</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">5-20%</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">7-14 days</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">❌</td>
+              <td class="px-4 sm:px-6 py-4 text-center text-red-400">❌</td>
+            </tr>
+            <tr class="bg-[#14F1C6]/10 hover:bg-[#14F1C6]/20">
+              <td class="px-4 sm:px-6 py-4 font-extrabold text-[#14F1C6]">MUVR</td>
+              <td class="px-4 sm:px-6 py-4 text-center font-bold text-[#14F1C6]">0%</td>
+              <td class="px-4 sm:px-6 py-4 text-center font-bold text-[#14F1C6]">Instant</td>
+              <td class="px-4 sm:px-6 py-4 text-center font-bold text-[#14F1C6]">✅</td>
+              <td class="px-4 sm:px-6 py-4 text-center font-bold text-[#14F1C6]">✅ (MV)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+    <h2 class="text-3xl sm:text-4xl font-extrabold mb-12 text-center">How MUVR Works</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4">
+          <span class="text-3xl">📝</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">1. Post or Apply</h3>
+        <p class="text-sm text-zinc-400">Post a gig or apply for one. No commission taken upfront.</p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4">
+          <span class="text-3xl">🔒</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">2. Escrow Locked</h3>
+        <p class="text-sm text-zinc-400">Budget locked. 1 MV burned. Both parties protected.</p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4">
+          <span class="text-3xl">✅</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">3. Work Complete</h3>
+        <p class="text-sm text-zinc-400">You keep 100% of your agreed rate. Instantly.</p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4">
+          <span class="text-3xl">📈</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">4. MV Appreciates</h3>
+        <p class="text-sm text-zinc-400">Deflationary. Your MV grows in value over time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 bg-zinc-900/50 rounded-2xl">
+    <h2 class="text-3xl sm:text-4xl font-extrabold mb-12 text-center">What Workers Say</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-zinc-800 border border-zinc-700 rounded-xl p-6">
+        <p class="text-sm mb-4">"On Fiverr I kept $77 per $100 earned. On MUVR I keep $99.50. That's $22.50 extra per $100 — 29% more income. MUVR is a no-brainer."</p>
+        <p class="font-bold text-sm">— Freelancer, India</p>
+      </div>
+
+      <div class="bg-zinc-800 border border-zinc-700 rounded-xl p-6">
+        <p class="text-sm mb-4">"Uber takes 28% of my $60 ride. MUVR takes 0%. I earn $59 instead of $43. That's $16 extra per ride. After 1000 rides, that's $16,000 more."</p>
+        <p class="font-bold text-sm">— Rideshare Driver, USA</p>
+      </div>
+
+      <div class="bg-zinc-800 border border-zinc-700 rounded-xl p-6">
+        <p class="text-sm mb-4">"Fiverr made me wait 14 days. Currency depreciated 3%. MUVR pays instantly and my MV = $1 USD always. Zero risk."</p>
+        <p class="font-bold text-sm">— Seller, Philippines</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
+    <h2 class="text-4xl sm:text-5xl font-extrabold mb-6">Ready to Earn More?</h2>
+    <p class="text-xl text-zinc-400 mb-8 max-w-2xl mx-auto">Join thousands of workers earning 25-50% more. Zero commission. Instant payouts. Your wealth grows.</p>
+    <button onclick="showModal('login-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-8 py-4 rounded-full font-bold text-lg transition">
+      SIGN UP NOW
+    </button>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-zinc-800 mt-12 py-8 text-center text-xs text-zinc-600 px-4">
+    <p class="mb-2">MUVR is operated by TransBid LLC (Delaware, USA)</p>
+    <p class="mb-2">MUVR is a technology marketplace. All workers are independent contractors.</p>
+    <p>© 2026 TransBid LLC. All rights reserved.</p>
+  </footer>
+</div>
+
+<!-- APP INTERFACE (Hidden until logged in) -->
+<main id="app-interface" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 sm:pb-6 hidden">
 
 <!-- JOBS TAB -->
 <div id="jobs-tab" class="tab-content">
   <div class="mb-8">
-    <h1 class="text-5xl font-extrabold mb-3 leading-tight">Earn 25-50% More.<br/>Keep 100%.<br/><span class="hero-gradient">Own Your Future.</span></h1>
-    <p class="text-zinc-400 text-base mb-6 max-w-2xl">MUVR: Zero commission. Instant payouts. Deflationary currency (your wealth grows). Transparent. Borderless. Built for workers.</p>
-    <button onclick="requireAuth(()=>showModal('post-job-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-6 py-3 rounded-full font-bold text-base transition">+ POST A GIG</button>
+    <h1 class="text-4xl sm:text-5xl font-extrabold mb-2">Available Gigs</h1>
+    <p class="text-zinc-400 text-base mb-6">Find work. Keep more. Build wealth.</p>
+    <button onclick="showModal('post-job-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-6 py-3 rounded-full font-bold text-base transition">+ POST A GIG</button>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-[#14F1C6]/50 transition">
-      <div class="text-4xl mb-2">💰</div>
-      <h3 class="font-bold text-lg mb-1">0% Commission</h3>
-      <p class="text-sm text-zinc-400">Keep 100% of your rate. Platform fee is 1 MV burned (removes inflation).</p>
-    </div>
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-[#14F1C6]/50 transition">
-      <div class="text-4xl mb-2">⚡</div>
-      <h3 class="font-bold text-lg mb-1">Instant Payouts</h3>
-      <p class="text-sm text-zinc-400">No 7-14 day delays. No currency risk. 1 MV = $1 USD always.</p>
-    </div>
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-[#14F1C6]/50 transition">
-      <div class="text-4xl mb-2">📈</div>
-      <h3 class="font-bold text-lg mb-1">Your Wealth Grows</h3>
-      <p class="text-sm text-zinc-400">Deflationary currency. Hard cap 100M. Your MV appreciates over time.</p>
-    </div>
-  </div>
-
-  <h2 class="text-2xl font-bold mb-4">Available Gigs</h2>
   <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
     <button onclick="filterJobs('all')" class="job-filter bg-[#14F1C6] text-black px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">All</button>
     <button onclick="filterJobs('rideshare')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Rideshare</button>
     <button onclick="filterJobs('delivery')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Delivery</button>
     <button onclick="filterJobs('physical')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Labor</button>
     <button onclick="filterJobs('digital')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Digital</button>
-    <button onclick="filterJobs('other')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Other</button>
   </div>
   <div id="job-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">📋</div><p class="font-bold">No jobs posted yet</p><p class="text-sm mt-1">Be the first! Post a gig above.</p></div>
+    <div class="text-zinc-500 text-center py-16 col-span-full"><p class="font-bold">No jobs posted yet</p></div>
   </div>
 </div>
 
-<!-- WORKERS TAB (MUVR GO) -->
+<!-- WORKERS MAP TAB -->
 <div id="go-tab" class="tab-content hidden">
   <h1 class="text-3xl font-extrabold mb-2">Find Workers Live Now</h1>
   <p class="text-zinc-400 text-sm mb-4">Available workers by location & skill</p>
   <div id="map" class="mb-5 rounded-2xl border border-zinc-800 overflow-hidden"></div>
-  <div class="flex gap-2 mb-5 overflow-x-auto pb-2" id="category-filters"></div>
   <div id="worker-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="text-zinc-500 text-center py-16 col-span-full"><p class="font-bold">No workers available right now</p></div>
+    <div class="text-zinc-500 text-center py-16 col-span-full">No workers available</div>
   </div>
 </div>
 
@@ -123,7 +298,7 @@
   <div class="bg-gradient-to-r from-[#14F1C6]/20 to-[#06af86]/20 border border-[#14F1C6]/30 rounded-2xl p-6 mb-6">
     <p class="text-[10px] text-zinc-400 tracking-widest font-bold mb-4 uppercase">MV Network Status</p>
     <div class="grid grid-cols-4 gap-4 text-center">
-      <div><p class="text-[10px] text-zinc-500 mb-1">CAP</p><p class="mv-price" id="supply-total">100M</p></div>
+      <div><p class="text-[10px] text-zinc-500 mb-1">CAP</p><p class="mv-price">100M</p></div>
       <div><p class="text-[10px] text-zinc-500 mb-1">MINTED</p><p class="mv-price" id="supply-minted">0</p></div>
       <div><p class="text-[10px] text-zinc-500 mb-1">ESCROWED</p><p class="text-2xl font-bold text-yellow-400" id="supply-escrowed">0</p></div>
       <div><p class="text-[10px] text-zinc-500 mb-1">BURNED</p><p class="text-2xl font-bold text-red-400" id="supply-burned">0</p></div>
@@ -137,46 +312,36 @@
       <button onclick="toggleBalance()" id="balance-toggle" class="text-zinc-400 hover:text-[#14F1C6] text-sm font-bold transition">SHOW</button>
     </div>
     <div class="grid grid-cols-3 gap-3">
-      <button onclick="requireAuth(()=>showModal('send-modal'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">SEND</button>
-      <button onclick="requireAuth(()=>showModal('load-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black py-4 rounded-xl text-sm font-bold transition">LOAD</button>
-      <button onclick="requireAuth(()=>showModal('cashout-modal'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">CASH OUT</button>
+      <button onclick="showModal('send-modal')" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">SEND</button>
+      <button onclick="showModal('load-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black py-4 rounded-xl text-sm font-bold transition">LOAD</button>
+      <button onclick="showModal('cashout-modal')" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">CASH OUT</button>
     </div>
   </div>
 
-  <h2 class="text-lg font-bold mb-3">Active Escrows <span class="text-yellow-400 text-xs font-normal">locked</span></h2>
-  <div id="escrow-list" class="space-y-2 mb-6"><div class="text-zinc-500 text-sm py-4">No active escrows</div></div>
-
-  <h2 class="text-lg font-bold mb-3">Transaction Ledger <span class="text-[#14F1C6] text-xs font-normal">immutable</span></h2>
+  <h2 class="text-lg font-bold mb-3">Transaction Ledger</h2>
   <div id="ledger-list" class="space-y-2"><div class="text-zinc-500 text-sm py-4">No transactions yet</div></div>
-</div>
-
-<!-- BLOG TAB -->
-<div id="blog-tab" class="tab-content hidden">
-  <h1 class="text-3xl font-extrabold mb-2">Learn About MUVR</h1>
-  <p class="text-zinc-400 text-sm mb-6">How zero commission, instant payouts, and deflationary currency work</p>
-  <div id="blog-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">📚</div><p class="font-bold">No articles yet</p></div>
-  </div>
 </div>
 
 <!-- PROFILE TAB -->
 <div id="profile-tab" class="tab-content hidden">
-  <div id="profile-content" class="max-w-lg mx-auto"><div class="text-zinc-500 py-12 text-center">Sign in to view and edit your profile</div></div>
+  <h1 class="text-3xl font-extrabold mb-4">Your Profile</h1>
+  <button onclick="showModal('profile-modal')" class="bg-[#14F1C6] text-black px-6 py-3 rounded-full font-bold mb-6">EDIT PROFILE</button>
+  <div id="profile-content" class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800"><div class="text-zinc-500 text-center py-8">Loading...</div></div>
 </div>
 
 </main>
 
-<!-- MODALS START -->
+<!-- MODALS -->
 
 <!-- LOGIN MODAL -->
 <div id="login-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
-    <h2 class="text-xl font-extrabold mb-1">Join MUVR</h2>
+    <h2 class="text-2xl font-extrabold mb-2">Join MUVR</h2>
     <p class="text-zinc-400 text-sm mb-6">Zero commission. Instant payouts. Your wealth grows.</p>
     <input id="auth-email" type="email" placeholder="you@email.com" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
     <input id="auth-password" type="password" placeholder="Password (6+ chars)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4 text-sm">
     <button onclick="signUp()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold mb-2 hover:bg-teal-300 transition">CREATE ACCOUNT</button>
-    <button onclick="signIn()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-bold transition">ALREADY SIGNED UP</button>
+    <button onclick="signIn()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-bold transition">ALREADY HAVE ACCOUNT</button>
     <p id="auth-error" class="text-red-400 text-xs text-center hidden mt-3"></p>
   </div>
 </div>
@@ -188,15 +353,11 @@
     <div class="space-y-4 mb-6">
       <div class="bg-zinc-800 rounded-xl p-4">
         <h3 class="font-bold text-[#14F1C6] text-sm mb-2">Terms of Service</h3>
-        <p class="text-xs text-zinc-300">MUVR is a technology marketplace. MUVR is NOT an employer. You are an independent contractor. MV is a platform credit (1 MV = $1 USD).</p>
+        <p class="text-xs text-zinc-300">MUVR is a technology marketplace. MUVR is NOT an employer. You are an independent contractor.</p>
       </div>
       <div class="bg-zinc-800 rounded-xl p-4">
         <h3 class="font-bold text-[#14F1C6] text-sm mb-2">Contractor Agreement</h3>
-        <p class="text-xs text-zinc-300">You control your schedule, rates, methods. You are responsible for taxes, insurance, licenses, and compliance with all laws.</p>
-      </div>
-      <div class="bg-zinc-800 rounded-xl p-4">
-        <h3 class="font-bold text-[#14F1C6] text-sm mb-2">Rideshare Waiver</h3>
-        <p class="text-xs text-zinc-300">You are responsible for vehicle insurance, registration, inspection, and compliance with all transportation laws.</p>
+        <p class="text-xs text-zinc-300">You control your schedule, rates, methods. You're responsible for taxes, insurance, and compliance.</p>
       </div>
     </div>
     <div class="space-y-2 mb-6">
@@ -210,7 +371,7 @@
       </label>
       <label class="flex items-start gap-3 cursor-pointer hover:bg-zinc-800/50 p-2 rounded">
         <input type="checkbox" id="accept-age" onchange="updateLegalBtn()" class="w-5 h-5 mt-0.5 cursor-pointer">
-        <span class="text-sm">I am <strong>18+</strong> and accept responsibility</span>
+        <span class="text-sm">I am <strong>18+</strong></span>
       </label>
     </div>
     <button onclick="acceptLegal()" id="legal-btn" class="w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-bold transition" disabled>Check all boxes</button>
@@ -229,11 +390,10 @@
       <textarea id="job-desc" placeholder="Describe the work..." rows="3" maxlength="500" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm resize-none"></textarea>
       <select id="job-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
         <option value="">Select job type...</option>
-        <option value="rideshare">Rideshare (Uber alternative)</option>
+        <option value="rideshare">Rideshare</option>
         <option value="delivery">Delivery</option>
         <option value="physical">Physical Labor</option>
         <option value="digital">Digital/Remote</option>
-        <option value="other">Other</option>
       </select>
       <select id="job-urgency" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
         <option value="asap">ASAP</option>
@@ -248,11 +408,10 @@
       <input id="job-address" placeholder="Location/Address" maxlength="200" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
       <div class="bg-zinc-800 rounded-xl p-3 text-sm border border-zinc-700">
         <div class="flex justify-between mb-2"><span class="text-zinc-400">Budget</span><span id="fee-budget" class="font-bold">0 MV</span></div>
-        <div class="flex justify-between mb-2"><span class="text-zinc-400">Fee (burned)</span><span class="text-red-400 font-bold">1 MV <span class="text-[10px] text-zinc-500">removed from supply forever</span></span></div>
-        <div class="flex justify-between font-bold border-t border-zinc-700 pt-2"><span>TOTAL ESCROW</span><span id="fee-total" class="text-[#14F1C6]">1 MV</span></div>
+        <div class="flex justify-between mb-2"><span class="text-zinc-400">Fee (burned)</span><span class="text-red-400 font-bold">1 MV</span></div>
+        <div class="flex justify-between font-bold border-t border-zinc-700 pt-2"><span>TOTAL</span><span id="fee-total" class="text-[#14F1C6]">1 MV</span></div>
       </div>
-      <button onclick="postJob()" id="post-btn" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">POST GIG & ESCROW</button>
-      <p class="text-[10px] text-zinc-500 text-center">Your budget is locked. Released when worker completes or job cancelled.</p>
+      <button onclick="postJob()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">POST GIG & ESCROW</button>
     </div>
   </div>
 </div>
@@ -302,8 +461,6 @@
       <button onclick="loadMV(25)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold text-sm transition">$25<br><span class="text-[#14F1C6] text-xs">25 MV</span></button>
       <button onclick="loadMV(50)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold text-sm transition">$50<br><span class="text-[#14F1C6] text-xs">50 MV</span></button>
     </div>
-    <input id="load-custom" type="number" min="1" max="1000" placeholder="Custom amount ($)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
-    <button onclick="loadCustomMV()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">PAY WITH STRIPE</button>
   </div>
 </div>
 
@@ -323,7 +480,7 @@
   </div>
 </div>
 
-<!-- PROFILE EDIT MODAL -->
+<!-- PROFILE MODAL -->
 <div id="profile-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
@@ -331,16 +488,8 @@
       <button onclick="hideModal('profile-modal')" class="text-zinc-400 text-2xl">&times;</button>
     </div>
     <div class="space-y-4">
-      <div class="flex items-center gap-4">
-        <div id="avatar-preview" onclick="uploadAvatar()" class="w-20 h-20 rounded-full bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-[#14F1C6] transition-all overflow-hidden shrink-0">
-          <span id="avatar-placeholder" class="text-3xl">👤</span>
-        </div>
-        <div class="flex-1">
-          <input id="p-name" placeholder="Your name" maxlength="100" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-2 text-sm">
-          <input id="p-username" placeholder="@handle" maxlength="30" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono">
-          <p class="text-[10px] text-zinc-500 mt-1">Click pic to upload avatar</p>
-        </div>
-      </div>
+      <input id="p-name" placeholder="Your name" maxlength="100" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+      <input id="p-username" placeholder="@handle" maxlength="30" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono">
       <textarea id="p-about" placeholder="What services do you offer?" rows="3" maxlength="280" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm resize-none" oninput="gi('about-count').textContent=this.value.length"></textarea>
       <p class="text-[10px] text-zinc-500 text-right"><span id="about-count">0</span>/280</p>
       <select id="p-role" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
@@ -350,54 +499,12 @@
       </select>
       <label class="flex items-center gap-3 cursor-pointer bg-zinc-800 px-4 py-3 rounded-xl hover:bg-zinc-700 transition">
         <input type="checkbox" id="p-vehicle" class="w-5 h-5 cursor-pointer">
-        <span class="text-sm">I have a vehicle (for rideshare/delivery)</span>
+        <span class="text-sm">I have a vehicle</span>
       </label>
-      <div id="vehicle-details" class="hidden space-y-2">
-        <select id="p-vehicle-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
-          <option value="car">Car</option>
-          <option value="truck">Truck</option>
-          <option value="van">Van</option>
-          <option value="suv">SUV</option>
-        </select>
-        <input id="p-vehicle-year" type="number" min="1990" max="2030" placeholder="Year" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
-        <input id="p-vehicle-make" placeholder="Make (e.g. Honda)" maxlength="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
-        <input id="p-vehicle-model" placeholder="Model (e.g. Civic)" maxlength="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
-      </div>
-      <div class="pt-2 border-t border-zinc-700">
-        <p class="text-xs font-bold text-zinc-400 mb-2">SKILLS</p>
-        <div class="grid grid-cols-2 gap-2">
-          ${SKILLS.map(s => `<label class="skill-tag flex items-center gap-2 bg-zinc-800 px-3 py-2 rounded-lg cursor-pointer"><input type="checkbox" value="${s}" class="skill-checkbox w-4 h-4"><span class="text-xs">${s}</span></label>`).join('')}
-        </div>
-      </div>
       <button onclick="saveProfile()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">SAVE PROFILE</button>
     </div>
   </div>
 </div>
-
-<!-- EXCHANGE CHATBOT -->
-<div id="exchange-btn" onclick="toggleExchange()" title="Ask MUVR Assistant"><i class="fas fa-comments"></i></div>
-<div id="exchange-panel" class="bg-zinc-800 border border-zinc-700">
-  <div class="bg-zinc-700 px-4 py-3 flex justify-between items-center border-b border-zinc-600">
-    <div class="flex items-center gap-2"><i class="fas fa-robot text-[#14F1C6]"></i><span class="text-[#14F1C6] font-extrabold text-sm">MUVR ASSISTANT</span></div>
-    <button onclick="toggleExchange()" class="text-zinc-400 hover:text-white text-lg">&times;</button>
-  </div>
-  <div id="exchange-messages" class="bg-zinc-900 flex-1 overflow-y-auto p-4 space-y-3 h-80">
-    <div class="bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%] text-sm">
-      <p class="text-[#14F1C6]"><strong>Welcome!</strong> I'm here to help. Ask about earnings, MV price, or how MUVR works.</p>
-    </div>
-  </div>
-  <div class="bg-zinc-800 p-3 flex gap-2 border-t border-zinc-700">
-    <input id="exchange-input" placeholder="Ask me..." class="flex-1 bg-zinc-700 border border-zinc-600 rounded-xl px-4 py-2 text-sm" onkeypress="if(event.key==='Enter')sendToExchange()">
-    <button onclick="sendToExchange()" class="bg-[#14F1C6] text-black px-4 rounded-xl font-bold text-sm hover:bg-teal-300 transition"><i class="fas fa-paper-plane"></i></button>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer class="border-t border-zinc-800 mt-12 py-8 text-center text-xs text-zinc-600 px-4">
-  <p class="mb-2 font-bold">MUVR is operated by TransBid LLC (Delaware, USA)</p>
-  <p class="mb-2">MUVR is a technology marketplace. MUVR does not employ, endorse, certify, insure, or guarantee any workers. All workers are independent contractors.</p>
-  <p>© 2026 TransBid LLC. All rights reserved. | <a href="#" class="text-zinc-500 hover:text-zinc-400">Privacy</a> | <a href="#" class="text-zinc-500 hover:text-zinc-400">Terms</a></p>
-</footer>
 
 <script>
 const SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co'
@@ -410,15 +517,8 @@ let profile = null
 let balRevealed = false
 let jobFilter = 'all'
 let allJobs = []
-let lmap = null
-let markers = []
-let exchangeOpen = false
 let authToken = null
 
-const SKILLS = ['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','General Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Home Health Aide','Caregiving','Child Care','Call Center','Customer Service','Data Entry','Virtual Assistant','Bookkeeping','Personal Training','Massage Therapy','Security','Event Staff','Bartending','Other']
-const ADMIN_EMAILS = ['contactfire757@gmail.com']
-
-// ===== HELPERS =====
 const gi = id => document.getElementById(id)
 const gv = id => gi(id).value
 const esc = s => (new DOMParser()).parseFromString(s, 'text/html').documentElement.textContent
@@ -451,28 +551,18 @@ function showTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
   document.querySelectorAll('.mob-tab').forEach(b => b.classList.remove('active'))
   gi(name + '-tab').classList.remove('hidden')
-  document.querySelector('[data-tab="' + name + '"]').classList.add('active')
-  if (name === 'go' && !lmap) initMap()
+  document.querySelector('[data-tab="' + name + '"]')?.classList.add('active')
+}
+
+function scrollTo(id) {
+  const el = gi(id)
+  if(el) el.scrollIntoView({behavior: 'smooth'})
 }
 
 function toggleBalance() {
   balRevealed = !balRevealed
   gi('balance-toggle').textContent = balRevealed ? 'HIDE' : 'SHOW'
   gi('balance-display').textContent = balRevealed && profile ? (profile.mv_balance || 0) + ' MV' : '------'
-}
-
-function toggleExchange() {
-  exchangeOpen = !exchangeOpen
-  const p = gi('exchange-panel')
-  exchangeOpen ? p.classList.add('show') : p.classList.remove('show')
-}
-
-function requireAuth(fn) {
-  if (!user) {
-    showModal('login-modal')
-    return
-  }
-  fn()
 }
 
 function updateFee() {
@@ -499,31 +589,44 @@ function updateLegalBtn() {
   gi('legal-btn').classList.toggle('text-black', ok)
 }
 
-// ===== AUTH =====
 async function init() {
   const { data: { session } } = await sb.auth.getSession()
-  if (session) {
+  if(session) {
     user = session.user
     authToken = session.access_token
     await loadProfile()
+    showApp()
+  } else {
+    showLanding()
   }
-  updateUI()
-  showTab('jobs')
-  setupRealtime()
   sb.auth.onAuthStateChange((ev, sess) => {
-    if (sess) authToken = sess.access_token
+    if(sess) authToken = sess.access_token
   })
 }
 
+function showApp() {
+  gi('landing-page').classList.add('hidden')
+  gi('app-interface').classList.remove('hidden')
+  gi('app-header').classList.remove('hidden')
+  gi('mobile-nav').classList.remove('hidden')
+  showTab('jobs')
+  loadJobs()
+  loadWallet()
+}
+
+function showLanding() {
+  gi('landing-page').classList.remove('hidden')
+  gi('app-interface').classList.add('hidden')
+  gi('app-header').classList.add('hidden')
+  gi('mobile-nav').classList.add('hidden')
+}
+
 async function authFetch(path, opts = {}) {
-  if (!authToken) {
+  if(!authToken) {
     const sess = await sb.auth.getSession()
     authToken = sess.data.session?.access_token
   }
-  if (!authToken) {
-    console.error('No auth token')
-    return null
-  }
+  if(!authToken) return null
   const headers = {
     'apikey': SUPA_KEY,
     'Authorization': 'Bearer ' + authToken,
@@ -535,16 +638,16 @@ async function authFetch(path, opts = {}) {
 async function signUp() {
   const e = gv('auth-email').trim()
   const p = gv('auth-password')
-  if (!e || !p) return authErr('Enter email and password')
-  if (p.length < 6) return authErr('Password must be 6+ characters')
+  if(!e || !p) return authErr('Enter email and password')
+  if(p.length < 6) return authErr('Password: 6+ characters')
   
   try {
     const { data, error } = await sb.auth.signUp({ email: e, password: p })
-    if (error) return authErr(error.message)
+    if(error) return authErr(error.message)
     
-    if (!data.session) {
+    if(!data.session) {
       const { data: d2, error: e2 } = await sb.auth.signInWithPassword({ email: e, password: p })
-      if (e2) return authErr('Check your email to confirm, then sign in.')
+      if(e2) return authErr('Check email to confirm, then sign in.')
       user = d2.user
       authToken = d2.session?.access_token
     } else {
@@ -554,27 +657,26 @@ async function signUp() {
     
     hideModal('login-modal')
     await loadProfile()
-    updateUI()
     showModal('legal-modal')
-    toast('Welcome to MUVR! 🎉')
-  } catch (err) {
-    authErr('Connection error: ' + err.message)
+    toast('Account created! Welcome to MUVR!')
+  } catch(err) {
+    authErr('Error: ' + err.message)
   }
 }
 
 async function signIn() {
   const e = gv('auth-email').trim()
   const p = gv('auth-password')
-  if (!e || !p) return authErr('Enter email and password')
+  if(!e || !p) return authErr('Enter email and password')
   
   const { data, error } = await sb.auth.signInWithPassword({ email: e, password: p })
-  if (error) return authErr(error.message)
+  if(error) return authErr(error.message)
   
   user = data.user
   authToken = data.session?.access_token
   hideModal('login-modal')
   await loadProfile()
-  updateUI()
+  showApp()
   toast('Welcome back!')
 }
 
@@ -589,48 +691,25 @@ async function logout() {
   await sb.auth.signOut()
   user = null
   profile = null
-  updateUI()
-  showTab('jobs')
-  toast('Signed out', 'info')
+  showLanding()
+  toast('Signed out','info')
 }
 
-function updateUI() {
-  const info = gi('user-info')
-  const mn = gi('mobile-nav')
-  if (user) {
-    const n = profile?.full_name || user.email || ''
-    info.innerHTML = `<span class="text-teal-400 text-xs font-bold">●</span> <span class="text-sm font-bold">${esc(n.split('@')[0])}</span> <button onclick="logout()" class="text-zinc-400 text-xs ml-3 hover:text-white">sign out</button>`
-    mn.classList.remove('hidden')
-  } else {
-    info.innerHTML = '<button onclick="showModal(\'login-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm hover:bg-teal-300 transition">Sign In</button>'
-    mn.classList.add('hidden')
-  }
-}
-
-// ===== PROFILE =====
 async function loadProfile() {
   const res = await authFetch('users?id=eq.' + user.id + '&select=*')
   const data = await res.json()
-  if (data.length > 0) profile = data[0]
-  loadWallet()
+  if(data.length > 0) profile = data[0]
+  else profile = { mv_balance: 0, jobs_completed: 0, rating: 0 }
   renderProfile()
 }
 
 async function saveProfile() {
-  const skills = Array.from(document.querySelectorAll('.skill-checkbox:checked')).map(c => c.value)
-  const vtype = gi('p-vehicle').checked ? gv('p-vehicle-type') : null
-  
   const upd = {
     full_name: gv('p-name'),
     username: gv('p-username'),
     about_me: gv('p-about'),
     role: gv('p-role'),
-    skills: skills,
-    has_vehicle: gi('p-vehicle').checked,
-    vehicle_type: vtype,
-    vehicle_year: vtype ? parseInt(gv('p-vehicle-year')) : null,
-    vehicle_make: vtype ? gv('p-vehicle-make') : null,
-    vehicle_model: vtype ? gv('p-vehicle-model') : null
+    has_vehicle: gi('p-vehicle').checked
   }
   
   const res = await authFetch('users?id=eq.' + user.id, {
@@ -639,60 +718,39 @@ async function saveProfile() {
     body: JSON.stringify(upd)
   })
   
-  if (res.ok) {
+  if(res.ok) {
     profile = { ...profile, ...upd }
     hideModal('profile-modal')
     toast('Profile saved!')
   } else {
-    toast('Error saving profile', 'error')
+    toast('Error saving profile','error')
   }
 }
 
 function renderProfile() {
   const cont = gi('profile-content')
-  if (!user) {
-    cont.innerHTML = '<div class="text-zinc-500 py-12 text-center">Sign in to view your profile</div>'
-    return
-  }
-  
-  if (!profile) profile = {}
-  
   const rating = profile.rating || 0
   const stars = '⭐'.repeat(Math.floor(rating)) + (rating % 1 > 0 ? '✨' : '')
   
   cont.innerHTML = `
     <div class="space-y-6">
-      <div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-        <div class="flex items-start justify-between mb-4">
-          <div>
-            <h1 class="text-2xl font-extrabold">${esc(profile.full_name || 'Unknown')}</h1>
-            <p class="text-zinc-400 text-sm">@${esc(profile.username || 'user')}</p>
-            <p class="text-xs text-zinc-500 mt-1">${esc(profile.about_me || 'No bio')}</p>
-          </div>
-          <button onclick="showModal('profile-modal')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm hover:bg-teal-300 transition">EDIT</button>
-        </div>
-        <div class="grid grid-cols-3 gap-4 bg-zinc-800 rounded-xl p-4">
-          <div class="text-center"><p class="text-[10px] text-zinc-400">COMPLETED</p><p class="text-2xl font-bold">${profile.jobs_completed || 0}</p></div>
-          <div class="text-center"><p class="text-[10px] text-zinc-400">RATING</p><p class="text-lg">${stars || '—'}</p></div>
-          <div class="text-center"><p class="text-[10px] text-zinc-400">TRUST</p><p class="text-2xl font-bold text-[#14F1C6]">${profile.trust_score || 0}</p></div>
-        </div>
+      <div class="bg-zinc-800 rounded-xl p-4">
+        <h2 class="text-2xl font-extrabold mb-2">${esc(profile.full_name || 'No Name')}</h2>
+        <p class="text-zinc-400 text-sm">@${esc(profile.username || 'user')}</p>
+        <p class="text-xs text-zinc-500 mt-2">${esc(profile.about_me || 'No bio')}</p>
       </div>
-      
-      ${profile.skills && profile.skills.length > 0 ? `
-      <div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-        <h2 class="font-bold text-sm mb-3">SKILLS</h2>
-        <div class="flex flex-wrap gap-2">
-          ${profile.skills.map(s => `<span class="bg-[#14F1C6]/20 text-[#14F1C6] px-3 py-1 rounded-full text-xs font-bold">${esc(s)}</span>`).join('')}
-        </div>
+      <div class="grid grid-cols-3 gap-4 bg-zinc-800 rounded-xl p-4">
+        <div class="text-center"><p class="text-[10px] text-zinc-400">COMPLETED</p><p class="text-2xl font-bold">${profile.jobs_completed || 0}</p></div>
+        <div class="text-center"><p class="text-[10px] text-zinc-400">RATING</p><p class="text-lg">${stars || '—'}</p></div>
+        <div class="text-center"><p class="text-[10px] text-zinc-400">BALANCE</p><p class="text-2xl font-bold text-[#14F1C6]">${profile.mv_balance || 0}</p></div>
       </div>
-      ` : ''}
+      <button onclick="showModal('profile-modal')" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">EDIT</button>
     </div>
   `
 }
 
 async function acceptLegal() {
-  const agreements = ['tos', 'contractor_agreement', 'age']
-  for (const a of agreements) {
+  for(const a of ['tos', 'contractor_agreement', 'age']) {
     await authFetch('legal_agreements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -705,10 +763,10 @@ async function acceptLegal() {
     })
   }
   hideModal('legal-modal')
+  showApp()
   toast('Agreements accepted!')
 }
 
-// ===== JOBS =====
 async function loadJobs() {
   const res = await authFetch('jobs?status=eq.open&select=*&order=created_at.desc')
   const data = await res.json() || []
@@ -718,29 +776,25 @@ async function loadJobs() {
 
 function filterJobs(type) {
   jobFilter = type
-  document.querySelectorAll('.job-filter').forEach(b => b.classList.toggle('bg-[#14F1C6]', false))
-  document.querySelectorAll('.job-filter').forEach(b => b.classList.toggle('text-black', false))
-  document.querySelectorAll('.job-filter').forEach(b => b.classList.toggle('bg-zinc-800', true))
-  document.querySelector('[onclick="filterJobs(\'' + type + '\')"]').classList.add('bg-[#14F1C6]', 'text-black')
-  document.querySelector('[onclick="filterJobs(\'' + type + '\')"]').classList.remove('bg-zinc-800')
+  document.querySelectorAll('.job-filter').forEach(b => {
+    b.classList.remove('bg-[#14F1C6]','text-black')
+    b.classList.add('bg-zinc-800')
+  })
+  document.querySelector('[onclick="filterJobs(\'' + type + '\')"]')?.classList.add('bg-[#14F1C6]','text-black')
+  document.querySelector('[onclick="filterJobs(\'' + type + '\')"]')?.classList.remove('bg-zinc-800')
   
   let jobs = allJobs
-  if (type !== 'all') {
-    jobs = jobs.filter(j => j.job_type === type)
-  }
+  if(type !== 'all') jobs = jobs.filter(j => j.job_type === type)
   
   const html = jobs.length === 0
-    ? '<div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">📋</div><p class="font-bold">No gigs in this category</p></div>'
+    ? '<div class="text-zinc-500 text-center py-16 col-span-full">No gigs in this category</div>'
     : jobs.map(j => `
       <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 card-hover">
         <h3 class="font-bold text-sm mb-2">${esc(j.title)}</h3>
         <p class="text-xs text-zinc-400 mb-3 line-clamp-2">${esc(j.description || '')}</p>
         <div class="flex items-end justify-between">
-          <div>
-            <p class="text-[10px] text-zinc-500">Budget</p>
-            <p class="text-lg font-bold text-[#14F1C6]">${j.budget_mv} MV</p>
-          </div>
-          <button onclick="requireAuth(()=>{gi('apply-job-id').value='${j.id}';showModal('apply-modal')})" class="bg-[#14F1C6] text-black px-3 py-2 rounded-lg font-bold text-xs hover:bg-teal-300 transition">APPLY</button>
+          <div><p class="text-[10px] text-zinc-500">Budget</p><p class="text-lg font-bold text-[#14F1C6]">${j.budget_mv} MV</p></div>
+          <button onclick="gi('apply-job-id').value='${j.id}'; showModal('apply-modal')" class="bg-[#14F1C6] text-black px-3 py-2 rounded-lg font-bold text-xs hover:bg-teal-300 transition">APPLY</button>
         </div>
       </div>
     `).join('')
@@ -754,12 +808,11 @@ async function postJob() {
   const ty = gv('job-type')
   const b = parseFloat(gv('job-budget'))
   
-  if (!t) return toast('Enter job title', 'error')
-  if (!ty) return toast('Select job type', 'error')
-  if (!b || b < 1) return toast('Budget must be at least 1 MV', 'error')
-  if (b > 10000) return toast('Budget too high', 'error')
-  
-  if ((profile.mv_balance || 0) < (b + 1)) return toast('Not enough MV (need ' + (b + 1) + ')', 'error')
+  if(!t) return toast('Enter job title','error')
+  if(!ty) return toast('Select job type','error')
+  if(!b || b < 1) return toast('Budget must be at least 1 MV','error')
+  if(b > 10000) return toast('Budget too high','error')
+  if((profile.mv_balance || 0) < (b + 1)) return toast('Not enough MV (need ' + (b + 1) + ')','error')
   
   const res = await authFetch('jobs', {
     method: 'POST',
@@ -778,11 +831,10 @@ async function postJob() {
     })
   })
   
-  if (res.ok) {
+  if(res.ok) {
     const j = await res.json()
     const jobId = j[0].id
     
-    // Lock escrow
     await authFetch('escrow', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -795,7 +847,6 @@ async function postJob() {
       })
     })
     
-    // Log ledger
     await authFetch('mv_ledger', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -803,13 +854,12 @@ async function postJob() {
         user_id: user.id,
         type: 'burn',
         amount_mv: 1,
-        description: 'Job posting fee (removed from supply)',
+        description: 'Job posting fee',
         tx_hash: 'BURN' + Date.now(),
         related_job_id: jobId
       })
     })
     
-    // Update user balance
     const newBal = (profile.mv_balance || 0) - (b + 1)
     await authFetch('users?id=eq.' + user.id, {
       method: 'PATCH',
@@ -823,7 +873,7 @@ async function postJob() {
     loadWallet()
     toast('Gig posted! ' + (b + 1) + ' MV escrowed.')
   } else {
-    toast('Error posting job', 'error')
+    toast('Error posting job','error')
   }
 }
 
@@ -833,9 +883,9 @@ async function applyJob() {
   const rate = parseFloat(gv('apply-rate'))
   const turn = gv('apply-turn').trim()
   
-  if (!pitch) return toast('Write a pitch', 'error')
-  if (!rate || rate < 1) return toast('Enter a rate', 'error')
-  if (!turn) return toast('Enter turnaround time', 'error')
+  if(!pitch) return toast('Write a pitch','error')
+  if(!rate || rate < 1) return toast('Enter a rate','error')
+  if(!turn) return toast('Enter turnaround time','error')
   
   const res = await authFetch('applications', {
     method: 'POST',
@@ -850,49 +900,34 @@ async function applyJob() {
     })
   })
   
-  if (res.ok) {
+  if(res.ok) {
     hideModal('apply-modal')
     toast('Application submitted!')
   } else {
-    const err = await res.json()
-    toast(err.message || 'Error applying', 'error')
+    toast('Error applying','error')
   }
 }
 
-// ===== WALLET =====
 async function loadWallet() {
-  if (!user) return
+  if(!user) return
   
   const res = await authFetch('users?id=eq.' + user.id + '&select=mv_balance')
   const data = await res.json()
-  if (data.length > 0) {
-    profile = { ...profile, mv_balance: data[0].mv_balance }
-  }
+  if(data.length > 0) profile = { ...profile, mv_balance: data[0].mv_balance }
   
   gi('balance-display').textContent = balRevealed ? (profile.mv_balance || 0) + ' MV' : '------'
   
-  // Load supply
-  const sres = await authFetch('mv_supply?id=eq.1&select=*')
-  const sdata = await sres.json()
-  if (sdata.length > 0) {
-    const s = sdata[0]
-    gi('supply-minted').textContent = Math.floor(s.total_minted || 0) + ' MV'
-    gi('supply-burned').textContent = Math.floor(s.total_burned || 0) + ' MV'
-    gi('supply-escrowed').textContent = Math.floor(s.total_escrowed || 0) + ' MV'
-  }
-  
-  // Load ledger
   const lres = await authFetch('mv_ledger?user_id=eq.' + user.id + '&order=created_at.desc&limit=20')
   const ledger = await lres.json()
   const lhtml = ledger.length === 0
     ? '<div class="text-zinc-500 text-sm py-4">No transactions yet</div>'
     : ledger.map(l => {
       let icon = '📊'
-      if (l.type === 'load') icon = '📥'
-      else if (l.type === 'send') icon = '📤'
-      else if (l.type === 'receive') icon = '📨'
-      else if (l.type === 'burn') icon = '🔥'
-      else if (l.type === 'withdrawal') icon = '🏦'
+      if(l.type === 'load') icon = '📥'
+      else if(l.type === 'send') icon = '📤'
+      else if(l.type === 'receive') icon = '📨'
+      else if(l.type === 'burn') icon = '🔥'
+      else if(l.type === 'withdrawal') icon = '🏦'
       
       return `<div class="bg-zinc-800 rounded-lg p-3 flex justify-between items-start text-xs border-l-2 border-[#14F1C6]">
         <div class="flex items-start gap-3">
@@ -908,34 +943,21 @@ async function loadWallet() {
     }).join('')
   
   gi('ledger-list').innerHTML = lhtml
-  
-  // Load escrows
-  const eres = await authFetch('escrow?poster_id=eq.' + user.id + '&status=eq.locked&select=*')
-  const escrows = await eres.json()
-  const ehtml = escrows.length === 0
-    ? '<div class="text-zinc-500 text-sm py-2">None</div>'
-    : escrows.map(e => `<div class="bg-zinc-800 rounded-lg p-3 flex justify-between items-center border-l-2 border-yellow-500"><div><p class="font-bold text-sm">Job Escrow</p><p class="text-[10px] text-zinc-500">Locked</p></div><p class="font-bold text-yellow-400">${e.amount_mv} MV</p></div>`).join('')
-  
-  gi('escrow-list').innerHTML = ehtml
 }
 
 async function sendMV() {
   const to = gv('send-to').trim()
   const amt = parseFloat(gv('send-amount'))
   
-  if (!to) return toast('Enter recipient', 'error')
-  if (!amt || amt < 1) return toast('Enter amount', 'error')
-  if ((profile.mv_balance || 0) < amt) return toast('Not enough MV', 'error')
+  if(!to) return toast('Enter recipient','error')
+  if(!amt || amt < 1) return toast('Enter amount','error')
+  if((profile.mv_balance || 0) < amt) return toast('Not enough MV','error')
   
-  // Find recipient by email or username
-  let recipId = null
   const res1 = await authFetch('users?or=(email.eq.' + to.toLowerCase() + ',username.eq.' + to.toLowerCase() + ')&select=id')
   const data1 = await res1.json()
-  if (data1.length > 0) recipId = data1[0].id
+  if(data1.length === 0) return toast('User not found','error')
   
-  if (!recipId) return toast('User not found', 'error')
-  
-  // Create transaction
+  const recipId = data1[0].id
   const txHash = 'TX' + Date.now() + Math.random().toString(36).substr(2, 9)
   
   await authFetch('mv_ledger', {
@@ -964,7 +986,6 @@ async function sendMV() {
     })
   })
   
-  // Update balances
   const newBal = (profile.mv_balance || 0) - amt
   await authFetch('users?id=eq.' + user.id, {
     method: 'PATCH',
@@ -989,19 +1010,13 @@ async function sendMV() {
 }
 
 async function loadMV(amt) {
-  toast('Stripe integration coming soon. For now, use admin panel.', 'info')
-}
-
-async function loadCustomMV() {
-  const amt = parseFloat(gv('load-custom'))
-  if (!amt || amt < 1 || amt > 1000) return toast('Enter amount 1-1000', 'error')
-  toast('Stripe integration coming soon. For now, use admin panel.', 'info')
+  toast('Stripe integration coming soon','info')
 }
 
 async function cashOut() {
   const amt = parseFloat(gv('cashout-amount'))
-  if (!amt || amt < 1) return toast('Enter amount', 'error')
-  if ((profile.mv_balance || 0) < amt) return toast('Not enough MV', 'error')
+  if(!amt || amt < 1) return toast('Enter amount','error')
+  if((profile.mv_balance || 0) < amt) return toast('Not enough MV','error')
   
   const fee = amt * 0.005
   const receive = amt - fee
@@ -1013,7 +1028,7 @@ async function cashOut() {
       user_id: user.id,
       type: 'withdrawal',
       amount_mv: amt,
-      description: 'Withdrawn $' + receive.toFixed(2) + ' (fee: $' + fee.toFixed(2) + ')',
+      description: 'Withdrawn $' + receive.toFixed(2),
       tx_hash: 'WITHDRAW' + Date.now()
     })
   })
@@ -1028,163 +1043,10 @@ async function cashOut() {
   profile.mv_balance = newBal
   hideModal('cashout-modal')
   loadWallet()
-  toast('Withdrawal processed! ($' + receive.toFixed(2) + ' sent to bank account)')
+  toast('Withdrawal processed! ($' + receive.toFixed(2) + ' sent)')
 }
 
-// ===== WORKERS MAP =====
-function initMap() {
-  lmap = L.map('map').setView([37.7749, -122.4194], 12)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 19
-  }).addTo(lmap)
-  loadWorkers()
-}
-
-async function loadWorkers() {
-  const res = await authFetch('users?is_available=eq.true&select=*&limit=100')
-  const workers = await res.json()
-  
-  // Clear old markers
-  markers.forEach(m => lmap.removeLayer(m))
-  markers = []
-  
-  // Add new markers
-  workers.forEach(w => {
-    if (w.latitude && w.longitude) {
-      const m = L.circleMarker([w.latitude, w.longitude], {
-        radius: 8,
-        fillColor: '#14F1C6',
-        color: '#06af86',
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0.8
-      })
-      m.bindPopup(`<strong>${esc(w.full_name || 'Worker')}</strong><br>Rating: ${w.rating || 0}⭐<br>Jobs: ${w.jobs_completed || 0}`)
-      m.addTo(lmap)
-      markers.push(m)
-    }
-  })
-  
-  // Render worker list
-  const html = workers.length === 0
-    ? '<div class="text-zinc-500 text-center py-16 col-span-full">No workers available</div>'
-    : workers.map(w => `
-      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 card-hover">
-        <div class="flex items-start gap-3 mb-3">
-          <div class="w-10 h-10 rounded-full bg-[#14F1C6] flex-shrink-0"></div>
-          <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-sm">${esc(w.full_name || 'Worker')}</h3>
-            <p class="text-[10px] text-zinc-500">@${esc(w.username || 'user')}</p>
-          </div>
-          <span class="text-yellow-400 text-sm font-bold whitespace-nowrap">${w.rating || 0}⭐</span>
-        </div>
-        <p class="text-xs text-zinc-400 mb-2 line-clamp-2">${esc(w.about_me || 'No bio')}</p>
-        ${w.skills && w.skills.length > 0 ? '<div class="flex flex-wrap gap-1 mb-2">' + w.skills.slice(0, 2).map(s => `<span class="bg-[#14F1C6]/20 text-[#14F1C6] px-2 py-1 rounded text-[10px]">${esc(s)}</span>`).join('') + '</div>' : ''}
-        <button onclick="requireAuth(()=>toast('Message feature coming soon', 'info'))" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg font-bold text-xs transition">MESSAGE</button>
-      </div>
-    `).join('')
-  
-  gi('worker-grid').innerHTML = html
-}
-
-// ===== BLOG =====
-async function loadBlog() {
-  const res = await authFetch('blog_posts?status=eq.published&order=created_at.desc&limit=9')
-  const posts = await res.json()
-  
-  const html = posts.length === 0
-    ? '<div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">📚</div><p class="font-bold">No articles yet</p></div>'
-    : posts.map(p => `
-      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden blog-card cursor-pointer" onclick="toast('Full article view coming soon', 'info')">
-        ${p.cover_url ? `<img src="${p.cover_url}" class="w-full h-32 object-cover">` : '<div class="w-full h-32 bg-zinc-800 flex items-center justify-center"><span class="text-3xl">📖</span></div>'}
-        <div class="p-4">
-          <h3 class="font-bold text-sm mb-2 line-clamp-2">${esc(p.title)}</h3>
-          <p class="text-xs text-zinc-400 line-clamp-2">${esc(p.body || '')}</p>
-          <div class="flex justify-between items-center mt-3">
-            <p class="text-[10px] text-zinc-600">${new Date(p.created_at).toLocaleDateString()}</p>
-            ${p.tags && p.tags.length > 0 ? '<div class="flex gap-1">' + p.tags.slice(0, 2).map(t => `<span class="bg-[#14F1C6]/20 text-[#14F1C6] px-2 py-0.5 rounded text-[10px]">${esc(t)}</span>`).join('') + '</div>' : ''}
-          </div>
-        </div>
-      </div>
-    `).join('')
-  
-  gi('blog-list').innerHTML = html
-}
-
-// ===== EXCHANGE CHATBOT =====
-async function sendToExchange() {
-  const msg = gv('exchange-input').trim()
-  if (!msg) return
-  
-  const cont = gi('exchange-messages')
-  const userEl = document.createElement('div')
-  userEl.className = 'bg-[#14F1C6]/20 rounded-2xl rounded-br-sm p-3 max-w-[85%] self-end text-sm'
-  userEl.innerHTML = '<p class="text-[#14F1C6]">' + esc(msg) + '</p>'
-  cont.appendChild(userEl)
-  gi('exchange-input').value = ''
-  cont.scrollTop = cont.scrollHeight
-  
-  // Simulate response
-  setTimeout(() => {
-    const respEl = document.createElement('div')
-    respEl.className = 'bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%] text-sm'
-    
-    let resp = 'MUVR helps you earn more. Here's what you need to know:\n\n🔥 ZERO COMMISSION - No platform fees\n⚡ INSTANT PAYOUTS - No waiting 7-14 days\n📈 WEALTH GROWS - Deflationary MV appreciates over time\n🌍 BORDERLESS - Work anyone, anywhere, 1 currency\n📊 TRANSPARENT - Immutable ledger, no black boxes\n\nAsk me anything!'
-    
-    if (msg.toLowerCase().includes('earn')) resp = 'On MUVR, you keep 100% of your agreed rate. The only cost is 1 MV burned per job (which doesn't go to MUVR, it's removed from supply forever). On Fiverr/Upwork, you lose 20%. On Uber, you lose 25-30%. That's 25-50% more income on MUVR!'
-    else if (msg.toLowerCase().includes('burn')) resp = '1 MV burned per job means it's removed from the total supply forever. This creates SCARCITY. As the supply shrinks, remaining MV increases in value. It's like owning Bitcoin for work - the more jobs posted, the more valuable your MV becomes!'
-    else if (msg.toLowerCase().includes('price')) resp = '1 MV = $1 USD always. It\'s a stablecoin, not cryptocurrency. No volatility. No risk. Your 1000 MV = $1000 USD today, tomorrow, and forever.'
-    else if (msg.toLowerCase().includes('Uber')) resp = 'Uber takes 25-30% commission. MUVR takes 0%. On a $60 ride:\nUber: You get $42-45\nMUVR: You get $59 (keep 1 MV burned fee)\nThat\'s $14-17 MORE per ride. 1000 rides/year = $14,000-17,000 extra!'
-    else if (msg.toLowerCase().includes('Fiverr')) resp = 'Fiverr takes 20% commission AND makes you wait 14 days. MUVR: 0% commission, instant payouts. On $50K/year earnings:\nFiverr: Keep ~$38K (after fees, delays, forex loss)\nMUVR: Keep ~$49.75K\nThat\'s +$11.75K/year (29% more)!'
-    
-    respEl.innerHTML = '<p class="text-zinc-300 whitespace-pre-wrap">' + esc(resp) + '</p>'
-    cont.appendChild(respEl)
-    cont.scrollTop = cont.scrollHeight
-  }, 500)
-}
-
-// ===== REALTIME SUBSCRIPTIONS =====
-function setupRealtime() {
-  if (!user) return
-  
-  sb.channel('jobs-rt')
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'jobs'
-    }, () => {
-      loadJobs()
-    })
-    .subscribe()
-  
-  sb.channel('workers-rt')
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'users',
-      filter: 'is_available=eq.true'
-    }, () => {
-      if (lmap) loadWorkers()
-    })
-    .subscribe()
-  
-  sb.channel('wallet-rt')
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'mv_ledger',
-      filter: 'user_id=eq.' + user.id
-    }, () => {
-      loadWallet()
-    })
-    .subscribe()
-}
-
-// ===== INIT =====
 init()
-loadBlog()
-
 </script>
 </body>
 </html>
