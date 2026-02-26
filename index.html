@@ -373,22 +373,26 @@
 const SUPA_URL='https://cfenkstusggrcthehffn.supabase.co'
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o'
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY)
-let user=null,profile=null,balRevealed=false,jobFilter='all',allJobs=[],pendingRide=null,lmap=null,markers=[],exchangeOpen=false
+let user=null,profile=null,balRevealed=false,jobFilter='all',allJobs=[],pendingRide=null,lmap=null,markers=[],exchangeOpen=false,authToken=null
 const SKILLS=['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Home Health Aide','Caregiving','Elder Care','Child Care','Call Center','Customer Service','Data Entry','Virtual Assistant','Bookkeeping','Personal Training','Massage','Security','Event Staff','Bartending','Other']
 const ADMIN_EMAILS=['contactfire757@gmail.com','biggernbetter24@gmail.com']
 
 function toast(msg,type='success'){const c=gi('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='all .3s';setTimeout(()=>t.remove(),300)},3500)}
 
-let authToken=null
 async function init(){
   const{data:{session}}=await sb.auth.getSession()
   if(session){user=session.user;authToken=session.access_token;console.log('init: token ready, uid=',user.id);await loadProfile()}
   updateUI();showTab('jobs');setupRealtime();renderSkills();renderCats()
-  // Listen for auth changes
   sb.auth.onAuthStateChange((ev,sess)=>{if(sess){authToken=sess.access_token}})
 }
 
-// AUTH
+async function authFetch(path,opts={}){
+  if(!authToken){const sess=await sb.auth.getSession();authToken=sess.data.session?.access_token}
+  if(!authToken){console.error('No auth token');return null}
+  const headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+authToken,...(opts.headers||{})}
+  return fetch(SUPA_URL+'/rest/v1/'+path,{...opts,headers})
+}
+
 async function signUp(){
   const e=gv('auth-email').trim(),p=gv('auth-password')
   if(!e||!p)return authErr('Enter email and password')
@@ -396,12 +400,12 @@ async function signUp(){
   try{
     const{data,error}=await sb.auth.signUp({email:e,password:p})
     if(error)return authErr(error.message)
-    if(!data.session){const{data:d2,error:e2}=await sb.auth.signInWithPassword({email:e,password:p});if(e2)return authErr('Check email to confirm, then sign in.');user=d2.user}else{user=data.user}
+    if(!data.session){const{data:d2,error:e2}=await sb.auth.signInWithPassword({email:e,password:p});if(e2)return authErr('Check email to confirm, then sign in.');user=d2.user;authToken=d2.session?.access_token}else{user=data.user;authToken=data.session?.access_token}
     hideModal('login-modal')
-    try{await sb.from('users').upsert({id:user.id,email:e})}catch(ue){console.warn('upsert:',ue)}
     await loadProfile();updateUI();showModal('legal-modal');toast('Welcome to MUVR!')
   }catch(err){authErr('Connection error.')}
 }
+
 async function signIn(){
   const e=gv('auth-email').trim(),p=gv('auth-password')
   if(!e||!p)return authErr('Enter email and password')
@@ -409,23 +413,21 @@ async function signIn(){
   if(error)return authErr(error.message)
   user=data.user;authToken=data.session?.access_token;hideModal('login-modal');await loadProfile();updateUI();checkLegal();toast('Welcome back!')
 }
+
 function authErr(m){const el=gi('auth-error');el.textContent=m;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),5000)}
+
 async function logout(){await sb.auth.signOut();user=null;profile=null;updateUI();showTab('jobs');toast('Signed out','info')}
+
 function updateUI(){
   const info=gi('user-info'),mn=gi('mobile-nav')
   if(user){const n=profile?.full_name||user.email||'';info.innerHTML='<span class="text-emerald-400 text-xs font-bold">&#x25CF;</span> <span class="text-sm font-bold">'+esc(n.split('@')[0])+'</span> <button onclick="logout()" class="text-zinc-400 text-xs ml-2">out</button>';mn.classList.remove('hidden')}
   else{info.innerHTML='<button onclick="showModal(\'login-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm">Sign In</button>';mn.classList.add('hidden')}
 }
+
 function requireAuth(fn){if(!user){showModal('login-modal');return}fn()}
+
 function isAdmin(){return user&&ADMIN_EMAILS.includes(user.email)}
 
-// PROFILE
-async function authFetch(path,opts={}){
-  if(!authToken){const sess=await sb.auth.getSession();authToken=sess.data.session?.access_token}
-  if(!authToken){console.error('No auth token');return null}
-  const headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+authToken,...(opts.headers||{})}
-  return fetch(SUPA_URL+'/rest/v1/'+path,{...opts,headers})
-}
 async function loadProfile(){
   if(!user)return
   try{
@@ -434,18 +436,15 @@ async function loadProfile(){
     const rows=await res.json()
     console.log('loadProfile fetch:',rows?.length,'rows',rows?.[0]?.email,rows?.[0]?.mv_balance)
     if(rows&&rows.length>0){profile=rows[0];return}
-    // No row — create one
     console.log('loadProfile: creating row for',user.id)
-    await authFetch('users',{
-      method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation'},
-      body:JSON.stringify({id:user.id,email:user.email,mv_balance:0})
-    })
+    await authFetch('users',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({id:user.id,email:user.email,mv_balance:0})})
     const res2=await authFetch('users?id=eq.'+user.id+'&select=*')
     const rows2=res2?await res2.json():[]
     profile=rows2?.[0]||{id:user.id,email:user.email,mv_balance:0}
     console.log('loadProfile final:',profile.email,profile.mv_balance)
   }catch(err){console.error('loadProfile error:',err);profile={id:user.id,email:user.email,mv_balance:0}}
 }
+
 async function saveProfile(){
   const name=gv('p-name').trim();if(!name)return toast('Enter your name','error')
   const skills=[];document.querySelectorAll('.sk:checked').forEach(c=>skills.push(c.value))
@@ -456,7 +455,6 @@ async function saveProfile(){
     u.vehicle_type=gv('p-vtype');u.vehicle_year=parseInt(gv('p-vyear'))||null;u.vehicle_make=gv('p-vmake');u.vehicle_model=gv('p-vmodel')
     u.vehicle_condition=gv('p-vcond');u.can_rideshare=gi('p-ride').checked;u.can_deliver=gi('p-deliver').checked;u.can_haul=gi('p-haul').checked
   }
-  // Get geolocation for map
   if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({latitude:pos.coords.latitude,longitude:pos.coords.longitude})})},()=>{})}
   const res=await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(u)})
   if(!res||!res.ok){console.error('Save failed:',res?.status);toast('Save failed','error');return}
@@ -496,14 +494,14 @@ function renderProfile(){
     '<button onclick="showModal(\'profile-modal\')" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-bold text-sm">Edit Profile</button>'+
   '</div>'
 }
+
 async function toggleLive(){
   const v=!profile.is_available
-  if(v&&navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await sb.from('users').update({is_available:v,latitude:pos.coords.latitude,longitude:pos.coords.longitude}).eq('id',user.id)},async()=>{await sb.from('users').update({is_available:v}).eq('id',user.id)})}
-  else{await sb.from('users').update({is_available:v}).eq('id',user.id)}
+  if(v&&navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_available:v,latitude:pos.coords.latitude,longitude:pos.coords.longitude})})},async()=>{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_available:v})})})}
+  else{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_available:v})})}
   profile.is_available=v;renderProfile();toast(v?'You are LIVE!':'Offline','info')
 }
 
-// UPLOADS
 async function uploadAvatar(){
   var i=document.createElement('input');i.type='file';i.accept='image/*'
   i.onchange=async function(e){
@@ -512,10 +510,11 @@ async function uploadAvatar(){
     var{data,error}=await sb.storage.from('verifications').upload(path,f)
     if(error){toast('Upload failed','error');return}
     var url=SUPA_URL+'/storage/v1/object/public/verifications/'+data.path
-    await sb.from('users').update({avatar_url:url}).eq('id',user.id)
+    await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({avatar_url:url})})
     profile.avatar_url=url;renderProfile();toast('Avatar updated!')
   };i.click()
 }
+
 async function uploadWorkPhoto(){
   var i=document.createElement('input');i.type='file';i.accept='image/*'
   i.onchange=async function(e){
@@ -525,10 +524,11 @@ async function uploadWorkPhoto(){
     if(error){toast('Upload failed','error');return}
     var url=SUPA_URL+'/storage/v1/object/public/verifications/'+data.path
     var photos=(profile.work_photos||[]).concat(url)
-    await sb.from('users').update({work_photos:photos}).eq('id',user.id)
+    await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({work_photos:photos})})
     profile.work_photos=photos;toast('Photo added!')
   };i.click()
 }
+
 async function uploadVerif(type){
   var i=document.createElement('input');i.type='file';i.accept='image/*,.pdf'
   i.onchange=async function(e){
@@ -541,26 +541,31 @@ async function uploadVerif(type){
   };i.click()
 }
 
-// TRUST
 function trustScore(p){if(!p)return 0;var s=0;if(p.phone_verified)s+=5;if(p.id_uploaded)s+=15;if(p.selfie_verified)s+=10;if(p.bg_check_status==='clear')s+=20;if(p.has_liability_insurance)s+=20;if(p.has_vehicle_insurance)s+=15;if(p.has_workers_comp)s+=15;if(p.certifications&&p.certifications.length)s+=p.certifications.length*5;s+=(p.jobs_completed||0)*3;return Math.min(100,s)}
+
 function trustBadge(s){return s>=81?'Elite':s>=61?'Pro':s>=41?'Trusted':s>=21?'Verified':'New'}
 
-// LEGAL
 async function checkLegal(){var{data}=await sb.from('legal_agreements').select('agreement_type').eq('user_id',user.id);var a=new Set((data||[]).map(function(d){return d.agreement_type}));if(!a.has('tos')||!a.has('contractor_agreement'))showModal('legal-modal');else if(!profile||!profile.full_name)showModal('profile-modal')}
+
 function updateLegalBtn(){var ok=gi('accept-tos').checked&&gi('accept-contractor').checked&&gi('accept-age').checked;var b=gi('legal-btn');b.disabled=!ok;b.className=ok?'w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold':'w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-bold';b.textContent=ok?'Accept & Continue':'Check all boxes'}
+
 async function acceptLegal(){await sb.from('legal_agreements').insert([{user_id:user.id,agreement_type:'tos',ip_address:'client',user_agent:navigator.userAgent},{user_id:user.id,agreement_type:'contractor_agreement',ip_address:'client',user_agent:navigator.userAgent}]);await sb.from('users').update({tos_accepted:true,tos_accepted_at:new Date().toISOString(),contractor_agreement_accepted:true,contractor_agreement_accepted_at:new Date().toISOString()}).eq('id',user.id);hideModal('legal-modal');if(!profile||!profile.full_name)showModal('profile-modal');toast('Agreements accepted')}
+
 function updateRideBtn(){var c=gi('accept-rideshare').checked,b=gi('ride-btn');b.disabled=!c;b.style.opacity=c?1:0.5}
+
 function confirmRideshare(){sb.from('legal_agreements').insert({user_id:user.id,agreement_type:'rideshare_waiver',ip_address:'client',user_agent:navigator.userAgent});hideModal('rideshare-modal');if(pendingRide){pendingRide();pendingRide=null}}
 
-// JOBS
 async function loadJobs(){var{data}=await sb.from('jobs').select('*').eq('status','open').order('created_at',{ascending:false});allJobs=data||[];renderJobs()}
+
 function renderJobs(){
   var list=jobFilter==='all'?allJobs:allJobs.filter(function(j){return j.job_type===jobFilter})
   var c=gi('job-list')
   if(!list.length){c.innerHTML='<div class="text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F9BE;</div><p class="font-bold text-zinc-400">No open jobs</p></div>';return}
   c.innerHTML=list.map(function(j){return'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">'+esc(j.title)+'</h3><span class="text-[#14F1C6] font-mono font-extrabold">'+j.budget_mv+' MV</span></div><p class="text-zinc-400 text-sm mb-3">'+esc(j.description||'')+'</p><div class="flex gap-2 mb-3 flex-wrap"><span class="bg-zinc-800 px-2 py-1 rounded-full text-xs font-bold">'+j.job_type+'</span><span class="bg-zinc-800 px-2 py-1 rounded-full text-xs">'+(j.urgency||'flexible')+'</span></div>'+(j.address?'<p class="text-zinc-500 text-xs mb-3">'+esc(j.address)+'</p>':'')+'<div class="flex gap-2"><button onclick="requireAuth(function(){gi(\'apply-job-id\').value=\''+j.id+'\';showModal(\'apply-modal\')})" class="flex-1 bg-zinc-800 hover:bg-teal-900 py-2.5 rounded-xl text-sm font-bold">Apply</button>'+(user&&j.poster_id===user.id?'<button onclick="manageJob(\''+j.id+'\')" class="bg-zinc-700 px-4 py-2.5 rounded-xl text-sm">Manage</button>':'')+'</div></div>'}).join('')
 }
+
 function filterJobs(t){jobFilter=t;document.querySelectorAll('.job-filter').forEach(function(b){var m=t==='all'?b.textContent.includes('All'):b.textContent.toLowerCase().includes(t);b.className='job-filter '+(m?'bg-[#14F1C6] text-black':'bg-zinc-800')+' px-4 py-2 rounded-full text-sm whitespace-nowrap'+(m?' font-bold':'')});renderJobs()}
+
 function updateFee(){var b=parseFloat(gv('job-budget'))||0;gi('fee-budget').textContent=b+' MV';gi('fee-total').textContent=(b+1)+' MV'}
 
 async function postJob(){
@@ -578,10 +583,11 @@ async function postJob(){
   gi('job-title').value='';gi('job-desc').value='';gi('job-budget').value='';gi('job-address').value=''
   hideModal('post-job-modal');loadJobs();toast('Job posted! '+total+' MV escrowed.')
 }
+
 function fraudCheck(t,d,b){var s=85,flags=[],txt=(t+' '+d).toLowerCase();['wire transfer','western union','bitcoin','crypto','send money','advance payment','lottery','inheritance'].forEach(function(f){if(txt.indexOf(f)>=0){s-=25;flags.push(f)}});if(b>10000){s-=10;flags.push('high budget')};if((d||'').length<10){s-=15;flags.push('short desc')};s=Math.max(0,Math.min(100,s));return{score:s,verdict:s<40?'BLOCKED':s<70?'WARNING':'CLEAN',flags:flags}}
+
 async function applyJob(){var jid=gv('apply-job-id'),pitch=gv('apply-pitch'),rate=parseFloat(gv('apply-rate')),turn=gv('apply-turn');var{error}=await sb.from('applications').insert({job_id:jid,worker_id:user.id,pitch:pitch,rate_mv:rate||null,turnaround:turn});if(error){if(error.code==='23505')return toast('Already applied','error');return toast(error.message,'error')};hideModal('apply-modal');toast('Applied!')}
 
-// JOB MANAGEMENT
 async function manageJob(jobId){
   var{data:job}=await sb.from('jobs').select('*').eq('id',jobId).single();if(!job)return
   var{data:apps}=await sb.from('applications').select('*').eq('job_id',jobId)
@@ -591,14 +597,19 @@ async function manageJob(jobId){
   if(esc&&esc.status==='locked'&&job.status==='in_progress'){h+='<div class="mt-4 flex gap-2"><button onclick="releaseEscrow(\''+jobId+'\')" class="flex-1 bg-emerald-600 py-3 rounded-xl font-bold">Release Payment</button><button onclick="refundEscrow(\''+jobId+'\')" class="flex-1 bg-red-800 py-3 rounded-xl font-bold">Refund</button></div>'}
   h+='</div>';gi('job-detail-content').innerHTML=h;showModal('job-detail-modal')
 }
+
 async function acceptApp(jid,aid,wid){await sb.from('applications').update({status:'accepted'}).eq('id',aid);await sb.from('jobs').update({status:'in_progress',awarded_to:wid,assigned_at:new Date().toISOString()}).eq('id',jid);hideModal('job-detail-modal');loadJobs();toast('Worker accepted!')}
+
 async function releaseEscrow(jid){if(!confirm('Release payment? This is final.'))return;var{error}=await sb.rpc('release_escrow',{p_job_id:jid,p_poster_id:user.id});if(error){var{data:e}=await sb.from('escrow').select('*').eq('job_id',jid).single();var{data:j}=await sb.from('jobs').select('awarded_to').eq('id',jid).single();if(e&&j&&j.awarded_to){await sb.from('escrow').update({status:'released',released_at:new Date().toISOString()}).eq('id',e.id);var{data:w}=await sb.from('users').select('mv_balance').eq('id',j.awarded_to).single();await sb.from('users').update({mv_balance:(w&&w.mv_balance||0)+e.amount_mv}).eq('id',j.awarded_to);await sb.from('jobs').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',jid)}};hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet();toast('Payment released!')}
+
 async function refundEscrow(jid){if(!confirm('Refund?'))return;var{error}=await sb.rpc('refund_escrow',{p_job_id:jid,p_poster_id:user.id});if(error){var{data:e}=await sb.from('escrow').select('*').eq('job_id',jid).single();if(e){var t=e.amount_mv+e.fee_mv;await sb.from('escrow').update({status:'refunded'}).eq('id',e.id);await sb.from('users').update({mv_balance:(profile.mv_balance||0)+t}).eq('id',user.id);await sb.from('jobs').update({status:'cancelled'}).eq('id',jid)}};hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet();toast('Refunded','info')}
 
-// MUVR GO + MAP
 function renderCats(){var cats=['All','Rideshare','Delivery','Moving','Hauling','Cleaning','Handyman','Yard','Labor','Errands'];gi('category-filters').innerHTML=cats.map(function(c){return'<button onclick="loadWorkers(\''+c.toLowerCase()+'\')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">'+c+'</button>'}).join('')}
+
 function initMap(){if(lmap)return;lmap=L.map('map',{zoomControl:false}).setView([30.4213,-87.2169],11);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CARTO',maxZoom:19}).addTo(lmap);L.control.zoom({position:'topright'}).addTo(lmap);setTimeout(function(){lmap.invalidateSize()},200)}
+
 function updateMapMarkers(workers){markers.forEach(function(m){lmap.removeLayer(m)});markers=[];if(!workers||!workers.length)return;workers.forEach(function(w){if(!w.latitude||!w.longitude)return;var icon=L.divIcon({className:'',html:'<div style="background:#14F1C6;color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5);font-family:Nunito">'+esc(w.full_name||'Worker')+'</div>',iconSize:[0,0]});var m=L.marker([w.latitude,w.longitude],{icon:icon}).addTo(lmap);markers.push(m)});if(markers.length)lmap.fitBounds(L.featureGroup(markers).getBounds().pad(0.3))}
+
 async function loadWorkers(f){
   var q=sb.from('users').select('*').eq('is_available',true)
   if(f&&f!=='all'){if(f==='rideshare')q=q.eq('can_rideshare',true);else if(f==='delivery')q=q.eq('can_deliver',true);else if(f==='hauling')q=q.eq('can_haul',true);else q=q.contains('skills',[f.charAt(0).toUpperCase()+f.slice(1)])}
@@ -609,9 +620,10 @@ async function loadWorkers(f){
     return'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover"><div class="flex gap-3 mb-3"><div class="shrink-0">'+av+'</div><div class="flex-1 min-w-0"><div class="font-extrabold truncate">'+esc(w.full_name||'Worker')+'</div><div class="text-xs text-zinc-400">'+b+' - '+ts+'pts</div></div></div>'+(w.about_me?'<p class="text-sm text-zinc-400 mb-3 line-clamp-2">'+esc(w.about_me)+'</p>':'')+(w.skills&&w.skills.length?'<div class="flex flex-wrap gap-1 mb-3">'+w.skills.slice(0,4).map(function(s){return'<span class="bg-zinc-800 px-2 py-0.5 rounded-full text-xs">'+s+'</span>'}).join('')+'</div>':'')+'<button onclick="requireAuth(function(){toast(\'Request sent!\',\'info\')})" class="w-full bg-[#14F1C6] text-black py-2.5 rounded-xl font-bold text-sm">Request</button></div>'}).join('')
 }
 
-// WALLET
 async function loadSupply(){var{data}=await sb.from('mv_supply').select('*').single();if(data){gi('supply-total').textContent=fmtNum(data.max_supply);gi('supply-minted').textContent=fmtNum(data.total_minted);gi('supply-escrowed').textContent=fmtNum(data.total_escrowed||data.escrowed||0);gi('supply-burned').textContent=fmtNum(data.total_burned||data.burned||0)}}
+
 function fmtNum(n){if(!n)return'0';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toLocaleString()}
+
 async function loadWallet(){
   if(!user)return;await loadProfile();loadSupply()
   console.log('loadWallet profile:',profile?.email,profile?.mv_balance)
@@ -622,26 +634,24 @@ async function loadWallet(){
   var c=gi('ledger-list');if(!l||!l.length){c.innerHTML='<div class="text-zinc-500 text-sm py-4">No transactions yet</div>';return}
   c.innerHTML=l.map(function(e){return'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-zinc-800"><div><span class="font-mono text-xs bg-zinc-800 px-2 py-0.5 rounded-full">'+e.type.toUpperCase()+'</span><span class="text-sm ml-2 text-zinc-300">'+esc(e.description||'')+'</span></div><div class="font-mono '+(e.amount_mv>0?'text-emerald-400':'text-red-400')+'">'+(e.amount_mv>0?'+':'')+e.amount_mv+' MV</div></div>'}).join('')
 }
+
 function toggleBalance(){balRevealed=!balRevealed;loadWallet()}
+
 async function sendMV(){
   var to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'))
   if(!to||!amt||amt<1)return toast('Enter recipient and amount','error')
   if(amt>(profile?.mv_balance||0))return toast('Insufficient MV','error')
-  // Find recipient
   var res=await authFetch('users?email=eq.'+encodeURIComponent(to)+'&select=id,mv_balance,email')
   if(!res)return toast('Error finding recipient','error')
   var recipients=await res.json()
   if(!recipients?.length){
-    // Try username lookup
     res=await authFetch('users?username=eq.'+encodeURIComponent(to.replace('@',''))+'&select=id,mv_balance,email')
     if(res)recipients=await res.json()
   }
   if(!recipients?.length)return toast('Recipient not found','error')
   var r=recipients[0]
-  // Update balances
   await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:(profile.mv_balance||0)-amt})})
   await authFetch('users?id=eq.'+r.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:(r.mv_balance||0)+amt})})
-  // Ledger entries with unique hashes
   var h1='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
   var h2='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
   await authFetch('mv_ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:user.id,type:'send',amount_mv:-amt,description:'Sent to '+r.email,tx_hash:h1,related_user_id:r.id})})
@@ -658,14 +668,12 @@ async function loadMV(amt){
     await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:newBal})})
     var h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
     await authFetch('mv_ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:user.id,type:'load',amount_mv:amt,description:'Loaded '+amt+' MV (beta)',tx_hash:h})})
-    // Update supply
     await authFetch('mv_supply?id=eq.1',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({total_minted:((profile?.total_minted||5)+amt)})})
     toast(amt+' MV loaded!')
     hideModal('load-modal');await loadProfile();loadWallet()
   }catch(err){console.error('loadMV error:',err);toast('Error loading MV','error')}
 }
 
-// BLOG
 async function loadBlog(){
   if(isAdmin())gi('blog-admin-btn').innerHTML='<button onclick="showModal(\'blog-editor-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm">+ New Post</button>'
   var{data}=await sb.from('blog_posts').select('*').eq('status','published').order('created_at',{ascending:false})
@@ -673,12 +681,14 @@ async function loadBlog(){
   if(!data||!data.length){c.innerHTML='<div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F4DD;</div><p class="font-bold">No posts yet</p></div>';return}
   c.innerHTML=data.map(function(p){return'<div class="blog-card bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden cursor-pointer" onclick="viewPost(\''+p.id+'\')">'+(p.cover_url?'<img src="'+p.cover_url+'" class="w-full h-40 object-cover">':'<div class="h-40 bg-zinc-800 flex items-center justify-center text-4xl">&#x1F4DD;</div>')+'<div class="p-5"><h3 class="font-extrabold text-lg mb-1">'+esc(p.title)+'</h3><p class="text-zinc-400 text-sm mb-2">'+esc((p.body||'').slice(0,120))+'...</p><div class="flex gap-2 text-xs text-zinc-500">'+(p.tags?p.tags.map(function(t){return'<span class="bg-zinc-800 px-2 py-0.5 rounded-full">'+t+'</span>'}).join(''):'')+'<span>'+new Date(p.created_at).toLocaleDateString()+'</span></div></div></div>'}).join('')
 }
+
 async function viewPost(id){
   var{data:p}=await sb.from('blog_posts').select('*').eq('id',id).single();if(!p)return
   var html='<article class="max-w-2xl mx-auto">'+(p.cover_url?'<img src="'+p.cover_url+'" class="w-full h-56 object-cover rounded-2xl mb-6">':'')+'<h1 class="text-3xl font-extrabold mb-2">'+esc(p.title)+'</h1><p class="text-zinc-500 text-sm mb-6">'+new Date(p.created_at).toLocaleDateString()+(p.author_name?' - '+esc(p.author_name):'')+'</p><div class="prose prose-invert text-zinc-300 leading-relaxed space-y-4">'+markdownToHtml(p.body||'')+'</div></article>'
   gi('blog-post-content').innerHTML=html
   document.querySelectorAll('.tab-content').forEach(function(e){e.classList.add('hidden')});gi('blog-post-tab').classList.remove('hidden')
 }
+
 async function publishPost(){
   var title=gv('blog-title').trim(),body=gv('blog-body').trim()
   if(!title||!body)return toast('Title and body required','error')
@@ -689,19 +699,20 @@ async function publishPost(){
   hideModal('blog-editor-modal');gi('blog-title').value='';gi('blog-body').value='';gi('blog-slug').value='';gi('blog-cover').value='';gi('blog-tags').value=''
   loadBlog();toast('Published!')
 }
+
 function markdownToHtml(md){return md.replace(/^### (.*$)/gm,'<h3 class="text-lg font-extrabold text-white mt-6">$1</h3>').replace(/^## (.*$)/gm,'<h2 class="text-xl font-extrabold text-white mt-8">$1</h2>').replace(/^# (.*$)/gm,'<h1 class="text-2xl font-extrabold text-white mt-8">$1</h1>').replace(/\*\*(.*?)\*\*/g,'<strong class="text-white">$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/!\[(.*?)\]\((.*?)\)/g,'<img src="$2" alt="$1" class="rounded-xl my-4 w-full">').replace(/\[(.*?)\]\((.*?)\)/g,'<a href="$2" class="text-[#14F1C6] underline" target="_blank">$1</a>').replace(/\n\n/g,'</p><p class="text-zinc-300">').replace(/\n/g,'<br>')}
 
-// EXCHANGE CHATBOT
 function toggleExchange(){exchangeOpen=!exchangeOpen;gi('exchange-panel').style.display=exchangeOpen?'flex':'none'}
+
 async function sendExchange(){
   var input=gi('exchange-input'),msg=input.value.trim();if(!msg)return;input.value=''
   var mc=gi('exchange-messages')
   mc.innerHTML+='<div class="bg-zinc-700 rounded-2xl rounded-tr-sm p-3 max-w-[85%] ml-auto"><p class="text-sm">'+esc(msg)+'</p></div>'
   mc.scrollTop=mc.scrollHeight
-  // Smart auto-responses
   var r=getExchangeResponse(msg)
   setTimeout(function(){mc.innerHTML+='<div class="bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%]"><p class="text-sm">'+r+'</p></div>';mc.scrollTop=mc.scrollHeight},600)
 }
+
 function getExchangeResponse(msg){
   var m=msg.toLowerCase()
   if(m.indexOf('mv')>=0||m.indexOf('money')>=0||m.indexOf('currency')>=0)return'<strong class="text-[#14F1C6]">MV</strong> is our platform credit. 1 MV = $1 USD, always. Load MV to post jobs or pay workers. It\'s deflationary - 1 MV is burned per job posted!'
@@ -715,16 +726,20 @@ function getExchangeResponse(msg){
   return'Great question! For detailed help, try asking about: <strong>MV</strong>, <strong>posting jobs</strong>, <strong>earning as a worker</strong>, <strong>escrow</strong>, or the <strong>MUXI</strong> agent team. I\'m here to help!'
 }
 
-// REALTIME
 function setupRealtime(){sb.channel('jobs-rt').on('postgres_changes',{event:'*',schema:'public',table:'jobs'},function(){if(!gi('jobs-tab').classList.contains('hidden'))loadJobs()}).subscribe()}
 
-// HELPERS
 function showTab(t){document.querySelectorAll('.tab-content').forEach(function(e){e.classList.add('hidden')});var el=gi(t+'-tab');if(el)el.classList.remove('hidden');document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});var tb=document.querySelector('.tab-btn[data-tab="'+t+'"]');if(tb)tb.classList.add('active');document.querySelectorAll('.mob-tab').forEach(function(b){b.classList.remove('active')});var mb=document.querySelector('.mob-tab[data-tab="'+t+'"]');if(mb)mb.classList.add('active');if(t==='jobs')loadJobs();if(t==='go'){initMap();loadWorkers('all')};if(t==='wallet')loadWallet();if(t==='profile')renderProfile();if(t==='blog')loadBlog()}
+
 function showModal(id){var el=gi(id);if(el)el.classList.remove('hidden')}
+
 function hideModal(id){var el=gi(id);if(el)el.classList.add('hidden')}
+
 function gv(id){var el=gi(id);return el&&el.value||''}
+
 function gi(id){return document.getElementById(id)}
+
 function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
+
 function renderSkills(){var c=gi('skill-boxes');if(!c)return;c.innerHTML=SKILLS.map(function(s){return'<label class="skill-tag flex items-center gap-1.5 bg-zinc-800 px-3 py-1.5 rounded-full cursor-pointer text-sm font-bold"><input type="checkbox" value="'+s+'" class="sk hidden">'+s+'</label>'}).join('')}
 
 window.onload=init
