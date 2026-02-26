@@ -932,6 +932,15 @@ async function loadConversations() {
   try {
     var res = await apiRequest('conversation_members?user_id=eq.' + state.user.id + '&select=conversation_id');
     var data = (res && res.ok) ? await res.json() : [];
+    if (!res || !res.ok) {
+      console.error('conversation_members SELECT failed:', res && res.status);
+      /* RLS self-reference issue - try direct conversations query as fallback */
+      try {
+        var fallbackRes = await apiRequest('conversations?select=id&order=updated_at.desc&limit=50');
+        var fallbackData = (fallbackRes && fallbackRes.ok) ? await fallbackRes.json() : [];
+        data = fallbackData.map(function(c) { return { conversation_id: c.id }; });
+      } catch(fb) { console.error('conversations fallback also failed:', fb); }
+    }
     var convIds = data.map(function(d) { return d.conversation_id; }).filter(Boolean);
 
     if (convIds.length === 0) {
@@ -944,9 +953,12 @@ async function loadConversations() {
       return;
     }
 
-    /* Get other members (no nested select - separate user lookup) */
-    var membersRes = await apiRequest('conversation_members?conversation_id=in.(' + convIds.join(',') + ')&user_id=neq.' + state.user.id + '&select=conversation_id,user_id');
-    var members = (membersRes && membersRes.ok) ? await membersRes.json() : [];
+    /* Get other members - wrap in try/catch for RLS issues */
+    var members = [];
+    try {
+      var membersRes = await apiRequest('conversation_members?conversation_id=in.(' + convIds.join(',') + ')&user_id=neq.' + state.user.id + '&select=conversation_id,user_id');
+      members = (membersRes && membersRes.ok) ? await membersRes.json() : [];
+    } catch(me) { console.error('conversation_members other-user query failed:', me); }
 
     /* Look up user names separately */
     var otherUserIds = members.map(function(m) { return m.user_id; }).filter(Boolean);
@@ -2416,9 +2428,30 @@ async function handleApply() {
     if (res && res.ok) {
       closeModal(); showToast('Application submitted!');
       setMuxi(muxiQuip('apply'));
-      // Queue notification for poster
       var job = state.jobs.find(function(j) { return j.id === jobId; });
       if (job && job.poster_id) {
+        /* Auto-create conversation thread between applicant and poster */
+        try {
+          var convoRes = await apiRequest('rpc/get_or_create_conversation', {
+            method: 'POST',
+            body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: job.poster_id, p_job_id: jobId })
+          });
+          if (convoRes && convoRes.ok) {
+            var cid = await convoRes.json();
+            /* Send automatic intro message */
+            if (cid) {
+              await apiRequest('messages', {
+                method: 'POST',
+                body: JSON.stringify({
+                  conversation_id: cid,
+                  sender_id: state.user.id,
+                  body: 'Hi! I just applied to your gig "' + (job.title || 'untitled') + '" - ' + pitch.substring(0, 120) + (pitch.length > 120 ? '...' : '')
+                })
+              });
+            }
+          }
+        } catch(ce) { console.warn('Auto-convo creation failed:', ce); }
+        /* Queue notification for poster */
         try {
           await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'new_application', title: 'New application', body: 'Someone applied to: ' + (job.title || 'your gig'), channel: 'email' }) });
         } catch(e) {}
@@ -2448,18 +2481,28 @@ async function handleSend() {
     }
     var rid = ld[0].id;
     var txh = 'TX' + Date.now() + Math.random().toString(36).slice(2, 8);
-    // Debit sender
-    await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'send', amount_mv: amt, description: 'Sent to ' + to, tx_hash: txh, related_user_id: rid }) });
-    // Credit receiver
-    await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: rid, type: 'receive', amount_mv: amt, description: 'Received', tx_hash: txh, related_user_id: state.user.id }) });
-    // Update balances
-    await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: bal - amt }) });
-    state.profile.mv_balance = bal - amt;
+    /* Use transfer_mv RPC (SECURITY DEFINER - bypasses RLS for recipient credit) */
+    var rpcOk = false;
     try {
-      var rb = await apiRequest('users?id=eq.' + rid + '&select=mv_balance');
-      var rd = (rb && rb.ok) ? await rb.json() : [];
-      if (rd.length) await apiRequest('users?id=eq.' + rid, { method: 'PATCH', body: JSON.stringify({ mv_balance: Number(rd[0].mv_balance || 0) + amt }) });
-    } catch(e) {}
+      var rpcRes = await apiRequest('rpc/transfer_mv', {
+        method: 'POST',
+        body: JSON.stringify({ p_from_id: state.user.id, p_to_id: rid, p_amount: amt, p_tx_hash: txh })
+      });
+      if (rpcRes && rpcRes.ok) { rpcOk = true; }
+      else { console.warn('transfer_mv RPC status:', rpcRes && rpcRes.status, await rpcRes.text().catch(function(){return '';})); }
+    } catch(re) { console.warn('transfer_mv RPC error:', re); }
+    if (!rpcOk) {
+      /* Fallback: direct inserts + balance updates */
+      await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'send', amount_mv: amt, description: 'Sent to ' + to, tx_hash: txh, related_user_id: rid }) });
+      await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: bal - amt }) });
+      try {
+        await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: rid, type: 'receive', amount_mv: amt, description: 'Received', tx_hash: txh, related_user_id: state.user.id }) });
+        var rb = await apiRequest('users?id=eq.' + rid + '&select=mv_balance');
+        var rd = (rb && rb.ok) ? await rb.json() : [];
+        if (rd.length) await apiRequest('users?id=eq.' + rid, { method: 'PATCH', body: JSON.stringify({ mv_balance: Number(rd[0].mv_balance || 0) + amt }) });
+      } catch(fe) { console.warn('Recipient credit failed (RLS):', fe); }
+    }
+    state.profile.mv_balance = bal - amt;
     /* Publish to public ledger */
     await publishEvent('transfer', amt, txh, state.user.id, rid, null);
     closeModal(); showToast('Sent ' + amt + ' MV!');
