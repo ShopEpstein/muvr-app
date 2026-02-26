@@ -197,23 +197,18 @@
     }
 
     /* ===== Nav Tabs ===== */
-    .desktop-tab {
-      background: none; border: none; color: rgba(232,236,241,0.55);
-      font-size: 11px; font-weight: 900; letter-spacing: 0.3px; cursor: pointer;
-      padding: 6px 0; border-bottom: 2px solid transparent;
+    .app-tab {
+      background: none; border: none; color: rgba(232,236,241,0.50);
+      font-size: 11px; font-weight: 900; cursor: pointer;
+      padding: 10px 14px; border-bottom: 2px solid transparent;
       transition: color 0.15s, border-color 0.15s; text-transform: uppercase;
+      white-space: nowrap; letter-spacing: 0.2px;
     }
-    .desktop-tab:hover { color: rgba(232,236,241,0.85); }
-    .desktop-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .mobile-tab {
-      background: none; border: none; color: rgba(232,236,241,0.45);
-      font-size: 10px; font-weight: 800; display: flex; flex-direction: column;
-      align-items: center; gap: 4px; cursor: pointer; padding: 4px 8px;
-      transition: color 0.15s; text-transform: uppercase;
-      position: relative;
+    .app-tab:hover { color: rgba(232,236,241,0.85); }
+    .app-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    @media (max-width: 639px) {
+      .app-tab { font-size: 10px; padding: 8px 10px; }
     }
-    .mobile-tab.active { color: var(--accent); }
     .tab-badge {
       position: absolute; top: -2px; right: 2px; width: 8px; height: 8px;
       background: var(--accent-3); border-radius: 50%;
@@ -656,7 +651,7 @@ function renderLanding() {
             '<h2 class="text-2xl font-black mb-3">MUVR Credits (MV)</h2>' +
             '<p class="text-sm mb-4" style="color:var(--text-mid)">In-platform credits used for posting, escrow, transfers, and settlement flows. MV are denominated as 1 credit = 1 USD-equivalent unit INSIDE the app for pricing.</p>' +
             '<div class="space-y-3">' +
-              mvFeature('Capped Supply', '100 million MV total. No inflation. Credits consumed (burned) on job posting reduce circulating supply over time.') +
+              mvFeature('Capped Supply', '1 million MV total. No inflation. Credits consumed (burned) on job posting reduce circulating supply over time.') +
               mvFeature('Escrow Flow', 'Budget + 1 MV fee locks when posting. Releases to worker on completion. The 1 MV fee is permanently burned.') +
               mvFeature('Send & Receive', 'Transfer MV to any user by @handle, email, or public alias. All transfers are logged in the public ledger.') +
             '</div>' +
@@ -665,7 +660,7 @@ function renderLanding() {
             '<div class="card p-5 h-full" style="background:rgba(24,246,200,0.06);border-color:rgba(24,246,200,0.18)">' +
               '<div class="text-[11px] font-black tracking-widest mb-3" style="color:rgba(232,236,241,0.55)">NETWORK STATS</div>' +
               '<div class="space-y-4">' +
-                netStat('Total Cap', '100,000,000 MV', 'var(--accent)') +
+                netStat('Total Cap', '1,000,000 MV', 'var(--accent)') +
                 netStat('Posting Fee', '1 MV (burned)', 'var(--red)') +
                 netStat('Worker Commission', '0%', 'var(--accent)') +
                 netStat('Payout Fee', '0.5% (beta)', 'var(--yellow)') +
@@ -780,37 +775,33 @@ function renderApp() {
             '<div class="text-[10px] font-bold" style="color:rgba(232,236,241,0.55);letter-spacing:0.22px;text-transform:uppercase">The real-world work game</div>' +
           '</div>' +
         '</div>' +
-        '<nav class="hidden sm:flex gap-5">' +
-          '<button onclick="switchTab(\'jobs\')" class="desktop-tab active" data-tab="jobs">GIGS</button>' +
-          '<button onclick="switchTab(\'messages\')" class="desktop-tab" data-tab="messages">MESSAGES</button>' +
-          '<button onclick="switchTab(\'map\')" class="desktop-tab" data-tab="map">MAP</button>' +
-          '<button onclick="switchTab(\'wallet\')" class="desktop-tab" data-tab="wallet">CREDITS</button>' +
-          '<button onclick="switchTab(\'ledger\')" class="desktop-tab" data-tab="ledger">LEDGER</button>' +
-          '<button onclick="switchTab(\'profile\')" class="desktop-tab" data-tab="profile">ME</button>' +
-        '</nav>' +
-        '<button onclick="handleLogout()" class="text-xs font-black cursor-pointer" style="color:rgba(232,236,241,0.62);background:none;border:none;text-transform:uppercase;letter-spacing:0.2px">Sign out</button>' +
+        '<div class="flex items-center gap-3">' +
+          '<button onclick="openShareModal()" class="text-xs font-black" style="color:var(--accent);background:none;border:none;cursor:pointer" title="Invite friends"><i class="fas fa-share-alt"></i></button>' +
+          '<button onclick="openNotifDropdown()" class="relative text-xs" style="color:rgba(232,236,241,0.62);background:none;border:none;cursor:pointer" title="Notifications"><i class="fas fa-bell"></i><span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-black grid place-items-center" style="background:var(--accent-3);color:#fff;display:none"></span></button>' +
+          '<button onclick="handleLogout()" class="text-xs font-black cursor-pointer" style="color:rgba(232,236,241,0.62);background:none;border:none;text-transform:uppercase;letter-spacing:0.2px">Sign out</button>' +
+        '</div>' +
       '</div>' +
-      /* Ticker */
-      '<div class="py-1 overflow-hidden" style="background:rgba(0,0,0,0.55);border-top:1px solid rgba(255,255,255,0.06)">' +
-        '<div class="ticker-scroll whitespace-nowrap flex gap-8 text-[10px] mono tracking-wider" style="color:rgba(24,246,200,0.95)">' +
-          '<span>0% COMMISSION - MUVR CREDITS (MV) - ESCROW-FIRST - REALTIME UPDATES - LEVEL UP WITH XP</span>' +
-          '<span>0% COMMISSION - MUVR CREDITS (MV) - ESCROW-FIRST - REALTIME UPDATES - LEVEL UP WITH XP</span>' +
+      /* Tab bar - universal for all screen sizes */
+      '<div class="overflow-x-auto" style="background:rgba(0,0,0,0.35);border-top:1px solid rgba(255,255,255,0.06)">' +
+        '<div class="flex max-w-6xl mx-auto px-2" style="min-width:max-content">' +
+          '<button onclick="switchTab(\'jobs\')" class="app-tab active" data-tab="jobs"><i class="fas fa-briefcase mr-1"></i>Gigs</button>' +
+          '<button onclick="switchTab(\'messages\')" class="app-tab" data-tab="messages"><i class="fas fa-comment mr-1"></i>Msgs</button>' +
+          '<button onclick="switchTab(\'map\')" class="app-tab" data-tab="map"><i class="fas fa-map-marked-alt mr-1"></i>Map</button>' +
+          '<button onclick="switchTab(\'wallet\')" class="app-tab" data-tab="wallet"><i class="fas fa-coins mr-1"></i>Credits</button>' +
+          '<button onclick="switchTab(\'ledger\')" class="app-tab" data-tab="ledger"><i class="fas fa-scroll mr-1"></i>Ledger</button>' +
+          '<button onclick="switchTab(\'profile\')" class="app-tab" data-tab="profile"><i class="fas fa-user mr-1"></i>Me</button>' +
         '</div>' +
       '</div>' +
     '</header>' +
 
     /* Main content area */
-    '<main class="max-w-6xl mx-auto px-4 py-6 pb-28 sm:pb-8"><div id="tab-content"></div></main>' +
+    '<main class="max-w-6xl mx-auto px-4 py-6 pb-8"><div id="tab-content"></div></main>' +
 
-    /* Mobile bottom nav */
-    '<div class="sm:hidden fixed bottom-0 left-0 right-0 z-50" style="background:rgba(10,12,26,0.88);border-top:1px solid rgba(255,255,255,0.10);backdrop-filter:blur(16px)">' +
-      '<div class="flex justify-around py-2">' +
-        '<button onclick="switchTab(\'jobs\')" class="mobile-tab active" data-tab="jobs"><i class="fas fa-briefcase text-base"></i>Gigs</button>' +
-        '<button onclick="switchTab(\'messages\')" class="mobile-tab" data-tab="messages"><i class="fas fa-comment text-base"></i>Msgs</button>' +
-        '<button onclick="switchTab(\'map\')" class="mobile-tab" data-tab="map"><i class="fas fa-map-marked-alt text-base"></i>Map</button>' +
-        '<button onclick="switchTab(\'wallet\')" class="mobile-tab" data-tab="wallet"><i class="fas fa-coins text-base"></i>MV</button>' +
-        '<button onclick="switchTab(\'profile\')" class="mobile-tab" data-tab="profile"><i class="fas fa-user text-base"></i>Me</button>' +
-      '</div>' +
+    /* Floating invite button (mobile) */
+    '<div class="sm:hidden fixed bottom-4 right-4 z-40">' +
+      '<button onclick="openShareModal()" class="w-14 h-14 rounded-full grid place-items-center shadow-xl" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;cursor:pointer">' +
+        '<i class="fas fa-user-plus text-lg" style="color:#0a0c1a"></i>' +
+      '</button>' +
     '</div>' +
   '</div>';
 
@@ -822,8 +813,7 @@ function renderApp() {
 ============================================================================= */
 function switchTab(name) {
   state.currentTab = name;
-  document.querySelectorAll('.desktop-tab').forEach(function(b) { b.classList.remove('active'); });
-  document.querySelectorAll('.mobile-tab').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.app-tab').forEach(function(b) { b.classList.remove('active'); });
   document.querySelectorAll('[data-tab="' + name + '"]').forEach(function(b) { b.classList.add('active'); });
 
   if (name === 'jobs') { renderJobsTab(); loadJobsSafe(); }
@@ -896,7 +886,10 @@ function renderJobsTab() {
         '</div>' +
         '<div class="mt-3 pt-3 flex items-center justify-between text-[10px]" style="border-top:1px solid rgba(255,255,255,0.06)">' +
           '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
-          '<span style="color:var(--text-dim)">ID: ' + escapeHtml((job.id || '').slice(0,8)) + '</span>' +
+          '<div class="flex gap-2 items-center">' +
+            '<button onclick="event.stopPropagation();shareGig(\'' + job.id + '\')" class="text-[10px]" style="color:var(--text-dim);background:none;border:none;cursor:pointer" title="Share gig"><i class="fas fa-share-alt"></i></button>' +
+            '<span style="color:var(--text-dim)">ID: ' + escapeHtml((job.id || '').slice(0,8)) + '</span>' +
+          '</div>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -2181,11 +2174,13 @@ function renderWalletTab() {
     /* Network Stats */
     '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.08),rgba(124,92,255,0.06),rgba(255,61,154,0.04))">' +
       '<p class="text-[10px] tracking-widest font-black mb-3" style="color:rgba(232,236,241,0.55)">NETWORK STATUS</p>' +
-      '<div class="grid grid-cols-4 gap-3 text-center">' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-xl font-black mono" style="color:var(--accent)">100M</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-xl font-black mono" style="color:var(--accent)" id="stat-minted">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-xl font-black mono" style="color:var(--yellow)" id="stat-escrowed">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">BURNED</p><p class="text-xl font-black mono" style="color:var(--red)" id="stat-burned">-</p></div>' +
+      '<div class="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">1M</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="stat-minted">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="stat-available">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="stat-circulating">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="stat-escrowed">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">BURNED</p><p class="text-lg font-black mono" style="color:var(--red)" id="stat-burned">-</p></div>' +
       '</div>' +
     '</div>' +
 
@@ -2283,9 +2278,11 @@ function renderLedgerContent(containerId) {
   el.innerHTML =
     '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.06),rgba(124,92,255,0.04))">' +
       '<div class="flex items-center gap-2 mb-3"><div class="live-dot"></div><span class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.65)">LIVE NETWORK</span></div>' +
-      '<div class="grid grid-cols-4 gap-3 text-center">' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">100M</p></div>' +
+      '<div class="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">1M</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="pub-minted">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="pub-available">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="pub-circulating">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="pub-escrowed">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">BURNED</p><p class="text-lg font-black mono" style="color:var(--red)" id="pub-burned">-</p></div>' +
       '</div>' +
@@ -2308,6 +2305,7 @@ async function loadPublicEvents() {
 }
 
 async function computeNetworkStats() {
+  var TOTAL_CAP = 1000000; /* 1 Million MV */
   try {
     var headers = { 'apikey': SUPA_KEY };
     if (state.accessToken) headers['Authorization'] = 'Bearer ' + state.accessToken;
@@ -2322,11 +2320,18 @@ async function computeNetworkStats() {
       if (e.type === 'escrow_refund') escrowed -= amt;
       if (e.type === 'burn') burned += amt;
     });
-    function fmtNum(n) { return n >= 1000000 ? (n/1000000).toFixed(1) + 'M' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(n); }
-    var els = ['stat-minted', 'pub-minted'];
-    els.forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(minted); });
+    if (escrowed < 0) escrowed = 0;
+    var circulating = minted - burned - escrowed;
+    if (circulating < 0) circulating = 0;
+    var available = TOTAL_CAP - minted;
+    if (available < 0) available = 0;
+
+    function fmtNum(n) { return n >= 1000000 ? (n/1000000).toFixed(1) + 'M' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(Math.round(n)); }
+    ['stat-minted', 'pub-minted'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(minted); });
     ['stat-escrowed', 'pub-escrowed'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(escrowed); });
     ['stat-burned', 'pub-burned'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(burned); });
+    ['stat-circulating', 'pub-circulating'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(circulating); });
+    ['stat-available', 'pub-available'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(available); });
   } catch(e) { console.error('stats error:', e); }
 }
 
@@ -2483,6 +2488,18 @@ function renderProfileTab() {
       '<div class="mt-3 text-[11px]" style="color:var(--text-dim)"><i class="fas fa-info-circle mr-1"></i>Identity verification and background check integration coming in a future update.</div>' +
     '</div>' +
 
+    /* Recruit / Invite Card */
+    '<div class="card p-5 max-w-2xl mb-6" style="border-color:rgba(24,246,200,0.18);background:linear-gradient(135deg,rgba(24,246,200,0.06),rgba(124,92,255,0.04))">' +
+      '<h3 class="font-black mb-2"><i class="fas fa-user-plus mr-2" style="color:var(--accent)"></i>Grow the Network</h3>' +
+      '<p class="text-xs mb-4" style="color:var(--text-dim)">Every person you bring in creates more gigs, more workers, and more value. Share MUVR and help break the broken gig economy.</p>' +
+      '<div class="flex gap-2 flex-wrap">' +
+        '<button onclick="openShareModal()" class="btn-pill btn-pill-accent"><i class="fas fa-share-alt mr-1"></i>Invite friends</button>' +
+        '<button onclick="shareVia(\'twitter\')" class="btn-pill btn-pill-ghost"><i class="fab fa-twitter mr-1"></i>Tweet</button>' +
+        '<button onclick="shareVia(\'whatsapp\')" class="btn-pill btn-pill-ghost"><i class="fab fa-whatsapp mr-1"></i>WhatsApp</button>' +
+        '<button onclick="shareVia(\'sms\')" class="btn-pill btn-pill-ghost"><i class="fas fa-sms mr-1"></i>Text</button>' +
+      '</div>' +
+    '</div>' +
+
     /* Achievements / Badges */
     '<div class="card p-5 max-w-2xl">' +
       '<h3 class="font-black mb-3">Achievements</h3>' +
@@ -2523,7 +2540,7 @@ var blogPosts = [
   { id: 'gig-economy-future', title: 'The Future of the Gig Economy: Zero Commission', cat: 'Gig Economy', excerpt: 'Traditional platforms take 15-30% of worker earnings. MUVR is building the alternative with 0% commission and escrow-first payment protection.', date: '2026-02-18', body: 'The gig economy has grown to over 60 million workers in the US alone. But most platforms still extract 15-30% from every transaction. MUVR takes a different approach: zero commission on worker earnings. Instead of percentage fees, MUVR uses a flat 1 MV credit posting fee that gets burned permanently. Workers keep 100% of the agreed rate. Escrow locks funds before work begins, so workers are guaranteed payment and clients are guaranteed delivery. It is a fundamentally different model built for the people doing the actual work.' },
   { id: 'escrow-explained', title: 'How Escrow Protection Works on MUVR', cat: 'MUVR News', excerpt: 'Escrow is the backbone of trust on MUVR. Learn how it protects both workers and job posters in every transaction.', date: '2026-02-15', body: 'When a job is posted on MUVR, the full budget plus a 1 MV posting fee locks in escrow. This means the money exists and is committed before any worker starts. When work is complete and confirmed, escrow releases instantly to the worker. If there is a dispute, escrow holds until resolution. The 1 MV posting fee is permanently burned, reducing the total supply over time. This creates a system where trust is built into the protocol, not dependent on reviews alone.' },
   { id: 'worker-guide-getting-started', title: 'Worker Guide: Getting Started on MUVR', cat: 'Worker Guides', excerpt: 'New to MUVR? Here is everything you need to know to land your first gig and start earning.', date: '2026-02-12', body: 'Step 1: Create your account and complete your profile. Profiles with names, bios, and vehicle info get 2x visibility. Step 2: Browse the Gigs tab and filter by type - rideshare, delivery, physical labor, or digital work. Step 3: Apply with a clear pitch, your rate in MV, and estimated turnaround. Step 4: If selected, do great work and get paid instantly via escrow release. Step 5: Earn XP for every completed gig and climb the ranks from Runner to Mythic. Higher rank means you appear first in search results.' },
-  { id: 'mv-credits-explained', title: 'Understanding MUVR Credits (MV)', cat: 'MUVR News', excerpt: 'MV Credits are the in-platform unit that powers escrow, payments, and marketplace flows. Here is how they work.', date: '2026-02-10', body: 'MUVR Credits (MV) are platform-limited digital credits used within MUVR for marketplace features. They are denominated as 1 credit equals 1 USD-equivalent unit inside the app for pricing. Total supply is capped at 100 million MV. Every job posting burns 1 MV permanently, creating natural deflation over time. MV can be sent to any user by handle, email, or public alias. All transfers are logged in the public ledger using anonymous aliases. MV are not currency, cryptocurrency, or financial instruments.' },
+  { id: 'mv-credits-explained', title: 'Understanding MUVR Credits (MV)', cat: 'MUVR News', excerpt: 'MV Credits are the in-platform unit that powers escrow, payments, and marketplace flows. Here is how they work.', date: '2026-02-10', body: 'MUVR Credits (MV) are platform-limited digital credits used within MUVR for marketplace features. They are denominated as 1 credit equals 1 USD-equivalent unit inside the app for pricing. Total supply is capped at 1 million MV. Every job posting burns 1 MV permanently, creating natural deflation over time. MV can be sent to any user by handle, email, or public alias. All transfers are logged in the public ledger using anonymous aliases. MV are not currency, cryptocurrency, or financial instruments.' },
   { id: 'virginia-pilot-launch', title: 'MUVR Launches Virginia Pilot Program', cat: 'MUVR News', excerpt: 'We are rolling out the MUVR marketplace in Virginia first. Here is why and what to expect.', date: '2026-02-08', body: 'Virginia is MUVR launch market and the testing ground for the platform. We chose Virginia for its diverse population, strong demand for moving and delivery services, and proximity to our team. The pilot includes all core features: gig posting, escrow, MV credits, messaging, the public ledger, and the MUVR GO map. Early users will get bonus MV credits for completing their profiles and posting their first gigs. Feedback from the Virginia pilot will shape the national rollout later this year.' }
 ];
 
@@ -2775,6 +2792,103 @@ function openEditProfileModal() {
     { width: 'max-w-md' }
   );
 }
+
+/* =============================================================================
+/* =============================================================================
+   SHARE / RECRUIT / VIRAL SYSTEM
+============================================================================= */
+function getShareUrl() {
+  var base = window.location.origin + window.location.pathname;
+  var ref = state.profile && state.profile.referral_code ? state.profile.referral_code : (state.profile && state.profile.username ? state.profile.username : '');
+  return ref ? base + '?ref=' + encodeURIComponent(ref) : base;
+}
+
+function openShareModal() {
+  var url = getShareUrl();
+
+  var msgs = {
+    worker: 'I am earning on MUVR with zero commission fees. Workers keep 100%. Join me: ' + url,
+    poster: 'I found great local help on MUVR. Escrow-protected, instant matching, no middleman fees. Try it: ' + url,
+    social: 'The gig economy is broken. MUVR is fixing it. 0% commission. Escrow protection. Workers keep everything. ' + url
+  };
+
+  openModal(
+    '<div class="card p-6" style="max-width:480px;margin:auto;max-height:90vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-4">' +
+        '<h2 class="text-lg font-black"><i class="fas fa-share-alt mr-2" style="color:var(--accent)"></i>Invite & Share</h2>' +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
+      '<div class="p-4 rounded-xl mb-4" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16)">' +
+        '<p class="text-[11px] font-black mb-2" style="color:var(--accent)">YOUR INVITE LINK</p>' +
+        '<div class="flex gap-2">' +
+          '<input id="share-url" type="text" value="' + escapeHtml(url) + '" readonly class="field flex-1" style="font-size:11px">' +
+          '<button onclick="copyShareLink()" class="btn-pill btn-pill-accent" style="flex-shrink:0"><i class="fas fa-copy"></i></button>' +
+        '</div>' +
+        '<p class="text-[10px] mt-2" style="color:var(--text-dim)">Anyone who signs up through your link grows the network.</p>' +
+      '</div>' +
+      '<p class="text-[11px] font-black mb-3" style="color:rgba(232,236,241,0.55)">SHARE ON</p>' +
+      '<div class="grid grid-cols-2 gap-2 mb-4">' +
+        '<button onclick="shareVia(\'twitter\')" class="p-3 rounded-xl text-xs font-black flex items-center gap-2" style="background:rgba(29,161,242,0.12);border:1px solid rgba(29,161,242,0.25);color:#1DA1F2"><i class="fab fa-twitter"></i>Twitter / X</button>' +
+        '<button onclick="shareVia(\'facebook\')" class="p-3 rounded-xl text-xs font-black flex items-center gap-2" style="background:rgba(66,103,178,0.12);border:1px solid rgba(66,103,178,0.25);color:#4267B2"><i class="fab fa-facebook"></i>Facebook</button>' +
+        '<button onclick="shareVia(\'whatsapp\')" class="p-3 rounded-xl text-xs font-black flex items-center gap-2" style="background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.25);color:#25D366"><i class="fab fa-whatsapp"></i>WhatsApp</button>' +
+        '<button onclick="shareVia(\'sms\')" class="p-3 rounded-xl text-xs font-black flex items-center gap-2" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(232,236,241,0.8)"><i class="fas fa-sms"></i>Text</button>' +
+        '<button onclick="shareVia(\'linkedin\')" class="p-3 rounded-xl text-xs font-black flex items-center gap-2" style="background:rgba(0,119,181,0.12);border:1px solid rgba(0,119,181,0.25);color:#0077B5"><i class="fab fa-linkedin"></i>LinkedIn</button>' +
+        '<button onclick="shareVia(\'email\')" class="p-3 rounded-xl text-xs font-black flex items-center gap-2" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(232,236,241,0.8)"><i class="fas fa-envelope"></i>Email</button>' +
+      '</div>' +
+      '<p class="text-[11px] font-black mb-3" style="color:rgba(232,236,241,0.55)">COPY A MESSAGE</p>' +
+      '<div class="space-y-2 mb-4">' +
+        '<div class="p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)" onclick="copyText(\'' + escapeHtml(msgs.worker).replace(/'/g, "\\'") + '\')">' +
+          '<p class="text-[11px] font-black" style="color:var(--accent-2)"><i class="fas fa-hard-hat mr-1"></i>For workers</p>' +
+          '<p class="text-[10px]" style="color:var(--text-dim)">Tap to copy</p>' +
+        '</div>' +
+        '<div class="p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)" onclick="copyText(\'' + escapeHtml(msgs.poster).replace(/'/g, "\\'") + '\')">' +
+          '<p class="text-[11px] font-black" style="color:var(--accent-3)"><i class="fas fa-clipboard-list mr-1"></i>For job posters</p>' +
+          '<p class="text-[10px]" style="color:var(--text-dim)">Tap to copy</p>' +
+        '</div>' +
+        '<div class="p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)" onclick="copyText(\'' + escapeHtml(msgs.social).replace(/'/g, "\\'") + '\')">' +
+          '<p class="text-[11px] font-black" style="color:var(--yellow)"><i class="fas fa-fire mr-1"></i>Viral / Social</p>' +
+          '<p class="text-[10px]" style="color:var(--text-dim)">Tap to copy</p>' +
+        '</div>' +
+      '</div>' +
+      (navigator.share ? '<button onclick="nativeShare()" class="btn-primary rounded-full mb-3"><i class="fas fa-share mr-2"></i>Share via device</button>' : '') +
+      '<p class="text-[10px] text-center" style="color:var(--text-dim)">More people = more gigs = more value for everyone.</p>' +
+    '</div>',
+    { width: 'max-w-md' }
+  );
+}
+
+function copyShareLink() {
+  var el = getEl('share-url');
+  if (el) { try { navigator.clipboard.writeText(el.value); } catch(e) { el.select(); document.execCommand('copy'); } showToast('Link copied!'); }
+}
+function copyText(text) {
+  try { navigator.clipboard.writeText(text); } catch(e) { var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+  showToast('Copied to clipboard!');
+}
+function shareVia(platform) {
+  var url = getShareUrl();
+  var text = 'Join MUVR - the real-world work game. 0% commission, escrow-protected gigs, workers keep 100%.';
+  var eu = encodeURIComponent(url), et = encodeURIComponent(text);
+  var dest = '';
+  if (platform === 'twitter') dest = 'https://twitter.com/intent/tweet?text=' + et + '&url=' + eu;
+  else if (platform === 'facebook') dest = 'https://www.facebook.com/sharer/sharer.php?u=' + eu;
+  else if (platform === 'whatsapp') dest = 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + url);
+  else if (platform === 'sms') dest = 'sms:?body=' + encodeURIComponent(text + ' ' + url);
+  else if (platform === 'linkedin') dest = 'https://www.linkedin.com/sharing/share-offsite/?url=' + eu;
+  else if (platform === 'email') dest = 'mailto:?subject=' + encodeURIComponent('Check out MUVR') + '&body=' + encodeURIComponent(text + '\n\n' + url);
+  if (dest) window.open(dest, '_blank');
+}
+async function nativeShare() {
+  try { await navigator.share({ title: 'MUVR - The Real-World Work Game', text: 'Join MUVR. 0% commission gigs with escrow protection. Workers keep 100%.', url: getShareUrl() }); } catch(e) {}
+}
+function shareGig(jobId) {
+  var job = (state.jobs || []).concat(state.myGigs || []).find(function(j) { return j.id === jobId; });
+  var url = getShareUrl() + '#gig-' + (jobId || '').slice(0, 8);
+  var text = job ? 'Gig on MUVR: "' + (job.title || '') + '" for ' + Number(job.budget_mv || 0) + ' MV - ' + url : url;
+  try { navigator.clipboard.writeText(text); } catch(e) {}
+  showToast('Gig link copied!');
+}
+
 
 /* =============================================================================
    NOTIFICATIONS BELL (in-app queue reader)
