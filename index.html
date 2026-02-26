@@ -930,7 +930,7 @@ function renderMessagesTab() {
 
 async function loadConversations() {
   try {
-    var res = await apiRequest('conversation_members?user_id=eq.' + state.user.id + '&select=conversation_id,conversations(id,job_id,created_at)');
+    var res = await apiRequest('conversation_members?user_id=eq.' + state.user.id + '&select=conversation_id');
     var data = (res && res.ok) ? await res.json() : [];
     var convIds = data.map(function(d) { return d.conversation_id; }).filter(Boolean);
 
@@ -944,11 +944,24 @@ async function loadConversations() {
       return;
     }
 
-    /* Get other members */
-    var membersRes = await apiRequest('conversation_members?conversation_id=in.(' + convIds.join(',') + ')&user_id=neq.' + state.user.id + '&select=conversation_id,user_id,users(full_name,username,email)');
+    /* Get other members (no nested select - separate user lookup) */
+    var membersRes = await apiRequest('conversation_members?conversation_id=in.(' + convIds.join(',') + ')&user_id=neq.' + state.user.id + '&select=conversation_id,user_id');
     var members = (membersRes && membersRes.ok) ? await membersRes.json() : [];
+
+    /* Look up user names separately */
+    var otherUserIds = members.map(function(m) { return m.user_id; }).filter(Boolean);
+    var userMap = {};
+    if (otherUserIds.length > 0) {
+      var userRes = await apiRequest('users?id=in.(' + otherUserIds.join(',') + ')&select=id,full_name,username,email');
+      var users = (userRes && userRes.ok) ? await userRes.json() : [];
+      users.forEach(function(u) { userMap[u.id] = u; });
+    }
+
     var memberMap = {};
-    members.forEach(function(m) { memberMap[m.conversation_id] = m; });
+    members.forEach(function(m) {
+      m.userInfo = userMap[m.user_id] || null;
+      memberMap[m.conversation_id] = m;
+    });
 
     /* Get last message per convo */
     var lastMsgRes = await apiRequest('messages?conversation_id=in.(' + convIds.join(',') + ')&order=created_at.desc&limit=100&select=conversation_id,body,created_at,sender_id');
@@ -960,8 +973,8 @@ async function loadConversations() {
       var other = memberMap[cid];
       var last = lastMsgMap[cid];
       var name = 'User';
-      if (other && other.users) {
-        name = other.users.full_name || other.users.username || other.users.email || 'User';
+      if (other && other.userInfo) {
+        name = other.userInfo.full_name || other.userInfo.username || other.userInfo.email || 'User';
       }
       return {
         id: cid,
@@ -1080,6 +1093,7 @@ async function sendMessage() {
     });
     state.activeMessages.push({ sender_id: state.user.id, body: body, created_at: new Date().toISOString() });
     renderMessages();
+    showToast('Message sent', 'success');
     /* Queue notification for recipient */
     var conv = state.conversations.find(function(x) { return x.id === state.activeConvoId; });
     if (conv && conv.otherUserId) {
@@ -1444,7 +1458,31 @@ async function loadPublicEvents() {
     var res = await fetch(SUPA_URL + '/rest/v1/' + url, { headers: headers });
     state.publicEvents = res.ok ? await res.json() : [];
     renderPublicEvents();
+    computeNetworkStats();
   } catch(e) { console.error(e); }
+}
+
+async function computeNetworkStats() {
+  try {
+    var headers = { 'apikey': SUPA_KEY };
+    if (state.accessToken) headers['Authorization'] = 'Bearer ' + state.accessToken;
+    var allRes = await fetch(SUPA_URL + '/rest/v1/mv_public_events?select=type,amount_mv&limit=5000', { headers: headers });
+    var all = allRes.ok ? await allRes.json() : [];
+    var minted = 0, escrowed = 0, burned = 0;
+    all.forEach(function(e) {
+      var amt = Number(e.amount_mv || 0);
+      if (e.type === 'mint') minted += amt;
+      if (e.type === 'escrow_lock') escrowed += amt;
+      if (e.type === 'escrow_release') escrowed -= amt;
+      if (e.type === 'escrow_refund') escrowed -= amt;
+      if (e.type === 'burn') burned += amt;
+    });
+    function fmtNum(n) { return n >= 1000000 ? (n/1000000).toFixed(1) + 'M' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(n); }
+    var els = ['stat-minted', 'pub-minted'];
+    els.forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(minted); });
+    ['stat-escrowed', 'pub-escrowed'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(escrowed); });
+    ['stat-burned', 'pub-burned'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(burned); });
+  } catch(e) { console.error('stats error:', e); }
 }
 
 function renderPublicEvents() {
@@ -1574,6 +1612,30 @@ function renderProfileTab() {
       '</div>' +
 
       '<button onclick="openEditProfileModal()" class="btn-primary rounded-full">Edit profile</button>' +
+    '</div>' +
+
+    /* Trust & Safety Card */
+    '<div class="card p-5 max-w-2xl mb-6">' +
+      '<h3 class="font-black mb-3"><i class="fas fa-shield-alt mr-2" style="color:var(--accent)"></i>Trust & Safety</h3>' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+        '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+          '<p class="font-black text-xs mb-1">Escrow Protection</p>' +
+          '<p class="text-[11px]" style="color:var(--text-dim)">All gig payments locked in escrow before work begins. Funds release only on confirmation.</p>' +
+        '</div>' +
+        '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+          '<p class="font-black text-xs mb-1">Public Ledger</p>' +
+          '<p class="text-[11px]" style="color:var(--text-dim)">All MV transactions recorded publicly (anonymized). Full transparency, no hidden flows.</p>' +
+        '</div>' +
+        '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+          '<p class="font-black text-xs mb-1">Reputation System</p>' +
+          '<p class="text-[11px]" style="color:var(--text-dim)">Star ratings, completion count, and XP level visible to all users. Build trust through work.</p>' +
+        '</div>' +
+        '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+          '<p class="font-black text-xs mb-1">Dispute Resolution</p>' +
+          '<p class="text-[11px]" style="color:var(--text-dim)">Escrow holds during disputes. Platform review process protects both parties.</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="mt-3 text-[11px]" style="color:var(--text-dim)"><i class="fas fa-info-circle mr-1"></i>Identity verification and background check integration coming in a future update.</div>' +
     '</div>' +
 
     /* Achievements / Badges */
@@ -1852,11 +1914,16 @@ function openEditProfileModal() {
     '<div class="card p-6" style="max-width:460px;margin:auto;max-height:90vh;overflow:auto">' +
       '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Edit profile</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
       '<div class="space-y-3">' +
-        '<input id="profile-name" placeholder="Your name" maxlength="100" class="field" value="' + escapeHtml(p.full_name || '') + '">' +
-        '<input id="profile-username" placeholder="@handle (unique)" maxlength="30" class="field" value="' + escapeHtml(p.username || '') + '">' +
-        '<textarea id="profile-about" placeholder="What services do you offer? What makes you great?" rows="4" maxlength="500" class="field" style="resize:none">' + escapeHtml(p.about_me || '') + '</textarea>' +
+        '<input id="profile-name" placeholder="Your full legal name" maxlength="100" class="field" value="' + escapeHtml(p.full_name || '') + '">' +
+        '<input id="profile-username" placeholder="@handle (unique, public)" maxlength="30" class="field" value="' + escapeHtml(p.username || '') + '">' +
+        '<textarea id="profile-about" placeholder="What services do you offer? Skills, experience, availability..." rows="4" maxlength="500" class="field" style="resize:none">' + escapeHtml(p.about_me || '') + '</textarea>' +
         '<select id="profile-role" class="field"><option value="both" ' + (p.role === 'both' ? 'selected' : '') + '>Work & post gigs</option><option value="worker" ' + (p.role === 'worker' ? 'selected' : '') + '>Worker only</option><option value="poster" ' + (p.role === 'poster' ? 'selected' : '') + '>Post gigs only</option></select>' +
         '<label class="flex items-center gap-3 cursor-pointer p-3 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)"><input type="checkbox" id="profile-vehicle" class="w-4 h-4" ' + (p.has_vehicle ? 'checked' : '') + '><span class="text-sm font-black">I have a vehicle</span></label>' +
+        '<div class="p-4 rounded-2xl" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16)">' +
+          '<p class="font-black text-xs mb-2" style="color:var(--accent)"><i class="fas fa-shield-alt mr-1"></i>TRUST & SAFETY</p>' +
+          '<p class="text-[11px] mb-2" style="color:var(--text-mid)">Verified profiles get priority in search. All workers are screened by reputation, escrow history, and community feedback.</p>' +
+          '<p class="text-[11px]" style="color:var(--text-dim)">Identity verification and background checks will be available in a future update. For now, escrow protection + public ratings keep both sides safe.</p>' +
+        '</div>' +
         '<button onclick="handleSaveProfile()" class="btn-primary rounded-full">Save profile</button>' +
       '</div>' +
     '</div>',
@@ -2330,7 +2397,7 @@ async function handlePostJob() {
     closeModal(); showToast('Gig posted! Escrow locked.');
     setMuxi(muxiQuip('postjob'));
     loadJobsSafe();
-  } catch(e) { showToast('Error posting job', 'error'); console.error(e); }
+  } catch(e) { showToast('Error posting job: ' + (e.message || ''), 'error'); console.error('PostJob error:', e); }
 }
 
 async function handleApply() {
@@ -2396,8 +2463,9 @@ async function handleSend() {
     /* Publish to public ledger */
     await publishEvent('transfer', amt, txh, state.user.id, rid, null);
     closeModal(); showToast('Sent ' + amt + ' MV!');
+    setMuxi(muxiQuip('send'));
     if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
-  } catch(e) { showToast('Transfer failed', 'error'); }
+  } catch(e) { showToast('Transfer failed: ' + (e.message || 'unknown error'), 'error'); console.error('Send error:', e); }
 }
 
 async function handleCashout() {
