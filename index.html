@@ -3,43 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>MUVR — Zero Commission. Instant Release. The Real-World Work Game.</title>
-  <meta name="description" content="MUVR: A borderless work marketplace. Keep 100%. Use MUVR Credits (MV) — platform credits for in-app work flows." />
-
+  <title>MUVR - The Real-World Work Game</title>
+  <meta name="description" content="MUVR: A borderless work marketplace. Keep 100%. Use MUVR Credits (MV) for in-app work flows." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root {
-      /* Adjusted palette (more playful, higher contrast, still premium) */
       --accent: #18F6C8;
       --accent-2: #7C5CFF;
       --accent-3: #FF3D9A;
       --accent-hover: #42FBE0;
-
       --bg-deep: #050716;
       --bg-card: rgba(14, 18, 34, 0.82);
       --bg-card2: rgba(18, 24, 44, 0.86);
       --border: rgba(255,255,255,0.10);
-
       --text-dim: rgba(232, 236, 241, 0.52);
       --text-mid: rgba(232, 236, 241, 0.72);
       --text-bright: rgba(232, 236, 241, 0.96);
-
       --red: #ff6b6b;
       --yellow: #ffd166;
-
-      --shadow: rgba(0,0,0,0.55);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body {
-      font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
       background: var(--bg-deep);
       color: var(--text-bright);
       overflow-x: hidden;
@@ -48,24 +41,17 @@
 
     /* ===== Animated Background ===== */
     .bg-stage {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      overflow: hidden;
-      background: radial-gradient(1200px 800px at 20% 10%, rgba(24,246,200,0.14), transparent 60%),
-                  radial-gradient(900px 700px at 90% 20%, rgba(124,92,255,0.14), transparent 60%),
-                  radial-gradient(900px 700px at 70% 90%, rgba(255,61,154,0.10), transparent 60%),
-                  linear-gradient(180deg, #050716, #040515 45%, #050716);
+      position: fixed; inset: 0; z-index: -2; overflow: hidden;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(24,246,200,0.14), transparent 60%),
+        radial-gradient(900px 700px at 90% 20%, rgba(124,92,255,0.14), transparent 60%),
+        radial-gradient(900px 700px at 70% 90%, rgba(255,61,154,0.10), transparent 60%),
+        linear-gradient(180deg, #050716, #040515 45%, #050716);
     }
     .blob {
-      position: absolute;
-      width: 520px; height: 520px;
-      filter: blur(38px);
-      opacity: 0.28;
-      border-radius: 999px;
-      transform: translate3d(0,0,0);
-      mix-blend-mode: screen;
-      animation: floaty 10s ease-in-out infinite;
+      position: absolute; width: 520px; height: 520px;
+      filter: blur(38px); opacity: 0.28; border-radius: 999px;
+      mix-blend-mode: screen; animation: floaty 10s ease-in-out infinite;
     }
     .blob.b1 { background: rgba(24,246,200,0.9); left: -140px; top: -180px; animation-duration: 12s; }
     .blob.b2 { background: rgba(124,92,255,0.9); right: -180px; top: -120px; animation-duration: 14s; }
@@ -77,24 +63,14 @@
 
     /* ===== Boot Screen ===== */
     #boot-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
-      background: rgba(5, 7, 22, 0.92);
-      backdrop-filter: blur(16px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(5, 7, 22, 0.96);
+      display: flex; align-items: center; justify-content: center;
       transition: opacity 0.45s ease, visibility 0.45s ease;
     }
-    #boot-screen.done {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
+    #boot-screen.done { opacity: 0; visibility: hidden; pointer-events: none; }
     .boot-spinner {
-      width: 44px;
-      height: 44px;
+      width: 44px; height: 44px;
       border: 3px solid rgba(255,255,255,0.14);
       border-top-color: var(--accent);
       border-radius: 50%;
@@ -102,7 +78,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== Page Transitions ===== */
+    /* ===== Transitions ===== */
     .fade-up { animation: fadeUpIn 0.5s ease both; }
     .fade-up.d1 { animation-delay: 0.06s; }
     .fade-up.d2 { animation-delay: 0.12s; }
@@ -113,7 +89,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ===== Buttons / Fields ===== */
+    /* ===== Fields ===== */
     .field {
       width: 100%;
       background: rgba(12, 16, 30, 0.88);
@@ -122,7 +98,7 @@
       padding: 12px 14px;
       font-size: 14px;
       color: var(--text-bright);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 10px 30px rgba(0,0,0,0.18);
     }
     .field:focus {
@@ -132,56 +108,35 @@
     }
     .field::placeholder { color: rgba(232,236,241,0.38); }
 
+    /* ===== Buttons ===== */
     .btn-primary {
       background: linear-gradient(135deg, var(--accent), rgba(24,246,200,0.65));
-      color: #00110B;
-      font-weight: 900;
-      border: none;
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-size: 14px;
-      cursor: pointer;
-      width: 100%;
+      color: #00110B; font-weight: 900; border: none; border-radius: 14px;
+      padding: 14px 18px; font-size: 14px; cursor: pointer; width: 100%;
       transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
       box-shadow: 0 14px 40px rgba(24,246,200,0.14);
-      letter-spacing: 0.2px;
-      text-transform: uppercase;
+      letter-spacing: 0.2px; text-transform: uppercase;
     }
     .btn-primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
     .btn-primary:active { transform: translateY(0) scale(0.99); }
     .btn-primary:disabled { background: rgba(255,255,255,0.08); color: rgba(232,236,241,0.45); cursor: not-allowed; box-shadow: none; }
 
     .btn-secondary {
-      background: rgba(255,255,255,0.06);
-      color: var(--text-bright);
-      font-weight: 800;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-size: 14px;
-      cursor: pointer;
-      width: 100%;
+      background: rgba(255,255,255,0.06); color: var(--text-bright); font-weight: 800;
+      border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px;
+      font-size: 14px; cursor: pointer; width: 100%;
       transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
-      letter-spacing: 0.2px;
-      text-transform: uppercase;
+      letter-spacing: 0.2px; text-transform: uppercase;
     }
     .btn-secondary:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); transform: translateY(-1px); }
     .btn-secondary:active { transform: translateY(0); }
 
     .btn-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 18px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 900;
-      cursor: pointer;
-      border: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 900;
+      cursor: pointer; border: none;
       transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
-      letter-spacing: 0.2px;
-      white-space: nowrap;
-      text-transform: uppercase;
+      letter-spacing: 0.2px; white-space: nowrap; text-transform: uppercase;
     }
     .btn-pill-accent { background: rgba(24,246,200,0.92); color: #00110B; box-shadow: 0 14px 40px rgba(24,246,200,0.10); }
     .btn-pill-accent:hover { filter: brightness(1.06); transform: translateY(-1px); }
@@ -189,12 +144,17 @@
     .btn-pill-ghost:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); transform: translateY(-1px); }
     .btn-pill-ghost.active { background: rgba(24,246,200,0.92); color: #00110B; border-color: rgba(24,246,200,0.92); }
 
+    .btn-sm {
+      padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 800;
+      cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.06);
+      color: rgba(232,236,241,0.75); transition: all 0.12s ease; text-transform: uppercase;
+    }
+    .btn-sm:hover { background: rgba(255,255,255,0.10); transform: translateY(-1px); }
+
     /* ===== Cards ===== */
     .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.18);
       backdrop-filter: blur(12px);
     }
     .card-interactive { transition: transform 0.18s ease, border-color 0.18s ease, filter 0.18s ease; }
@@ -202,56 +162,31 @@
 
     /* ===== Modal ===== */
     .modal-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      background: rgba(4, 6, 14, 0.80);
-      backdrop-filter: blur(16px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      opacity: 0;
-      visibility: hidden;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(4, 6, 14, 0.80); backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+      opacity: 0; visibility: hidden;
       transition: opacity 0.25s ease, visibility 0.25s ease;
     }
     .modal-overlay.open { opacity: 1; visibility: visible; }
     .modal-overlay .modal-body { transform: translateY(14px) scale(0.97); transition: transform 0.25s ease; }
     .modal-overlay.open .modal-body { transform: translateY(0) scale(1); }
-
     .close-btn {
-      color: rgba(232,236,241,0.55);
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 22px;
-      line-height: 1;
-      transition: color 0.15s ease, transform 0.15s ease;
+      color: rgba(232,236,241,0.55); background: none; border: none; cursor: pointer;
+      font-size: 22px; line-height: 1; transition: color 0.15s ease, transform 0.15s ease;
     }
     .close-btn:hover { color: rgba(232,236,241,0.95); transform: rotate(6deg); }
 
     /* ===== Toast ===== */
     #toast-container {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      pointer-events: none;
+      position: fixed; top: 16px; right: 16px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px; pointer-events: none;
     }
     .toast {
-      padding: 14px 18px;
-      border-radius: 16px;
-      font-size: 13px;
-      font-weight: 800;
-      animation: toastSlide 0.28s ease;
-      max-width: 360px;
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      pointer-events: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.24);
+      padding: 14px 18px; border-radius: 16px; font-size: 13px; font-weight: 800;
+      animation: toastSlide 0.28s ease; max-width: 360px;
+      backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08);
+      pointer-events: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.24);
     }
     .toast-success { background: rgba(6, 95, 70, 0.90); color: #9ff7d5; }
     .toast-error { background: rgba(127, 29, 29, 0.90); color: #ffd2d2; }
@@ -261,96 +196,123 @@
       to { transform: translateX(0); opacity: 1; }
     }
 
+    /* ===== Nav Tabs ===== */
+    .desktop-tab {
+      background: none; border: none; color: rgba(232,236,241,0.55);
+      font-size: 11px; font-weight: 900; letter-spacing: 0.3px; cursor: pointer;
+      padding: 6px 0; border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s; text-transform: uppercase;
+    }
+    .desktop-tab:hover { color: rgba(232,236,241,0.85); }
+    .desktop-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .mobile-tab {
+      background: none; border: none; color: rgba(232,236,241,0.45);
+      font-size: 10px; font-weight: 800; display: flex; flex-direction: column;
+      align-items: center; gap: 4px; cursor: pointer; padding: 4px 8px;
+      transition: color 0.15s; text-transform: uppercase;
+      position: relative;
+    }
+    .mobile-tab.active { color: var(--accent); }
+    .tab-badge {
+      position: absolute; top: -2px; right: 2px; width: 8px; height: 8px;
+      background: var(--accent-3); border-radius: 50%;
+      border: 2px solid rgba(10, 12, 26, 0.82);
+    }
+
     /* ===== Ticker ===== */
     .ticker-scroll { animation: tickerMove 22s linear infinite; }
     @keyframes tickerMove { to { transform: translateX(-50%); } }
-    .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 
-    /* ===== Helpers ===== */
+    /* ===== Messaging ===== */
+    .msg-bubble {
+      max-width: 80%; padding: 10px 14px; border-radius: 16px;
+      font-size: 13px; line-height: 1.45; word-wrap: break-word;
+    }
+    .msg-mine {
+      background: rgba(24,246,200,0.15); border: 1px solid rgba(24,246,200,0.25);
+      margin-left: auto; border-bottom-right-radius: 4px;
+    }
+    .msg-theirs {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+      margin-right: auto; border-bottom-left-radius: 4px;
+    }
+    .msg-list {
+      max-height: 55vh; overflow-y: auto; padding: 8px 4px;
+      scroll-behavior: smooth;
+    }
+
+    /* ===== Map ===== */
+    #map-container { height: 420px; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); }
+    .leaflet-container { background: #0a0e1a !important; }
+    .pulse-dot {
+      width: 14px; height: 14px; border-radius: 50%; position: relative;
+      box-shadow: 0 0 8px currentColor;
+    }
+    .pulse-dot::after {
+      content: ''; position: absolute; inset: -5px; border-radius: 50%;
+      border: 2px solid currentColor; opacity: 0.5;
+      animation: pulsering 2s ease-in-out infinite;
+    }
+    @keyframes pulsering {
+      0%,100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.8); opacity: 0; }
+    }
+    .map-legend-dot {
+      width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+    }
+
+    /* ===== Ledger ===== */
+    .ledger-event { animation: ledgerSlide 0.3s ease; }
+    @keyframes ledgerSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .live-dot {
+      width: 8px; height: 8px; background: #ff3d3d; border-radius: 50%;
+      display: inline-block; animation: livepulse 1.5s ease-in-out infinite;
+    }
+    @keyframes livepulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* ===== Misc ===== */
+    .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .hero-gradient {
       background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-3));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .avatar-ring {
+      width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(135deg, rgba(24,246,200,0.2), rgba(124,92,255,0.2));
+      border: 2px solid rgba(24,246,200,0.4);
+    }
+    .avatar-ring-lg {
+      width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(135deg, rgba(24,246,200,0.2), rgba(124,92,255,0.2));
+      border: 2px solid rgba(24,246,200,0.4);
+    }
+    .stat-card {
+      padding: 12px; border-radius: 16px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+      text-align: center;
+    }
+    .confetti-burst { animation: confettiBurst 0.6s ease; }
+    @keyframes confettiBurst {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    /* ===== MUXI Assistant ===== */
-    #muxi {
-      position: fixed;
-      right: 16px;
-      bottom: 88px;
-      z-index: 9998;
-      width: 88px;
-      height: 88px;
-      border-radius: 22px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.26);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      user-select: none;
-      transform: translate3d(0,0,0);
-      transition: transform 0.16s ease, filter 0.16s ease, border-color 0.16s ease;
-      animation: muxiFloat 4.2s ease-in-out infinite;
-    }
-    #muxi:hover { transform: translateY(-2px) scale(1.02); border-color: rgba(24,246,200,0.35); filter: brightness(1.04); }
-    @keyframes muxiFloat {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-    #muxi-bubble {
-      position: fixed;
-      right: 16px;
-      bottom: 182px;
-      z-index: 9998;
-      max-width: 280px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(14, 18, 34, 0.88);
-      border: 1px solid rgba(255,255,255,0.10);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.30);
-      display: none;
-    }
-    #muxi-bubble.show { display: block; animation: fadeUpIn 0.28s ease both; }
-    #muxi-bubble .t { font-weight: 900; font-size: 12px; letter-spacing: 0.2px; }
-    #muxi-bubble .m { margin-top: 6px; font-weight: 600; font-size: 12px; color: rgba(232,236,241,0.74); line-height: 1.3; }
-    #muxi-bubble .cta { margin-top: 10px; display: flex; gap: 8px; }
-    #muxi-bubble .mini {
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.06);
-      color: rgba(232,236,241,0.9);
-      font-weight: 900;
-      font-size: 11px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: transform 0.12s ease, background 0.12s ease;
-    }
-    #muxi-bubble .mini:hover { transform: translateY(-1px); background: rgba(255,255,255,0.10); }
-
-    /* Mobile spacing */
     @media (max-width: 640px) {
-      #muxi { bottom: 94px; width: 84px; height: 84px; }
-      #muxi-bubble { bottom: 184px; right: 12px; }
+      #map-container { height: 300px; }
     }
-
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); border-radius: 3px; }
   </style>
 </head>
-
 <body>
   <div class="bg-stage" aria-hidden="true">
     <div class="blob b1"></div>
@@ -358,1219 +320,1733 @@
     <div class="blob b3"></div>
   </div>
 
-  <!-- Boot Screen -->
-  <div id="boot-screen">
+  <div id="boot-screen" style="background:rgba(5,7,22,0.96)">
     <div style="text-align:center">
       <div class="boot-spinner" style="margin:0 auto 14px"></div>
-      <div style="font-size:20px;font-weight:900;letter-spacing:-0.4px;color:var(--text-bright)">
+      <div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">
         <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R
       </div>
       <div style="margin-top:10px;font-size:11px;font-weight:800;color:rgba(232,236,241,0.60);letter-spacing:0.24px;text-transform:uppercase">
-        Loading the network…
+        Loading the network
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
   <div id="toast-container"></div>
-
-  <!-- App Root -->
   <div id="root"></div>
-
-  <!-- Modals -->
   <div id="modal-layer"></div>
-
-  <!-- MUXI Assistant -->
-  <div id="muxi" title="MUXI — your chaotic helper">
-    <!-- Simple “sketchy donkey” SVG (no external assets) -->
-    <svg width="52" height="52" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-      <path d="M18 20 L12 10 L22 14" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M46 20 L52 10 L42 14" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M18 20 C18 14, 46 14, 46 20" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round"/>
-      <path d="M16 22 C14 34, 18 48, 32 50 C46 48, 50 34, 48 22" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M24 34 C24 34, 24 34, 24 34" stroke="rgba(24,246,200,0.95)" stroke-width="6" stroke-linecap="round"/>
-      <path d="M40 34 C40 34, 40 34, 40 34" stroke="rgba(24,246,200,0.95)" stroke-width="6" stroke-linecap="round"/>
-      <path d="M30 40 C32 42, 34 42, 36 40" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round"/>
-      <path d="M28 44 C30 46, 34 46, 36 44" stroke="rgba(232,236,241,0.62)" stroke-width="2.4" stroke-linecap="round"/>
-      <path d="M20 30 C22 26, 26 26, 28 30" stroke="rgba(232,236,241,0.35)" stroke-width="2" stroke-linecap="round"/>
-      <path d="M36 30 C38 26, 42 26, 44 30" stroke="rgba(232,236,241,0.35)" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </div>
-  <div id="muxi-bubble">
-    <div class="t">MUXI</div>
-    <div class="m" id="muxi-msg">I keep the app from face-planting. Tap me if something feels weird.</div>
-    <div class="cta">
-      <button class="mini" id="muxi-action-1">Diagnose</button>
-      <button class="mini" id="muxi-action-2">Quick Tips</button>
-    </div>
-  </div>
 
 <script>
 /* =============================================================================
    SUPABASE CONFIG
 ============================================================================= */
-const SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o';
+var SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o';
 
-let sb = null;
+var sb = null;
 try {
   sb = supabase.createClient(SUPA_URL, SUPA_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
-} catch (e) {
-  console.error('Failed to create Supabase client:', e);
-}
+} catch(e) { console.error('Supabase init failed:', e); }
 
 /* =============================================================================
    STATE
 ============================================================================= */
-let state = {
+var state = {
   user: null,
-  token: null,
+  accessToken: null,
   profile: null,
   jobs: [],
   jobFilter: 'all',
   balanceVisible: false,
   currentTab: 'jobs',
-  mode: 'online',     // 'online' | 'offline'
-  muxiMood: 'idle'    // idle | loading | success | error
+  conversations: [],
+  activeConvoId: null,
+  activeMessages: [],
+  mapObj: null,
+  myPresence: { status: 'offline', lat: null, lng: null },
+  publicEvents: [],
+  ledgerFilter: 'all',
+  realtimeSubs: [],
+  unreadMsgCount: 0,
+  presenceInterval: null,
+  notifications: []
 };
 
 /* =============================================================================
-   DOM HELPERS
+   HELPERS
 ============================================================================= */
-const getEl = (id) => document.getElementById(id);
+var getEl = function(id) { return document.getElementById(id); };
 
 function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = (str ?? '').toString();
+  var div = document.createElement('div');
+  div.textContent = (str == null ? '' : String(str));
   return div.innerHTML;
 }
 
-function withTimeout(promise, ms, label) {
-  let t;
-  const timeout = new Promise((_, reject) => {
-    t = setTimeout(() => reject(new Error('timeout:' + (label || 'op'))), ms);
-  });
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+
+function formatTime(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleString(); } catch(e) { return ''; }
 }
 
-/* =============================================================================
-   TOAST
-============================================================================= */
-function showToast(message, type = 'success') {
-  const container = getEl('toast-container');
-  if (!container) return;
-  const toast = document.createElement('div');
-  toast.className = 'toast toast-' + type;
-  toast.textContent = message;
-  container.appendChild(toast);
+function formatRelative(iso) {
+  if (!iso) return '';
+  try {
+    var d = new Date(iso);
+    var now = new Date();
+    var diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  } catch(e) { return ''; }
+}
+function withTimeout(promise, ms, label) {
+  var t;
+  var timeout = new Promise(function(_, reject) {
+    t = setTimeout(function() { reject(new Error('timeout:' + (label || ''))); }, ms);
+  });
+  return Promise.race([promise, timeout]).finally(function() { clearTimeout(t); });
+}
 
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.25s ease';
-    setTimeout(() => toast.remove(), 260);
+function relTime(dateStr) {
+  if (!dateStr) return '';
+  var d = new Date(dateStr);
+  var now = Date.now();
+  var diff = Math.floor((now - d.getTime()) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  return d.toLocaleDateString();
+}
+
+function showToast(message, type) {
+  type = type || 'success';
+  var c = getEl('toast-container');
+  if (!c) return;
+  var t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.textContent = message;
+  c.appendChild(t);
+  setTimeout(function() {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity 0.25s';
+    setTimeout(function() { t.remove(); }, 260);
   }, 3200);
 }
 
 /* =============================================================================
-   MUXI
+   API REQUEST HELPER
 ============================================================================= */
-function setMuxi(mood, msg) {
-  state.muxiMood = mood || state.muxiMood;
-  const bubble = getEl('muxi-bubble');
-  const m = getEl('muxi-msg');
-  if (msg && m) m.textContent = msg;
-
-  // subtle mood-based toasts
-  if (mood === 'error') {
-    // no spam; only toast on major errors
-  }
-  // show bubble briefly
-  if (bubble) {
-    bubble.classList.add('show');
-    clearTimeout(window.__muxiHideTimer);
-    window.__muxiHideTimer = setTimeout(() => bubble.classList.remove('show'), 4200);
-  }
-}
-
-(function initMuxiUI(){
-  const muxi = getEl('muxi');
-  const bubble = getEl('muxi-bubble');
-  const b1 = getEl('muxi-action-1');
-  const b2 = getEl('muxi-action-2');
-
-  if (muxi) {
-    muxi.addEventListener('click', () => {
-      if (bubble) bubble.classList.toggle('show');
-      setMuxi('idle', pickMuxiLine());
-    });
-  }
-
-  if (b1) b1.addEventListener('click', () => {
-    const hints = getQuickDiagnostics();
-    setMuxi('idle', hints);
-  });
-  if (b2) b2.addEventListener('click', () => {
-    setMuxi('idle', "Try: Sign in → Post a gig → Apply → Watch realtime updates. If anything stalls, I’ll fall back safely.");
-  });
-})();
-
-function pickMuxiLine() {
-  const lines = [
-    "Welcome to the real-world work game. Want the fastest path to a payout? Finish your profile.",
-    "If the network lags, I’ll keep the UI alive. No black screens on my watch.",
-    "Pro tip: Post a gig with a clear title + budget. You’ll get better applications.",
-    "Keep it clean: your profile handle should be unique and simple.",
-    "If you see weirdness, it’s usually RLS or a missing row. I can sniff it out."
-  ];
-  return lines[Math.floor(Math.random() * lines.length)];
-}
-
-function getQuickDiagnostics() {
-  const online = navigator.onLine ? "online" : "offline";
-  const sbOk = (typeof supabase !== 'undefined' && sb) ? "ok" : "missing";
-  const token = state.token ? "present" : "none";
-  const user = state.user ? "yes" : "no";
-  return `Diag: net=${online}, supabase=${sbOk}, user=${user}, token=${token}. If supabase is missing, check CDN + adblock. If user=yes but token=none, session refresh failed.`;
-}
-
-/* =============================================================================
-   AUTHENTICATED REST REQUEST
-============================================================================= */
-async function apiRequest(path, options = {}) {
+async function apiRequest(path, options) {
+  options = options || {};
   if (!sb) return null;
-
   try {
-    if (!state.token) {
-      const session = await sb.auth.getSession();
-      state.token = session.data.session?.access_token || null;
+    if (!state.accessToken) {
+      var sess = await sb.auth.getSession();
+      state.accessToken = (sess.data.session && sess.data.session.access_token) || null;
     }
-    if (!state.token) return null;
-
-    const headers = {
+    if (!state.accessToken) return null;
+    var headers = Object.assign({
       'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + state.token,
-      ...(options.headers || {})
-    };
-
-    const res = await fetch(SUPA_URL + '/rest/v1/' + path, { ...options, headers });
-    return res;
-  } catch (err) {
-    console.error('apiRequest failed:', err);
-    return null;
-  }
+      'Authorization': 'Bearer ' + state.accessToken
+    }, options.headers || {});
+    if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
+    if (!headers['Prefer'] && options.method === 'POST') headers['Prefer'] = 'return=representation';
+    return await fetch(SUPA_URL + '/rest/v1/' + path, Object.assign({}, options, { headers: headers }));
+  } catch(err) { console.error('apiRequest:', err); return null; }
 }
 
 /* =============================================================================
-   MODALS
+   MODAL SYSTEM
 ============================================================================= */
-function openModal(contentHtml, options = {}) {
-  const layer = getEl('modal-layer');
+function openModal(html, opts) {
+  opts = opts || {};
+  var layer = getEl('modal-layer');
   if (!layer) return;
-  const widthClass = options.width || 'max-w-sm';
-
-  layer.innerHTML = `
-    <div class="modal-overlay" id="active-modal">
-      <div class="modal-body w-full ${widthClass} mx-auto">
-        ${contentHtml}
-      </div>
-    </div>
-  `;
-
-  requestAnimationFrame(() => {
-    const modal = getEl('active-modal');
-    if (modal) modal.classList.add('open');
+  var w = opts.width || 'max-w-sm';
+  layer.innerHTML = '<div class="modal-overlay" id="active-modal"><div class="modal-body w-full ' + w + ' mx-auto" style="max-height:92vh;overflow-y:auto">' + html + '</div></div>';
+  requestAnimationFrame(function() {
+    var m = getEl('active-modal');
+    if (m) m.classList.add('open');
   });
-
-  if (!options.locked) {
-    const modal = getEl('active-modal');
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-    }
+  if (!opts.locked) {
+    var m = getEl('active-modal');
+    if (m) m.addEventListener('click', function(e) { if (e.target === m) closeModal(); });
   }
 }
 
 function closeModal() {
-  const modal = getEl('active-modal');
-  if (!modal) return;
-  modal.classList.remove('open');
-  setTimeout(() => {
-    const layer = getEl('modal-layer');
-    if (layer) layer.innerHTML = '';
+  var m = getEl('active-modal');
+  if (!m) return;
+  m.classList.remove('open');
+  setTimeout(function() {
+    var l = getEl('modal-layer');
+    if (l) l.innerHTML = '';
   }, 260);
 }
 
 /* =============================================================================
-   RENDER: LANDING
+   MUXI DONKEY SVG
 ============================================================================= */
-function brandMarkHTML(size = 'text-5xl') {
-  // M and V same color (requested)
-  return `
-    <div class="inline-flex items-center gap-3">
-      <div class="relative">
-        <div class="absolute -inset-2 blur-2xl opacity-40" style="background: radial-gradient(circle at 30% 30%, rgba(24,246,200,0.6), transparent 60%), radial-gradient(circle at 70% 50%, rgba(124,92,255,0.4), transparent 60%);"></div>
-        <div class="${size} font-black tracking-tight relative">
-          <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R
-        </div>
-      </div>
-      <span class="text-[10px] font-black px-3 py-1 rounded-full" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.10); color: rgba(232,236,241,0.85); letter-spacing:0.22px;">
-        WORK GAME
-      </span>
-    </div>
-  `;
+function muxiSVG(size) {
+  size = size || 52;
+  return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 64 64" fill="none">' +
+    '<path d="M18 20 L12 10 L22 14" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M46 20 L52 10 L42 14" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M18 20 C18 14, 46 14, 46 20" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<path d="M16 22 C14 34, 18 48, 32 50 C46 48, 50 34, 48 22" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<circle cx="24" cy="34" r="3" fill="rgba(24,246,200,0.95)"/>' +
+    '<circle cx="40" cy="34" r="3" fill="rgba(24,246,200,0.95)"/>' +
+    '<path d="M28 44 C30 46, 34 46, 36 44" stroke="rgba(232,236,241,0.62)" stroke-width="2.4" stroke-linecap="round"/>' +
+    '</svg>';
 }
 
-function renderLanding() {
-  const root = getEl('root');
-  if (!root) return;
-
-  root.innerHTML = `
-    <div class="fade-up">
-      <div style="background: rgba(180, 30, 30, 0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">
-        MUVR IS A MARKETPLACE ONLY — NOT AN EMPLOYER — ALL WORKERS ARE INDEPENDENT CONTRACTORS
-      </div>
-
-      <section class="max-w-5xl mx-auto px-5 pt-14 sm:pt-20 pb-10 text-center">
-        <div class="fade-up d1 flex items-center justify-center mb-6">
-          ${brandMarkHTML('text-5xl sm:text-6xl')}
-        </div>
-
-        <div class="fade-up d2 text-4xl sm:text-6xl font-black leading-[1.02] mb-5">
-          Work. Earn. <span class="hero-gradient">Level Up.</span>
-        </div>
-
-        <p class="fade-up d3 text-base sm:text-lg max-w-2xl mx-auto mb-8" style="color: var(--text-mid)">
-          A borderless on-demand marketplace for real-world labor + digital work.
-          Keep 100% of what you earn. Use <strong>MUVR Credits (MV)</strong> — in-platform credits for escrowed work flows.
-        </p>
-
-        <div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">
-          <button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full">
-            ENTER THE NETWORK
-          </button>
-          <button onclick="document.getElementById('why-section').scrollIntoView({behavior:'smooth'})"
-                  class="btn-secondary text-base py-4 rounded-full">
-            WHY MUVR
-          </button>
-        </div>
-
-        <div class="fade-up d4 mt-6 flex items-center justify-center gap-2 text-[11px] font-bold"
-             style="color: rgba(232,236,241,0.62)">
-          <span class="mono px-2 py-1 rounded-full" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10)">0% commission</span>
-          <span class="mono px-2 py-1 rounded-full" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10)">escrow protection</span>
-          <span class="mono px-2 py-1 rounded-full" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10)">realtime updates</span>
-        </div>
-      </section>
-
-      <section class="max-w-6xl mx-auto px-5 py-10 grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div class="card card-interactive p-7 text-left">
-          <div class="text-3xl mb-3">🎮</div>
-          <p class="font-black text-lg mb-1">The Real-World Work Game</p>
-          <p class="text-sm" style="color: var(--text-dim)">
-            Earn XP, build rank, unlock status. Work is the quest. Reputation is the scoreboard.
-          </p>
-        </div>
-        <div class="card card-interactive p-7 text-left">
-          <div class="text-3xl mb-3">🧲</div>
-          <p class="font-black text-lg mb-1">Keep 100%</p>
-          <p class="text-sm" style="color: var(--text-dim)">
-            No commission on worker earnings. The platform is built to minimize extraction.
-          </p>
-        </div>
-        <div class="card card-interactive p-7 text-left">
-          <div class="text-3xl mb-3">🔒</div>
-          <p class="font-black text-lg mb-1">Escrow-first</p>
-          <p class="text-sm" style="color: var(--text-dim)">
-            Funds are locked before work begins and released when complete (with dispute controls).
-          </p>
-        </div>
-      </section>
-
-      <section id="why-section" class="max-w-4xl mx-auto px-5 py-14">
-        <div class="card p-6 sm:p-8">
-          <h2 class="text-2xl sm:text-3xl font-black mb-2">Why Workers Choose MUVR</h2>
-          <p class="text-sm mb-6" style="color: var(--text-mid)">
-            Designed for speed, fairness, and a fun “level up” economy — without calling MV a currency.
-          </p>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="p-4 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-              <div class="font-black mb-1">MUVR Credits (MV)</div>
-              <div class="text-sm" style="color: var(--text-dim)">
-                In-platform credits used for posting, escrow, transfers, and settlement flows.
-                <span style="color: rgba(232,236,241,0.82); font-weight:800;">Not currency.</span>
-              </div>
-            </div>
-            <div class="p-4 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-              <div class="font-black mb-1">Faster release</div>
-              <div class="text-sm" style="color: var(--text-dim)">
-                When the job is marked complete, escrow release updates in realtime (network dependent).
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-6 p-4 rounded-2xl" style="background: rgba(24,246,200,0.08); border: 1px solid rgba(24,246,200,0.18)">
-            <div class="text-[11px] font-black tracking-widest" style="color: rgba(232,236,241,0.70)">LEGAL NOTE</div>
-            <div class="text-sm mt-2" style="color: rgba(232,236,241,0.78); line-height:1.35">
-              <strong>MUVR Credits (MV)</strong> are platform-limited digital credits used solely within MUVR for marketplace features.
-              They are not currency, cryptocurrency, or financial instruments.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="max-w-5xl mx-auto px-5 pb-16">
-        <div class="card p-6 sm:p-8">
-          <h3 class="text-xl font-black mb-3">How it works (simple)</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            ${howStep("📝", "Post or Apply", "Create a gig or apply instantly.")}
-            ${howStep("🔒", "Escrow Locks", "Budget locks before work begins.")}
-            ${howStep("✅", "Work Complete", "Mark complete; release triggers.")}
-            ${howStep("🏁", "Level Up", "Earn XP, rank up, get picked faster.")}
-          </div>
-        </div>
-      </section>
-
-      <footer class="py-10 text-center text-xs" style="color: rgba(232,236,241,0.52)">
-        <div class="max-w-4xl mx-auto px-5">
-          <div class="mb-2 font-bold" style="color: rgba(232,236,241,0.70)">MUVR is operated by TransBid LLC (Delaware, USA)</div>
-          <div class="mb-4">
-            MUVR Credits (MV) are platform-limited digital credits used solely within MUVR. Not currency, cryptocurrency, or financial instruments.
-          </div>
-          <div style="color: rgba(232,236,241,0.38)">&copy; 2026 TransBid LLC. All rights reserved.</div>
-        </div>
-      </footer>
-    </div>
-  `;
+function brandMark(sizeClass) {
+  sizeClass = sizeClass || 'text-5xl';
+  return '<div class="inline-flex items-center gap-3">' +
+    '<div class="relative">' +
+      '<div class="absolute -inset-2 blur-2xl opacity-40" style="background:radial-gradient(circle at 30% 30%,rgba(24,246,200,0.6),transparent 60%),radial-gradient(circle at 70% 50%,rgba(124,92,255,0.4),transparent 60%)"></div>' +
+      '<div class="' + sizeClass + ' font-black tracking-tight relative"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R</div>' +
+    '</div>' +
+    '<span class="text-[10px] font-black px-3 py-1 rounded-full" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.10);color:rgba(232,236,241,0.85);letter-spacing:0.22px">WORK GAME</span>' +
+  '</div>';
 }
 
-function howStep(icon, title, desc) {
-  return `
-    <div class="p-4 rounded-2xl text-left" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-      <div class="text-2xl mb-2">${icon}</div>
-      <div class="font-black">${title}</div>
-      <div class="text-xs mt-1" style="color: var(--text-dim)">${desc}</div>
-    </div>
-  `;
-}
 
 /* =============================================================================
-   RENDER: APP SHELL
+   RENDER: LANDING PAGE
 ============================================================================= */
-function renderApp() {
-  const root = getEl('root');
+function renderLanding() {
+  var root = getEl('root');
   if (!root) return;
 
-  root.innerHTML = `
-    <div class="fade-up">
-      <div style="background: rgba(180, 30, 30, 0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">
-        MUVR IS A MARKETPLACE ONLY — NOT AN EMPLOYER — ALL WORKERS ARE INDEPENDENT CONTRACTORS
-      </div>
+  root.innerHTML = '<div class="fade-up">' +
+    '<div style="background:rgba(180,30,30,0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">' +
+      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL WORKERS ARE INDEPENDENT CONTRACTORS' +
+    '</div>' +
 
-      <header class="sticky top-0 z-50" style="border-bottom: 1px solid rgba(255,255,255,0.10); background: rgba(10, 12, 26, 0.72); backdrop-filter: blur(16px)">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('jobs')">
-            <div class="w-9 h-9 rounded-2xl grid place-items-center"
-                 style="background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10)">
-              <span style="font-weight:900;color:var(--accent)">M</span>
-            </div>
-            <div>
-              <div class="text-lg font-black tracking-tight">
-                <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R
-              </div>
-              <div class="text-[10px] font-bold" style="color: rgba(232,236,241,0.55); letter-spacing:0.22px; text-transform:uppercase">
-                The real-world work game
-              </div>
-            </div>
-          </div>
+    /* Hero */
+    '<section class="max-w-5xl mx-auto px-5 pt-14 sm:pt-20 pb-10 text-center">' +
+      '<div class="fade-up d1 flex items-center justify-center gap-4 mb-6">' +
+        '<div class="w-16 h-16 rounded-2xl grid place-items-center" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">' + muxiSVG(48) + '</div>' +
+        brandMark('text-5xl sm:text-6xl') +
+      '</div>' +
+      '<div class="fade-up d2 text-4xl sm:text-6xl font-black leading-tight mb-5">' +
+        'Work. Earn. <span class="hero-gradient">Level Up.</span>' +
+      '</div>' +
+      '<p class="fade-up d3 text-base sm:text-lg max-w-2xl mx-auto mb-8" style="color:var(--text-mid)">' +
+        'A borderless on-demand marketplace for real-world labor + digital work. Keep 100% of what you earn. Use <strong>MUVR Credits (MV)</strong> - in-platform credits for escrowed work flows.' +
+      '</p>' +
+      '<div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">' +
+        '<button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full">ENTER THE NETWORK</button>' +
+        '<button onclick="switchPublicLedger()" class="btn-secondary text-base py-4 rounded-full">VIEW LIVE LEDGER</button>' +
+      '</div>' +
+      '<div class="fade-up d4 mt-6 flex flex-wrap items-center justify-center gap-2 text-[11px] font-bold" style="color:rgba(232,236,241,0.62)">' +
+        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">0% commission</span>' +
+        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">escrow protection</span>' +
+        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">realtime updates</span>' +
+        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">MV credits</span>' +
+      '</div>' +
+    '</section>' +
 
-          <nav class="hidden sm:flex gap-6">
-            <button onclick="switchTab('jobs')" class="desktop-tab active" data-tab="jobs">GIGS</button>
-            <button onclick="switchTab('wallet')" class="desktop-tab" data-tab="wallet">CREDITS</button>
-            <button onclick="switchTab('profile')" class="desktop-tab" data-tab="profile">ME</button>
-          </nav>
+    /* Value Props */
+    '<section class="max-w-6xl mx-auto px-5 py-10 grid grid-cols-1 md:grid-cols-3 gap-5">' +
+      landingCard('&#127918;', 'The Real-World Work Game', 'Earn XP, build rank, unlock status. Work is the quest. Reputation is the scoreboard. Every completed gig pushes you up the leaderboard.') +
+      landingCard('&#129688;', 'Keep 100%', 'No commission on worker earnings. The platform is built to minimize extraction. Your work, your money, your level.') +
+      landingCard('&#128274;', 'Escrow-first', 'Funds are locked before work begins and released when complete. Built-in dispute controls protect both sides of every gig.') +
+    '</section>' +
 
-          <button onclick="handleLogout()" class="text-xs font-black cursor-pointer"
-                  style="color: rgba(232,236,241,0.62); background: none; border: none; text-transform:uppercase; letter-spacing:0.2px">
-            Sign out
-          </button>
-        </div>
+    /* How It Works */
+    '<section class="max-w-5xl mx-auto px-5 py-10">' +
+      '<div class="card p-6 sm:p-8">' +
+        '<h2 class="text-2xl sm:text-3xl font-black mb-2">How it works</h2>' +
+        '<p class="text-sm mb-6" style="color:var(--text-mid)">Four steps from sign up to getting paid. Simple, transparent, fast.</p>' +
+        '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">' +
+          howStep('1', '&#128221;', 'Post or Apply', 'Create a gig with a budget, or browse open gigs and submit your pitch. Set your rate and turnaround time.') +
+          howStep('2', '&#128274;', 'Escrow Locks', 'When a gig is posted, the full budget + posting fee locks in escrow. This protects both parties before work begins.') +
+          howStep('3', '&#9989;', 'Work Complete', 'Mark the job complete. The poster confirms delivery. Escrow funds release instantly to the worker.') +
+          howStep('4', '&#127937;', 'Level Up', 'Earn XP for every completed gig. Climb the ranks from Runner to Mythic. Higher rank = more visibility.') +
+        '</div>' +
+      '</div>' +
+    '</section>' +
 
-        <div class="py-1 overflow-hidden" style="background: rgba(0,0,0,0.55); border-top: 1px solid rgba(255,255,255,0.06)">
-          <div class="ticker-scroll whitespace-nowrap flex gap-8 text-[10px] mono tracking-wider"
-               style="color: rgba(24,246,200,0.95)">
-            <span>⚡ 0% COMMISSION • MUVR CREDITS (MV) • ESCROW-FIRST • REALTIME UPDATES • LEVEL UP WITH XP ⚡</span>
-            <span>⚡ 0% COMMISSION • MUVR CREDITS (MV) • ESCROW-FIRST • REALTIME UPDATES • LEVEL UP WITH XP ⚡</span>
-          </div>
-        </div>
-      </header>
+    /* Comparison */
+    '<section class="max-w-5xl mx-auto px-5 py-10">' +
+      '<div class="card p-6 sm:p-8">' +
+        '<h2 class="text-2xl font-black mb-4">MUVR vs Traditional Platforms</h2>' +
+        '<div class="overflow-x-auto">' +
+          '<table class="w-full text-sm">' +
+            '<thead><tr style="border-bottom:1px solid rgba(255,255,255,0.10)">' +
+              '<th class="text-left py-3 font-black" style="color:rgba(232,236,241,0.55)">Feature</th>' +
+              '<th class="text-center py-3 font-black" style="color:var(--accent)">MUVR</th>' +
+              '<th class="text-center py-3 font-black" style="color:rgba(232,236,241,0.55)">Others</th>' +
+            '</tr></thead>' +
+            '<tbody>' +
+              compRow('Commission', '0%', '15-30%') +
+              compRow('Payment Speed', 'Instant release', '3-7 days') +
+              compRow('Escrow Protection', 'Built-in', 'Varies') +
+              compRow('Rewards / Credits', 'MV Credits + XP', 'None') +
+              compRow('Transparency', 'Public ledger', 'Opaque') +
+              compRow('Worker Control', '100%', 'Limited') +
+            '</tbody>' +
+          '</table>' +
+        '</div>' +
+      '</div>' +
+    '</section>' +
 
-      <main class="max-w-6xl mx-auto px-4 py-6 pb-28 sm:pb-8">
-        <div id="tab-content"></div>
-      </main>
+    /* MV Credits Explanation */
+    '<section class="max-w-4xl mx-auto px-5 py-10">' +
+      '<div class="card p-6 sm:p-8">' +
+        '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">' +
+          '<div>' +
+            '<h2 class="text-2xl font-black mb-3">MUVR Credits (MV)</h2>' +
+            '<p class="text-sm mb-4" style="color:var(--text-mid)">In-platform credits used for posting, escrow, transfers, and settlement flows. MV are denominated as 1 credit = 1 USD-equivalent unit INSIDE the app for pricing.</p>' +
+            '<div class="space-y-3">' +
+              mvFeature('Capped Supply', '100 million MV total. No inflation. Credits consumed (burned) on job posting reduce circulating supply over time.') +
+              mvFeature('Escrow Flow', 'Budget + 1 MV fee locks when posting. Releases to worker on completion. The 1 MV fee is permanently burned.') +
+              mvFeature('Send & Receive', 'Transfer MV to any user by @handle, email, or public alias. All transfers are logged in the public ledger.') +
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="card p-5 h-full" style="background:rgba(24,246,200,0.06);border-color:rgba(24,246,200,0.18)">' +
+              '<div class="text-[11px] font-black tracking-widest mb-3" style="color:rgba(232,236,241,0.55)">NETWORK STATS</div>' +
+              '<div class="space-y-4">' +
+                netStat('Total Cap', '100,000,000 MV', 'var(--accent)') +
+                netStat('Posting Fee', '1 MV (burned)', 'var(--red)') +
+                netStat('Worker Commission', '0%', 'var(--accent)') +
+                netStat('Payout Fee', '0.5% (beta)', 'var(--yellow)') +
+              '</div>' +
+              '<div class="mt-5 text-[11px]" style="color:rgba(232,236,241,0.55)">Withdrawals, if enabled, are subject to verification and provider terms.</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mt-6 p-4 rounded-2xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.18)">' +
+          '<div class="text-[11px] font-black tracking-widest" style="color:rgba(232,236,241,0.70)">LEGAL NOTE</div>' +
+          '<div class="text-sm mt-2" style="color:rgba(232,236,241,0.78)"><strong>MUVR Credits (MV)</strong> are platform-limited digital credits used solely within MUVR for marketplace features. They are not currency, cryptocurrency, or financial instruments.</div>' +
+        '</div>' +
+      '</div>' +
+    '</section>' +
 
-      <div class="sm:hidden fixed bottom-0 left-0 right-0 z-50"
-           style="background: rgba(10, 12, 26, 0.82); border-top: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(16px)">
-        <div class="flex justify-around py-3">
-          <button onclick="switchTab('jobs')" class="mobile-tab active" data-tab="jobs">
-            <i class="fas fa-briefcase text-base"></i>Gigs
-          </button>
-          <button onclick="switchTab('wallet')" class="mobile-tab" data-tab="wallet">
-            <i class="fas fa-coins text-base"></i>MV
-          </button>
-          <button onclick="switchTab('profile')" class="mobile-tab" data-tab="profile">
-            <i class="fas fa-user text-base"></i>Me
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
+    /* Footer */
+    '<footer class="py-12 text-center text-xs" style="color:rgba(232,236,241,0.52)">' +
+      '<div class="max-w-4xl mx-auto px-5">' +
+        '<div class="mb-3">' + muxiSVG(32) + '</div>' +
+        '<div class="mb-2 font-bold" style="color:rgba(232,236,241,0.70)">MUVR is operated by TransBid LLC (Delaware, USA)</div>' +
+        '<div class="mb-4">MUVR Credits (MV) are platform-limited digital credits used solely within MUVR. Not currency, cryptocurrency, or financial instruments.</div>' +
+        '<div style="color:rgba(232,236,241,0.38)">2026 TransBid LLC. All rights reserved.</div>' +
+      '</div>' +
+    '</footer>' +
+  '</div>';
+}
+
+/* Landing page helpers */
+function landingCard(icon, title, desc) {
+  return '<div class="card card-interactive p-7 text-left">' +
+    '<div class="text-3xl mb-3">' + icon + '</div>' +
+    '<p class="font-black text-lg mb-2">' + title + '</p>' +
+    '<p class="text-sm leading-relaxed" style="color:var(--text-dim)">' + desc + '</p>' +
+  '</div>';
+}
+
+function howStep(num, icon, title, desc) {
+  return '<div class="p-4 rounded-2xl text-left" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
+    '<div class="flex items-center gap-2 mb-2">' +
+      '<span class="w-6 h-6 rounded-full grid place-items-center text-[10px] font-black" style="background:var(--accent);color:#00110B">' + num + '</span>' +
+      '<span class="text-xl">' + icon + '</span>' +
+    '</div>' +
+    '<div class="font-black mb-1">' + title + '</div>' +
+    '<div class="text-xs leading-relaxed" style="color:var(--text-dim)">' + desc + '</div>' +
+  '</div>';
+}
+
+function compRow(feature, muvr, other) {
+  return '<tr style="border-bottom:1px solid rgba(255,255,255,0.06)">' +
+    '<td class="py-3 font-bold">' + feature + '</td>' +
+    '<td class="py-3 text-center font-black" style="color:var(--accent)">' + muvr + '</td>' +
+    '<td class="py-3 text-center" style="color:var(--text-dim)">' + other + '</td>' +
+  '</tr>';
+}
+
+function mvFeature(title, desc) {
+  return '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+    '<p class="font-black text-sm mb-1">' + title + '</p>' +
+    '<p class="text-xs" style="color:var(--text-dim)">' + desc + '</p>' +
+  '</div>';
+}
+
+function netStat(label, val, color) {
+  return '<div class="flex justify-between items-center">' +
+    '<span class="text-sm" style="color:rgba(232,236,241,0.65)">' + label + '</span>' +
+    '<span class="mono font-black text-sm" style="color:' + color + '">' + val + '</span>' +
+  '</div>';
+}
+
+function switchPublicLedger() {
+  if (state.user) { switchTab('ledger'); return; }
+  var root = getEl('root');
+  if (!root) return;
+  root.innerHTML = '<div class="fade-up"><div class="max-w-4xl mx-auto px-5 py-8">' +
+    '<div class="flex items-center justify-between mb-6">' +
+      '<div class="flex items-center gap-3">' +
+        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R</div>' +
+        '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">PUBLIC LEDGER</span>' +
+      '</div>' +
+      '<div class="flex gap-2">' +
+        '<button onclick="openAuthModal()" class="btn-pill btn-pill-accent">Sign In</button>' +
+        '<button onclick="renderLanding()" class="btn-pill btn-pill-ghost">Back</button>' +
+      '</div>' +
+    '</div>' +
+    '<div id="public-ledger-content"></div>' +
+  '</div></div>';
+  renderLedgerContent('public-ledger-content');
+  loadPublicEvents();
+}
+
+
+/* =============================================================================
+   RENDER: APP SHELL (6 Tabs)
+============================================================================= */
+function renderApp() {
+  var root = getEl('root');
+  if (!root) return;
+
+  root.innerHTML = '<div class="fade-up">' +
+    /* Disclaimer */
+    '<div style="background:rgba(180,30,30,0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">' +
+      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL WORKERS ARE INDEPENDENT CONTRACTORS' +
+    '</div>' +
+
+    /* Header */
+    '<header class="sticky top-0 z-50" style="border-bottom:1px solid rgba(255,255,255,0.10);background:rgba(10,12,26,0.72);backdrop-filter:blur(16px)">' +
+      '<div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">' +
+        '<div class="flex items-center gap-2 cursor-pointer" onclick="switchTab(\'jobs\')">' +
+          '<div class="w-9 h-9 rounded-2xl grid place-items-center" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">' + muxiSVG(24) + '</div>' +
+          '<div>' +
+            '<div class="text-lg font-black tracking-tight"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R</div>' +
+            '<div class="text-[10px] font-bold" style="color:rgba(232,236,241,0.55);letter-spacing:0.22px;text-transform:uppercase">The real-world work game</div>' +
+          '</div>' +
+        '</div>' +
+        '<nav class="hidden sm:flex gap-5">' +
+          '<button onclick="switchTab(\'jobs\')" class="desktop-tab active" data-tab="jobs">GIGS</button>' +
+          '<button onclick="switchTab(\'messages\')" class="desktop-tab" data-tab="messages">MESSAGES</button>' +
+          '<button onclick="switchTab(\'map\')" class="desktop-tab" data-tab="map">MAP</button>' +
+          '<button onclick="switchTab(\'wallet\')" class="desktop-tab" data-tab="wallet">CREDITS</button>' +
+          '<button onclick="switchTab(\'ledger\')" class="desktop-tab" data-tab="ledger">LEDGER</button>' +
+          '<button onclick="switchTab(\'profile\')" class="desktop-tab" data-tab="profile">ME</button>' +
+        '</nav>' +
+        '<button onclick="handleLogout()" class="text-xs font-black cursor-pointer" style="color:rgba(232,236,241,0.62);background:none;border:none;text-transform:uppercase;letter-spacing:0.2px">Sign out</button>' +
+      '</div>' +
+      /* Ticker */
+      '<div class="py-1 overflow-hidden" style="background:rgba(0,0,0,0.55);border-top:1px solid rgba(255,255,255,0.06)">' +
+        '<div class="ticker-scroll whitespace-nowrap flex gap-8 text-[10px] mono tracking-wider" style="color:rgba(24,246,200,0.95)">' +
+          '<span>0% COMMISSION - MUVR CREDITS (MV) - ESCROW-FIRST - REALTIME UPDATES - LEVEL UP WITH XP</span>' +
+          '<span>0% COMMISSION - MUVR CREDITS (MV) - ESCROW-FIRST - REALTIME UPDATES - LEVEL UP WITH XP</span>' +
+        '</div>' +
+      '</div>' +
+    '</header>' +
+
+    /* Main content area */
+    '<main class="max-w-6xl mx-auto px-4 py-6 pb-28 sm:pb-8"><div id="tab-content"></div></main>' +
+
+    /* Mobile bottom nav */
+    '<div class="sm:hidden fixed bottom-0 left-0 right-0 z-50" style="background:rgba(10,12,26,0.88);border-top:1px solid rgba(255,255,255,0.10);backdrop-filter:blur(16px)">' +
+      '<div class="flex justify-around py-2">' +
+        '<button onclick="switchTab(\'jobs\')" class="mobile-tab active" data-tab="jobs"><i class="fas fa-briefcase text-base"></i>Gigs</button>' +
+        '<button onclick="switchTab(\'messages\')" class="mobile-tab" data-tab="messages"><i class="fas fa-comment text-base"></i>Msgs</button>' +
+        '<button onclick="switchTab(\'map\')" class="mobile-tab" data-tab="map"><i class="fas fa-map-marked-alt text-base"></i>Map</button>' +
+        '<button onclick="switchTab(\'wallet\')" class="mobile-tab" data-tab="wallet"><i class="fas fa-coins text-base"></i>MV</button>' +
+        '<button onclick="switchTab(\'profile\')" class="mobile-tab" data-tab="profile"><i class="fas fa-user text-base"></i>Me</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 
   switchTab('jobs');
 }
 
-function switchTab(tabName) {
-  state.currentTab = tabName;
+/* =============================================================================
+   TAB SWITCHING
+============================================================================= */
+function switchTab(name) {
+  state.currentTab = name;
+  document.querySelectorAll('.desktop-tab').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.mobile-tab').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('[data-tab="' + name + '"]').forEach(function(b) { b.classList.add('active'); });
 
-  document.querySelectorAll('.desktop-tab').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.mobile-tab').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('[data-tab="' + tabName + '"]').forEach(btn => btn.classList.add('active'));
-
-  if (tabName === 'jobs') renderJobsTab();
-  else if (tabName === 'wallet') { renderWalletTab(); loadWalletData(); }
-  else if (tabName === 'profile') renderProfileTab();
+  if (name === 'jobs') { renderJobsTab(); loadJobsSafe(); }
+  else if (name === 'messages') { renderMessagesTab(); loadConversations(); }
+  else if (name === 'map') renderMapTab();
+  else if (name === 'wallet') { renderWalletTab(); loadWalletData(); }
+  else if (name === 'ledger') { renderLedgerTab(); loadPublicEvents(); }
+  else if (name === 'profile') renderProfileTab();
 }
 
 /* =============================================================================
    JOBS TAB
 ============================================================================= */
 function renderJobsTab() {
-  const content = getEl('tab-content');
-  if (!content) return;
+  var c = getEl('tab-content');
+  if (!c) return;
 
-  const filteredJobs = (state.jobFilter === 'all')
-    ? state.jobs
-    : state.jobs.filter(j => j.job_type === state.jobFilter);
-
-  const categories = [
-    { key: 'all', label: 'All' },
-    { key: 'rideshare', label: 'Rideshare' },
-    { key: 'delivery', label: 'Delivery' },
-    { key: 'physical', label: 'Labor' },
-    { key: 'digital', label: 'Digital' }
+  var cats = [
+    {k:'all',l:'All',icon:'&#128300;'},
+    {k:'rideshare',l:'Rideshare',icon:'&#128663;'},
+    {k:'delivery',l:'Delivery',icon:'&#128230;'},
+    {k:'physical',l:'Labor',icon:'&#128170;'},
+    {k:'digital',l:'Digital',icon:'&#128187;'}
   ];
 
-  const filterButtons = categories.map(cat => `
-    <button onclick="state.jobFilter='${cat.key}'; renderJobsTab()"
-            class="btn-pill ${state.jobFilter === cat.key ? 'btn-pill-accent' : 'btn-pill-ghost'}">
-      ${cat.label}
-    </button>
-  `).join('');
+  var filtered = state.jobFilter === 'all' ? state.jobs : state.jobs.filter(function(j) { return j.job_type === state.jobFilter; });
 
-  const jobCards = filteredJobs.length === 0
-    ? `
-      <div class="col-span-full text-center py-16" style="color: rgba(232,236,241,0.55)">
-        <p class="text-4xl mb-2">🫏</p>
-        <p class="font-black">No gigs here yet</p>
-        <p class="text-sm mt-1" style="color: rgba(232,236,241,0.52)">Muxi says: be the first to post one.</p>
-        <div class="mt-6 max-w-sm mx-auto">
-          <button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button>
-        </div>
-      </div>
-    `
-    : filteredJobs.map(job => `
-      <div class="card card-interactive p-5">
-        <div class="flex items-start justify-between mb-2">
-          <h3 class="font-black text-sm">${escapeHtml(job.title)}</h3>
-          <span class="text-[10px] px-2 py-1 rounded-full font-black"
-                style="background: rgba(255,255,255,0.06); color: rgba(232,236,241,0.65); border: 1px solid rgba(255,255,255,0.10)">
-            ${escapeHtml(job.job_type || '')}
-          </span>
-        </div>
-        <p class="text-xs line-clamp-2 mb-4" style="color: rgba(232,236,241,0.56)">
-          ${escapeHtml(job.description || '')}
-        </p>
-        <div class="flex items-end justify-between">
-          <div>
-            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45); letter-spacing:0.18px; text-transform:uppercase">Budget</p>
-            <p class="text-lg font-black mono" style="color: var(--accent)">${Number(job.budget_mv || 0)} MV</p>
-          </div>
-          <button onclick="openApplyModal('${job.id}')" class="btn-pill btn-pill-accent">
-            Apply
-          </button>
-        </div>
-      </div>
-    `).join('');
+  var btns = cats.map(function(cat) {
+    return '<button onclick="state.jobFilter=\'' + cat.k + '\';renderJobsTab()" class="btn-pill ' + (state.jobFilter === cat.k ? 'btn-pill-accent' : 'btn-pill-ghost') + '">' + cat.icon + ' ' + cat.l + '</button>';
+  }).join('');
 
-  content.innerHTML = `
-    <div class="fade-up">
-      <div class="mb-6 flex items-start justify-between gap-3">
-        <div>
-          <h1 class="text-3xl sm:text-4xl font-black mb-1">Available Gigs</h1>
-          <p class="text-sm" style="color: rgba(232,236,241,0.65)">Find work. Keep 100%. Level up.</p>
-        </div>
+  var cards = '';
+  if (filtered.length === 0) {
+    cards = '<div class="col-span-full text-center py-16" style="color:rgba(232,236,241,0.55)">' +
+      '<div class="mb-4">' + muxiSVG(64) + '</div>' +
+      '<p class="font-black text-lg mb-1">No gigs here yet</p>' +
+      '<p class="text-sm" style="color:var(--text-dim)">Muxi says: be the first to post one. The early bird gets the XP.</p>' +
+      '<div class="mt-6 max-w-sm mx-auto"><button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button></div>' +
+    '</div>';
+  } else {
+    cards = filtered.map(function(job) {
+      var isMyJob = job.poster_id === (state.user && state.user.id);
+      var urgencyColors = { asap: 'var(--red)', today: 'var(--yellow)', this_week: 'var(--accent-2)', flexible: 'var(--text-dim)' };
+      var urgColor = urgencyColors[job.urgency] || 'var(--text-dim)';
 
-        <div class="hidden sm:block">
-          <button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a gig</button>
-        </div>
-      </div>
+      return '<div class="card card-interactive p-5">' +
+        '<div class="flex items-start justify-between mb-2">' +
+          '<h3 class="font-black text-sm flex-1 mr-2">' + escapeHtml(job.title) + '</h3>' +
+          '<div class="flex gap-1">' +
+            '<span class="text-[10px] px-2 py-1 rounded-full font-black" style="background:rgba(255,255,255,0.06);color:rgba(232,236,241,0.65);border:1px solid rgba(255,255,255,0.10)">' + escapeHtml(job.job_type || '') + '</span>' +
+            '<span class="text-[10px] px-2 py-1 rounded-full font-black" style="color:' + urgColor + ';border:1px solid ' + urgColor + '30">' + escapeHtml(job.urgency || '') + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<p class="text-xs line-clamp-2 mb-3" style="color:rgba(232,236,241,0.56)">' + escapeHtml(job.description || '') + '</p>' +
+        (job.address ? '<p class="text-[11px] mb-3 flex items-center gap-1" style="color:rgba(232,236,241,0.45)"><i class="fas fa-map-marker-alt" style="color:var(--accent-3)"></i>' + escapeHtml(job.address) + '</p>' : '') +
+        '<div class="flex items-end justify-between">' +
+          '<div>' +
+            '<p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.45)">BUDGET</p>' +
+            '<p class="text-lg font-black mono" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</p>' +
+          '</div>' +
+          '<div class="flex gap-2">' +
+            (isMyJob ? '<span class="text-[10px] font-black px-3 py-2 rounded-full" style="background:rgba(255,255,255,0.06);color:var(--text-dim)">YOUR GIG</span>' :
+              '<button onclick="openApplyModal(\'' + job.id + '\')" class="btn-pill btn-pill-accent">Apply</button>' +
+              '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost" title="Message poster"><i class="fas fa-comment"></i></button>'
+            ) +
+          '</div>' +
+        '</div>' +
+        '<div class="mt-3 pt-3 flex items-center justify-between text-[10px]" style="border-top:1px solid rgba(255,255,255,0.06)">' +
+          '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
+          '<span style="color:var(--text-dim)">ID: ' + escapeHtml((job.id || '').slice(0,8)) + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
 
-      <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
-        ${filterButtons}
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        ${jobCards}
-      </div>
-
-      <div class="sm:hidden mt-5">
-        <button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button>
-      </div>
-    </div>
-  `;
+  c.innerHTML = '<div class="fade-up">' +
+    '<div class="mb-6 flex items-start justify-between gap-3">' +
+      '<div>' +
+        '<h1 class="text-3xl sm:text-4xl font-black mb-1">Available Gigs</h1>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Find work. Keep 100%. Level up. ' + state.jobs.length + ' gig' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
+      '</div>' +
+      '<div class="hidden sm:block"><button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a gig</button></div>' +
+    '</div>' +
+    '<div class="flex gap-2 mb-5 overflow-x-auto pb-1">' + btns + '</div>' +
+    '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' + cards + '</div>' +
+    '<div class="sm:hidden mt-5"><button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button></div>' +
+  '</div>';
 }
+
+
+/* =============================================================================
+   MESSAGES TAB
+============================================================================= */
+function renderMessagesTab() {
+  var c = getEl('tab-content');
+  if (!c) return;
+  if (state.activeConvoId) { renderThread(); return; }
+
+  c.innerHTML = '<div class="fade-up">' +
+    '<h1 class="text-3xl font-black mb-2">Messages</h1>' +
+    '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">Direct messages with job posters and workers. Conversations are created automatically when you apply to a gig or click the message button.</p>' +
+    '<div id="convo-list"><p class="text-sm py-8 text-center" style="color:var(--text-dim)">Loading conversations...</p></div>' +
+  '</div>';
+}
+
+async function loadConversations() {
+  try {
+    var res = await apiRequest('conversation_members?user_id=eq.' + state.user.id + '&select=conversation_id,conversations(id,job_id,created_at)');
+    var data = (res && res.ok) ? await res.json() : [];
+    var convIds = data.map(function(d) { return d.conversation_id; }).filter(Boolean);
+
+    if (convIds.length === 0) {
+      var el = getEl('convo-list');
+      if (el) el.innerHTML = '<div class="text-center py-16" style="color:var(--text-dim)">' +
+        '<div class="mb-4">' + muxiSVG(48) + '</div>' +
+        '<p class="font-black text-lg mb-1">No messages yet</p>' +
+        '<p class="text-sm">Apply to a gig or click the message button on a gig card to start a conversation.</p>' +
+      '</div>';
+      return;
+    }
+
+    /* Get other members */
+    var membersRes = await apiRequest('conversation_members?conversation_id=in.(' + convIds.join(',') + ')&user_id=neq.' + state.user.id + '&select=conversation_id,user_id,users(full_name,username,email)');
+    var members = (membersRes && membersRes.ok) ? await membersRes.json() : [];
+    var memberMap = {};
+    members.forEach(function(m) { memberMap[m.conversation_id] = m; });
+
+    /* Get last message per convo */
+    var lastMsgRes = await apiRequest('messages?conversation_id=in.(' + convIds.join(',') + ')&order=created_at.desc&limit=100&select=conversation_id,body,created_at,sender_id');
+    var msgs = (lastMsgRes && lastMsgRes.ok) ? await lastMsgRes.json() : [];
+    var lastMsgMap = {};
+    msgs.forEach(function(m) { if (!lastMsgMap[m.conversation_id]) lastMsgMap[m.conversation_id] = m; });
+
+    state.conversations = convIds.map(function(cid) {
+      var other = memberMap[cid];
+      var last = lastMsgMap[cid];
+      var name = 'User';
+      if (other && other.users) {
+        name = other.users.full_name || other.users.username || other.users.email || 'User';
+      }
+      return {
+        id: cid,
+        otherName: name,
+        otherUserId: other ? other.user_id : null,
+        lastMsg: last ? last.body : '',
+        lastAt: last ? last.created_at : null,
+        lastSenderId: last ? last.sender_id : null
+      };
+    });
+    state.conversations.sort(function(a, b) { return (b.lastAt || '') > (a.lastAt || '') ? 1 : -1; });
+    renderConvoList();
+  } catch(e) { console.error('loadConversations:', e); }
+}
+
+function renderConvoList() {
+  var el = getEl('convo-list');
+  if (!el) return;
+  if (state.conversations.length === 0) {
+    el.innerHTML = '<div class="text-center py-16" style="color:var(--text-dim)">' + muxiSVG(48) + '<p class="font-black mt-3">No messages yet</p></div>';
+    return;
+  }
+  el.innerHTML = state.conversations.map(function(conv) {
+    var initial = (conv.otherName || 'U')[0].toUpperCase();
+    var isUnread = conv.lastSenderId && conv.lastSenderId !== (state.user && state.user.id);
+    var preview = conv.lastMsg || 'No messages yet';
+    if (preview.length > 60) preview = preview.substring(0, 57) + '...';
+
+    return '<div class="card card-interactive p-4 mb-3 cursor-pointer" onclick="openThread(\'' + conv.id + '\')">' +
+      '<div class="flex items-center gap-3">' +
+        '<div class="avatar-ring flex-shrink-0"><span class="text-lg font-black" style="color:var(--accent)">' + initial + '</span></div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="flex items-center justify-between mb-1">' +
+            '<p class="font-black text-sm truncate">' + escapeHtml(conv.otherName) + '</p>' +
+            '<span class="text-[10px] flex-shrink-0 ml-2" style="color:var(--text-dim)">' + relTime(conv.lastAt) + '</span>' +
+          '</div>' +
+          '<p class="text-xs truncate" style="color:' + (isUnread ? 'var(--text-bright)' : 'var(--text-dim)') + ';font-weight:' + (isUnread ? '700' : '400') + '">' + escapeHtml(preview) + '</p>' +
+        '</div>' +
+        (isUnread ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function openThread(convoId) {
+  state.activeConvoId = convoId;
+  renderThread();
+  await loadMessages(convoId);
+  subscribeToMessages(convoId);
+}
+
+function renderThread() {
+  var c = getEl('tab-content');
+  if (!c) return;
+  var conv = state.conversations.find(function(x) { return x.id === state.activeConvoId; });
+  var name = conv ? conv.otherName : 'Chat';
+  var initial = (name || 'U')[0].toUpperCase();
+
+  c.innerHTML = '<div class="fade-up">' +
+    '<div class="flex items-center gap-3 mb-4">' +
+      '<button onclick="state.activeConvoId=null;renderMessagesTab();loadConversations()" class="btn-sm"><i class="fas fa-arrow-left mr-1"></i>Back</button>' +
+      '<div class="avatar-ring flex-shrink-0" style="width:36px;height:36px"><span class="text-sm font-black" style="color:var(--accent)">' + initial + '</span></div>' +
+      '<div>' +
+        '<h2 class="font-black text-sm">' + escapeHtml(name) + '</h2>' +
+        '<p class="text-[10px]" style="color:var(--text-dim)">Direct message</p>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card p-4 mb-4">' +
+      '<div id="msg-list" class="msg-list space-y-3">' +
+        '<p class="text-sm py-8 text-center" style="color:var(--text-dim)">Loading messages...</p>' +
+      '</div>' +
+    '</div>' +
+    '<div class="flex gap-2">' +
+      '<input id="msg-input" class="field flex-1" placeholder="Type a message..." onkeydown="if(event.key===\'Enter\')sendMessage()">' +
+      '<button onclick="sendMessage()" class="btn-pill btn-pill-accent" style="flex-shrink:0"><i class="fas fa-paper-plane"></i></button>' +
+    '</div>' +
+  '</div>';
+}
+
+async function loadMessages(convoId) {
+  try {
+    var res = await apiRequest('messages?conversation_id=eq.' + convoId + '&order=created_at.asc&select=*');
+    state.activeMessages = (res && res.ok) ? await res.json() : [];
+    renderMessages();
+  } catch(e) { console.error(e); }
+}
+
+function renderMessages() {
+  var el = getEl('msg-list');
+  if (!el) return;
+  if (state.activeMessages.length === 0) {
+    el.innerHTML = '<p class="text-center text-sm py-10" style="color:var(--text-dim)">No messages yet. Say hello! &#128075;</p>';
+    return;
+  }
+  el.innerHTML = state.activeMessages.map(function(msg) {
+    var mine = msg.sender_id === (state.user && state.user.id);
+    var time = new Date(msg.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    return '<div class="flex flex-col ' + (mine ? 'items-end' : 'items-start') + '">' +
+      '<div class="msg-bubble ' + (mine ? 'msg-mine' : 'msg-theirs') + '">' + escapeHtml(msg.body) + '</div>' +
+      '<span class="text-[10px] mt-1 px-2" style="color:var(--text-dim)">' + time + '</span>' +
+    '</div>';
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendMessage() {
+  var input = getEl('msg-input');
+  if (!input) return;
+  var body = input.value.trim();
+  if (!body) return;
+  input.value = '';
+  try {
+    await apiRequest('messages', {
+      method: 'POST',
+      body: JSON.stringify({ conversation_id: state.activeConvoId, sender_id: state.user.id, body: body })
+    });
+    state.activeMessages.push({ sender_id: state.user.id, body: body, created_at: new Date().toISOString() });
+    renderMessages();
+    /* Queue notification for recipient */
+    var conv = state.conversations.find(function(x) { return x.id === state.activeConvoId; });
+    if (conv && conv.otherUserId) {
+      apiRequest('notifications_queue', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: conv.otherUserId, type: 'new_message', title: 'New message from ' + (state.profile && state.profile.full_name || 'someone'), body: body.substring(0, 100) })
+      }).catch(function() {});
+    }
+  } catch(e) { showToast('Failed to send', 'error'); }
+}
+
+function subscribeToMessages(convoId) {
+  if (!sb) return;
+  try {
+    var channel = sb.channel('msgs-' + convoId)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'conversation_id=eq.' + convoId }, function(payload) {
+        if (payload.new && payload.new.sender_id !== (state.user && state.user.id)) {
+          state.activeMessages.push(payload.new);
+          renderMessages();
+        }
+      }).subscribe();
+    state.realtimeSubs.push(channel);
+  } catch(e) { console.error('realtime sub error:', e); }
+}
+
+async function startConvoFromJob(jobId, posterId) {
+  if (!state.user) return openAuthModal();
+  if (posterId === state.user.id) return showToast('That is your own gig', 'info');
+  try {
+    showToast('Starting conversation...', 'info');
+    var res = await apiRequest('rpc/get_or_create_conversation', {
+      method: 'POST',
+      body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: posterId, p_job_id: jobId })
+    });
+    if (res && res.ok) {
+      var convoId = await res.json();
+      if (convoId) {
+        state.activeConvoId = convoId;
+        switchTab('messages');
+        await loadConversations();
+        openThread(convoId);
+      }
+    } else {
+      showToast('Could not start conversation', 'error');
+    }
+  } catch(e) { console.error(e); showToast('Could not start conversation', 'error'); }
+}
+
+
+/* =============================================================================
+   MAP TAB (MUVR GO)
+============================================================================= */
+function renderMapTab() {
+  var c = getEl('tab-content');
+  if (!c) return;
+  var isAvail = state.myPresence.status === 'available';
+
+  c.innerHTML = '<div class="fade-up">' +
+    '<div class="flex items-center justify-between mb-4">' +
+      '<div>' +
+        '<h1 class="text-3xl font-black mb-1">MUVR GO</h1>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.62)">See nearby workers and open gigs in realtime.</p>' +
+      '</div>' +
+      '<button id="avail-toggle" onclick="toggleAvailability()" class="btn-pill ' + (isAvail ? 'btn-pill-accent' : 'btn-pill-ghost') + '">' +
+        (isAvail ? '<i class="fas fa-broadcast-tower mr-2"></i>LIVE' : '<i class="fas fa-eye-slash mr-2"></i>HIDDEN') +
+      '</button>' +
+    '</div>' +
+    '<div id="map-container"></div>' +
+    '<div class="mt-4 grid grid-cols-3 gap-3">' +
+      '<div class="stat-card flex items-center gap-2 justify-center">' +
+        '<div class="map-legend-dot" style="background:var(--accent);box-shadow:0 0 8px var(--accent)"></div>' +
+        '<span class="text-[10px] font-black">AVAILABLE</span>' +
+      '</div>' +
+      '<div class="stat-card flex items-center gap-2 justify-center">' +
+        '<div class="map-legend-dot" style="background:var(--yellow);box-shadow:0 0 8px var(--yellow)"></div>' +
+        '<span class="text-[10px] font-black">BUSY</span>' +
+      '</div>' +
+      '<div class="stat-card flex items-center gap-2 justify-center">' +
+        '<div class="map-legend-dot" style="background:var(--accent-3);box-shadow:0 0 8px var(--accent-3)"></div>' +
+        '<span class="text-[10px] font-black">OPEN GIG</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="mt-4 card p-4">' +
+      '<p class="text-[11px] font-bold" style="color:var(--text-dim)"><i class="fas fa-shield-alt mr-1" style="color:var(--accent)"></i>Privacy: Your location is only shared while set to LIVE. Toggle to HIDDEN at any time to disappear from the map instantly.</p>' +
+    '</div>' +
+    '<div class="mt-4">' +
+      '<h3 class="font-black mb-3">Open Gigs Nearby</h3>' +
+      '<div id="map-gig-list"><p class="text-sm" style="color:var(--text-dim)">Loading gigs...</p></div>' +
+    '</div>' +
+  '</div>';
+
+  setTimeout(initMap, 150);
+}
+
+function initMap() {
+  var container = getEl('map-container');
+  if (!container) return;
+  if (state.mapObj) { try { state.mapObj.remove(); } catch(e) {} state.mapObj = null; }
+
+  state.mapObj = L.map('map-container', { zoomControl: true, attributionControl: false }).setView([37.55, -77.46], 12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19
+  }).addTo(state.mapObj);
+
+  /* Try geolocation */
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      var lat = pos.coords.latitude;
+      var lng = pos.coords.longitude;
+      state.myPresence.lat = lat;
+      state.myPresence.lng = lng;
+      state.mapObj.setView([lat, lng], 13);
+
+      /* Add "you are here" marker */
+      var myIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:20px;height:20px;border-radius:50%;background:var(--accent-2);border:3px solid white;box-shadow:0 0 12px rgba(124,92,255,0.8)"></div>',
+        iconSize: [20, 20], iconAnchor: [10, 10]
+      });
+      L.marker([lat, lng], { icon: myIcon }).addTo(state.mapObj).bindPopup('<strong>You</strong>');
+
+      if (state.myPresence.status === 'available') {
+        updateMyPresence(lat, lng);
+      }
+    }, function(err) {
+      console.log('Geolocation denied:', err.message);
+    }, { timeout: 8000, enableHighAccuracy: false });
+  }
+
+  loadMapData();
+}
+
+async function loadMapData() {
+  if (!state.mapObj) return;
+  try {
+    /* Load worker presence */
+    var presRes = await apiRequest('user_presence?status=neq.offline&select=user_id,lat,lng,status,last_seen');
+    var presence = (presRes && presRes.ok) ? await presRes.json() : [];
+    presence.forEach(function(p) {
+      if (!p.lat || !p.lng) return;
+      if (p.user_id === (state.user && state.user.id)) return;
+      var color = p.status === 'available' ? '#18F6C8' : '#ffd166';
+      var icon = L.divIcon({
+        className: '',
+        html: '<div class="pulse-dot" style="background:' + color + ';color:' + color + '"></div>',
+        iconSize: [14, 14], iconAnchor: [7, 7]
+      });
+      L.marker([p.lat, p.lng], { icon: icon })
+        .addTo(state.mapObj)
+        .bindPopup('<strong>MUVR Worker</strong><br>Status: ' + p.status + '<br>Last seen: ' + relTime(p.last_seen));
+    });
+
+    /* Load open gigs and show in sidebar list */
+    var jobsRes = await apiRequest('jobs?status=eq.open&select=id,title,budget_mv,address,job_type&order=created_at.desc&limit=20');
+    var jobs = (jobsRes && jobsRes.ok) ? await jobsRes.json() : [];
+
+    var gigList = getEl('map-gig-list');
+    if (gigList) {
+      if (jobs.length === 0) {
+        gigList.innerHTML = '<p class="text-sm" style="color:var(--text-dim)">No open gigs right now.</p>';
+      } else {
+        gigList.innerHTML = jobs.map(function(j) {
+          return '<div class="card card-interactive p-3 mb-2 flex items-center justify-between">' +
+            '<div class="flex-1 min-w-0">' +
+              '<p class="font-black text-xs truncate">' + escapeHtml(j.title) + '</p>' +
+              '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(j.address || j.job_type || '') + '</p>' +
+            '</div>' +
+            '<span class="mono font-black text-xs ml-2" style="color:var(--accent)">' + Number(j.budget_mv || 0) + ' MV</span>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  } catch(e) { console.error('map data error:', e); }
+}
+
+async function updateMyPresence(lat, lng) {
+  if (!state.user) return;
+  try {
+    await apiRequest('user_presence', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({
+        user_id: state.user.id,
+        lat: lat, lng: lng,
+        status: state.myPresence.status,
+        last_seen: new Date().toISOString()
+      })
+    });
+  } catch(e) { console.error('presence update error:', e); }
+}
+
+async function toggleAvailability() {
+  state.myPresence.status = state.myPresence.status === 'available' ? 'offline' : 'available';
+  var btn = getEl('avail-toggle');
+  if (btn) {
+    var isAvail = state.myPresence.status === 'available';
+    btn.className = 'btn-pill ' + (isAvail ? 'btn-pill-accent' : 'btn-pill-ghost');
+    btn.innerHTML = isAvail ? '<i class="fas fa-broadcast-tower mr-2"></i>LIVE' : '<i class="fas fa-eye-slash mr-2"></i>HIDDEN';
+  }
+
+  if (state.myPresence.status === 'available') {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        updateMyPresence(pos.coords.latitude, pos.coords.longitude);
+      });
+    }
+    showToast('You are now visible on the map', 'success');
+    /* Start periodic updates */
+    if (state.presenceInterval) clearInterval(state.presenceInterval);
+    state.presenceInterval = setInterval(function() {
+      if (state.myPresence.status === 'available' && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          updateMyPresence(pos.coords.latitude, pos.coords.longitude);
+        });
+      }
+    }, 45000);
+  } else {
+    if (state.presenceInterval) { clearInterval(state.presenceInterval); state.presenceInterval = null; }
+    await apiRequest('user_presence?user_id=eq.' + state.user.id, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'offline' })
+    });
+    showToast('You are now hidden from the map', 'info');
+  }
+}
+
 
 /* =============================================================================
    WALLET TAB
 ============================================================================= */
 function renderWalletTab() {
-  const content = getEl('tab-content');
-  if (!content) return;
+  var c = getEl('tab-content');
+  if (!c) return;
+  var bal = (state.profile && state.profile.mv_balance) || 0;
 
-  const balance = state.profile?.mv_balance || 0;
+  c.innerHTML = '<div class="fade-up">' +
+    '<h1 class="text-3xl font-black mb-2">MUVR Credits</h1>' +
+    '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">MV are in-platform credits used for escrow and marketplace flows. Not currency.</p>' +
 
-  content.innerHTML = `
-    <div class="fade-up">
-      <h1 class="text-3xl font-black mb-2">MUVR Credits</h1>
-      <p class="text-sm mb-6" style="color: rgba(232,236,241,0.62)">
-        MV are in-platform credits used for escrow and marketplace flows. Not currency.
-      </p>
+    /* Network Stats */
+    '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.08),rgba(124,92,255,0.06),rgba(255,61,154,0.04))">' +
+      '<p class="text-[10px] tracking-widest font-black mb-3" style="color:rgba(232,236,241,0.55)">NETWORK STATUS</p>' +
+      '<div class="grid grid-cols-4 gap-3 text-center">' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-xl font-black mono" style="color:var(--accent)">100M</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-xl font-black mono" style="color:var(--accent)" id="stat-minted">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-xl font-black mono" style="color:var(--yellow)" id="stat-escrowed">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">BURNED</p><p class="text-xl font-black mono" style="color:var(--red)" id="stat-burned">-</p></div>' +
+      '</div>' +
+    '</div>' +
 
-      <div class="card p-5 mb-5"
-           style="border-color: rgba(24,246,200,0.14); background: linear-gradient(135deg, rgba(24,246,200,0.08), rgba(124,92,255,0.06), rgba(255,61,154,0.04))">
-        <p class="text-[10px] tracking-widest font-black mb-3" style="color: rgba(232,236,241,0.55)">NETWORK STATUS</p>
-        <div class="grid grid-cols-4 gap-3 text-center">
-          <div>
-            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45)">CAP</p>
-            <p class="text-xl font-black mono" style="color: var(--accent)">100M</p>
-          </div>
-          <div>
-            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45)">MINTED</p>
-            <p class="text-xl font-black mono" style="color: var(--accent)" id="stat-minted">—</p>
-          </div>
-          <div>
-            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45)">ESCROWED</p>
-            <p class="text-xl font-black mono" style="color: var(--yellow)" id="stat-escrowed">—</p>
-          </div>
-          <div>
-            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45)">BURNED</p>
-            <p class="text-xl font-black mono" style="color: var(--red)" id="stat-burned">—</p>
-          </div>
-        </div>
-      </div>
+    /* Balance Card */
+    '<div class="card p-5 max-w-md mb-6">' +
+      '<p class="text-[10px] tracking-widest font-black mb-2" style="color:rgba(232,236,241,0.55)">YOUR BALANCE</p>' +
+      '<div class="flex items-end justify-between mb-5">' +
+        '<p class="text-4xl font-black mono" style="color:var(--accent)" id="balance-display">' + (state.balanceVisible ? bal + ' MV' : '------') + '</p>' +
+        '<button onclick="toggleBalance()" class="text-xs font-black cursor-pointer" style="color:rgba(232,236,241,0.55);background:none;border:none;text-transform:uppercase">' + (state.balanceVisible ? 'Hide' : 'Show') + '</button>' +
+      '</div>' +
+      '<div class="grid grid-cols-3 gap-3">' +
+        '<button onclick="openSendModal()" class="btn-pill btn-pill-ghost w-full justify-center">Send</button>' +
+        '<button onclick="openLoadModal()" class="btn-pill btn-pill-accent w-full justify-center">Load</button>' +
+        '<button onclick="openCashoutModal()" class="btn-pill btn-pill-ghost w-full justify-center">Payout</button>' +
+      '</div>' +
+      '<div class="mt-4 text-[11px]" style="color:rgba(232,236,241,0.50)">Note: Load and Payout are partner-integrated features (beta). If not enabled, safe stubs are used.</div>' +
+    '</div>' +
 
-      <div class="card p-5 max-w-md mb-6">
-        <p class="text-[10px] tracking-widest font-black mb-2" style="color: rgba(232,236,241,0.55)">YOUR BALANCE</p>
-        <div class="flex items-end justify-between mb-5">
-          <p class="text-4xl font-black mono" style="color: var(--accent)" id="balance-display">
-            ${state.balanceVisible ? (balance + ' MV') : '••••••'}
-          </p>
-          <button onclick="toggleBalance()" class="text-xs font-black cursor-pointer"
-                  style="color: rgba(232,236,241,0.55); background: none; border: none; text-transform:uppercase">
-            ${state.balanceVisible ? 'Hide' : 'Show'}
-          </button>
-        </div>
-
-        <div class="grid grid-cols-3 gap-3">
-          <button onclick="openSendModal()" class="btn-pill btn-pill-ghost w-full justify-center">Send</button>
-          <button onclick="openLoadModal()" class="btn-pill btn-pill-accent w-full justify-center">Load</button>
-          <button onclick="openCashoutModal()" class="btn-pill btn-pill-ghost w-full justify-center">Payout</button>
-        </div>
-
-        <div class="mt-4 text-[11px]" style="color: rgba(232,236,241,0.50)">
-          Note: “Payout” is a partner-integrated feature (beta). MUXI will keep you safe if it’s not enabled yet.
-        </div>
-      </div>
-
-      <h2 class="font-black mb-3">Ledger (recent)</h2>
-      <div id="ledger-list">
-        <p class="text-sm py-4" style="color: rgba(232,236,241,0.55)">Loading…</p>
-      </div>
-    </div>
-  `;
+    /* Personal Ledger */
+    '<h2 class="font-black mb-3">Your Ledger (recent)</h2>' +
+    '<div id="ledger-list"><p class="text-sm py-4" style="color:var(--text-dim)">Loading...</p></div>' +
+  '</div>';
 }
 
 function toggleBalance() {
   state.balanceVisible = !state.balanceVisible;
-  if (state.currentTab === 'wallet') {
-    renderWalletTab();
-    loadWalletData();
-  }
+  if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
 }
 
 async function loadWalletData() {
   if (!state.user) return;
-
   try {
-    const balRes = await apiRequest('users?id=eq.' + state.user.id + '&select=mv_balance');
+    var balRes = await apiRequest('users?id=eq.' + state.user.id + '&select=mv_balance');
     if (balRes && balRes.ok) {
-      const data = await balRes.json();
-      if (data && data.length) state.profile = { ...(state.profile || {}), mv_balance: data[0].mv_balance };
+      var d = await balRes.json();
+      if (d && d.length) state.profile = Object.assign(state.profile || {}, { mv_balance: d[0].mv_balance });
     }
-  } catch (e) {
-    console.error('balance load error', e);
-  }
+  } catch(e) {}
 
-  const balDisplay = getEl('balance-display');
-  if (balDisplay) {
-    balDisplay.textContent = state.balanceVisible ? ((state.profile?.mv_balance || 0) + ' MV') : '••••••';
-  }
+  var bd = getEl('balance-display');
+  if (bd) bd.textContent = state.balanceVisible ? ((state.profile && state.profile.mv_balance || 0) + ' MV') : '------';
 
-  // ledger
-  const ledgerEl = getEl('ledger-list');
+  /* Load personal ledger */
+  var el = getEl('ledger-list');
   try {
-    const ledgerRes = await apiRequest('mv_ledger?user_id=eq.' + state.user.id + '&order=created_at.desc&limit=20');
-    const ledger = (ledgerRes && ledgerRes.ok) ? await ledgerRes.json() : [];
-    if (!ledgerEl) return;
+    var res = await apiRequest('mv_ledger?user_id=eq.' + state.user.id + '&order=created_at.desc&limit=25');
+    var ledger = (res && res.ok) ? await res.json() : [];
+    if (!el) return;
+    if (!ledger.length) { el.innerHTML = '<p class="text-sm py-4" style="color:var(--text-dim)">No transactions yet. Post or complete a gig to see activity here.</p>'; return; }
 
-    if (!ledger || ledger.length === 0) {
-      ledgerEl.innerHTML = '<p class="text-sm py-4" style="color: rgba(232,236,241,0.55)">No transactions yet</p>';
-      return;
-    }
+    el.innerHTML = ledger.map(function(e) {
+      var neg = ['burn','send','withdrawal'].indexOf(e.type) >= 0;
+      var typeEmoji = { load:'&#128229;', send:'&#128228;', receive:'&#128232;', burn:'&#128293;', withdrawal:'&#127974;', escrow_lock:'&#128274;', escrow_release:'&#128275;' };
+      var icon = typeEmoji[e.type] || '&#128202;';
+      var color = neg ? 'var(--red)' : 'var(--accent)';
+      var sign = neg ? '-' : '+';
 
-    const typeIcons = { load:'📥', send:'📤', receive:'📨', burn:'🔥', withdrawal:'🏦' };
-
-    ledgerEl.innerHTML = ledger.map(entry => {
-      const isNegative = ['burn','send','withdrawal'].includes(entry.type);
-      const icon = typeIcons[entry.type] || '📊';
-      const color = isNegative ? 'var(--red)' : 'var(--accent)';
-      const sign = isNegative ? '-' : '+';
-      const when = entry.created_at ? new Date(entry.created_at) : null;
-
-      return `
-        <div class="card p-3 mb-2 flex justify-between items-start" style="border-left: 2px solid rgba(24,246,200,0.65)">
-          <div class="flex items-start gap-3">
-            <span class="text-base">${icon}</span>
-            <div>
-              <p class="font-black text-xs capitalize">${escapeHtml(entry.type || '')}</p>
-              <p class="text-[11px]" style="color: rgba(232,236,241,0.55)">${escapeHtml(entry.description || '')}</p>
-              <p class="text-[10px] mt-1" style="color: rgba(232,236,241,0.38)">
-                ${when ? when.toLocaleString() : ''}
-              </p>
-            </div>
-          </div>
-          <p class="mono font-black text-xs whitespace-nowrap ml-2" style="color: ${color}">
-            ${sign}${Number(entry.amount_mv || 0)} MV
-          </p>
-        </div>
-      `;
+      return '<div class="card p-3 mb-2 flex justify-between items-start" style="border-left:3px solid ' + (neg ? 'var(--red)' : 'rgba(24,246,200,0.65)') + '">' +
+        '<div class="flex items-start gap-3">' +
+          '<span class="text-base">' + icon + '</span>' +
+          '<div>' +
+            '<p class="font-black text-xs" style="text-transform:capitalize">' + escapeHtml(e.type || '') + '</p>' +
+            '<p class="text-[11px]" style="color:var(--text-dim)">' + escapeHtml(e.description || '') + '</p>' +
+            '<p class="text-[10px] mt-1" style="color:rgba(232,236,241,0.38)">' + relTime(e.created_at) + '</p>' +
+          '</div>' +
+        '</div>' +
+        '<p class="mono font-black text-xs whitespace-nowrap ml-2" style="color:' + color + '">' + sign + Number(e.amount_mv || 0) + ' MV</p>' +
+      '</div>';
     }).join('');
-  } catch (e) {
-    console.error('ledger load error', e);
-    if (ledgerEl) ledgerEl.innerHTML = '<p class="text-sm py-4" style="color: rgba(232,236,241,0.55)">Ledger unavailable right now.</p>';
-  }
-
-  // Optional network stats (best-effort; do not block)
-  // If you later add tables/metrics for minted/escrowed/burned totals, set them here.
-  const minted = getEl('stat-minted');
-  const escrowed = getEl('stat-escrowed');
-  const burned = getEl('stat-burned');
-  if (minted) minted.textContent = '—';
-  if (escrowed) escrowed.textContent = '—';
-  if (burned) burned.textContent = '—';
+  } catch(e) { if (el) el.innerHTML = '<p class="text-sm py-4" style="color:var(--text-dim)">Ledger unavailable right now.</p>'; }
 }
 
 /* =============================================================================
-   PROFILE TAB
+   PUBLIC LEDGER TAB
 ============================================================================= */
-function calcLevel(prof) {
-  const completed = Number(prof?.jobs_completed || 0);
-  const xp = completed * 120 + (prof?.full_name ? 40 : 0) + (prof?.about_me ? 40 : 0) + (prof?.username ? 30 : 0);
-  const level = Math.max(1, Math.floor(xp / 200) + 1);
-  const titles = ["Runner","Carrier","Operator","Elite Operator","Legend","Mythic"];
-  const title = titles[Math.min(titles.length - 1, Math.floor((level - 1) / 2))];
-  const next = level * 200;
-  const pct = Math.min(1, xp / next);
-  return { xp, level, title, next, pct };
+function renderLedgerTab() {
+  var c = getEl('tab-content');
+  if (!c) return;
+  c.innerHTML = '<div class="fade-up">' +
+    '<h1 class="text-3xl font-black mb-2">Public Ledger</h1>' +
+    '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">Anonymous, realtime feed of all MV credit activity on the network. All user identities shown as pseudonymous aliases.</p>' +
+    '<div id="app-ledger-content"></div>' +
+  '</div>';
+  renderLedgerContent('app-ledger-content');
+}
+
+function renderLedgerContent(containerId) {
+  var el = getEl(containerId);
+  if (!el) return;
+  var types = [{k:'all',l:'All'},{k:'mint',l:'Mint'},{k:'burn',l:'Burn'},{k:'transfer',l:'Transfer'},{k:'escrow_lock',l:'Escrow Lock'},{k:'escrow_release',l:'Release'}];
+  var btns = types.map(function(t) {
+    return '<button onclick="state.ledgerFilter=\'' + t.k + '\';loadPublicEvents()" class="btn-pill ' + (state.ledgerFilter === t.k ? 'btn-pill-accent' : 'btn-pill-ghost') + '">' + t.l + '</button>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.06),rgba(124,92,255,0.04))">' +
+      '<div class="flex items-center gap-2 mb-3"><div class="live-dot"></div><span class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.65)">LIVE NETWORK</span></div>' +
+      '<div class="grid grid-cols-4 gap-3 text-center">' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">100M</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="pub-minted">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="pub-escrowed">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">BURNED</p><p class="text-lg font-black mono" style="color:var(--red)" id="pub-burned">-</p></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="flex gap-2 mb-4 overflow-x-auto pb-1">' + btns + '</div>' +
+    '<div id="public-events-list"><p class="text-sm py-4" style="color:var(--text-dim)">Loading events...</p></div>';
+}
+
+async function loadPublicEvents() {
+  try {
+    var filter = state.ledgerFilter !== 'all' ? '&type=eq.' + state.ledgerFilter : '';
+    var url = 'mv_public_events?order=created_at.desc&limit=50' + filter;
+    var headers = { 'apikey': SUPA_KEY };
+    if (state.accessToken) headers['Authorization'] = 'Bearer ' + state.accessToken;
+    var res = await fetch(SUPA_URL + '/rest/v1/' + url, { headers: headers });
+    state.publicEvents = res.ok ? await res.json() : [];
+    renderPublicEvents();
+  } catch(e) { console.error(e); }
+}
+
+function renderPublicEvents() {
+  var el = getEl('public-events-list');
+  if (!el) return;
+  if (!state.publicEvents.length) {
+    el.innerHTML = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) + '<p class="font-black mt-3">No events recorded yet</p><p class="text-sm mt-1">Post a gig or load credits to create the first network event.</p></div>';
+    return;
+  }
+  var typeConfig = {
+    mint: { icon: '&#128994;', color: 'var(--accent)', label: 'MINT' },
+    burn: { icon: '&#128308;', color: 'var(--red)', label: 'BURN' },
+    transfer: { icon: '&#128310;', color: 'var(--accent-2)', label: 'TRANSFER' },
+    escrow_lock: { icon: '&#128274;', color: 'var(--yellow)', label: 'ESCROW LOCK' },
+    escrow_release: { icon: '&#128275;', color: 'var(--accent)', label: 'RELEASE' },
+    escrow_refund: { icon: '&#128281;', color: 'var(--accent-3)', label: 'REFUND' }
+  };
+
+  el.innerHTML = state.publicEvents.map(function(ev) {
+    var cfg = typeConfig[ev.type] || { icon: '&#128312;', color: 'var(--text-dim)', label: ev.type };
+    return '<div class="ledger-event card p-3 mb-2">' +
+      '<div class="flex items-center justify-between">' +
+        '<div class="flex items-center gap-3">' +
+          '<span class="text-base">' + cfg.icon + '</span>' +
+          '<div>' +
+            '<p class="font-black text-[11px] tracking-wider" style="color:' + cfg.color + '">' + cfg.label + '</p>' +
+            '<p class="text-[10px] mt-0.5" style="color:var(--text-dim)">' +
+              (ev.from_alias ? '<span class="mono">' + escapeHtml(ev.from_alias) + '</span>' : '') +
+              (ev.from_alias && ev.to_alias ? ' &#8594; ' : '') +
+              (ev.to_alias ? '<span class="mono">' + escapeHtml(ev.to_alias) + '</span>' : '') +
+            '</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="text-right">' +
+          '<p class="mono font-black text-sm" style="color:' + cfg.color + '">' + Number(ev.amount_mv) + ' MV</p>' +
+          '<p class="text-[10px]" style="color:var(--text-dim)">' + relTime(ev.created_at) + '</p>' +
+        '</div>' +
+      '</div>' +
+      (ev.tx_hash ? '<div class="mt-2 text-[10px] mono" style="color:rgba(232,236,241,0.30);word-break:break-all">TX: ' + escapeHtml(ev.tx_hash) + '</div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+
+/* =============================================================================
+   PROFILE TAB (Fleshed Out)
+============================================================================= */
+function calcLevel(p) {
+  var completed = Number((p && p.jobs_completed) || 0);
+  var xp = completed * 120 + (p && p.full_name ? 40 : 0) + (p && p.about_me ? 40 : 0) + (p && p.username ? 30 : 0) + (p && p.has_vehicle ? 20 : 0);
+  var level = Math.max(1, Math.floor(xp / 200) + 1);
+  var titles = ['Runner', 'Carrier', 'Operator', 'Elite Operator', 'Legend', 'Mythic'];
+  var title = titles[Math.min(titles.length - 1, Math.floor((level - 1) / 2))];
+  var next = level * 200;
+  var pct = Math.min(1, xp / next);
+  return { xp: xp, level: level, title: title, next: next, pct: pct };
 }
 
 function renderProfileTab() {
-  const content = getEl('tab-content');
-  if (!content) return;
+  var c = getEl('tab-content');
+  if (!c) return;
+  var p = state.profile || {};
+  var rating = Number(p.rating || 0);
+  var stars = '';
+  for (var i = 0; i < Math.floor(rating); i++) stars += '&#11088;';
+  if (rating % 1 > 0) stars += '&#10024;';
+  var lvl = calcLevel(p);
+  var initial = ((p.full_name || 'U')[0] || 'U').toUpperCase();
+  var completionPct = 0;
+  if (p.full_name) completionPct += 25;
+  if (p.username) completionPct += 25;
+  if (p.about_me) completionPct += 25;
+  if (p.has_vehicle !== undefined) completionPct += 25;
 
-  const prof = state.profile || {};
-  const rating = Number(prof.rating || 0);
-  const stars = '⭐'.repeat(Math.floor(rating)) + (rating % 1 > 0 ? '✨' : '');
-  const lvl = calcLevel(prof);
+  c.innerHTML = '<div class="fade-up">' +
+    '<h1 class="text-3xl font-black mb-2">Your Profile</h1>' +
+    '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">Level up to get picked faster. Complete profiles get 2x visibility.</p>' +
 
-  content.innerHTML = `
-    <div class="fade-up">
-      <h1 class="text-3xl font-black mb-2">Your Profile</h1>
-      <p class="text-sm mb-6" style="color: rgba(232,236,241,0.62)">
-        Level up to get picked faster. MUXI loves complete profiles.
-      </p>
+    /* Profile Card */
+    '<div class="card p-6 max-w-2xl mb-6">' +
+      /* Top section */
+      '<div class="flex items-start gap-4 mb-5 pb-5" style="border-bottom:1px solid rgba(255,255,255,0.10)">' +
+        '<div class="avatar-ring-lg flex-shrink-0"><span class="text-2xl font-black" style="color:var(--accent)">' + initial + '</span></div>' +
+        '<div class="flex-1">' +
+          '<h2 class="text-xl font-black mb-0.5">' + escapeHtml(p.full_name || 'No Name Set') + '</h2>' +
+          '<p class="text-sm font-bold mb-2" style="color:rgba(232,236,241,0.55)">@' + escapeHtml(p.username || 'no_handle') + '</p>' +
+          '<p class="text-xs mb-3" style="color:rgba(232,236,241,0.55)">' + escapeHtml(p.about_me || 'No bio yet - tap Edit to add one and level up.') + '</p>' +
+          '<div class="flex flex-wrap gap-2">' +
+            (p.has_vehicle ? '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(24,246,200,0.12);border:1px solid rgba(24,246,200,0.25);color:var(--accent)"><i class="fas fa-car mr-1"></i>Has Vehicle</span>' : '') +
+            '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">' + escapeHtml((p.role || 'both').toUpperCase()) + '</span>' +
+            '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)"><i class="fas fa-envelope mr-1"></i>' + escapeHtml((state.user && state.user.email) || '') + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="text-right flex-shrink-0">' +
+          '<div class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">RANK</div>' +
+          '<div class="text-xl font-black hero-gradient">' + escapeHtml(lvl.title) + '</div>' +
+          '<div class="text-[11px] font-black mt-1" style="color:rgba(232,236,241,0.65)">Level ' + lvl.level + '</div>' +
+        '</div>' +
+      '</div>' +
 
-      <div class="card p-5 max-w-2xl">
-        <div class="flex items-start justify-between gap-4 mb-5" style="border-bottom: 1px solid rgba(255,255,255,0.10); padding-bottom: 16px">
-          <div>
-            <h2 class="text-2xl font-black mb-1">${escapeHtml(prof.full_name || 'No Name Set')}</h2>
-            <p class="text-sm font-bold" style="color: rgba(232,236,241,0.55)">@${escapeHtml(prof.username || 'no_handle')}</p>
-            <p class="text-xs mt-3" style="color: rgba(232,236,241,0.55)">${escapeHtml(prof.about_me || 'No bio yet — add one to level up.')}</p>
-          </div>
+      /* Stats Grid */
+      '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">' +
+        '<div class="stat-card"><p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">COMPLETED</p><p class="text-2xl font-black mt-1">' + Number(p.jobs_completed || 0) + '</p></div>' +
+        '<div class="stat-card"><p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">RATING</p><p class="text-lg mt-1">' + (stars || '&#9734; N/A') + '</p></div>' +
+        '<div class="stat-card"><p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">MV BALANCE</p><p class="text-2xl font-black mt-1" style="color:var(--accent)">' + Number(p.mv_balance || 0) + '</p></div>' +
+        '<div class="stat-card"><p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">XP TOTAL</p><p class="text-2xl font-black mt-1">' + lvl.xp + '</p></div>' +
+      '</div>' +
 
-          <div class="text-right">
-            <div class="text-[10px] font-black tracking-widest" style="color: rgba(232,236,241,0.55)">RANK</div>
-            <div class="text-xl font-black hero-gradient">${escapeHtml(lvl.title)}</div>
-            <div class="text-[11px] font-black mt-1" style="color: rgba(232,236,241,0.65)">Level ${lvl.level}</div>
-          </div>
-        </div>
+      /* XP Bar */
+      '<div class="mb-5">' +
+        '<div class="flex justify-between text-[11px] font-black" style="color:rgba(232,236,241,0.62)"><span>XP: ' + lvl.xp + '</span><span>Next Level: ' + lvl.next + '</span></div>' +
+        '<div class="mt-2 h-4 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.10)">' +
+          '<div class="h-full rounded-full transition-all" style="width:' + Math.round(lvl.pct * 100) + '%;background:linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-3))"></div>' +
+        '</div>' +
+      '</div>' +
 
-        <div class="grid grid-cols-3 gap-4 text-center mb-5">
-          <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-            <p class="text-[10px] font-black tracking-widest" style="color: rgba(232,236,241,0.55)">COMPLETED</p>
-            <p class="text-xl font-black">${Number(prof.jobs_completed || 0)}</p>
-          </div>
-          <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-            <p class="text-[10px] font-black tracking-widest" style="color: rgba(232,236,241,0.55)">RATING</p>
-            <p class="text-base">${stars || '—'}</p>
-          </div>
-          <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-            <p class="text-[10px] font-black tracking-widest" style="color: rgba(232,236,241,0.55)">MV</p>
-            <p class="text-xl font-black" style="color: var(--accent)">${Number(prof.mv_balance || 0)}</p>
-          </div>
-        </div>
+      /* Profile Completion */
+      '<div class="p-4 rounded-2xl mb-5" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+        '<div class="flex items-center justify-between mb-2">' +
+          '<p class="text-sm font-black">Profile Completion</p>' +
+          '<p class="text-sm font-black" style="color:' + (completionPct === 100 ? 'var(--accent)' : 'var(--yellow)') + '">' + completionPct + '%</p>' +
+        '</div>' +
+        '<div class="h-2 rounded-full" style="background:rgba(255,255,255,0.08)">' +
+          '<div class="h-full rounded-full" style="width:' + completionPct + '%;background:' + (completionPct === 100 ? 'var(--accent)' : 'var(--yellow)') + '"></div>' +
+        '</div>' +
+        (completionPct < 100 ? '<p class="text-[11px] mt-2" style="color:var(--text-dim)">Complete your profile to unlock 2x visibility in search results.</p>' : '<p class="text-[11px] mt-2" style="color:var(--accent)">Profile complete! You have maximum visibility.</p>') +
+      '</div>' +
 
-        <div class="mb-5">
-          <div class="flex justify-between text-[11px] font-black" style="color: rgba(232,236,241,0.62)">
-            <span>XP: ${lvl.xp}</span>
-            <span>Next: ${lvl.next}</span>
-          </div>
-          <div class="mt-2 h-3 rounded-full" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.10)">
-            <div class="h-full rounded-full" style="width:${Math.round(lvl.pct * 100)}%; background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));"></div>
-          </div>
-        </div>
+      '<button onclick="openEditProfileModal()" class="btn-primary rounded-full">Edit profile</button>' +
+    '</div>' +
 
-        <button onclick="openEditProfileModal()" class="btn-primary rounded-full">Edit profile</button>
-      </div>
-    </div>
-  `;
+    /* Achievements / Badges */
+    '<div class="card p-5 max-w-2xl">' +
+      '<h3 class="font-black mb-3">Achievements</h3>' +
+      '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">' +
+        badge('&#128640;', 'Early Adopter', 'Joined MUVR', true) +
+        badge('&#128170;', 'First Gig', 'Complete 1 gig', Number(p.jobs_completed || 0) >= 1) +
+        badge('&#11088;', '5-Star Worker', 'Get a 5-star rating', rating >= 5) +
+        badge('&#127942;', 'Pro MUVR', 'Complete 10 gigs', Number(p.jobs_completed || 0) >= 10) +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
 
+function badge(icon, title, desc, unlocked) {
+  return '<div class="p-3 rounded-2xl text-center" style="background:rgba(255,255,255,' + (unlocked ? '0.06' : '0.02') + ');border:1px solid ' + (unlocked ? 'rgba(24,246,200,0.25)' : 'rgba(255,255,255,0.06)') + ';opacity:' + (unlocked ? '1' : '0.4') + '">' +
+    '<div class="text-2xl mb-1">' + icon + '</div>' +
+    '<p class="font-black text-[11px]">' + title + '</p>' +
+    '<p class="text-[10px]" style="color:var(--text-dim)">' + desc + '</p>' +
+    (unlocked ? '<div class="text-[10px] font-black mt-1" style="color:var(--accent)">UNLOCKED</div>' : '') +
+  '</div>';
+}
+
+
 /* =============================================================================
-   AUTH MODAL
+   AUTH MODALS
 ============================================================================= */
 function openAuthModal() {
-  openModal(`
-    <div class="card p-6" style="max-width: 420px; margin:auto">
-      <div class="flex justify-between items-center mb-2">
-        <h2 class="text-xl font-black">Enter MUVR</h2>
-        <button onclick="closeModal()" class="close-btn">&times;</button>
-      </div>
-      <p class="text-sm mb-5" style="color: rgba(232,236,241,0.65)">
-        Zero commission. Escrow-first. Level up with every completed gig.
-      </p>
-      <input id="auth-email" type="email" placeholder="you@email.com" class="field mb-3" autocomplete="email">
-      <input id="auth-password" type="password" placeholder="Password (6+ chars)" class="field mb-4" autocomplete="current-password">
-
-      <button onclick="handleSignUp()" class="btn-primary mb-2 rounded-full">Create account</button>
-      <button onclick="handleSignIn()" class="btn-secondary rounded-full">I already have an account</button>
-      <p id="auth-error" class="text-xs text-center mt-3 hidden" style="color: #ffd2d2; font-weight:800"></p>
-
-      <div class="mt-5 text-[11px]" style="color: rgba(232,236,241,0.52)">
-        By continuing you agree to marketplace terms. MUVR Credits (MV) are platform credits (not currency).
-      </div>
-    </div>
-  `);
+  openModal(
+    '<div class="card p-6 sm:p-8" style="max-width:440px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-2">' +
+        '<h2 class="text-xl font-black">Enter MUVR</h2>' +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
+      '<p class="text-sm mb-5" style="color:rgba(232,236,241,0.65)">Zero commission. Escrow-first. Level up with every gig.</p>' +
+      '<input id="auth-email" type="email" placeholder="you@email.com" class="field mb-3" autocomplete="email">' +
+      '<input id="auth-password" type="password" placeholder="Password (6+ chars)" class="field mb-4" autocomplete="current-password">' +
+      '<button onclick="handleSignUp()" class="btn-primary mb-2 rounded-full">Create account</button>' +
+      '<button onclick="handleSignIn()" class="btn-secondary rounded-full">I already have an account</button>' +
+      '<p id="auth-error" class="text-xs text-center mt-3 hidden" style="color:#ffd2d2;font-weight:800"></p>' +
+      '<div class="mt-5 text-[11px]" style="color:rgba(232,236,241,0.52)">By continuing you agree to marketplace terms. MUVR Credits (MV) are platform credits (not currency).</div>' +
+    '</div>'
+  );
 }
 
-/* =============================================================================
-   LEGAL MODAL
-============================================================================= */
+function showAuthError(msg) {
+  var el = getEl('auth-error'); if (!el) return;
+  el.textContent = msg; el.classList.remove('hidden');
+  setTimeout(function() { el.classList.add('hidden'); }, 5000);
+}
+
 function openLegalModal() {
-  openModal(`
-    <div class="card p-6" style="max-width: 520px; margin:auto">
-      <h2 class="text-xl font-black mb-4">Before you start</h2>
-
-      <div class="space-y-3 mb-5">
-        <div class="p-4 rounded-2xl" style="background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10)">
-          <h3 class="font-black text-sm mb-1" style="color: var(--accent)">Marketplace Terms</h3>
-          <p class="text-xs" style="color: rgba(232,236,241,0.62)">
-            MUVR is a technology marketplace. MUVR is NOT an employer. You are an independent contractor.
-          </p>
-        </div>
-        <div class="p-4 rounded-2xl" style="background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10)">
-          <h3 class="font-black text-sm mb-1" style="color: var(--accent)">Contractor Agreement</h3>
-          <p class="text-xs" style="color: rgba(232,236,241,0.62)">
-            You control your schedule, rates, methods. You're responsible for taxes, insurance, and compliance.
-          </p>
-        </div>
-        <div class="p-4 rounded-2xl" style="background: rgba(24,246,200,0.06); border:1px solid rgba(24,246,200,0.16)">
-          <h3 class="font-black text-sm mb-1" style="color: rgba(232,236,241,0.88)">MUVR Credits (MV)</h3>
-          <p class="text-xs" style="color: rgba(232,236,241,0.70)">
-            MV are platform-limited digital credits used within MUVR for escrow and marketplace flows. Not currency.
-          </p>
-        </div>
-      </div>
-
-      <div class="space-y-2 mb-5">
-        ${legalCheck("check-tos","I accept the Marketplace Terms")}
-        ${legalCheck("check-contractor","I accept the Contractor Agreement")}
-        ${legalCheck("check-age","I am 18+")}
-      </div>
-
-      <button onclick="handleAcceptLegal()" id="legal-submit-btn" class="btn-secondary rounded-full" disabled>Check all boxes</button>
-    </div>
-  `, { locked: true, width: 'max-w-lg' });
-}
-
-function legalCheck(id, label) {
-  return `
-    <label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90">
-      <input type="checkbox" id="${id}" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5">
-      <span class="text-sm font-bold">${label}</span>
-    </label>
-  `;
+  openModal(
+    '<div class="card p-6 sm:p-8" style="max-width:540px;margin:auto">' +
+      '<h2 class="text-xl font-black mb-4">Before you start</h2>' +
+      '<div class="space-y-3 mb-5">' +
+        '<div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
+          '<h3 class="font-black text-sm mb-1" style="color:var(--accent)">Marketplace Terms</h3>' +
+          '<p class="text-xs" style="color:rgba(232,236,241,0.62)">MUVR is a technology marketplace. MUVR is NOT an employer. You are an independent contractor.</p>' +
+        '</div>' +
+        '<div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
+          '<h3 class="font-black text-sm mb-1" style="color:var(--accent)">Contractor Agreement</h3>' +
+          '<p class="text-xs" style="color:rgba(232,236,241,0.62)">You control your schedule, rates, methods. You are responsible for taxes, insurance, and compliance in your jurisdiction.</p>' +
+        '</div>' +
+        '<div class="p-4 rounded-2xl" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16)">' +
+          '<h3 class="font-black text-sm mb-1">MUVR Credits (MV)</h3>' +
+          '<p class="text-xs" style="color:rgba(232,236,241,0.70)">MV are platform-limited digital credits used within MUVR for escrow and marketplace flows. Not currency, cryptocurrency, or financial instruments.</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="space-y-2 mb-5">' +
+        '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-tos" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I accept the Marketplace Terms</span></label>' +
+        '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-contractor" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I accept the Contractor Agreement</span></label>' +
+        '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-age" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I am 18 years or older</span></label>' +
+      '</div>' +
+      '<button onclick="handleAcceptLegal()" id="legal-submit-btn" class="btn-secondary rounded-full" disabled>Check all boxes</button>' +
+    '</div>',
+    { locked: true, width: 'max-w-lg' }
+  );
 }
 
 function updateLegalButton() {
-  const allChecked =
-    getEl('check-tos')?.checked &&
-    getEl('check-contractor')?.checked &&
-    getEl('check-age')?.checked;
-
-  const btn = getEl('legal-submit-btn');
-  if (!btn) return;
-
-  btn.disabled = !allChecked;
-  btn.textContent = allChecked ? 'I agree & continue' : 'Check all boxes';
-  btn.className = allChecked ? 'btn-primary rounded-full' : 'btn-secondary rounded-full';
+  var ok = getEl('check-tos') && getEl('check-tos').checked &&
+           getEl('check-contractor') && getEl('check-contractor').checked &&
+           getEl('check-age') && getEl('check-age').checked;
+  var btn = getEl('legal-submit-btn'); if (!btn) return;
+  btn.disabled = !ok;
+  btn.textContent = ok ? 'I agree & continue' : 'Check all boxes';
+  btn.className = ok ? 'btn-primary rounded-full' : 'btn-secondary rounded-full';
 }
 
 /* =============================================================================
-   MODALS: POST / APPLY / SEND / LOAD / PAYOUT / EDIT PROFILE
+   JOB / WALLET / PROFILE MODALS
 ============================================================================= */
 function openPostJobModal() {
-  openModal(`
-    <div class="card p-6" style="max-width: 460px; margin:auto; max-height: 90vh; overflow:auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-black">Post a gig</h2>
-        <button onclick="closeModal()" class="close-btn">&times;</button>
-      </div>
-
-      <div class="space-y-3">
-        <input id="job-title" placeholder="What do you need done?" maxlength="100" class="field">
-        <textarea id="job-desc" placeholder="Describe the work..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>
-
-        <select id="job-type" class="field">
-          <option value="">Select type…</option>
-          <option value="rideshare">Rideshare</option>
-          <option value="delivery">Delivery</option>
-          <option value="physical">Physical labor</option>
-          <option value="digital">Digital/remote</option>
-        </select>
-
-        <select id="job-urgency" class="field">
-          <option value="asap">ASAP</option>
-          <option value="today">Today</option>
-          <option value="this_week">This week</option>
-          <option value="flexible">Flexible</option>
-        </select>
-
-        <div>
-          <label class="text-[11px] font-black mb-1 block" style="color: rgba(232,236,241,0.55)">Budget (MV)</label>
-          <input id="job-budget" type="number" min="1" max="10000" placeholder="50" class="field" oninput="updateJobFeeDisplay()">
-        </div>
-
-        <input id="job-address" placeholder="Location / Address" maxlength="200" class="field">
-
-        <div class="p-4 rounded-2xl text-sm" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-          <div class="flex justify-between mb-1">
-            <span style="color: rgba(232,236,241,0.55)">Budget</span>
-            <span class="font-black" id="fee-budget-display">0 MV</span>
-          </div>
-          <div class="flex justify-between mb-1">
-            <span style="color: rgba(232,236,241,0.55)">Posting fee (burn)</span>
-            <span class="font-black" style="color: var(--red)">1 MV</span>
-          </div>
-          <div class="flex justify-between font-black pt-2" style="border-top: 1px solid rgba(255,255,255,0.10)">
-            <span>Total locked</span>
-            <span id="fee-total-display" style="color: var(--accent)">1 MV</span>
-          </div>
-        </div>
-
-        <button onclick="handlePostJob()" class="btn-primary rounded-full">Post gig & lock escrow</button>
-        <div class="text-[11px]" style="color: rgba(232,236,241,0.50)">
-          MUXI note: If you don’t have enough MV, load credits first (beta).
-        </div>
-      </div>
-    </div>
-  `, { width: 'max-w-md' });
+  openModal(
+    '<div class="card p-6" style="max-width:460px;margin:auto;max-height:90vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Post a gig</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div class="space-y-3">' +
+        '<input id="job-title" placeholder="What do you need done?" maxlength="100" class="field">' +
+        '<textarea id="job-desc" placeholder="Describe the work in detail..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>' +
+        '<select id="job-type" class="field"><option value="">Select type...</option><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="physical">Physical labor</option><option value="digital">Digital/remote</option></select>' +
+        '<select id="job-urgency" class="field"><option value="asap">ASAP</option><option value="today">Today</option><option value="this_week">This week</option><option value="flexible">Flexible</option></select>' +
+        '<div><label class="text-[11px] font-black mb-1 block" style="color:rgba(232,236,241,0.55)">Budget (MV Credits)</label><input id="job-budget" type="number" min="1" max="10000" placeholder="50" class="field" oninput="updateJobFee()"></div>' +
+        '<input id="job-address" placeholder="Location / Address (optional)" maxlength="200" class="field">' +
+        '<div class="p-4 rounded-2xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
+          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Budget</span><span class="font-black" id="fee-budget">0 MV</span></div>' +
+          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Posting fee (burn)</span><span class="font-black" style="color:var(--red)">1 MV</span></div>' +
+          '<div class="flex justify-between font-black pt-2" style="border-top:1px solid rgba(255,255,255,0.10)"><span>Total locked</span><span id="fee-total" style="color:var(--accent)">1 MV</span></div>' +
+        '</div>' +
+        '<button onclick="handlePostJob()" class="btn-primary rounded-full">Post gig & lock escrow</button>' +
+        '<div class="text-[11px]" style="color:var(--text-dim)">If you do not have enough MV, load credits first (beta).</div>' +
+      '</div>' +
+    '</div>',
+    { width: 'max-w-md' }
+  );
 }
 
-function updateJobFeeDisplay() {
-  const budget = parseFloat(getEl('job-budget')?.value) || 0;
-  const budgetEl = getEl('fee-budget-display');
-  const totalEl = getEl('fee-total-display');
-  if (budgetEl) budgetEl.textContent = budget + ' MV';
-  if (totalEl) totalEl.textContent = (budget + 1) + ' MV';
+function updateJobFee() {
+  var b = parseFloat((getEl('job-budget') || {}).value) || 0;
+  var be = getEl('fee-budget'); var te = getEl('fee-total');
+  if (be) be.textContent = b + ' MV'; if (te) te.textContent = (b + 1) + ' MV';
 }
 
 function openApplyModal(jobId) {
-  openModal(`
-    <div class="card p-6" style="max-width: 460px; margin:auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-black">Apply for gig</h2>
-        <button onclick="closeModal()" class="close-btn">&times;</button>
-      </div>
-
-      <input type="hidden" id="apply-job-id" value="${jobId}">
-      <div class="space-y-3">
-        <textarea id="apply-pitch" placeholder="Why you're perfect for this…" rows="3" maxlength="500" class="field" style="resize:none"></textarea>
-        <input id="apply-rate" type="number" min="1" placeholder="Your rate (MV)" class="field">
-        <input id="apply-turnaround" placeholder="Turnaround (e.g., 2 hours)" maxlength="50" class="field">
-        <button onclick="handleApply()" class="btn-primary rounded-full">Submit application</button>
-      </div>
-    </div>
-  `, { width: 'max-w-md' });
+  openModal(
+    '<div class="card p-6" style="max-width:460px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Apply for gig</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<input type="hidden" id="apply-job-id" value="' + jobId + '">' +
+      '<div class="space-y-3">' +
+        '<textarea id="apply-pitch" placeholder="Why you are the right person for this gig..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>' +
+        '<input id="apply-rate" type="number" min="1" placeholder="Your rate (MV Credits)" class="field">' +
+        '<input id="apply-turnaround" placeholder="Turnaround (e.g., 2 hours)" maxlength="50" class="field">' +
+        '<button onclick="handleApply()" class="btn-primary rounded-full">Submit application</button>' +
+      '</div>' +
+    '</div>',
+    { width: 'max-w-md' }
+  );
 }
 
 function openSendModal() {
-  openModal(`
-    <div class="card p-6" style="max-width: 420px; margin:auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-black">Send MV</h2>
-        <button onclick="closeModal()" class="close-btn">&times;</button>
-      </div>
-      <input id="send-to" type="text" placeholder="@handle or email" class="field mb-3">
-      <input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-4">
-      <button onclick="handleSend()" class="btn-primary rounded-full">Send</button>
-      <div class="mt-3 text-[11px]" style="color: rgba(232,236,241,0.52)">
-        MV are platform credits used within MUVR. Transfers are recorded in the platform ledger.
-      </div>
-    </div>
-  `);
+  openModal(
+    '<div class="card p-6" style="max-width:420px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Send MV Credits</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<input id="send-to" type="text" placeholder="@handle, email, or muvr_alias" class="field mb-3">' +
+      '<input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-4">' +
+      '<button onclick="handleSend()" class="btn-primary rounded-full">Send</button>' +
+      '<div class="mt-3 text-[11px]" style="color:var(--text-dim)">MV are platform credits. Transfers are recorded in the platform ledger. Public feed shows aliases only.</div>' +
+    '</div>'
+  );
 }
 
 function openLoadModal() {
-  openModal(`
-    <div class="card p-6" style="max-width: 420px; margin:auto">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-black">Load MV (beta)</h2>
-        <button onclick="closeModal()" class="close-btn">&times;</button>
-      </div>
-      <p class="text-sm font-black mb-1" style="color: var(--accent)">MUVR Credits (MV)</p>
-      <p class="text-xs mb-4" style="color: rgba(232,236,241,0.55)">Payment rails integration is staged. If it's not enabled, you'll see a safe stub.</p>
-      <div class="grid grid-cols-2 gap-3">
-        ${loadTile(5)}
-        ${loadTile(10)}
-        ${loadTile(25)}
-        ${loadTile(50)}
-      </div>
-      <div class="mt-4 text-[11px]" style="color: rgba(232,236,241,0.52)">
-        Legal: MV are platform credits, not currency. Loading is handled by compliant payment partners when enabled.
-      </div>
-    </div>
-  `);
-}
-function loadTile(n) {
-  return `
-    <button onclick="showToast('Loading MV is in beta (payment partner not enabled yet).', 'info')"
-            class="btn-secondary py-4 text-center rounded-2xl">
-      $${n}<br><span class="text-xs font-black" style="color: var(--accent)">${n} MV</span>
-    </button>
-  `;
+  var tiles = [5, 10, 25, 50, 100, 250].map(function(n) {
+    return '<button onclick="showToast(\'Loading MV is in beta. Payment partner not enabled yet.\', \'info\')" class="btn-secondary py-4 text-center rounded-2xl hover:border-[rgba(24,246,200,0.35)]">' +
+      '<div class="text-lg font-black">$' + n + '</div>' +
+      '<div class="text-xs font-black mt-1" style="color:var(--accent)">' + n + ' MV</div>' +
+    '</button>';
+  }).join('');
+
+  openModal(
+    '<div class="card p-6" style="max-width:440px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black">Load MV Credits (beta)</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<p class="text-sm mb-4" style="color:var(--text-dim)">Select a package. Payment rails integration is staged.</p>' +
+      '<div class="grid grid-cols-3 gap-3">' + tiles + '</div>' +
+      '<div class="mt-5 p-3 rounded-2xl text-[11px]" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16);color:rgba(232,236,241,0.65)">' +
+        '<strong>Legal:</strong> MV are platform credits denominated as 1 credit = 1 USD-equivalent unit INSIDE the app for pricing. Loading handled by compliant payment partners when enabled.' +
+      '</div>' +
+    '</div>'
+  );
 }
 
 function openCashoutModal() {
-  openModal(`
-    <div class="card p-6" style="max-width: 420px; margin:auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-black">Payout (beta)</h2>
-        <button onclick="closeModal()" class="close-btn">&times;</button>
-      </div>
-
-      <input id="cashout-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-3" oninput="updateCashoutDisplay()">
-      <div class="p-4 rounded-2xl text-sm mb-4" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-        <div class="flex justify-between">
-          <span style="color: rgba(232,236,241,0.55)">Estimated receive</span>
-          <span class="font-black" style="color: var(--accent)" id="cashout-receive">$0.00</span>
-        </div>
-        <div class="flex justify-between text-xs mt-1">
-          <span style="color: rgba(232,236,241,0.55)">Fee (0.5%)</span>
-          <span style="color: var(--red)" class="font-black" id="cashout-fee">$0.00</span>
-        </div>
-      </div>
-
-      <button onclick="handleCashout()" class="btn-primary rounded-full">Request payout</button>
-
-      <div class="mt-4 text-[11px]" style="color: rgba(232,236,241,0.52)">
-        This is a staged feature. If payout rails aren’t enabled, the app will safely record a ledger entry only.
-      </div>
-    </div>
-  `);
+  openModal(
+    '<div class="card p-6" style="max-width:420px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Payout (beta)</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<input id="cashout-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-3" oninput="updateCashoutDisplay()">' +
+      '<div class="p-4 rounded-2xl text-sm mb-4" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
+        '<div class="flex justify-between"><span style="color:rgba(232,236,241,0.55)">Estimated receive</span><span class="font-black" style="color:var(--accent)" id="cashout-receive">$0.00</span></div>' +
+        '<div class="flex justify-between text-xs mt-1"><span style="color:rgba(232,236,241,0.55)">Fee (0.5%)</span><span style="color:var(--red)" class="font-black" id="cashout-fee">$0.00</span></div>' +
+      '</div>' +
+      '<button onclick="handleCashout()" class="btn-primary rounded-full">Request payout</button>' +
+      '<div class="mt-4 text-[11px]" style="color:var(--text-dim)">Staged feature. If payout rails are not enabled, a ledger entry is recorded safely. Withdrawals subject to verification and provider terms.</div>' +
+    '</div>'
+  );
 }
 
 function updateCashoutDisplay() {
-  const amount = parseFloat(getEl('cashout-amount')?.value) || 0;
-  const fee = amount * 0.005;
-  const receive = amount - fee;
-  const recvEl = getEl('cashout-receive');
-  const feeEl = getEl('cashout-fee');
-  if (recvEl) recvEl.textContent = '$' + receive.toFixed(2);
-  if (feeEl) feeEl.textContent = '$' + fee.toFixed(2);
+  var amt = parseFloat((getEl('cashout-amount') || {}).value) || 0;
+  var fee = amt * 0.005; var recv = amt - fee;
+  var re = getEl('cashout-receive'); var fe = getEl('cashout-fee');
+  if (re) re.textContent = '$' + recv.toFixed(2);
+  if (fe) fe.textContent = '$' + fee.toFixed(2);
 }
 
 function openEditProfileModal() {
-  const prof = state.profile || {};
-  openModal(`
-    <div class="card p-6" style="max-width: 460px; margin:auto; max-height: 90vh; overflow:auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-black">Edit profile</h2>
-        <button onclick="closeModal()" class="close-btn">&times;</button>
-      </div>
-
-      <div class="space-y-3">
-        <input id="profile-name" placeholder="Your name" maxlength="100" class="field" value="${escapeHtml(prof.full_name || '')}">
-        <input id="profile-username" placeholder="@handle" maxlength="30" class="field" value="${escapeHtml(prof.username || '')}">
-        <textarea id="profile-about" placeholder="What services do you offer?" rows="3" maxlength="280" class="field" style="resize:none">${escapeHtml(prof.about_me || '')}</textarea>
-
-        <select id="profile-role" class="field">
-          <option value="both" ${prof.role === 'both' ? 'selected' : ''}>Work & post gigs</option>
-          <option value="worker" ${prof.role === 'worker' ? 'selected' : ''}>Worker only</option>
-          <option value="poster" ${prof.role === 'poster' ? 'selected' : ''}>Post gigs only</option>
-        </select>
-
-        <label class="flex items-center gap-3 cursor-pointer p-3 rounded-2xl"
-               style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
-          <input type="checkbox" id="profile-vehicle" class="w-4 h-4" ${prof.has_vehicle ? 'checked' : ''}>
-          <span class="text-sm font-black">I have a vehicle</span>
-        </label>
-
-        <button onclick="handleSaveProfile()" class="btn-primary rounded-full">Save</button>
-      </div>
-    </div>
-  `, { width: 'max-w-md' });
+  var p = state.profile || {};
+  openModal(
+    '<div class="card p-6" style="max-width:460px;margin:auto;max-height:90vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Edit profile</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div class="space-y-3">' +
+        '<input id="profile-name" placeholder="Your name" maxlength="100" class="field" value="' + escapeHtml(p.full_name || '') + '">' +
+        '<input id="profile-username" placeholder="@handle (unique)" maxlength="30" class="field" value="' + escapeHtml(p.username || '') + '">' +
+        '<textarea id="profile-about" placeholder="What services do you offer? What makes you great?" rows="4" maxlength="500" class="field" style="resize:none">' + escapeHtml(p.about_me || '') + '</textarea>' +
+        '<select id="profile-role" class="field"><option value="both" ' + (p.role === 'both' ? 'selected' : '') + '>Work & post gigs</option><option value="worker" ' + (p.role === 'worker' ? 'selected' : '') + '>Worker only</option><option value="poster" ' + (p.role === 'poster' ? 'selected' : '') + '>Post gigs only</option></select>' +
+        '<label class="flex items-center gap-3 cursor-pointer p-3 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)"><input type="checkbox" id="profile-vehicle" class="w-4 h-4" ' + (p.has_vehicle ? 'checked' : '') + '><span class="text-sm font-black">I have a vehicle</span></label>' +
+        '<button onclick="handleSaveProfile()" class="btn-primary rounded-full">Save profile</button>' +
+      '</div>' +
+    '</div>',
+    { width: 'max-w-md' }
+  );
 }
 
 /* =============================================================================
-   AUTH ERROR
+   NOTIFICATIONS BELL (in-app queue reader)
 ============================================================================= */
-function showAuthError(message) {
-  const el = getEl('auth-error');
-  if (!el) return;
-  el.textContent = message;
-  el.classList.remove('hidden');
-  setTimeout(() => el.classList.add('hidden'), 5200);
+async function loadNotifications() {
+  if (!state.user) return;
+  try {
+    var res = await apiRequest('notifications_queue?user_id=eq.' + state.user.id + '&status=eq.pending&order=created_at.desc&limit=10');
+    state.notifications = (res && res.ok) ? await res.json() : [];
+    updateNotifBadge();
+  } catch(e) { console.error(e); }
+}
+
+function updateNotifBadge() {
+  var badge = getEl('notif-badge');
+  if (badge) {
+    var count = (state.notifications || []).length;
+    badge.textContent = count > 0 ? count : '';
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  }
+}
+
+function openNotifDropdown() {
+  var notifs = state.notifications || [];
+  var list = notifs.length === 0
+    ? '<p class="text-sm py-4 text-center" style="color:var(--text-dim)">No new notifications</p>'
+    : notifs.map(function(n) {
+        return '<div class="p-3 mb-2 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+          '<p class="font-black text-xs">' + escapeHtml(n.title || n.type) + '</p>' +
+          '<p class="text-[11px]" style="color:var(--text-dim)">' + escapeHtml(n.body || '') + '</p>' +
+          '<p class="text-[10px] mt-1" style="color:rgba(232,236,241,0.38)">' + formatTime(n.created_at) + '</p>' +
+        '</div>';
+      }).join('');
+
+  openModal(
+    '<div class="card p-5" style="max-width:380px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-3"><h3 class="font-black">Notifications</h3><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div style="max-height:50vh;overflow-y:auto">' + list + '</div>' +
+    '</div>'
+  );
 }
 
 /* =============================================================================
-   ACTIONS: SIGNUP / SIGNIN / LOGOUT / ACCEPT LEGAL
+   MUXI FLOATING ASSISTANT
+============================================================================= */
+function renderMuxi() {
+  var existing = getEl('muxi-fab');
+  if (existing) return; // already rendered
+
+  var fab = document.createElement('div');
+  fab.id = 'muxi-fab';
+  fab.innerHTML = muxiSVG(42);
+  fab.title = 'MUXI - your chaotic helper';
+  fab.onclick = toggleMuxiBubble;
+  document.body.appendChild(fab);
+
+  var bubble = document.createElement('div');
+  bubble.id = 'muxi-bubble';
+  bubble.innerHTML =
+    '<div class="font-black text-xs mb-1" style="color:var(--accent)">MUXI</div>' +
+    '<p id="muxi-msg" class="text-xs" style="color:var(--text-mid);line-height:1.35">' + pickMuxiLine() + '</p>' +
+    '<div class="flex gap-2 mt-3">' +
+      '<button onclick="muxiDiagnose()" class="text-[10px] font-black px-3 py-2 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);color:var(--text-bright)">Diagnose</button>' +
+      '<button onclick="muxiTips()" class="text-[10px] font-black px-3 py-2 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);color:var(--text-bright)">Tips</button>' +
+    '</div>';
+  document.body.appendChild(bubble);
+}
+
+function toggleMuxiBubble() {
+  var bubble = getEl('muxi-bubble');
+  if (bubble) bubble.classList.toggle('show');
+}
+
+function setMuxi(msg) {
+  var m = getEl('muxi-msg');
+  if (m) m.textContent = msg;
+  var bubble = getEl('muxi-bubble');
+  if (bubble) { bubble.classList.add('show'); clearTimeout(window._muxiTimer); window._muxiTimer = setTimeout(function() { bubble.classList.remove('show'); }, 4500); }
+}
+
+function pickMuxiLine() {
+  var lines = [
+    'Welcome to the real-world work game. Finish your profile to unlock max visibility.',
+    'If the network lags, I keep the UI alive. No black screens on my watch.',
+    'Post a gig with a clear title + budget. You will get better applications.',
+    'Keep it clean: your profile handle should be unique and simple.',
+    'Pro tip: the faster you respond to applications, the higher your reputation.',
+    'Escrow protects both sides. Funds are locked before work begins.',
+    'Want to level up fast? Complete gigs and keep your rating high.'
+  ];
+  return lines[Math.floor(Math.random() * lines.length)];
+}
+
+function muxiDiagnose() {
+  var online = navigator.onLine ? 'online' : 'offline';
+  var sbOk = (typeof supabase !== 'undefined' && sb) ? 'ok' : 'missing';
+  var tok = state.accessToken ? 'present' : 'none';
+  var usr = state.user ? 'yes' : 'no';
+  setMuxi('Diag: net=' + online + ', supabase=' + sbOk + ', user=' + usr + ', token=' + tok + '. If supabase is missing, check CDN or adblock.');
+}
+
+function muxiTips() {
+  setMuxi('Try: Sign in > Post a gig > Apply > Watch realtime updates. If anything stalls, the 900ms boot timeout keeps you safe.');
+}
+
+/* =============================================================================
+   ACTION HANDLERS
 ============================================================================= */
 async function handleSignUp() {
-  const email = getEl('auth-email')?.value.trim();
-  const password = getEl('auth-password')?.value;
-
-  if (!email || !password) return showAuthError('Enter email and password');
-  if (password.length < 6) return showAuthError('Password must be 6+ characters');
-
+  var email = ((getEl('auth-email') || {}).value || '').trim();
+  var pw = (getEl('auth-password') || {}).value || '';
+  if (!email || !pw) return showAuthError('Enter email and password');
+  if (pw.length < 6) return showAuthError('Password must be 6+ characters');
   try {
-    setMuxi('loading', 'Creating your account…');
-    const { data, error } = await sb.auth.signUp({ email, password });
-    if (error) return showAuthError(error.message);
-
-    // If email confirmation is required, session may be null.
-    if (!data.session) {
-      const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({ email, password });
-      if (signInError) return showAuthError('Check your email to confirm, then sign in.');
-      state.user = signInData.user;
-      state.token = signInData.session?.access_token || null;
+    setMuxi('Creating your account...');
+    var r = await sb.auth.signUp({ email: email, password: pw });
+    if (r.error) return showAuthError(r.error.message);
+    if (!r.data.session) {
+      var s = await sb.auth.signInWithPassword({ email: email, password: pw });
+      if (s.error) return showAuthError('Account created! Check your email to confirm, then sign in. Error: ' + s.error.message);
+      state.user = s.data.user; state.accessToken = s.data.session && s.data.session.access_token;
     } else {
-      state.user = data.user;
-      state.token = data.session?.access_token || null;
+      state.user = r.data.user; state.accessToken = r.data.session && r.data.session.access_token;
     }
-
     closeModal();
     await loadProfileSafe();
     openLegalModal();
     showToast('Account created. Welcome to MUVR!');
-    setMuxi('success', 'Welcome. Check the boxes, then you’re in.');
-  } catch (err) {
-    console.error(err);
-    showAuthError(err.message || 'Sign up error');
-    setMuxi('error', 'Sign up hit an error. I logged it in the console.');
-  }
+    burstConfetti();
+    setMuxi('Welcome! Accept the agreements to get started.');
+  } catch(e) { console.error('SignUp error:', e); showAuthError(e.message || 'Sign up failed. Check your connection and try again.'); }
 }
 
 async function handleSignIn() {
-  const email = getEl('auth-email')?.value.trim();
-  const password = getEl('auth-password')?.value;
-
-  if (!email || !password) return showAuthError('Enter email and password');
-
+  var email = ((getEl('auth-email') || {}).value || '').trim();
+  var pw = (getEl('auth-password') || {}).value || '';
+  if (!email || !pw) return showAuthError('Enter email and password');
   try {
-    setMuxi('loading', 'Signing you in…');
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) return showAuthError(error.message);
-
-    state.user = data.user;
-    state.token = data.session?.access_token || null;
-
-    closeModal();
-    // Render app immediately, load data in background
-    renderApp();
-    showToast('Welcome back!', 'success');
-    setMuxi('success', 'You’re in. I’ll fetch your data in the background.');
-
-    loadProfileSafe();
-    loadJobsSafe();
-  } catch (err) {
-    console.error(err);
-    showAuthError(err.message || 'Sign in error');
-    setMuxi('error', 'Sign in hit an error. Check the console.');
-  }
+    setMuxi('Signing you in...');
+    var r = await sb.auth.signInWithPassword({ email: email, password: pw });
+    if (r.error) return showAuthError(r.error.message);
+    state.user = r.data.user; state.accessToken = r.data.session && r.data.session.access_token;
+    closeModal(); renderApp(); showToast('Welcome back!');
+    setMuxi('Session restored. Loading your data.');
+    loadProfileSafe(); loadJobsSafe(); loadNotifications();
+  } catch(e) { console.error('SignIn error:', e); showAuthError(e.message || 'Sign in failed. Check your connection and try again.'); }
 }
 
 async function handleLogout() {
-  try { await sb.auth.signOut(); } catch (e) {}
-  state = { user:null, token:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', mode: state.mode, muxiMood:'idle' };
+  try { await sb.auth.signOut(); } catch(e) {}
+  state.realtimeSubs.forEach(function(ch) { try { sb.removeChannel(ch); } catch(e) {} });
+  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[] };
   renderLanding();
+  var fab = getEl('muxi-fab'); if (fab) fab.remove();
+  var bub = getEl('muxi-bubble'); if (bub) bub.remove();
   showToast('Signed out', 'info');
-  setMuxi('idle', 'Signed out. Want to post a gig? Sign back in.');
 }
 
 async function handleAcceptLegal() {
   try {
-    setMuxi('loading', 'Saving agreements…');
-    const agreementTypes = ['tos', 'contractor_agreement', 'age'];
-
-    for (const type of agreementTypes) {
+    setMuxi('Saving agreements...');
+    var types = ['tos', 'contractor_agreement', 'age'];
+    for (var i = 0; i < types.length; i++) {
       await apiRequest('legal_agreements', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: state.user.id,
-          agreement_type: type,
-          ip_address: '0.0.0.0',
-          user_agent: navigator.userAgent
-        })
+        body: JSON.stringify({ user_id: state.user.id, agreement_type: types[i], ip_address: '0.0.0.0', user_agent: navigator.userAgent })
       });
     }
+    closeModal(); renderApp(); showToast('Agreements accepted!');
+    setMuxi('You are live. Go post a gig or apply to one.');
+    loadJobsSafe(); loadProfileSafe(); loadNotifications();
+  } catch(e) { showToast('Error saving agreements', 'error'); }
+}
 
-    closeModal();
-    renderApp();
-    showToast('Agreements accepted!', 'success');
-    setMuxi('success', 'Nice. You’re live.');
-
+async function handlePostJob() {
+  var title = ((getEl('job-title') || {}).value || '').trim();
+  var desc = ((getEl('job-desc') || {}).value || '').trim();
+  var type = (getEl('job-type') || {}).value;
+  var budget = parseFloat((getEl('job-budget') || {}).value) || 0;
+  if (!title) return showToast('Enter a title', 'error');
+  if (!type) return showToast('Select a type', 'error');
+  if (budget < 1) return showToast('Budget must be at least 1 MV', 'error');
+  if (budget > 10000) return showToast('Budget too high', 'error');
+  var bal = Number((state.profile && state.profile.mv_balance) || 0);
+  if (bal < budget + 1) return showToast('Not enough MV Credits', 'error');
+  try {
+    setMuxi('Posting your gig...');
+    var res = await apiRequest('jobs', {
+      method: 'POST',
+      body: JSON.stringify({
+        poster_id: state.user.id, title: title, description: desc, job_type: type,
+        urgency: (getEl('job-urgency') || {}).value || 'asap', budget_mv: budget, fee_mv: 1,
+        total_escrowed: budget + 1, address: (getEl('job-address') || {}).value || '', status: 'open'
+      })
+    });
+    if (!(res && res.ok)) return showToast('Error posting job', 'error');
+    var jobData = await res.json();
+    var jobId = jobData && jobData[0] ? jobData[0].id : null;
+    if (jobId) {
+      await apiRequest('escrow', { method: 'POST', body: JSON.stringify({ job_id: jobId, poster_id: state.user.id, amount_mv: budget, fee_mv: 1, status: 'locked' }) });
+      await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'burn', amount_mv: 1, description: 'Gig posting fee (burn)', tx_hash: 'BURN' + Date.now(), related_job_id: jobId }) });
+      // Publish public event
+      try { await apiRequest('rpc/publish_public_event', { method: 'POST', body: JSON.stringify({ p_type: 'burn', p_amount: 1, p_tx_hash: 'BURN' + Date.now(), p_from_user_id: state.user.id, p_related_job_id: jobId }) }); } catch(e) {}
+      try { await apiRequest('rpc/publish_public_event', { method: 'POST', body: JSON.stringify({ p_type: 'escrow_lock', p_amount: budget, p_from_user_id: state.user.id, p_related_job_id: jobId }) }); } catch(e) {}
+    }
+    var newBal = bal - (budget + 1);
+    await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: newBal }) });
+    state.profile.mv_balance = newBal;
+    closeModal(); showToast('Gig posted! Escrow locked.');
+    setMuxi('Gig is live. Watch for applications.');
     loadJobsSafe();
-    loadProfileSafe();
-  } catch (e) {
-    console.error(e);
-    showToast('Error saving agreements', 'error');
-    setMuxi('error', 'Agreement save failed. Console has details.');
-  }
+  } catch(e) { showToast('Error posting job', 'error'); console.error(e); }
+}
+
+async function handleApply() {
+  var jobId = (getEl('apply-job-id') || {}).value;
+  var pitch = ((getEl('apply-pitch') || {}).value || '').trim();
+  var rate = parseFloat((getEl('apply-rate') || {}).value) || 0;
+  var turn = ((getEl('apply-turnaround') || {}).value || '').trim();
+  if (!pitch) return showToast('Write a pitch', 'error');
+  if (rate < 1) return showToast('Enter a rate', 'error');
+  if (!turn) return showToast('Enter turnaround', 'error');
+  try {
+    var res = await apiRequest('applications', {
+      method: 'POST',
+      body: JSON.stringify({ job_id: jobId, worker_id: state.user.id, pitch: pitch, rate_mv: rate, turnaround: turn, status: 'pending' })
+    });
+    if (res && res.ok) {
+      closeModal(); showToast('Application submitted!');
+      setMuxi('Applied. Tighten your pitch next time for higher win rate.');
+      // Queue notification for poster
+      var job = state.jobs.find(function(j) { return j.id === jobId; });
+      if (job && job.poster_id) {
+        try {
+          await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'new_application', title: 'New application', body: 'Someone applied to: ' + (job.title || 'your gig'), channel: 'email' }) });
+        } catch(e) {}
+      }
+    } else { showToast('Error submitting', 'error'); }
+  } catch(e) { showToast('Error', 'error'); }
+}
+
+async function handleSend() {
+  var to = ((getEl('send-to') || {}).value || '').trim().toLowerCase();
+  var amt = parseFloat((getEl('send-amount') || {}).value) || 0;
+  if (!to) return showToast('Enter recipient', 'error');
+  if (amt < 1) return showToast('Enter amount', 'error');
+  var bal = Number((state.profile && state.profile.mv_balance) || 0);
+  if (bal < amt) return showToast('Not enough MV', 'error');
+  try {
+    var enc = encodeURIComponent(to);
+    // Try by email/username first
+    var look = await apiRequest('users?or=(email.eq.' + enc + ',username.eq.' + enc + ')&select=id');
+    var ld = (look && look.ok) ? await look.json() : [];
+    // Fallback: try by alias
+    if (!ld.length) {
+      var aliasLook = await apiRequest('mv_aliases?public_alias=eq.' + enc + '&select=user_id');
+      var ad = (aliasLook && aliasLook.ok) ? await aliasLook.json() : [];
+      if (!ad.length) return showToast('User not found', 'error');
+      ld = [{ id: ad[0].user_id }];
+    }
+    var rid = ld[0].id;
+    var txh = 'TX' + Date.now() + Math.random().toString(36).slice(2, 8);
+    // Debit sender
+    await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'send', amount_mv: amt, description: 'Sent to ' + to, tx_hash: txh, related_user_id: rid }) });
+    // Credit receiver
+    await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: rid, type: 'receive', amount_mv: amt, description: 'Received', tx_hash: txh, related_user_id: state.user.id }) });
+    // Update balances
+    await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: bal - amt }) });
+    state.profile.mv_balance = bal - amt;
+    try {
+      var rb = await apiRequest('users?id=eq.' + rid + '&select=mv_balance');
+      var rd = (rb && rb.ok) ? await rb.json() : [];
+      if (rd.length) await apiRequest('users?id=eq.' + rid, { method: 'PATCH', body: JSON.stringify({ mv_balance: Number(rd[0].mv_balance || 0) + amt }) });
+    } catch(e) {}
+    // Publish public event
+    try { await apiRequest('rpc/publish_public_event', { method: 'POST', body: JSON.stringify({ p_type: 'transfer', p_amount: amt, p_tx_hash: txh, p_from_user_id: state.user.id, p_to_user_id: rid }) }); } catch(e) {}
+    closeModal(); showToast('Sent ' + amt + ' MV!');
+    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+  } catch(e) { showToast('Transfer failed', 'error'); }
+}
+
+async function handleCashout() {
+  var amt = parseFloat((getEl('cashout-amount') || {}).value) || 0;
+  if (amt < 1) return showToast('Enter amount', 'error');
+  var bal = Number((state.profile && state.profile.mv_balance) || 0);
+  if (bal < amt) return showToast('Not enough MV', 'error');
+  try {
+    await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'withdrawal', amount_mv: amt, description: 'Payout requested (beta). Est. $' + (amt * 0.995).toFixed(2), tx_hash: 'WD' + Date.now() }) });
+    await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: bal - amt }) });
+    state.profile.mv_balance = bal - amt;
+    closeModal(); showToast('Payout requested (beta).');
+    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+  } catch(e) { showToast('Payout failed', 'error'); }
+}
+
+async function handleSaveProfile() {
+  var updates = {
+    full_name: (getEl('profile-name') || {}).value || '',
+    username: ((getEl('profile-username') || {}).value || '').toLowerCase(),
+    about_me: (getEl('profile-about') || {}).value || '',
+    role: (getEl('profile-role') || {}).value || 'both',
+    has_vehicle: !!(getEl('profile-vehicle') || {}).checked
+  };
+  try {
+    var res = await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify(updates) });
+    if (res && res.ok) {
+      state.profile = Object.assign(state.profile || {}, updates);
+      closeModal(); showToast('Profile saved!'); renderProfileTab();
+      setMuxi('Profile upgraded. You just gained XP.');
+    } else { showToast('Error saving profile', 'error'); }
+  } catch(e) { showToast('Error saving', 'error'); }
 }
 
 /* =============================================================================
@@ -1579,350 +2055,72 @@ async function handleAcceptLegal() {
 async function loadProfileSafe() {
   if (!state.user) return;
   try {
-    const res = await withTimeout(apiRequest('users?id=eq.' + state.user.id + '&select=*'), 1500, 'profile');
-    if (res && res.ok) {
-      const data = await res.json();
-      state.profile = (data && data.length) ? data[0] : null;
-    }
-
+    var res = await withTimeout(apiRequest('users?id=eq.' + state.user.id + '&select=*'), 2500, 'profile');
+    if (res && res.ok) { var d = await res.json(); state.profile = (d && d.length) ? d[0] : null; }
     if (!state.profile) {
-      // fallback profile (does not write)
-      state.profile = {
-        id: state.user.id,
-        email: state.user.email,
-        mv_balance: 0,
-        jobs_completed: 0,
-        rating: 0,
-        full_name: '',
-        username: '',
-        about_me: '',
-        role: 'both'
-      };
+      state.profile = { id: state.user.id, email: state.user.email, mv_balance: 0, jobs_completed: 0, rating: 0, full_name: '', username: '', about_me: '', role: 'both', has_vehicle: false };
     }
-
-    // refresh visible tab
-    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
     if (state.currentTab === 'profile') renderProfileTab();
-  } catch (e) {
-    console.error('loadProfileSafe error', e);
-    setMuxi('error', 'Profile load timed out. UI stays alive.');
-  }
+    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+  } catch(e) { console.error('loadProfileSafe error:', e); }
 }
 
 async function loadJobsSafe() {
   try {
-    const res = await withTimeout(apiRequest('jobs?status=eq.open&select=*&order=created_at.desc'), 1500, 'jobs');
+    var res = await withTimeout(apiRequest('jobs?status=eq.open&select=*&order=created_at.desc'), 2500, 'jobs');
     state.jobs = (res && res.ok) ? await res.json() : [];
     if (state.currentTab === 'jobs') renderJobsTab();
-  } catch (e) {
-    console.error('loadJobsSafe error', e);
-    setMuxi('error', 'Jobs load timed out. Try again in a moment.');
-  }
+  } catch(e) { console.error('loadJobsSafe error:', e); }
 }
 
 /* =============================================================================
-   ACTION: SAVE PROFILE
+   PRESENCE INTERVAL (update every 45s if available)
 ============================================================================= */
-async function handleSaveProfile() {
-  const updates = {
-    full_name: getEl('profile-name')?.value || '',
-    username: (getEl('profile-username')?.value || '').toLowerCase(),
-    about_me: getEl('profile-about')?.value || '',
-    role: getEl('profile-role')?.value || 'both',
-    has_vehicle: !!getEl('profile-vehicle')?.checked
-  };
+var presenceInterval = null;
 
-  try {
-    const res = await apiRequest('users?id=eq.' + state.user.id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates)
-    });
-
-    if (res && res.ok) {
-      state.profile = { ...(state.profile || {}), ...updates };
-      closeModal();
-      showToast('Profile saved!', 'success');
-      renderProfileTab();
-      setMuxi('success', 'Profile upgraded. You just gained XP.');
-    } else {
-      showToast('Error saving profile', 'error');
-      setMuxi('error', 'Save failed. Likely RLS or missing row.');
+function startPresenceUpdates() {
+  if (presenceInterval) clearInterval(presenceInterval);
+  presenceInterval = setInterval(function() {
+    if (state.myPresence.status === 'available' && state.user && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        updateMyPresence(pos.coords.latitude, pos.coords.longitude);
+      }, function() {}, { timeout: 3000, maximumAge: 30000 });
     }
-  } catch (e) {
-    console.error(e);
-    showToast('Error saving profile', 'error');
-    setMuxi('error', 'Save crashed. Console has details.');
-  }
+  }, 45000);
 }
 
 /* =============================================================================
-   ACTION: POST JOB
+   REALTIME SUBSCRIPTIONS
 ============================================================================= */
-async function handlePostJob() {
-  const title = getEl('job-title')?.value.trim();
-  const description = getEl('job-desc')?.value.trim();
-  const jobType = getEl('job-type')?.value;
-  const budget = parseFloat(getEl('job-budget')?.value);
-
-  if (!title) return showToast('Enter a title', 'error');
-  if (!jobType) return showToast('Select a job type', 'error');
-  if (!budget || budget < 1) return showToast('Budget must be at least 1 MV', 'error');
-  if (budget > 10000) return showToast('Budget too high', 'error');
-
-  const bal = Number(state.profile?.mv_balance || 0);
-  if (bal < (budget + 1)) return showToast('Not enough MV', 'error');
-
+function subscribeToPublicEvents() {
+  if (!sb) return;
   try {
-    setMuxi('loading', 'Posting your gig…');
-    const res = await apiRequest('jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        poster_id: state.user.id,
-        title,
-        description,
-        job_type: jobType,
-        urgency: getEl('job-urgency')?.value || 'asap',
-        budget_mv: budget,
-        fee_mv: 1,
-        total_escrowed: budget + 1,
-        address: getEl('job-address')?.value || '',
-        status: 'open'
-      })
-    });
-
-    if (!(res && res.ok)) {
-      showToast('Error posting job', 'error');
-      setMuxi('error', 'Job post failed. Check console.');
-      return;
-    }
-
-    const jobData = await res.json();
-    const jobId = jobData && jobData[0] ? jobData[0].id : null;
-    if (!jobId) {
-      showToast('Job created but missing ID', 'error');
-      return;
-    }
-
-    // Create escrow record
-    await apiRequest('escrow', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        job_id: jobId,
-        poster_id: state.user.id,
-        amount_mv: budget,
-        fee_mv: 1,
-        status: 'locked'
-      })
-    });
-
-    // Log burn
-    await apiRequest('mv_ledger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: state.user.id,
-        type: 'burn',
-        amount_mv: 1,
-        description: 'Gig posting fee (burn)',
-        tx_hash: 'BURN' + Date.now(),
-        related_job_id: jobId
-      })
-    });
-
-    // Update balance
-    const newBalance = bal - (budget + 1);
-    await apiRequest('users?id=eq.' + state.user.id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mv_balance: newBalance })
-    });
-
-    state.profile.mv_balance = newBalance;
-
-    closeModal();
-    showToast('Gig posted! Escrow locked.', 'success');
-    setMuxi('success', 'Gig posted. Now watch applications roll in.');
-    loadJobsSafe();
-    if (state.currentTab === 'jobs') renderJobsTab();
-  } catch (e) {
-    console.error(e);
-    showToast('Error posting job', 'error');
-    setMuxi('error', 'Post crashed. Console has details.');
-  }
+    var ch = sb.channel('public-events')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mv_public_events' }, function(payload) {
+        if (payload.new) {
+          state.publicEvents.unshift(payload.new);
+          if (state.publicEvents.length > 100) state.publicEvents.pop();
+          if (state.currentTab === 'ledger') renderPublicEvents();
+        }
+      }).subscribe();
+    state.realtimeSubs.push(ch);
+  } catch(e) { console.error('public events sub error:', e); }
 }
 
 /* =============================================================================
-   ACTION: APPLY
+   CONFETTI BURST (on signup)
 ============================================================================= */
-async function handleApply() {
-  const jobId = getEl('apply-job-id')?.value;
-  const pitch = getEl('apply-pitch')?.value.trim();
-  const rate = parseFloat(getEl('apply-rate')?.value);
-  const turnaround = getEl('apply-turnaround')?.value.trim();
-
-  if (!pitch) return showToast('Write a pitch', 'error');
-  if (!rate || rate < 1) return showToast('Enter a rate', 'error');
-  if (!turnaround) return showToast('Enter turnaround time', 'error');
-
-  try {
-    const res = await apiRequest('applications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        job_id: jobId,
-        worker_id: state.user.id,
-        pitch,
-        rate_mv: rate,
-        turnaround,
-        status: 'pending'
-      })
-    });
-
-    if (res && res.ok) {
-      closeModal();
-      showToast('Application submitted!', 'success');
-      setMuxi('success', 'Applied. Want higher win-rate? Tighten your pitch.');
-    } else {
-      showToast('Error submitting application', 'error');
-      setMuxi('error', 'Apply failed. Likely RLS or table mismatch.');
-    }
-  } catch (e) {
-    console.error(e);
-    showToast('Error submitting application', 'error');
-    setMuxi('error', 'Apply crashed. Console has details.');
-  }
-}
-
-/* =============================================================================
-   ACTION: SEND MV
-============================================================================= */
-async function handleSend() {
-  const recipient = (getEl('send-to')?.value || '').trim();
-  const amount = parseFloat(getEl('send-amount')?.value);
-
-  if (!recipient) return showToast('Enter a recipient', 'error');
-  if (!amount || amount < 1) return showToast('Enter an amount', 'error');
-
-  const bal = Number(state.profile?.mv_balance || 0);
-  if (bal < amount) return showToast('Not enough MV', 'error');
-
-  try {
-    // Look up recipient by email or username
-    const enc = encodeURIComponent(recipient.toLowerCase());
-    const lookupRes = await apiRequest('users?or=(email.eq.' + enc + ',username.eq.' + enc + ')&select=id');
-    const lookupData = (lookupRes && lookupRes.ok) ? await lookupRes.json() : [];
-    if (!lookupData.length) return showToast('User not found', 'error');
-
-    const recipientId = lookupData[0].id;
-    const txHash = 'TX' + Date.now() + Math.random().toString(36).slice(2, 10);
-
-    await apiRequest('mv_ledger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: state.user.id,
-        type: 'send',
-        amount_mv: amount,
-        description: 'Sent to ' + recipient,
-        tx_hash: txHash,
-        related_user_id: recipientId
-      })
-    });
-
-    await apiRequest('mv_ledger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: recipientId,
-        type: 'receive',
-        amount_mv: amount,
-        description: 'Received from ' + (state.profile?.full_name || state.user.email),
-        tx_hash: txHash,
-        related_user_id: state.user.id
-      })
-    });
-
-    // Update sender balance
-    const newBalance = bal - amount;
-    await apiRequest('users?id=eq.' + state.user.id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mv_balance: newBalance })
-    });
-    state.profile.mv_balance = newBalance;
-
-    // Update recipient balance best-effort
-    try {
-      const recBalRes = await apiRequest('users?id=eq.' + recipientId + '&select=mv_balance');
-      const recData = (recBalRes && recBalRes.ok) ? await recBalRes.json() : [{ mv_balance: 0 }];
-      const recNew = Number(recData[0]?.mv_balance || 0) + amount;
-      await apiRequest('users?id=eq.' + recipientId, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mv_balance: recNew })
-      });
-    } catch (e) {}
-
-    closeModal();
-    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
-    showToast('Sent ' + amount + ' MV!', 'success');
-    setMuxi('success', 'Transfer done. Ledger updated.');
-  } catch (e) {
-    console.error(e);
-    showToast('Transfer failed', 'error');
-    setMuxi('error', 'Transfer failed. Console has details.');
-  }
-}
-
-/* =============================================================================
-   ACTION: PAYOUT (SAFE STUB)
-============================================================================= */
-async function handleCashout() {
-  const amount = parseFloat(getEl('cashout-amount')?.value);
-
-  if (!amount || amount < 1) return showToast('Enter an amount', 'error');
-
-  const bal = Number(state.profile?.mv_balance || 0);
-  if (bal < amount) return showToast('Not enough MV', 'error');
-
-  const fee = amount * 0.005;
-  const receiveAmount = amount - fee;
-
-  try {
-    // Record ledger entry (safe even if payout rails are not enabled)
-    await apiRequest('mv_ledger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: state.user.id,
-        type: 'withdrawal',
-        amount_mv: amount,
-        description: 'Payout requested (beta). Est. $' + receiveAmount.toFixed(2),
-        tx_hash: 'WD' + Date.now()
-      })
-    });
-
-    // Deduct balance (if you want payout to be "request only", comment this out)
-    const newBalance = bal - amount;
-    await apiRequest('users?id=eq.' + state.user.id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mv_balance: newBalance })
-    });
-    state.profile.mv_balance = newBalance;
-
-    closeModal();
-    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
-
-    showToast('Payout requested (beta).', 'success');
-    setMuxi('success', 'Logged. If rails aren’t live yet, you’re still safe.');
-  } catch (e) {
-    console.error(e);
-    showToast('Payout failed', 'error');
-    setMuxi('error', 'Payout failed. Likely RLS or missing table.');
+function burstConfetti() {
+  var colors = ['#18F6C8', '#7C5CFF', '#FF3D9A', '#ffd166', '#ff6b6b'];
+  for (var i = 0; i < 40; i++) {
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;z-index:99999;width:8px;height:8px;border-radius:2px;pointer-events:none;' +
+      'background:' + colors[Math.floor(Math.random() * colors.length)] + ';' +
+      'left:' + (40 + Math.random() * 20) + '%;top:40%;' +
+      'animation:confettiPop ' + (0.6 + Math.random() * 0.8) + 's ease-out forwards;' +
+      'transform:translate(' + (Math.random() * 200 - 100) + 'px,' + (Math.random() * 200 - 100) + 'px) rotate(' + Math.random() * 360 + 'deg);';
+    document.body.appendChild(el);
+    setTimeout(function() { el.remove(); }, 1600);
   }
 }
 
@@ -1930,75 +2128,64 @@ async function handleCashout() {
    BOOT SEQUENCE (NEVER HANG)
 ============================================================================= */
 async function boot() {
-  const dismissBoot = () => {
-    const bs = getEl('boot-screen');
-    if (bs) bs.classList.add('done');
-  };
-
-  // HARD GUARANTEE: never show boot longer than 900ms
-  const hardDismiss = setTimeout(() => dismissBoot(), 900);
+  var dismiss = function() { var bs = getEl('boot-screen'); if (bs) bs.classList.add('done'); };
+  var hard = setTimeout(dismiss, 900);
 
   // Always render landing immediately so UI never blocks
   renderLanding();
-  setMuxi('idle', 'Tap me if anything feels slow. I’ll keep the UI alive.');
 
   try {
     if (typeof supabase === 'undefined' || !sb) {
       console.warn('Supabase SDK not available');
-      state.mode = 'offline';
-      showToast('Network mode: offline (Supabase unavailable)', 'info');
-      setMuxi('error', 'Supabase missing. Check CDN or adblock.');
-      dismissBoot();
+      showToast('Offline mode: Supabase unavailable', 'info');
+      dismiss();
       return;
     }
 
-    // Fast session check (non-blocking UI)
-    let session = null;
+    // Fast session check
+    var session = null;
     try {
-      const s = await withTimeout(sb.auth.getSession(), 700, 'session');
-      session = s?.data?.session || null;
-    } catch (e) {
-      console.warn('Session check timeout:', e);
-    }
+      var s = await withTimeout(sb.auth.getSession(), 700, 'session');
+      session = (s && s.data && s.data.session) || null;
+    } catch(e) { console.warn('Session check timeout:', e); }
 
-    if (session?.user) {
+    if (session && session.user) {
       state.user = session.user;
-      state.token = session.access_token || null;
-
-      // Render app immediately
+      state.accessToken = session.access_token || null;
       renderApp();
-      setMuxi('success', 'Session found. Welcome back. Loading data…');
-
-      // Load data in background, with independent timeouts
+      renderMuxi();
       loadProfileSafe();
       loadJobsSafe();
-    } else {
-      // landing already rendered
+      loadNotifications();
+      startPresenceUpdates();
+      subscribeToPublicEvents();
     }
-
-  } catch (error) {
-    console.error('Boot error:', error);
-    setMuxi('error', 'Boot hit an error. Landing stays live.');
+  } catch(e) {
+    console.error('Boot error:', e);
   } finally {
-    clearTimeout(hardDismiss);
-    dismissBoot();
+    clearTimeout(hard);
+    dismiss();
   }
 
-  // Auth listener (non-blocking)
+  // Auth state listener (non-blocking)
   try {
-    sb.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        state.user = session.user;
-        state.token = session.access_token || null;
+    sb.auth.onAuthStateChange(function(ev, sess) {
+      if (sess && sess.user) {
+        state.user = sess.user;
+        state.accessToken = sess.access_token;
       } else {
         state.user = null;
-        state.token = null;
+        state.accessToken = null;
       }
     });
-  } catch (e) {
-    console.error('Auth listener error:', e);
-  }
+  } catch(e) { console.error('Auth listener error:', e); }
 }
+
+// Global error boundary
+window.onerror = function(msg, src, line) {
+  console.error('Global error:', msg, 'at', src, 'line', line);
+  showToast('Something went wrong. MUXI is on it.', 'error');
+};
 
 // Start
 boot();
