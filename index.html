@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MUVR - Move Everything</title>
-  <meta name="description" content="MUVR - Post a job, get it done. On-demand workers powered by MV.">
+  <title>MUVR - Earn More. Keep More. Own More.</title>
+  <meta name="description" content="MUVR - Zero commission marketplace powered by MV deflationary currency. Earn 25-50% more than Uber/Fiverr/Upwork.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -12,32 +12,11 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
-    body{font-family:'Nunito',sans-serif;margin:0}
-    .font-mono{font-family:'JetBrains Mono',monospace}
-    .ticker{animation:ticker 30s linear infinite}
-    @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-    .tab-btn{transition:all .2s;padding:4px 0;border-bottom:2px solid transparent}
-    .tab-btn.active{color:#14F1C6;border-bottom-color:#14F1C6}
-    .card-hover{transition:all .2s}.card-hover:hover{border-color:#14F1C6;transform:translateY(-2px)}
-    input:focus,textarea:focus,select:focus{outline:none;border-color:#14F1C6}
-    .mob-tab.active{color:#14F1C6}
-    #toast-container{position:fixed;top:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
-    .toast{padding:12px 20px;border-radius:16px;font-size:14px;font-weight:700;animation:slideIn .3s ease;max-width:340px;backdrop-filter:blur(12px)}
-    .toast-success{background:rgba(6,95,70,.9);color:#6ee7b7;border:1px solid #047857}
-    .toast-error{background:rgba(127,29,29,.9);color:#fca5a5;border:1px solid #991b1b}
-    .toast-info{background:rgba(30,58,95,.9);color:#93c5fd;border:1px solid #1e40af}
-    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-    #map{height:280px;border-radius:16px;border:1px solid #27272a}
-    .avatar-ring{background:conic-gradient(#14F1C6 0deg,#14F1C6 120deg,#facc15 120deg,#facc15 240deg,#f87171 240deg,#f87171 360deg);padding:3px;border-radius:50%}
-    .skill-tag{transition:all .15s}.skill-tag:has(input:checked){background:#14F1C6;color:#000}
-    .blog-card{transition:all .2s}.blog-card:hover{border-color:#14F1C6;transform:translateY(-2px)}
-    #exchange-btn{position:fixed;bottom:80px;right:16px;z-index:90;width:56px;height:56px;border-radius:50%;background:#14F1C6;color:#000;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(20,241,198,.3);transition:all .2s;font-size:20px;font-weight:800}
-    #exchange-btn:hover{transform:scale(1.1)}
-    #exchange-panel{position:fixed;bottom:150px;right:16px;width:340px;max-height:480px;z-index:91;border-radius:20px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6)}
-    @media(max-width:640px){#exchange-panel{right:8px;left:8px;width:auto;bottom:140px}}
+    *{box-sizing:border-box}body{font-family:'Nunito',sans-serif;margin:0;background:#0a0e27;color:#fff}.font-mono{font-family:'JetBrains Mono',monospace}.ticker{animation:ticker 30s linear infinite}@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}.tab-btn{transition:all .2s;padding:4px 0;border-bottom:2px solid transparent;cursor:pointer}.tab-btn.active{color:#14F1C6;border-bottom-color:#14F1C6}.card-hover{transition:all .2s;cursor:pointer}.card-hover:hover{border-color:#14F1C6;transform:translateY(-2px)}.modal-hidden{display:none}.modal-visible{display:flex}.mob-tab.active{color:#14F1C6}#toast-container{position:fixed;top:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}.toast{padding:12px 20px;border-radius:16px;font-size:14px;font-weight:700;animation:slideIn .3s ease;max-width:340px;backdrop-filter:blur(12px);opacity:1}.toast-success{background:rgba(6,95,70,.9);color:#6ee7b7;border:1px solid #047857}.toast-error{background:rgba(127,29,29,.9);color:#fca5a5;border:1px solid #991b1b}.toast-info{background:rgba(30,58,95,.9);color:#93c5fd;border:1px solid #1e40af}@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}#map{height:280px;border-radius:16px;border:1px solid #27272a}.avatar-ring{background:conic-gradient(#14F1C6 0deg,#14F1C6 120deg,#facc15 120deg,#facc15 240deg,#f87171 240deg,#f87171 360deg);padding:3px;border-radius:50%;display:inline-flex}.skill-tag{transition:all .15s;cursor:pointer}.skill-tag:has(input:checked){background:#14F1C6;color:#000}.blog-card{transition:all .2s}.blog-card:hover{border-color:#14F1C6;transform:translateY(-2px)}.exchange-hidden{display:none}.exchange-visible{display:flex}.hidden{display:none}input:focus,textarea:focus,select:focus{outline:none;border-color:#14F1C6 !important}#exchange-btn{position:fixed;bottom:80px;right:16px;z-index:90;width:56px;height:56px;border-radius:50%;background:#14F1C6;color:#000;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(20,241,198,.3);transition:all .2s;font-size:20px;font-weight:800}#exchange-btn:hover{transform:scale(1.1)}#exchange-panel{position:fixed;bottom:150px;right:16px;width:340px;z-index:91;border-radius:20px;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);display:none}#exchange-panel.show{display:flex}.mv-price{font-size:2rem;font-weight:800;color:#14F1C6;font-family:'JetBrains Mono'}.hero-gradient{background:linear-gradient(135deg,#14F1C6 0%,#06af86 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
+
 <div id="toast-container"></div>
 
 <!-- LIABILITY BANNER -->
@@ -49,14 +28,15 @@
 <header class="border-b border-zinc-800 bg-zinc-900/95 sticky top-0 z-50 backdrop-blur-md">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2 cursor-pointer" onclick="showTab('jobs')">
-      <span class="text-2xl">&#x1F9BE;</span>
+      <span class="text-2xl">💸</span>
       <span class="text-2xl font-extrabold tracking-tighter">MU<span class="text-[#14F1C6]">V</span>R</span>
+      <span class="text-[10px] bg-[#14F1C6] text-black px-2 py-1 rounded-full font-bold">DEFLATIONARY</span>
     </div>
-    <nav class="hidden sm:flex gap-5 text-sm font-bold">
+    <nav class="hidden sm:flex gap-6 text-sm font-bold">
       <button onclick="showTab('jobs')" class="tab-btn active" data-tab="jobs">JOBS</button>
-      <button onclick="showTab('go')" class="tab-btn" data-tab="go">MUVR GO</button>
+      <button onclick="showTab('go')" class="tab-btn" data-tab="go">WORKERS</button>
       <button onclick="showTab('wallet')" class="tab-btn" data-tab="wallet">WALLET</button>
-      <button onclick="showTab('blog')" class="tab-btn" data-tab="blog">BLOG</button>
+      <button onclick="showTab('blog')" class="tab-btn" data-tab="blog">LEARN</button>
       <button onclick="showTab('profile')" class="tab-btn" data-tab="profile">PROFILE</button>
     </nav>
     <div id="user-info">
@@ -65,9 +45,9 @@
   </div>
   <div class="bg-black py-1 overflow-hidden text-[#14F1C6] text-[10px] font-mono tracking-wider">
     <div class="ticker whitespace-nowrap flex gap-8">
-      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - DEFLATIONARY - HARD CAP 100M - ALL TRANSACTIONS PERMANENT -</span>
-      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - DEFLATIONARY - HARD CAP 100M - ALL TRANSACTIONS PERMANENT -</span>
-      <span>&#x26D3; IMMUTABLE LEDGER - 1 MV = $1 USD - DEFLATIONARY - HARD CAP 100M - ALL TRANSACTIONS PERMANENT -</span>
+      <span>⚡ ZERO COMMISSION • 1 MV = $1 USD • DEFLATIONARY (100M CAP) • INSTANT PAYOUTS • TRANSPARENT LEDGER ⚡</span>
+      <span>⚡ ZERO COMMISSION • 1 MV = $1 USD • DEFLATIONARY (100M CAP) • INSTANT PAYOUTS • TRANSPARENT LEDGER ⚡</span>
+      <span>⚡ ZERO COMMISSION • 1 MV = $1 USD • DEFLATIONARY (100M CAP) • INSTANT PAYOUTS • TRANSPARENT LEDGER ⚡</span>
     </div>
   </div>
 </header>
@@ -76,9 +56,9 @@
 <div id="mobile-nav" class="sm:hidden fixed bottom-0 left-0 right-0 bg-zinc-900/95 border-t border-zinc-800 z-50 hidden backdrop-blur-md">
   <div class="flex justify-around py-3">
     <button onclick="showTab('jobs')" class="flex flex-col items-center text-xs gap-1 mob-tab active" data-tab="jobs"><i class="fas fa-briefcase text-lg"></i>Jobs</button>
-    <button onclick="showTab('go')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="go"><i class="fas fa-bolt text-lg"></i>GO</button>
-    <button onclick="showTab('wallet')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="wallet"><i class="fas fa-wallet text-lg"></i>MV</button>
-    <button onclick="showTab('blog')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="blog"><i class="fas fa-newspaper text-lg"></i>Blog</button>
+    <button onclick="showTab('go')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="go"><i class="fas fa-map text-lg"></i>Map</button>
+    <button onclick="showTab('wallet')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="wallet"><i class="fas fa-coins text-lg"></i>MV</button>
+    <button onclick="showTab('blog')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="blog"><i class="fas fa-book text-lg"></i>Learn</button>
     <button onclick="showTab('profile')" class="flex flex-col items-center text-xs gap-1 mob-tab" data-tab="profile"><i class="fas fa-user text-lg"></i>Me</button>
   </div>
 </div>
@@ -87,662 +67,1124 @@
 
 <!-- JOBS TAB -->
 <div id="jobs-tab" class="tab-content">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-3xl font-extrabold">Open Jobs</h1>
-    <button onclick="requireAuth(()=>showModal('post-job-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-5 py-2.5 rounded-full font-bold text-sm">+ POST JOB</button>
+  <div class="mb-8">
+    <h1 class="text-5xl font-extrabold mb-3 leading-tight">Earn 25-50% More.<br/>Keep 100%.<br/><span class="hero-gradient">Own Your Future.</span></h1>
+    <p class="text-zinc-400 text-base mb-6 max-w-2xl">MUVR: Zero commission. Instant payouts. Deflationary currency (your wealth grows). Transparent. Borderless. Built for workers.</p>
+    <button onclick="requireAuth(()=>showModal('post-job-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-6 py-3 rounded-full font-bold text-base transition">+ POST A GIG</button>
   </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-[#14F1C6]/50 transition">
+      <div class="text-4xl mb-2">💰</div>
+      <h3 class="font-bold text-lg mb-1">0% Commission</h3>
+      <p class="text-sm text-zinc-400">Keep 100% of your rate. Platform fee is 1 MV burned (removes inflation).</p>
+    </div>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-[#14F1C6]/50 transition">
+      <div class="text-4xl mb-2">⚡</div>
+      <h3 class="font-bold text-lg mb-1">Instant Payouts</h3>
+      <p class="text-sm text-zinc-400">No 7-14 day delays. No currency risk. 1 MV = $1 USD always.</p>
+    </div>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-[#14F1C6]/50 transition">
+      <div class="text-4xl mb-2">📈</div>
+      <h3 class="font-bold text-lg mb-1">Your Wealth Grows</h3>
+      <p class="text-sm text-zinc-400">Deflationary currency. Hard cap 100M. Your MV appreciates over time.</p>
+    </div>
+  </div>
+
+  <h2 class="text-2xl font-bold mb-4">Available Gigs</h2>
   <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
     <button onclick="filterJobs('all')" class="job-filter bg-[#14F1C6] text-black px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">All</button>
-    <button onclick="filterJobs('physical')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Labor</button>
-    <button onclick="filterJobs('digital')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Digital</button>
-    <button onclick="filterJobs('rideshare')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Rideshare</button>
-    <button onclick="filterJobs('delivery')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Delivery</button>
-    <button onclick="filterJobs('hauling')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Hauling</button>
-    <button onclick="filterJobs('caregiving')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Caregiving</button>
-    <button onclick="filterJobs('cleaning')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Cleaning</button>
-    <button onclick="filterJobs('callcenter')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Call Center</button>
-    <button onclick="filterJobs('handyman')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Handyman</button>
-    <button onclick="filterJobs('events')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Events</button>
-    <button onclick="filterJobs('childcare')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Child Care</button>
-    <button onclick="filterJobs('petcare')" class="job-filter bg-zinc-800 px-4 py-2 rounded-full text-sm whitespace-nowrap">Pet Care</button>
+    <button onclick="filterJobs('rideshare')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Rideshare</button>
+    <button onclick="filterJobs('delivery')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Delivery</button>
+    <button onclick="filterJobs('physical')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Labor</button>
+    <button onclick="filterJobs('digital')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Digital</button>
+    <button onclick="filterJobs('other')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Other</button>
   </div>
   <div id="job-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F9BE;</div><p class="font-bold">No open jobs yet</p><p class="text-sm mt-1">Be the first to post!</p></div>
+    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">📋</div><p class="font-bold">No jobs posted yet</p><p class="text-sm mt-1">Be the first! Post a gig above.</p></div>
   </div>
 </div>
 
-<!-- GO TAB -->
+<!-- WORKERS TAB (MUVR GO) -->
 <div id="go-tab" class="tab-content hidden">
-  <h1 class="text-3xl font-extrabold mb-1">MUVR GO</h1>
-  <p class="text-zinc-400 text-sm mb-4">Live workers near you</p>
-  <div id="map" class="mb-5"></div>
+  <h1 class="text-3xl font-extrabold mb-2">Find Workers Live Now</h1>
+  <p class="text-zinc-400 text-sm mb-4">Available workers by location & skill</p>
+  <div id="map" class="mb-5 rounded-2xl border border-zinc-800 overflow-hidden"></div>
   <div class="flex gap-2 mb-5 overflow-x-auto pb-2" id="category-filters"></div>
   <div id="worker-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="text-zinc-500 text-center py-16 col-span-full"><p class="font-bold">No workers live right now</p></div>
+    <div class="text-zinc-500 text-center py-16 col-span-full"><p class="font-bold">No workers available right now</p></div>
   </div>
 </div>
 
 <!-- WALLET TAB -->
 <div id="wallet-tab" class="tab-content hidden">
-  <h1 class="text-3xl font-extrabold mb-5">MV Wallet</h1>
-  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-5">
-    <p class="text-[10px] text-zinc-500 tracking-wider mb-3">MV NETWORK <span class="text-[#14F1C6]">LIVE</span> <span class="text-zinc-600">- 1 MV = $1 USD - deflationary</span></p>
-    <div class="grid grid-cols-4 gap-2 text-center">
-      <div><p class="text-[10px] text-zinc-500">CAP</p><p id="supply-total" class="text-sm font-mono font-bold text-zinc-400">100M</p></div>
-      <div><p class="text-[10px] text-zinc-500">MINTED</p><p id="supply-minted" class="text-sm font-mono font-bold">0</p></div>
-      <div><p class="text-[10px] text-zinc-500">ESCROW</p><p id="supply-escrowed" class="text-sm font-mono font-bold text-yellow-400">0</p></div>
-      <div><p class="text-[10px] text-zinc-500">BURNED</p><p id="supply-burned" class="text-sm font-mono font-bold text-red-400">0</p></div>
+  <h1 class="text-3xl font-extrabold mb-5">Your MV Wallet</h1>
+  
+  <div class="bg-gradient-to-r from-[#14F1C6]/20 to-[#06af86]/20 border border-[#14F1C6]/30 rounded-2xl p-6 mb-6">
+    <p class="text-[10px] text-zinc-400 tracking-widest font-bold mb-4 uppercase">MV Network Status</p>
+    <div class="grid grid-cols-4 gap-4 text-center">
+      <div><p class="text-[10px] text-zinc-500 mb-1">CAP</p><p class="mv-price" id="supply-total">100M</p></div>
+      <div><p class="text-[10px] text-zinc-500 mb-1">MINTED</p><p class="mv-price" id="supply-minted">0</p></div>
+      <div><p class="text-[10px] text-zinc-500 mb-1">ESCROWED</p><p class="text-2xl font-bold text-yellow-400" id="supply-escrowed">0</p></div>
+      <div><p class="text-[10px] text-zinc-500 mb-1">BURNED</p><p class="text-2xl font-bold text-red-400" id="supply-burned">0</p></div>
     </div>
   </div>
-  <div class="bg-zinc-900 rounded-2xl p-6 max-w-md border border-zinc-800">
-    <p class="text-zinc-500 text-xs tracking-wider mb-1">YOUR BALANCE</p>
+
+  <div class="bg-zinc-900 rounded-2xl p-6 max-w-md border border-zinc-800 mb-6">
+    <p class="text-zinc-500 text-xs tracking-widest font-bold mb-2 uppercase">Your MV Balance</p>
     <div class="flex items-end justify-between mb-6">
       <p id="balance-display" class="text-5xl font-mono font-extrabold text-[#14F1C6]">------</p>
-      <button onclick="toggleBalance()" id="balance-toggle" class="text-zinc-400 hover:text-white text-sm font-bold">REVEAL</button>
+      <button onclick="toggleBalance()" id="balance-toggle" class="text-zinc-400 hover:text-[#14F1C6] text-sm font-bold transition">SHOW</button>
     </div>
     <div class="grid grid-cols-3 gap-3">
-      <button onclick="requireAuth(()=>showModal('send-modal'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold">SEND</button>
-      <button onclick="requireAuth(()=>showModal('load-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black py-4 rounded-xl text-sm font-bold">LOAD</button>
-      <button onclick="requireAuth(()=>toast('Withdrawals coming soon','info'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold">CASH OUT</button>
+      <button onclick="requireAuth(()=>showModal('send-modal'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">SEND</button>
+      <button onclick="requireAuth(()=>showModal('load-modal'))" class="bg-[#14F1C6] hover:bg-teal-300 text-black py-4 rounded-xl text-sm font-bold transition">LOAD</button>
+      <button onclick="requireAuth(()=>showModal('cashout-modal'))" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">CASH OUT</button>
     </div>
   </div>
-  <div class="mt-8" id="escrow-section">
-    <h2 class="text-lg font-bold mb-3">Active Escrows <span class="text-yellow-400 text-xs">locked</span></h2>
-    <div id="escrow-list" class="space-y-2"><div class="text-zinc-500 text-sm py-2">No active escrows</div></div>
-  </div>
-  <div class="mt-8">
-    <h2 class="text-lg font-bold mb-3">Ledger <span class="text-[#14F1C6] text-xs">immutable</span></h2>
-    <div id="ledger-list" class="space-y-2"><div class="text-zinc-500 text-sm py-4">No transactions yet</div></div>
-  </div>
+
+  <h2 class="text-lg font-bold mb-3">Active Escrows <span class="text-yellow-400 text-xs font-normal">locked</span></h2>
+  <div id="escrow-list" class="space-y-2 mb-6"><div class="text-zinc-500 text-sm py-4">No active escrows</div></div>
+
+  <h2 class="text-lg font-bold mb-3">Transaction Ledger <span class="text-[#14F1C6] text-xs font-normal">immutable</span></h2>
+  <div id="ledger-list" class="space-y-2"><div class="text-zinc-500 text-sm py-4">No transactions yet</div></div>
 </div>
 
 <!-- BLOG TAB -->
 <div id="blog-tab" class="tab-content hidden">
-  <div class="flex items-center justify-between mb-6">
-    <div><h1 class="text-3xl font-extrabold">Blog</h1><p class="text-zinc-400 text-sm">News, guides, and ecosystem updates</p></div>
-    <span id="blog-admin-btn"></span>
-  </div>
+  <h1 class="text-3xl font-extrabold mb-2">Learn About MUVR</h1>
+  <p class="text-zinc-400 text-sm mb-6">How zero commission, instant payouts, and deflationary currency work</p>
   <div id="blog-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F4DD;</div><p class="font-bold">No posts yet</p><p class="text-sm mt-1">Coming soon from MUXI HQ</p></div>
+    <div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">📚</div><p class="font-bold">No articles yet</p></div>
   </div>
-</div>
-
-<!-- BLOG POST VIEW -->
-<div id="blog-post-tab" class="tab-content hidden">
-  <button onclick="showTab('blog')" class="text-zinc-400 text-sm mb-4 hover:text-white">&larr; Back to Blog</button>
-  <div id="blog-post-content"></div>
 </div>
 
 <!-- PROFILE TAB -->
 <div id="profile-tab" class="tab-content hidden">
-  <div id="profile-content" class="max-w-lg mx-auto"><div class="text-zinc-500 py-12 text-center">Sign in to view your profile</div></div>
+  <div id="profile-content" class="max-w-lg mx-auto"><div class="text-zinc-500 py-12 text-center">Sign in to view and edit your profile</div></div>
 </div>
 
 </main>
 
-<!-- ====== MODALS ====== -->
-<!-- LOGIN -->
-<div id="login-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- MODALS START -->
+
+<!-- LOGIN MODAL -->
+<div id="login-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
-    <h2 class="text-xl font-extrabold mb-1">Welcome to MUVR &#x1F9BE;</h2>
-    <p class="text-zinc-400 text-sm mb-6">Sign up or sign in</p>
-    <input id="auth-email" type="email" placeholder="you@email.com" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3">
-    <input id="auth-password" type="password" placeholder="Password (min 6 chars)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4">
-    <button onclick="signUp()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold mb-2">SIGN UP</button>
-    <button onclick="signIn()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-bold mb-3">SIGN IN</button>
-    <p id="auth-error" class="text-red-400 text-xs text-center hidden"></p>
+    <h2 class="text-xl font-extrabold mb-1">Join MUVR</h2>
+    <p class="text-zinc-400 text-sm mb-6">Zero commission. Instant payouts. Your wealth grows.</p>
+    <input id="auth-email" type="email" placeholder="you@email.com" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
+    <input id="auth-password" type="password" placeholder="Password (6+ chars)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4 text-sm">
+    <button onclick="signUp()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold mb-2 hover:bg-teal-300 transition">CREATE ACCOUNT</button>
+    <button onclick="signIn()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-bold transition">ALREADY SIGNED UP</button>
+    <p id="auth-error" class="text-red-400 text-xs text-center hidden mt-3"></p>
   </div>
 </div>
 
-<!-- LEGAL -->
-<div id="legal-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
+<!-- LEGAL MODAL -->
+<div id="legal-modal" class="modal-hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-extrabold mb-4">Before You Start</h2>
-    <div class="bg-zinc-800 rounded-xl p-4 mb-4 text-sm space-y-2">
-      <h3 class="font-bold text-[#14F1C6]">Terms of Service</h3>
-      <p>MUVR is a technology marketplace operated by TransBid LLC (Delaware). MUVR connects independent service providers with customers. MUVR is NOT an employer.</p>
-      <p>MV is a platform credit (1 MV = $1 USD). MV is not currency, cryptocurrency, or a financial instrument.</p>
-    </div>
-    <div class="bg-zinc-800 rounded-xl p-4 mb-4 text-sm space-y-2">
-      <h3 class="font-bold text-[#14F1C6]">Independent Contractor Agreement</h3>
-      <p>You are an independent contractor, NOT an employee. You control your schedule, methods, tools, and rates. You are responsible for your own taxes, insurance, and compliance.</p>
-    </div>
-    <div class="space-y-3 mb-6">
-      <label class="flex items-start gap-3 cursor-pointer"><input type="checkbox" id="accept-tos" onchange="updateLegalBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I accept the <strong>Terms of Service</strong></span></label>
-      <label class="flex items-start gap-3 cursor-pointer"><input type="checkbox" id="accept-contractor" onchange="updateLegalBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I accept the <strong>Contractor Agreement</strong></span></label>
-      <label class="flex items-start gap-3 cursor-pointer"><input type="checkbox" id="accept-age" onchange="updateLegalBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I am <strong>18+</strong></span></label>
-    </div>
-    <button onclick="acceptLegal()" id="legal-btn" class="w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-bold" disabled>Check all boxes</button>
-  </div>
-</div>
-
-<!-- RIDESHARE WAIVER -->
-<div id="rideshare-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
-  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-red-600 max-h-[90vh] overflow-y-auto">
-    <h2 class="text-xl font-extrabold mb-4 text-red-400">Rideshare Waiver</h2>
-    <div class="bg-red-950 border border-red-800 rounded-xl p-4 mb-4 text-sm space-y-2">
-      <p><strong>Vehicle condition is SELF-REPORTED.</strong> MUVR does NOT inspect any vehicle.</p>
-      <p>MUVR does NOT verify driver's license, insurance, or driving record.</p>
-    </div>
-    <label class="flex items-start gap-3 cursor-pointer mb-6"><input type="checkbox" id="accept-rideshare" onchange="updateRideBtn()" class="mt-1 w-5 h-5"><span class="text-sm">I understand and accept all risks</span></label>
-    <div class="flex gap-3">
-      <button onclick="hideModal('rideshare-modal')" class="flex-1 bg-zinc-800 py-3 rounded-xl">Cancel</button>
-      <button onclick="confirmRideshare()" id="ride-btn" class="flex-1 bg-red-600 py-3 rounded-xl font-bold opacity-50" disabled>Accept</button>
-    </div>
-  </div>
-</div>
-
-<!-- POST JOB -->
-<div id="post-job-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Post a Job</h2><button onclick="hideModal('post-job-modal')" class="text-zinc-400 text-xl">&times;</button></div>
-    <div class="space-y-3">
-      <input id="job-title" placeholder="Job title" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
-      <textarea id="job-desc" placeholder="Describe what you need..." rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"></textarea>
-      <select id="job-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="physical">Physical Labor</option><option value="digital">Digital / Remote</option><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="hauling">Hauling / Moving</option><option value="cleaning">Cleaning</option><option value="caregiving">Home Health / Caregiving</option><option value="childcare">Child Care</option><option value="handyman">Handyman / Repairs</option><option value="yardwork">Yard Work / Landscaping</option><option value="callcenter">Call Center / Phone Work</option><option value="dataentry">Data Entry / VA</option><option value="events">Event Staff / Bartending</option><option value="security">Security</option><option value="petcare">Pet Care</option><option value="other">Other</option></select>
-      <select id="job-urgency" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="asap">ASAP</option><option value="today">Today</option><option value="this_week">This Week</option><option value="flexible">Flexible</option></select>
-      <div><label class="text-xs text-zinc-400 mb-1 block">Budget (MV) = $1 each</label><input id="job-budget" type="number" min="1" placeholder="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3" oninput="updateFee()"></div>
-      <input id="job-address" placeholder="Location / Address" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
-      <div class="bg-zinc-800 rounded-xl p-3 text-sm">
-        <div class="flex justify-between"><span class="text-zinc-400">Budget</span><span id="fee-budget">0 MV</span></div>
-        <div class="flex justify-between"><span class="text-zinc-400">Platform Fee</span><span>1 MV <span class="text-red-400 text-[10px]">burned forever</span></span></div>
-        <div class="flex justify-between font-bold border-t border-zinc-700 pt-2 mt-2"><span>Total Escrowed</span><span id="fee-total" class="text-[#14F1C6]">1 MV</span></div>
+    <div class="space-y-4 mb-6">
+      <div class="bg-zinc-800 rounded-xl p-4">
+        <h3 class="font-bold text-[#14F1C6] text-sm mb-2">Terms of Service</h3>
+        <p class="text-xs text-zinc-300">MUVR is a technology marketplace. MUVR is NOT an employer. You are an independent contractor. MV is a platform credit (1 MV = $1 USD).</p>
       </div>
-      <div id="fraud-result" class="hidden"></div>
-      <button onclick="postJob()" id="post-btn" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">POST JOB &amp; ESCROW MV</button>
+      <div class="bg-zinc-800 rounded-xl p-4">
+        <h3 class="font-bold text-[#14F1C6] text-sm mb-2">Contractor Agreement</h3>
+        <p class="text-xs text-zinc-300">You control your schedule, rates, methods. You are responsible for taxes, insurance, licenses, and compliance with all laws.</p>
+      </div>
+      <div class="bg-zinc-800 rounded-xl p-4">
+        <h3 class="font-bold text-[#14F1C6] text-sm mb-2">Rideshare Waiver</h3>
+        <p class="text-xs text-zinc-300">You are responsible for vehicle insurance, registration, inspection, and compliance with all transportation laws.</p>
+      </div>
     </div>
-  </div>
-</div>
-
-<!-- APPLY -->
-<div id="apply-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700">
-    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Apply</h2><button onclick="hideModal('apply-modal')" class="text-zinc-400 text-xl">&times;</button></div>
-    <input type="hidden" id="apply-job-id">
-    <textarea id="apply-pitch" placeholder="Why you're the right person..." rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3"></textarea>
-    <input id="apply-rate" type="number" placeholder="Your rate (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3">
-    <input id="apply-turn" placeholder="Turnaround (e.g. '2 hours')" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4">
-    <button onclick="applyJob()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">SUBMIT</button>
-  </div>
-</div>
-
-<!-- SEND MV -->
-<div id="send-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
-    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Send MV</h2><button onclick="hideModal('send-modal')" class="text-zinc-400 text-xl">&times;</button></div>
-    <input id="send-to" type="text" placeholder="@handle or email" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3">
-    <input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4">
-    <button onclick="sendMV()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">SEND</button>
-  </div>
-</div>
-
-<!-- LOAD MV -->
-<div id="load-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
-    <div class="flex justify-between items-center mb-3"><h2 class="text-xl font-extrabold">Load MV</h2><button onclick="hideModal('load-modal')" class="text-zinc-400 text-xl">&times;</button></div>
-    <p class="text-[#14F1C6] text-sm font-bold mb-1">1 MV = $1 USD. Always.</p>
-    <p class="text-zinc-400 text-xs mb-4">No fees to load. 1:1 every time.</p>
-    <div class="grid grid-cols-2 gap-3 mb-4">
-      <button onclick="loadMV(5)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$5<br><span class="text-[#14F1C6] text-sm">5 MV</span></button>
-      <button onclick="loadMV(10)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$10<br><span class="text-[#14F1C6] text-sm">10 MV</span></button>
-      <button onclick="loadMV(25)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$25<br><span class="text-[#14F1C6] text-sm">25 MV</span></button>
-      <button onclick="loadMV(50)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold">$50<br><span class="text-[#14F1C6] text-sm">50 MV</span></button>
+    <div class="space-y-2 mb-6">
+      <label class="flex items-start gap-3 cursor-pointer hover:bg-zinc-800/50 p-2 rounded">
+        <input type="checkbox" id="accept-tos" onchange="updateLegalBtn()" class="w-5 h-5 mt-0.5 cursor-pointer">
+        <span class="text-sm">I accept the <strong>Terms of Service</strong></span>
+      </label>
+      <label class="flex items-start gap-3 cursor-pointer hover:bg-zinc-800/50 p-2 rounded">
+        <input type="checkbox" id="accept-contractor" onchange="updateLegalBtn()" class="w-5 h-5 mt-0.5 cursor-pointer">
+        <span class="text-sm">I accept <strong>Contractor Agreement</strong></span>
+      </label>
+      <label class="flex items-start gap-3 cursor-pointer hover:bg-zinc-800/50 p-2 rounded">
+        <input type="checkbox" id="accept-age" onchange="updateLegalBtn()" class="w-5 h-5 mt-0.5 cursor-pointer">
+        <span class="text-sm">I am <strong>18+</strong> and accept responsibility</span>
+      </label>
     </div>
-    <p class="text-zinc-600 text-[10px] text-center">Min $5 - Stripe - 0 fees - instant</p>
+    <button onclick="acceptLegal()" id="legal-btn" class="w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-bold transition" disabled>Check all boxes</button>
   </div>
 </div>
 
-<!-- PROFILE EDIT -->
-<div id="profile-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- POST JOB MODAL -->
+<div id="post-job-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center mb-4"><div><h2 class="text-xl font-extrabold">Your Profile</h2><p class="text-zinc-400 text-xs">Make it shine</p></div><button onclick="hideModal('profile-modal')" class="text-zinc-400 text-xl">&times;</button></div>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-extrabold">Post a Gig</h2>
+      <button onclick="hideModal('post-job-modal')" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+    </div>
+    <div class="space-y-3">
+      <input id="job-title" placeholder="What do you need done?" maxlength="100" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+      <textarea id="job-desc" placeholder="Describe the work..." rows="3" maxlength="500" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm resize-none"></textarea>
+      <select id="job-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+        <option value="">Select job type...</option>
+        <option value="rideshare">Rideshare (Uber alternative)</option>
+        <option value="delivery">Delivery</option>
+        <option value="physical">Physical Labor</option>
+        <option value="digital">Digital/Remote</option>
+        <option value="other">Other</option>
+      </select>
+      <select id="job-urgency" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+        <option value="asap">ASAP</option>
+        <option value="today">Today</option>
+        <option value="this_week">This Week</option>
+        <option value="flexible">Flexible</option>
+      </select>
+      <div>
+        <label class="text-xs text-zinc-400 mb-1 block font-bold">Budget (MV)</label>
+        <input id="job-budget" type="number" min="1" max="10000" placeholder="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" oninput="updateFee()">
+      </div>
+      <input id="job-address" placeholder="Location/Address" maxlength="200" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+      <div class="bg-zinc-800 rounded-xl p-3 text-sm border border-zinc-700">
+        <div class="flex justify-between mb-2"><span class="text-zinc-400">Budget</span><span id="fee-budget" class="font-bold">0 MV</span></div>
+        <div class="flex justify-between mb-2"><span class="text-zinc-400">Fee (burned)</span><span class="text-red-400 font-bold">1 MV <span class="text-[10px] text-zinc-500">removed from supply forever</span></span></div>
+        <div class="flex justify-between font-bold border-t border-zinc-700 pt-2"><span>TOTAL ESCROW</span><span id="fee-total" class="text-[#14F1C6]">1 MV</span></div>
+      </div>
+      <button onclick="postJob()" id="post-btn" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">POST GIG & ESCROW</button>
+      <p class="text-[10px] text-zinc-500 text-center">Your budget is locked. Released when worker completes or job cancelled.</p>
+    </div>
+  </div>
+</div>
+
+<!-- APPLY MODAL -->
+<div id="apply-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-extrabold">Apply for Gig</h2>
+      <button onclick="hideModal('apply-modal')" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+    </div>
+    <input type="hidden" id="apply-job-id">
+    <div class="space-y-3">
+      <textarea id="apply-pitch" placeholder="Why you're perfect for this..." rows="3" maxlength="500" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm resize-none"></textarea>
+      <input id="apply-rate" type="number" min="1" placeholder="Your rate (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+      <input id="apply-turn" placeholder="Turnaround (e.g. 2 hours)" maxlength="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+      <button onclick="applyJob()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">SUBMIT APPLICATION</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEND MV MODAL -->
+<div id="send-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-extrabold">Send MV</h2>
+      <button onclick="hideModal('send-modal')" class="text-zinc-400 text-2xl">&times;</button>
+    </div>
+    <input id="send-to" type="text" placeholder="@handle or email" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
+    <input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4 text-sm">
+    <button onclick="sendMV()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">SEND</button>
+  </div>
+</div>
+
+<!-- LOAD MV MODAL -->
+<div id="load-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-xl font-extrabold">Load MV</h2>
+      <button onclick="hideModal('load-modal')" class="text-zinc-400 text-2xl">&times;</button>
+    </div>
+    <p class="text-[#14F1C6] text-sm font-bold mb-1">1 MV = $1 USD. Always.</p>
+    <p class="text-zinc-400 text-xs mb-4">Zero fees. Instant. Powered by Stripe.</p>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <button onclick="loadMV(5)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold text-sm transition">$5<br><span class="text-[#14F1C6] text-xs">5 MV</span></button>
+      <button onclick="loadMV(10)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold text-sm transition">$10<br><span class="text-[#14F1C6] text-xs">10 MV</span></button>
+      <button onclick="loadMV(25)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold text-sm transition">$25<br><span class="text-[#14F1C6] text-xs">25 MV</span></button>
+      <button onclick="loadMV(50)" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold text-sm transition">$50<br><span class="text-[#14F1C6] text-xs">50 MV</span></button>
+    </div>
+    <input id="load-custom" type="number" min="1" max="1000" placeholder="Custom amount ($)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
+    <button onclick="loadCustomMV()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">PAY WITH STRIPE</button>
+  </div>
+</div>
+
+<!-- CASHOUT MODAL -->
+<div id="cashout-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-extrabold">Cash Out</h2>
+      <button onclick="hideModal('cashout-modal')" class="text-zinc-400 text-2xl">&times;</button>
+    </div>
+    <input id="cashout-amount" type="number" min="1" placeholder="Amount (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm" oninput="updateCashoutFee()">
+    <div class="bg-zinc-800 rounded-xl p-3 text-sm mb-4">
+      <div class="flex justify-between"><span class="text-zinc-400">You receive</span><span id="cashout-receive" class="text-[#14F1C6] font-bold">$0.00</span></div>
+      <div class="flex justify-between text-xs mt-1"><span class="text-zinc-500">Fee (0.5%)</span><span class="text-red-400" id="cashout-fee">$0.00</span></div>
+    </div>
+    <button onclick="cashOut()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">WITHDRAW TO BANK</button>
+  </div>
+</div>
+
+<!-- PROFILE EDIT MODAL -->
+<div id="profile-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-extrabold">Edit Profile</h2>
+      <button onclick="hideModal('profile-modal')" class="text-zinc-400 text-2xl">&times;</button>
+    </div>
     <div class="space-y-4">
       <div class="flex items-center gap-4">
-        <div id="avatar-preview" onclick="uploadAvatar()" class="w-20 h-20 rounded-full bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-[#14F1C6] transition-all overflow-hidden shrink-0"><span id="avatar-placeholder" class="text-3xl">&#x1F60E;</span></div>
-        <div class="flex-1"><input id="p-name" placeholder="Your name" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-1"><input id="p-username" placeholder="@handle (unique)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono mb-1"><p class="text-[10px] text-zinc-500">Tap pic to upload photo</p></div>
-      </div>
-      <div><label class="text-xs text-zinc-400 mb-1 block">ABOUT YOU</label><textarea id="p-about" placeholder="Tell people what you're great at!" rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" maxlength="280" oninput="gi('about-count').textContent=this.value.length"></textarea><p class="text-[10px] text-zinc-500 text-right"><span id="about-count">0</span>/280</p></div>
-      <select id="p-role" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="both">Work AND post jobs</option><option value="worker">Work (earn MV)</option><option value="poster">Post jobs (hire)</option></select>
-      <div><label class="text-xs text-zinc-400 mb-2 block">SKILLS</label><div class="flex flex-wrap gap-2" id="skill-boxes"></div></div>
-      <div><label class="text-xs text-zinc-400 mb-2 block">WORK PHOTOS <span class="text-zinc-600">(builds trust!)</span></label><div class="flex gap-2 overflow-x-auto pb-2" id="work-photos-edit"><button onclick="uploadWorkPhoto()" class="w-20 h-20 rounded-xl bg-zinc-800 border-2 border-dashed border-zinc-600 flex flex-col items-center justify-center cursor-pointer hover:border-[#14F1C6] shrink-0"><span class="text-xl">+</span><span class="text-[9px] text-zinc-500">Add</span></button></div></div>
-      <label class="flex items-center gap-2 cursor-pointer bg-zinc-800 px-4 py-3 rounded-xl"><input type="checkbox" id="p-vehicle" onchange="gi('v-fields').classList.toggle('hidden',!this.checked)" class="w-5 h-5"><span class="text-sm">I have a vehicle</span></label>
-      <div id="v-fields" class="hidden space-y-3">
-        <select id="p-vtype" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="">Type</option><option value="car">Car</option><option value="truck">Truck</option><option value="van">Van</option><option value="suv">SUV</option></select>
-        <div class="grid grid-cols-3 gap-2"><input id="p-vyear" type="number" placeholder="Year" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3"><input id="p-vmake" placeholder="Make" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3"><input id="p-vmodel" placeholder="Model" class="bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-3"></div>
-        <select id="p-vcond" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="">Condition (BE HONEST)</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option><option value="rough_but_running">Rough but running</option></select>
-        <div class="flex flex-wrap gap-2">
-          <label class="flex items-center gap-2 bg-zinc-800 px-3 py-2 rounded-lg"><input type="checkbox" id="p-ride"><span class="text-sm">Rideshare</span></label>
-          <label class="flex items-center gap-2 bg-zinc-800 px-3 py-2 rounded-lg"><input type="checkbox" id="p-deliver"><span class="text-sm">Delivery</span></label>
-          <label class="flex items-center gap-2 bg-zinc-800 px-3 py-2 rounded-lg"><input type="checkbox" id="p-haul"><span class="text-sm">Hauling</span></label>
+        <div id="avatar-preview" onclick="uploadAvatar()" class="w-20 h-20 rounded-full bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-[#14F1C6] transition-all overflow-hidden shrink-0">
+          <span id="avatar-placeholder" class="text-3xl">👤</span>
+        </div>
+        <div class="flex-1">
+          <input id="p-name" placeholder="Your name" maxlength="100" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-2 text-sm">
+          <input id="p-username" placeholder="@handle" maxlength="30" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono">
+          <p class="text-[10px] text-zinc-500 mt-1">Click pic to upload avatar</p>
         </div>
       </div>
-      <button onclick="saveProfile()" class="w-full bg-[#14F1C6] text-black py-3.5 rounded-xl font-extrabold text-base mt-2">SAVE &amp; GO LIVE</button>
+      <textarea id="p-about" placeholder="What services do you offer?" rows="3" maxlength="280" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm resize-none" oninput="gi('about-count').textContent=this.value.length"></textarea>
+      <p class="text-[10px] text-zinc-500 text-right"><span id="about-count">0</span>/280</p>
+      <select id="p-role" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+        <option value="both">Work & Post Jobs</option>
+        <option value="worker">Worker Only</option>
+        <option value="poster">Post Jobs Only</option>
+      </select>
+      <label class="flex items-center gap-3 cursor-pointer bg-zinc-800 px-4 py-3 rounded-xl hover:bg-zinc-700 transition">
+        <input type="checkbox" id="p-vehicle" class="w-5 h-5 cursor-pointer">
+        <span class="text-sm">I have a vehicle (for rideshare/delivery)</span>
+      </label>
+      <div id="vehicle-details" class="hidden space-y-2">
+        <select id="p-vehicle-type" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+          <option value="car">Car</option>
+          <option value="truck">Truck</option>
+          <option value="van">Van</option>
+          <option value="suv">SUV</option>
+        </select>
+        <input id="p-vehicle-year" type="number" min="1990" max="2030" placeholder="Year" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+        <input id="p-vehicle-make" placeholder="Make (e.g. Honda)" maxlength="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+        <input id="p-vehicle-model" placeholder="Model (e.g. Civic)" maxlength="50" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
+      </div>
+      <div class="pt-2 border-t border-zinc-700">
+        <p class="text-xs font-bold text-zinc-400 mb-2">SKILLS</p>
+        <div class="grid grid-cols-2 gap-2">
+          ${SKILLS.map(s => `<label class="skill-tag flex items-center gap-2 bg-zinc-800 px-3 py-2 rounded-lg cursor-pointer"><input type="checkbox" value="${s}" class="skill-checkbox w-4 h-4"><span class="text-xs">${s}</span></label>`).join('')}
+        </div>
+      </div>
+      <button onclick="saveProfile()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">SAVE PROFILE</button>
     </div>
-  </div>
-</div>
-
-<!-- BLOG EDITOR (admin) -->
-<div id="blog-editor-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-2xl border border-zinc-700 max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Write Post</h2><button onclick="hideModal('blog-editor-modal')" class="text-zinc-400 text-xl">&times;</button></div>
-    <div class="space-y-3">
-      <input id="blog-title" placeholder="Post title" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-lg font-bold">
-      <input id="blog-slug" placeholder="url-slug (auto-generated)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono">
-      <input id="blog-cover" placeholder="Cover image URL (optional)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
-      <input id="blog-tags" placeholder="Tags (comma separated)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
-      <textarea id="blog-body" placeholder="Write your post... (Markdown supported)" rows="12" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-mono"></textarea>
-      <select id="blog-status" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3"><option value="published">Publish Now</option><option value="draft">Save Draft</option></select>
-      <button onclick="publishPost()" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">PUBLISH</button>
-    </div>
-  </div>
-</div>
-
-<!-- JOB DETAIL -->
-<div id="job-detail-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-  <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-extrabold">Job Details</h2><button onclick="hideModal('job-detail-modal')" class="text-zinc-400 text-xl">&times;</button></div>
-    <div id="job-detail-content"></div>
   </div>
 </div>
 
 <!-- EXCHANGE CHATBOT -->
-<div id="exchange-btn" onclick="toggleExchange()"><i class="fas fa-comment-dots"></i></div>
-<div id="exchange-panel">
-  <div class="bg-zinc-800 px-4 py-3 flex justify-between items-center border-b border-zinc-700">
-    <div class="flex items-center gap-2"><span class="text-[#14F1C6] font-extrabold">EXCHANGE</span><span class="text-zinc-400 text-xs">by MUVR</span></div>
-    <button onclick="toggleExchange()" class="text-zinc-400">&times;</button>
+<div id="exchange-btn" onclick="toggleExchange()" title="Ask MUVR Assistant"><i class="fas fa-comments"></i></div>
+<div id="exchange-panel" class="bg-zinc-800 border border-zinc-700">
+  <div class="bg-zinc-700 px-4 py-3 flex justify-between items-center border-b border-zinc-600">
+    <div class="flex items-center gap-2"><i class="fas fa-robot text-[#14F1C6]"></i><span class="text-[#14F1C6] font-extrabold text-sm">MUVR ASSISTANT</span></div>
+    <button onclick="toggleExchange()" class="text-zinc-400 hover:text-white text-lg">&times;</button>
   </div>
-  <div id="exchange-messages" class="bg-zinc-900 flex-1 overflow-y-auto p-4 space-y-3" style="height:320px">
-    <div class="bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%]">
-      <p class="text-sm">Hey! I'm <strong class="text-[#14F1C6]">EXCHANGE</strong>, your MUVR assistant. I can help you post jobs, find workers, understand MV, or navigate the ecosystem. What's up?</p>
+  <div id="exchange-messages" class="bg-zinc-900 flex-1 overflow-y-auto p-4 space-y-3 h-80">
+    <div class="bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%] text-sm">
+      <p class="text-[#14F1C6]"><strong>Welcome!</strong> I'm here to help. Ask about earnings, MV price, or how MUVR works.</p>
     </div>
   </div>
-  <div class="bg-zinc-800 p-3 flex gap-2">
-    <input id="exchange-input" placeholder="Ask anything..." class="flex-1 bg-zinc-700 border border-zinc-600 rounded-xl px-4 py-2 text-sm" onkeypress="if(event.key==='Enter')sendExchange()">
-    <button onclick="sendExchange()" class="bg-[#14F1C6] text-black px-4 rounded-xl font-bold text-sm">Send</button>
+  <div class="bg-zinc-800 p-3 flex gap-2 border-t border-zinc-700">
+    <input id="exchange-input" placeholder="Ask me..." class="flex-1 bg-zinc-700 border border-zinc-600 rounded-xl px-4 py-2 text-sm" onkeypress="if(event.key==='Enter')sendToExchange()">
+    <button onclick="sendToExchange()" class="bg-[#14F1C6] text-black px-4 rounded-xl font-bold text-sm hover:bg-teal-300 transition"><i class="fas fa-paper-plane"></i></button>
   </div>
 </div>
 
+<!-- FOOTER -->
 <footer class="border-t border-zinc-800 mt-12 py-8 text-center text-xs text-zinc-600 px-4">
-  <p class="mb-2">MUVR is operated by TransBid LLC (Delaware)</p>
-  <p class="mb-2">MUVR does not employ, endorse, certify, insure, or guarantee any service provider.</p>
-  <p>&#x00A9; 2026 TransBid LLC. All rights reserved.</p>
+  <p class="mb-2 font-bold">MUVR is operated by TransBid LLC (Delaware, USA)</p>
+  <p class="mb-2">MUVR is a technology marketplace. MUVR does not employ, endorse, certify, insure, or guarantee any workers. All workers are independent contractors.</p>
+  <p>© 2026 TransBid LLC. All rights reserved. | <a href="#" class="text-zinc-500 hover:text-zinc-400">Privacy</a> | <a href="#" class="text-zinc-500 hover:text-zinc-400">Terms</a></p>
 </footer>
 
 <script>
-const SUPA_URL='https://cfenkstusggrcthehffn.supabase.co'
-const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o'
-const sb=supabase.createClient(SUPA_URL,SUPA_KEY)
-let user=null,profile=null,balRevealed=false,jobFilter='all',allJobs=[],pendingRide=null,lmap=null,markers=[],exchangeOpen=false,authToken=null
-const SKILLS=['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Home Health Aide','Caregiving','Elder Care','Child Care','Call Center','Customer Service','Data Entry','Virtual Assistant','Bookkeeping','Personal Training','Massage','Security','Event Staff','Bartending','Other']
-const ADMIN_EMAILS=['contactfire757@gmail.com','biggernbetter24@gmail.com']
+const SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co'
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o'
 
-function toast(msg,type='success'){const c=gi('toast-container'),t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='all .3s';setTimeout(()=>t.remove(),300)},3500)}
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY)
 
-async function init(){
-  const{data:{session}}=await sb.auth.getSession()
-  if(session){user=session.user;authToken=session.access_token;console.log('init: token ready, uid=',user.id);await loadProfile()}
-  updateUI();showTab('jobs');setupRealtime();renderSkills();renderCats()
-  sb.auth.onAuthStateChange((ev,sess)=>{if(sess){authToken=sess.access_token}})
+let user = null
+let profile = null
+let balRevealed = false
+let jobFilter = 'all'
+let allJobs = []
+let lmap = null
+let markers = []
+let exchangeOpen = false
+let authToken = null
+
+const SKILLS = ['Moving','Delivery','Assembly','Cleaning','Handyman','Yard Work','General Labor','Hauling','Errands','Pet Care','Tech Help','Pressure Washing','Painting','Rideshare','Cooking','Tutoring','Photography','Home Health Aide','Caregiving','Child Care','Call Center','Customer Service','Data Entry','Virtual Assistant','Bookkeeping','Personal Training','Massage Therapy','Security','Event Staff','Bartending','Other']
+const ADMIN_EMAILS = ['contactfire757@gmail.com']
+
+// ===== HELPERS =====
+const gi = id => document.getElementById(id)
+const gv = id => gi(id).value
+const esc = s => (new DOMParser()).parseFromString(s, 'text/html').documentElement.textContent
+
+function toast(msg, type = 'success') {
+  const c = gi('toast-container')
+  const t = document.createElement('div')
+  t.className = 'toast toast-' + type
+  t.textContent = msg
+  c.appendChild(t)
+  setTimeout(() => {
+    t.style.opacity = '0'
+    t.style.transition = 'all .3s'
+    setTimeout(() => t.remove(), 300)
+  }, 3500)
 }
 
-async function authFetch(path,opts={}){
-  if(!authToken){const sess=await sb.auth.getSession();authToken=sess.data.session?.access_token}
-  if(!authToken){console.error('No auth token');return null}
-  const headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+authToken,...(opts.headers||{})}
-  return fetch(SUPA_URL+'/rest/v1/'+path,{...opts,headers})
+function showModal(id) {
+  gi(id).classList.remove('modal-hidden')
+  gi(id).classList.add('modal-visible')
 }
 
-async function signUp(){
-  const e=gv('auth-email').trim(),p=gv('auth-password')
-  if(!e||!p)return authErr('Enter email and password')
-  if(p.length<6)return authErr('Password: 6+ characters')
-  try{
-    const{data,error}=await sb.auth.signUp({email:e,password:p})
-    if(error)return authErr(error.message)
-    if(!data.session){const{data:d2,error:e2}=await sb.auth.signInWithPassword({email:e,password:p});if(e2)return authErr('Check email to confirm, then sign in.');user=d2.user;authToken=d2.session?.access_token}else{user=data.user;authToken=data.session?.access_token}
+function hideModal(id) {
+  gi(id).classList.add('modal-hidden')
+  gi(id).classList.remove('modal-visible')
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'))
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+  document.querySelectorAll('.mob-tab').forEach(b => b.classList.remove('active'))
+  gi(name + '-tab').classList.remove('hidden')
+  document.querySelector('[data-tab="' + name + '"]').classList.add('active')
+  if (name === 'go' && !lmap) initMap()
+}
+
+function toggleBalance() {
+  balRevealed = !balRevealed
+  gi('balance-toggle').textContent = balRevealed ? 'HIDE' : 'SHOW'
+  gi('balance-display').textContent = balRevealed && profile ? (profile.mv_balance || 0) + ' MV' : '------'
+}
+
+function toggleExchange() {
+  exchangeOpen = !exchangeOpen
+  const p = gi('exchange-panel')
+  exchangeOpen ? p.classList.add('show') : p.classList.remove('show')
+}
+
+function requireAuth(fn) {
+  if (!user) {
+    showModal('login-modal')
+    return
+  }
+  fn()
+}
+
+function updateFee() {
+  const b = parseFloat(gv('job-budget')) || 0
+  gi('fee-budget').textContent = b + ' MV'
+  gi('fee-total').textContent = (b + 1) + ' MV'
+}
+
+function updateCashoutFee() {
+  const amt = parseFloat(gv('cashout-amount')) || 0
+  const fee = amt * 0.005
+  const receive = amt - fee
+  gi('cashout-receive').textContent = '$' + receive.toFixed(2)
+  gi('cashout-fee').textContent = '$' + fee.toFixed(2)
+}
+
+function updateLegalBtn() {
+  const ok = gi('accept-tos').checked && gi('accept-contractor').checked && gi('accept-age').checked
+  gi('legal-btn').disabled = !ok
+  gi('legal-btn').textContent = ok ? 'I AGREE & CONTINUE' : 'Check all boxes'
+  gi('legal-btn').classList.toggle('bg-zinc-700', !ok)
+  gi('legal-btn').classList.toggle('text-zinc-500', !ok)
+  gi('legal-btn').classList.toggle('bg-[#14F1C6]', ok)
+  gi('legal-btn').classList.toggle('text-black', ok)
+}
+
+// ===== AUTH =====
+async function init() {
+  const { data: { session } } = await sb.auth.getSession()
+  if (session) {
+    user = session.user
+    authToken = session.access_token
+    await loadProfile()
+  }
+  updateUI()
+  showTab('jobs')
+  setupRealtime()
+  sb.auth.onAuthStateChange((ev, sess) => {
+    if (sess) authToken = sess.access_token
+  })
+}
+
+async function authFetch(path, opts = {}) {
+  if (!authToken) {
+    const sess = await sb.auth.getSession()
+    authToken = sess.data.session?.access_token
+  }
+  if (!authToken) {
+    console.error('No auth token')
+    return null
+  }
+  const headers = {
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + authToken,
+    ...(opts.headers || {})
+  }
+  return fetch(SUPA_URL + '/rest/v1/' + path, { ...opts, headers })
+}
+
+async function signUp() {
+  const e = gv('auth-email').trim()
+  const p = gv('auth-password')
+  if (!e || !p) return authErr('Enter email and password')
+  if (p.length < 6) return authErr('Password must be 6+ characters')
+  
+  try {
+    const { data, error } = await sb.auth.signUp({ email: e, password: p })
+    if (error) return authErr(error.message)
+    
+    if (!data.session) {
+      const { data: d2, error: e2 } = await sb.auth.signInWithPassword({ email: e, password: p })
+      if (e2) return authErr('Check your email to confirm, then sign in.')
+      user = d2.user
+      authToken = d2.session?.access_token
+    } else {
+      user = data.user
+      authToken = data.session?.access_token
+    }
+    
     hideModal('login-modal')
-    await loadProfile();updateUI();showModal('legal-modal');toast('Welcome to MUVR!')
-  }catch(err){authErr('Connection error.')}
-}
-
-async function signIn(){
-  const e=gv('auth-email').trim(),p=gv('auth-password')
-  if(!e||!p)return authErr('Enter email and password')
-  const{data,error}=await sb.auth.signInWithPassword({email:e,password:p})
-  if(error)return authErr(error.message)
-  user=data.user;authToken=data.session?.access_token;hideModal('login-modal');await loadProfile();updateUI();checkLegal();toast('Welcome back!')
-}
-
-function authErr(m){const el=gi('auth-error');el.textContent=m;el.classList.remove('hidden');setTimeout(()=>el.classList.add('hidden'),5000)}
-
-async function logout(){await sb.auth.signOut();user=null;profile=null;updateUI();showTab('jobs');toast('Signed out','info')}
-
-function updateUI(){
-  const info=gi('user-info'),mn=gi('mobile-nav')
-  if(user){const n=profile?.full_name||user.email||'';info.innerHTML='<span class="text-emerald-400 text-xs font-bold">&#x25CF;</span> <span class="text-sm font-bold">'+esc(n.split('@')[0])+'</span> <button onclick="logout()" class="text-zinc-400 text-xs ml-2">out</button>';mn.classList.remove('hidden')}
-  else{info.innerHTML='<button onclick="showModal(\'login-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm">Sign In</button>';mn.classList.add('hidden')}
-}
-
-function requireAuth(fn){if(!user){showModal('login-modal');return}fn()}
-
-function isAdmin(){return user&&ADMIN_EMAILS.includes(user.email)}
-
-async function loadProfile(){
-  if(!user)return
-  try{
-    const res=await authFetch('users?id=eq.'+user.id+'&select=*')
-    if(!res){profile={id:user.id,email:user.email,mv_balance:0};return}
-    const rows=await res.json()
-    console.log('loadProfile fetch:',rows?.length,'rows',rows?.[0]?.email,rows?.[0]?.mv_balance)
-    if(rows&&rows.length>0){profile=rows[0];return}
-    console.log('loadProfile: creating row for',user.id)
-    await authFetch('users',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({id:user.id,email:user.email,mv_balance:0})})
-    const res2=await authFetch('users?id=eq.'+user.id+'&select=*')
-    const rows2=res2?await res2.json():[]
-    profile=rows2?.[0]||{id:user.id,email:user.email,mv_balance:0}
-    console.log('loadProfile final:',profile.email,profile.mv_balance)
-  }catch(err){console.error('loadProfile error:',err);profile={id:user.id,email:user.email,mv_balance:0}}
-}
-
-async function saveProfile(){
-  const name=gv('p-name').trim();if(!name)return toast('Enter your name','error')
-  const skills=[];document.querySelectorAll('.sk:checked').forEach(c=>skills.push(c.value))
-  var uname=gv('p-username').trim().toLowerCase().replace(/[^a-z0-9_]/g,'')
-  const u={full_name:name,role:gv('p-role'),skills,about_me:gv('p-about').trim(),has_vehicle:gi('p-vehicle').checked,is_available:gv('p-role')!=='poster'}
-  if(uname)u.username=uname
-  if(u.has_vehicle){
-    u.vehicle_type=gv('p-vtype');u.vehicle_year=parseInt(gv('p-vyear'))||null;u.vehicle_make=gv('p-vmake');u.vehicle_model=gv('p-vmodel')
-    u.vehicle_condition=gv('p-vcond');u.can_rideshare=gi('p-ride').checked;u.can_deliver=gi('p-deliver').checked;u.can_haul=gi('p-haul').checked
+    await loadProfile()
+    updateUI()
+    showModal('legal-modal')
+    toast('Welcome to MUVR! 🎉')
+  } catch (err) {
+    authErr('Connection error: ' + err.message)
   }
-  if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({latitude:pos.coords.latitude,longitude:pos.coords.longitude})})},()=>{})}
-  const res=await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(u)})
-  if(!res||!res.ok){console.error('Save failed:',res?.status);toast('Save failed','error');return}
-  await loadProfile();hideModal('profile-modal');updateUI();renderProfile();toast('Profile saved!')
 }
 
-function renderProfile(){
-  const c=gi('profile-content');if(!profile){c.innerHTML='<div class="text-zinc-500 py-12 text-center">Sign in to view profile</div>';return}
-  const ts=trustScore(profile),badge=trustBadge(ts)
-  const avatarUrl=profile.avatar_url?'<img src="'+profile.avatar_url+'" class="w-full h-full object-cover">':'<span class="text-4xl">&#x1F60E;</span>'
-  const photos=profile.work_photos||[]
-  c.innerHTML='<div class="space-y-5">'+
-    '<div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 text-center">'+
-      '<div class="avatar-ring w-24 h-24 rounded-full mx-auto mb-3"><div class="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">'+avatarUrl+'</div></div>'+
-      '<h2 class="text-2xl font-extrabold">'+esc(profile.full_name||'Set up your profile')+'</h2>'+
-      (profile.username?'<p class="text-[#14F1C6] text-sm font-mono font-bold">@'+esc(profile.username)+'</p>':'')+
-      '<p class="text-zinc-400 text-sm">'+esc(profile.email||'')+'</p>'+
-      '<div class="flex items-center justify-center gap-3 mt-3">'+
-        '<span class="text-[#14F1C6] font-bold text-sm">'+badge+'</span>'+
-        '<span class="text-zinc-500 text-xs">'+ts+' pts</span>'+
-        '<button onclick="toggleLive()" class="px-4 py-1.5 rounded-full font-bold text-sm '+(profile.is_available?'bg-emerald-600':'bg-zinc-700')+'">'+(profile.is_available?'LIVE':'Go Live')+'</button>'+
-      '</div>'+
-    '</div>'+
-    (!profile.full_name?'<button onclick="showModal(\'profile-modal\')" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold">Complete Profile</button>':'')+
-    (profile.about_me?'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-2 font-bold">ABOUT</p><p class="text-sm leading-relaxed">'+esc(profile.about_me)+'</p></div>':'')+
-    (profile.skills?.length?'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">SKILLS</p><div class="flex flex-wrap gap-2">'+profile.skills.map(function(s){return'<span class="bg-zinc-800 px-3 py-1.5 rounded-full text-sm font-bold">'+s+'</span>'}).join('')+'</div></div>':'')+
-    (photos.length?'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">WORK PHOTOS</p><div class="flex gap-2 overflow-x-auto pb-2">'+photos.map(function(p){return'<img src="'+p+'" class="w-28 h-28 rounded-xl object-cover shrink-0">'}).join('')+'</div></div>':'')+
-    (profile.has_vehicle?'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-2 font-bold">VEHICLE</p><p class="text-sm font-bold">'+(profile.vehicle_year||'')+' '+(profile.vehicle_make||'')+' '+(profile.vehicle_model||'')+'</p><p class="text-xs text-zinc-500">Condition: '+(profile.vehicle_condition||'N/A')+'</p></div>':'')+
-    '<div class="grid grid-cols-3 gap-3 text-center">'+
-      '<div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold">'+(profile.jobs_completed||0)+'</div><div class="text-xs text-zinc-400">Done</div></div>'+
-      '<div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold">'+(profile.rating||'--')+'</div><div class="text-xs text-zinc-400">Rating</div></div>'+
-      '<div class="bg-zinc-900 rounded-2xl p-4 border border-zinc-800"><div class="text-2xl font-extrabold text-[#14F1C6]">'+(profile.mv_balance||0)+'</div><div class="text-xs text-zinc-400">MV</div></div>'+
-    '</div>'+
-    '<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800"><p class="text-xs text-zinc-400 mb-3 font-bold">VERIFICATIONS</p><div class="space-y-2">'+
-      ['Gov ID|gov_id|15','Insurance|liability_insurance|20','Vehicle Ins|vehicle_insurance|15','BG Check|bg_check|20'].map(function(v){var p=v.split('|');return'<div class="flex justify-between items-center bg-zinc-800 rounded-xl px-4 py-3"><span class="text-sm">'+p[0]+' (+'+p[2]+'pts)</span><button onclick="uploadVerif(\''+p[1]+'\')" class="text-xs bg-zinc-700 px-3 py-1 rounded-lg font-bold">Upload</button></div>'}).join('')+
-    '</div></div>'+
-    '<button onclick="showModal(\'profile-modal\')" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-xl font-bold text-sm">Edit Profile</button>'+
-  '</div>'
+async function signIn() {
+  const e = gv('auth-email').trim()
+  const p = gv('auth-password')
+  if (!e || !p) return authErr('Enter email and password')
+  
+  const { data, error } = await sb.auth.signInWithPassword({ email: e, password: p })
+  if (error) return authErr(error.message)
+  
+  user = data.user
+  authToken = data.session?.access_token
+  hideModal('login-modal')
+  await loadProfile()
+  updateUI()
+  toast('Welcome back!')
 }
 
-async function toggleLive(){
-  const v=!profile.is_available
-  if(v&&navigator.geolocation){navigator.geolocation.getCurrentPosition(async pos=>{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_available:v,latitude:pos.coords.latitude,longitude:pos.coords.longitude})})},async()=>{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_available:v})})})}
-  else{await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_available:v})})}
-  profile.is_available=v;renderProfile();toast(v?'You are LIVE!':'Offline','info')
+function authErr(m) {
+  const el = gi('auth-error')
+  el.textContent = m
+  el.classList.remove('hidden')
+  setTimeout(() => el.classList.add('hidden'), 5000)
 }
 
-async function uploadAvatar(){
-  var i=document.createElement('input');i.type='file';i.accept='image/*'
-  i.onchange=async function(e){
-    var f=e.target.files[0];if(!f)return
-    var path=user.id+'/avatar-'+Date.now()+'-'+f.name
-    var{data,error}=await sb.storage.from('verifications').upload(path,f)
-    if(error){toast('Upload failed','error');return}
-    var url=SUPA_URL+'/storage/v1/object/public/verifications/'+data.path
-    await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({avatar_url:url})})
-    profile.avatar_url=url;renderProfile();toast('Avatar updated!')
-  };i.click()
+async function logout() {
+  await sb.auth.signOut()
+  user = null
+  profile = null
+  updateUI()
+  showTab('jobs')
+  toast('Signed out', 'info')
 }
 
-async function uploadWorkPhoto(){
-  var i=document.createElement('input');i.type='file';i.accept='image/*'
-  i.onchange=async function(e){
-    var f=e.target.files[0];if(!f)return
-    var path=user.id+'/work-'+Date.now()+'-'+f.name
-    var{data,error}=await sb.storage.from('verifications').upload(path,f)
-    if(error){toast('Upload failed','error');return}
-    var url=SUPA_URL+'/storage/v1/object/public/verifications/'+data.path
-    var photos=(profile.work_photos||[]).concat(url)
-    await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({work_photos:photos})})
-    profile.work_photos=photos;toast('Photo added!')
-  };i.click()
-}
-
-async function uploadVerif(type){
-  var i=document.createElement('input');i.type='file';i.accept='image/*,.pdf'
-  i.onchange=async function(e){
-    var f=e.target.files[0];if(!f)return
-    var path=user.id+'/'+Date.now()+'-'+f.name
-    var{data,error}=await sb.storage.from('verifications').upload(path,f)
-    if(error)return toast('Upload failed','error')
-    await sb.from('verifications').insert({user_id:user.id,type:type,file_path:data.path,status:'pending'})
-    toast('Uploaded! Pending review.')
-  };i.click()
-}
-
-function trustScore(p){if(!p)return 0;var s=0;if(p.phone_verified)s+=5;if(p.id_uploaded)s+=15;if(p.selfie_verified)s+=10;if(p.bg_check_status==='clear')s+=20;if(p.has_liability_insurance)s+=20;if(p.has_vehicle_insurance)s+=15;if(p.has_workers_comp)s+=15;if(p.certifications&&p.certifications.length)s+=p.certifications.length*5;s+=(p.jobs_completed||0)*3;return Math.min(100,s)}
-
-function trustBadge(s){return s>=81?'Elite':s>=61?'Pro':s>=41?'Trusted':s>=21?'Verified':'New'}
-
-async function checkLegal(){var{data}=await sb.from('legal_agreements').select('agreement_type').eq('user_id',user.id);var a=new Set((data||[]).map(function(d){return d.agreement_type}));if(!a.has('tos')||!a.has('contractor_agreement'))showModal('legal-modal');else if(!profile||!profile.full_name)showModal('profile-modal')}
-
-function updateLegalBtn(){var ok=gi('accept-tos').checked&&gi('accept-contractor').checked&&gi('accept-age').checked;var b=gi('legal-btn');b.disabled=!ok;b.className=ok?'w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold':'w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-bold';b.textContent=ok?'Accept & Continue':'Check all boxes'}
-
-async function acceptLegal(){await sb.from('legal_agreements').insert([{user_id:user.id,agreement_type:'tos',ip_address:'client',user_agent:navigator.userAgent},{user_id:user.id,agreement_type:'contractor_agreement',ip_address:'client',user_agent:navigator.userAgent}]);await sb.from('users').update({tos_accepted:true,tos_accepted_at:new Date().toISOString(),contractor_agreement_accepted:true,contractor_agreement_accepted_at:new Date().toISOString()}).eq('id',user.id);hideModal('legal-modal');if(!profile||!profile.full_name)showModal('profile-modal');toast('Agreements accepted')}
-
-function updateRideBtn(){var c=gi('accept-rideshare').checked,b=gi('ride-btn');b.disabled=!c;b.style.opacity=c?1:0.5}
-
-function confirmRideshare(){sb.from('legal_agreements').insert({user_id:user.id,agreement_type:'rideshare_waiver',ip_address:'client',user_agent:navigator.userAgent});hideModal('rideshare-modal');if(pendingRide){pendingRide();pendingRide=null}}
-
-async function loadJobs(){var{data}=await sb.from('jobs').select('*').eq('status','open').order('created_at',{ascending:false});allJobs=data||[];renderJobs()}
-
-function renderJobs(){
-  var list=jobFilter==='all'?allJobs:allJobs.filter(function(j){return j.job_type===jobFilter})
-  var c=gi('job-list')
-  if(!list.length){c.innerHTML='<div class="text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F9BE;</div><p class="font-bold text-zinc-400">No open jobs</p></div>';return}
-  c.innerHTML=list.map(function(j){return'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">'+esc(j.title)+'</h3><span class="text-[#14F1C6] font-mono font-extrabold">'+j.budget_mv+' MV</span></div><p class="text-zinc-400 text-sm mb-3">'+esc(j.description||'')+'</p><div class="flex gap-2 mb-3 flex-wrap"><span class="bg-zinc-800 px-2 py-1 rounded-full text-xs font-bold">'+j.job_type+'</span><span class="bg-zinc-800 px-2 py-1 rounded-full text-xs">'+(j.urgency||'flexible')+'</span></div>'+(j.address?'<p class="text-zinc-500 text-xs mb-3">'+esc(j.address)+'</p>':'')+'<div class="flex gap-2"><button onclick="requireAuth(function(){gi(\'apply-job-id\').value=\''+j.id+'\';showModal(\'apply-modal\')})" class="flex-1 bg-zinc-800 hover:bg-teal-900 py-2.5 rounded-xl text-sm font-bold">Apply</button>'+(user&&j.poster_id===user.id?'<button onclick="manageJob(\''+j.id+'\')" class="bg-zinc-700 px-4 py-2.5 rounded-xl text-sm">Manage</button>':'')+'</div></div>'}).join('')
-}
-
-function filterJobs(t){jobFilter=t;document.querySelectorAll('.job-filter').forEach(function(b){var m=t==='all'?b.textContent.includes('All'):b.textContent.toLowerCase().includes(t);b.className='job-filter '+(m?'bg-[#14F1C6] text-black':'bg-zinc-800')+' px-4 py-2 rounded-full text-sm whitespace-nowrap'+(m?' font-bold':'')});renderJobs()}
-
-function updateFee(){var b=parseFloat(gv('job-budget'))||0;gi('fee-budget').textContent=b+' MV';gi('fee-total').textContent=(b+1)+' MV'}
-
-async function postJob(){
-  var title=gv('job-title').trim(),desc=gv('job-desc').trim(),jt=gv('job-type'),urg=gv('job-urgency'),budget=parseFloat(gv('job-budget')),addr=gv('job-address').trim()
-  if(!title)return toast('Enter a title','error');if(!budget||budget<1)return toast('Budget must be 1+ MV','error')
-  var total=budget+1;if((profile&&profile.mv_balance||0)<total)return toast('Need '+total+' MV. Load MV first.','error')
-  var btn=gi('post-btn');btn.disabled=true;btn.textContent='Posting...'
-  var fr=fraudCheck(title,desc,budget)
-  if(fr.verdict==='BLOCKED'){btn.disabled=false;btn.textContent='POST JOB & ESCROW MV';return}
-  var{data:job,error}=await sb.from('jobs').insert({poster_id:user.id,title:title,description:desc,job_type:jt,urgency:urg,budget_mv:budget,fee_mv:1,total_escrowed:total,address:addr,fraud_score:fr.score,fraud_verdict:fr.verdict,fraud_flags:fr.flags}).select().single()
-  if(error){btn.disabled=false;btn.textContent='POST JOB & ESCROW MV';return toast(error.message,'error')}
-  var{error:escErr}=await sb.rpc('lock_escrow',{p_user_id:user.id,p_job_id:job.id,p_amount:budget,p_fee:1})
-  if(escErr){await sb.from('escrow').insert({job_id:job.id,poster_id:user.id,amount_mv:budget,fee_mv:1,status:'locked'});await sb.from('users').update({mv_balance:(profile.mv_balance||0)-total,mv_escrowed:(profile.mv_escrowed||0)+total}).eq('id',user.id)}
-  profile.mv_balance=(profile.mv_balance||0)-total;btn.disabled=false;btn.textContent='POST JOB & ESCROW MV'
-  gi('job-title').value='';gi('job-desc').value='';gi('job-budget').value='';gi('job-address').value=''
-  hideModal('post-job-modal');loadJobs();toast('Job posted! '+total+' MV escrowed.')
-}
-
-function fraudCheck(t,d,b){var s=85,flags=[],txt=(t+' '+d).toLowerCase();['wire transfer','western union','bitcoin','crypto','send money','advance payment','lottery','inheritance'].forEach(function(f){if(txt.indexOf(f)>=0){s-=25;flags.push(f)}});if(b>10000){s-=10;flags.push('high budget')};if((d||'').length<10){s-=15;flags.push('short desc')};s=Math.max(0,Math.min(100,s));return{score:s,verdict:s<40?'BLOCKED':s<70?'WARNING':'CLEAN',flags:flags}}
-
-async function applyJob(){var jid=gv('apply-job-id'),pitch=gv('apply-pitch'),rate=parseFloat(gv('apply-rate')),turn=gv('apply-turn');var{error}=await sb.from('applications').insert({job_id:jid,worker_id:user.id,pitch:pitch,rate_mv:rate||null,turnaround:turn});if(error){if(error.code==='23505')return toast('Already applied','error');return toast(error.message,'error')};hideModal('apply-modal');toast('Applied!')}
-
-async function manageJob(jobId){
-  var{data:job}=await sb.from('jobs').select('*').eq('id',jobId).single();if(!job)return
-  var{data:apps}=await sb.from('applications').select('*').eq('job_id',jobId)
-  var{data:esc}=await sb.from('escrow').select('*').eq('job_id',jobId).single()
-  var h='<div class="space-y-3"><div class="flex justify-between"><h3 class="text-xl font-extrabold">'+esc(job.title)+'</h3><span class="text-[#14F1C6] font-mono text-xl">'+job.budget_mv+' MV</span></div><p class="text-zinc-400">'+esc(job.description||'')+'</p>'
-  if(apps&&apps.length){h+='<h3 class="font-bold mt-4">Applications ('+apps.length+')</h3>';for(var a of apps){var{data:w}=await sb.from('users').select('full_name,email,rating,jobs_completed').eq('id',a.worker_id).single();h+='<div class="bg-zinc-800 rounded-xl p-4 mb-2"><div class="flex justify-between"><strong>'+esc(w&&w.full_name||w&&w.email||'Worker')+'</strong><span class="text-[#14F1C6] font-mono">'+(a.rate_mv||'--')+' MV</span></div><p class="text-sm text-zinc-400 mt-1">'+esc(a.pitch||'')+'</p>'+(a.status==='pending'?'<div class="flex gap-2 mt-2"><button onclick="acceptApp(\''+jobId+'\',\''+a.id+'\',\''+a.worker_id+'\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-lg text-sm font-bold">Accept</button></div>':'<span class="text-xs mt-2 inline-block '+(a.status==='accepted'?'text-emerald-400':'text-zinc-500')+'">'+a.status.toUpperCase()+'</span>')+'</div>'}}
-  if(esc&&esc.status==='locked'&&job.status==='in_progress'){h+='<div class="mt-4 flex gap-2"><button onclick="releaseEscrow(\''+jobId+'\')" class="flex-1 bg-emerald-600 py-3 rounded-xl font-bold">Release Payment</button><button onclick="refundEscrow(\''+jobId+'\')" class="flex-1 bg-red-800 py-3 rounded-xl font-bold">Refund</button></div>'}
-  h+='</div>';gi('job-detail-content').innerHTML=h;showModal('job-detail-modal')
-}
-
-async function acceptApp(jid,aid,wid){await sb.from('applications').update({status:'accepted'}).eq('id',aid);await sb.from('jobs').update({status:'in_progress',awarded_to:wid,assigned_at:new Date().toISOString()}).eq('id',jid);hideModal('job-detail-modal');loadJobs();toast('Worker accepted!')}
-
-async function releaseEscrow(jid){if(!confirm('Release payment? This is final.'))return;var{error}=await sb.rpc('release_escrow',{p_job_id:jid,p_poster_id:user.id});if(error){var{data:e}=await sb.from('escrow').select('*').eq('job_id',jid).single();var{data:j}=await sb.from('jobs').select('awarded_to').eq('id',jid).single();if(e&&j&&j.awarded_to){await sb.from('escrow').update({status:'released',released_at:new Date().toISOString()}).eq('id',e.id);var{data:w}=await sb.from('users').select('mv_balance').eq('id',j.awarded_to).single();await sb.from('users').update({mv_balance:(w&&w.mv_balance||0)+e.amount_mv}).eq('id',j.awarded_to);await sb.from('jobs').update({status:'completed',completed_at:new Date().toISOString()}).eq('id',jid)}};hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet();toast('Payment released!')}
-
-async function refundEscrow(jid){if(!confirm('Refund?'))return;var{error}=await sb.rpc('refund_escrow',{p_job_id:jid,p_poster_id:user.id});if(error){var{data:e}=await sb.from('escrow').select('*').eq('job_id',jid).single();if(e){var t=e.amount_mv+e.fee_mv;await sb.from('escrow').update({status:'refunded'}).eq('id',e.id);await sb.from('users').update({mv_balance:(profile.mv_balance||0)+t}).eq('id',user.id);await sb.from('jobs').update({status:'cancelled'}).eq('id',jid)}};hideModal('job-detail-modal');await loadProfile();loadJobs();loadWallet();toast('Refunded','info')}
-
-function renderCats(){var cats=['All','Rideshare','Delivery','Moving','Hauling','Cleaning','Handyman','Yard','Labor','Errands'];gi('category-filters').innerHTML=cats.map(function(c){return'<button onclick="loadWorkers(\''+c.toLowerCase()+'\')" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">'+c+'</button>'}).join('')}
-
-function initMap(){if(lmap)return;lmap=L.map('map',{zoomControl:false}).setView([30.4213,-87.2169],11);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CARTO',maxZoom:19}).addTo(lmap);L.control.zoom({position:'topright'}).addTo(lmap);setTimeout(function(){lmap.invalidateSize()},200)}
-
-function updateMapMarkers(workers){markers.forEach(function(m){lmap.removeLayer(m)});markers=[];if(!workers||!workers.length)return;workers.forEach(function(w){if(!w.latitude||!w.longitude)return;var icon=L.divIcon({className:'',html:'<div style="background:#14F1C6;color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5);font-family:Nunito">'+esc(w.full_name||'Worker')+'</div>',iconSize:[0,0]});var m=L.marker([w.latitude,w.longitude],{icon:icon}).addTo(lmap);markers.push(m)});if(markers.length)lmap.fitBounds(L.featureGroup(markers).getBounds().pad(0.3))}
-
-async function loadWorkers(f){
-  var q=sb.from('users').select('*').eq('is_available',true)
-  if(f&&f!=='all'){if(f==='rideshare')q=q.eq('can_rideshare',true);else if(f==='delivery')q=q.eq('can_deliver',true);else if(f==='hauling')q=q.eq('can_haul',true);else q=q.contains('skills',[f.charAt(0).toUpperCase()+f.slice(1)])}
-  var{data}=await q;if(lmap)updateMapMarkers(data)
-  var c=gi('worker-grid')
-  if(!data||!data.length){c.innerHTML='<div class="text-center py-16 col-span-full"><p class="font-bold text-zinc-400">No workers live</p></div>';return}
-  c.innerHTML=data.map(function(w){var ts=trustScore(w),b=trustBadge(ts),av=w.avatar_url?'<img src="'+w.avatar_url+'" class="w-12 h-12 rounded-full object-cover">':'<div class="w-12 h-12 rounded-full bg-zinc-700 flex items-center justify-center text-xl">&#x1F60E;</div>'
-    return'<div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 card-hover"><div class="flex gap-3 mb-3"><div class="shrink-0">'+av+'</div><div class="flex-1 min-w-0"><div class="font-extrabold truncate">'+esc(w.full_name||'Worker')+'</div><div class="text-xs text-zinc-400">'+b+' - '+ts+'pts</div></div></div>'+(w.about_me?'<p class="text-sm text-zinc-400 mb-3 line-clamp-2">'+esc(w.about_me)+'</p>':'')+(w.skills&&w.skills.length?'<div class="flex flex-wrap gap-1 mb-3">'+w.skills.slice(0,4).map(function(s){return'<span class="bg-zinc-800 px-2 py-0.5 rounded-full text-xs">'+s+'</span>'}).join('')+'</div>':'')+'<button onclick="requireAuth(function(){toast(\'Request sent!\',\'info\')})" class="w-full bg-[#14F1C6] text-black py-2.5 rounded-xl font-bold text-sm">Request</button></div>'}).join('')
-}
-
-async function loadSupply(){var{data}=await sb.from('mv_supply').select('*').single();if(data){gi('supply-total').textContent=fmtNum(data.max_supply);gi('supply-minted').textContent=fmtNum(data.total_minted);gi('supply-escrowed').textContent=fmtNum(data.total_escrowed||data.escrowed||0);gi('supply-burned').textContent=fmtNum(data.total_burned||data.burned||0)}}
-
-function fmtNum(n){if(!n)return'0';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toLocaleString()}
-
-async function loadWallet(){
-  if(!user)return;await loadProfile();loadSupply()
-  console.log('loadWallet profile:',profile?.email,profile?.mv_balance)
-  var b=profile&&profile.mv_balance||0;gi('balance-display').textContent=balRevealed?b.toFixed(2)+' MV':'------';gi('balance-toggle').textContent=balRevealed?'HIDE':'REVEAL'
-  var{data:escs}=await sb.from('escrow').select('*,jobs(title)').eq('poster_id',user.id).eq('status','locked')
-  var el=gi('escrow-list');if(escs&&escs.length){el.innerHTML=escs.map(function(e){return'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-yellow-900"><span class="text-sm font-bold">'+esc(e.jobs&&e.jobs.title||'Job')+'</span><span class="font-mono text-yellow-400">'+(e.amount_mv+e.fee_mv)+' MV</span></div>'}).join('')}else{el.innerHTML='<div class="text-zinc-500 text-sm py-2">None</div>'}
-  var{data:l}=await sb.from('mv_ledger').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(50)
-  var c=gi('ledger-list');if(!l||!l.length){c.innerHTML='<div class="text-zinc-500 text-sm py-4">No transactions yet</div>';return}
-  c.innerHTML=l.map(function(e){return'<div class="bg-zinc-900 rounded-xl p-4 flex justify-between items-center border border-zinc-800"><div><span class="font-mono text-xs bg-zinc-800 px-2 py-0.5 rounded-full">'+e.type.toUpperCase()+'</span><span class="text-sm ml-2 text-zinc-300">'+esc(e.description||'')+'</span></div><div class="font-mono '+(e.amount_mv>0?'text-emerald-400':'text-red-400')+'">'+(e.amount_mv>0?'+':'')+e.amount_mv+' MV</div></div>'}).join('')
-}
-
-function toggleBalance(){balRevealed=!balRevealed;loadWallet()}
-
-async function sendMV(){
-  var to=gv('send-to').trim(),amt=parseFloat(gv('send-amount'))
-  if(!to||!amt||amt<1)return toast('Enter recipient and amount','error')
-  if(amt>(profile?.mv_balance||0))return toast('Insufficient MV','error')
-  var res=await authFetch('users?email=eq.'+encodeURIComponent(to)+'&select=id,mv_balance,email')
-  if(!res)return toast('Error finding recipient','error')
-  var recipients=await res.json()
-  if(!recipients?.length){
-    res=await authFetch('users?username=eq.'+encodeURIComponent(to.replace('@',''))+'&select=id,mv_balance,email')
-    if(res)recipients=await res.json()
+function updateUI() {
+  const info = gi('user-info')
+  const mn = gi('mobile-nav')
+  if (user) {
+    const n = profile?.full_name || user.email || ''
+    info.innerHTML = `<span class="text-teal-400 text-xs font-bold">●</span> <span class="text-sm font-bold">${esc(n.split('@')[0])}</span> <button onclick="logout()" class="text-zinc-400 text-xs ml-3 hover:text-white">sign out</button>`
+    mn.classList.remove('hidden')
+  } else {
+    info.innerHTML = '<button onclick="showModal(\'login-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm hover:bg-teal-300 transition">Sign In</button>'
+    mn.classList.add('hidden')
   }
-  if(!recipients?.length)return toast('Recipient not found','error')
-  var r=recipients[0]
-  await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:(profile.mv_balance||0)-amt})})
-  await authFetch('users?id=eq.'+r.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:(r.mv_balance||0)+amt})})
-  var h1='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
-  var h2='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
-  await authFetch('mv_ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:user.id,type:'send',amount_mv:-amt,description:'Sent to '+r.email,tx_hash:h1,related_user_id:r.id})})
-  await authFetch('mv_ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:r.id,type:'receive',amount_mv:amt,description:'From '+user.email,tx_hash:h2,related_user_id:user.id})})
-  profile.mv_balance-=amt;hideModal('send-modal');gi('send-to').value='';gi('send-amount').value='';loadWallet();toast(amt+' MV sent!')
 }
 
-async function loadMV(amt){
-  if(!amt||amt<5)return toast('Minimum $5','error')
-  if(!user||!user.id)return toast('Not signed in','error')
-  if(!confirm('Load '+amt+' MV ($'+amt+')?'))return
-  try{
-    var newBal=(profile?.mv_balance||0)+amt
-    await authFetch('users?id=eq.'+user.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({mv_balance:newBal})})
-    var h='MV'+crypto.randomUUID().replace(/-/g,'').slice(0,16)
-    await authFetch('mv_ledger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:user.id,type:'load',amount_mv:amt,description:'Loaded '+amt+' MV (beta)',tx_hash:h})})
-    await authFetch('mv_supply?id=eq.1',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({total_minted:((profile?.total_minted||5)+amt)})})
-    toast(amt+' MV loaded!')
-    hideModal('load-modal');await loadProfile();loadWallet()
-  }catch(err){console.error('loadMV error:',err);toast('Error loading MV','error')}
+// ===== PROFILE =====
+async function loadProfile() {
+  const res = await authFetch('users?id=eq.' + user.id + '&select=*')
+  const data = await res.json()
+  if (data.length > 0) profile = data[0]
+  loadWallet()
+  renderProfile()
 }
 
-async function loadBlog(){
-  if(isAdmin())gi('blog-admin-btn').innerHTML='<button onclick="showModal(\'blog-editor-modal\')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm">+ New Post</button>'
-  var{data}=await sb.from('blog_posts').select('*').eq('status','published').order('created_at',{ascending:false})
-  var c=gi('blog-list')
-  if(!data||!data.length){c.innerHTML='<div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">&#x1F4DD;</div><p class="font-bold">No posts yet</p></div>';return}
-  c.innerHTML=data.map(function(p){return'<div class="blog-card bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden cursor-pointer" onclick="viewPost(\''+p.id+'\')">'+(p.cover_url?'<img src="'+p.cover_url+'" class="w-full h-40 object-cover">':'<div class="h-40 bg-zinc-800 flex items-center justify-center text-4xl">&#x1F4DD;</div>')+'<div class="p-5"><h3 class="font-extrabold text-lg mb-1">'+esc(p.title)+'</h3><p class="text-zinc-400 text-sm mb-2">'+esc((p.body||'').slice(0,120))+'...</p><div class="flex gap-2 text-xs text-zinc-500">'+(p.tags?p.tags.map(function(t){return'<span class="bg-zinc-800 px-2 py-0.5 rounded-full">'+t+'</span>'}).join(''):'')+'<span>'+new Date(p.created_at).toLocaleDateString()+'</span></div></div></div>'}).join('')
+async function saveProfile() {
+  const skills = Array.from(document.querySelectorAll('.skill-checkbox:checked')).map(c => c.value)
+  const vtype = gi('p-vehicle').checked ? gv('p-vehicle-type') : null
+  
+  const upd = {
+    full_name: gv('p-name'),
+    username: gv('p-username'),
+    about_me: gv('p-about'),
+    role: gv('p-role'),
+    skills: skills,
+    has_vehicle: gi('p-vehicle').checked,
+    vehicle_type: vtype,
+    vehicle_year: vtype ? parseInt(gv('p-vehicle-year')) : null,
+    vehicle_make: vtype ? gv('p-vehicle-make') : null,
+    vehicle_model: vtype ? gv('p-vehicle-model') : null
+  }
+  
+  const res = await authFetch('users?id=eq.' + user.id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(upd)
+  })
+  
+  if (res.ok) {
+    profile = { ...profile, ...upd }
+    hideModal('profile-modal')
+    toast('Profile saved!')
+  } else {
+    toast('Error saving profile', 'error')
+  }
 }
 
-async function viewPost(id){
-  var{data:p}=await sb.from('blog_posts').select('*').eq('id',id).single();if(!p)return
-  var html='<article class="max-w-2xl mx-auto">'+(p.cover_url?'<img src="'+p.cover_url+'" class="w-full h-56 object-cover rounded-2xl mb-6">':'')+'<h1 class="text-3xl font-extrabold mb-2">'+esc(p.title)+'</h1><p class="text-zinc-500 text-sm mb-6">'+new Date(p.created_at).toLocaleDateString()+(p.author_name?' - '+esc(p.author_name):'')+'</p><div class="prose prose-invert text-zinc-300 leading-relaxed space-y-4">'+markdownToHtml(p.body||'')+'</div></article>'
-  gi('blog-post-content').innerHTML=html
-  document.querySelectorAll('.tab-content').forEach(function(e){e.classList.add('hidden')});gi('blog-post-tab').classList.remove('hidden')
+function renderProfile() {
+  const cont = gi('profile-content')
+  if (!user) {
+    cont.innerHTML = '<div class="text-zinc-500 py-12 text-center">Sign in to view your profile</div>'
+    return
+  }
+  
+  if (!profile) profile = {}
+  
+  const rating = profile.rating || 0
+  const stars = '⭐'.repeat(Math.floor(rating)) + (rating % 1 > 0 ? '✨' : '')
+  
+  cont.innerHTML = `
+    <div class="space-y-6">
+      <div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h1 class="text-2xl font-extrabold">${esc(profile.full_name || 'Unknown')}</h1>
+            <p class="text-zinc-400 text-sm">@${esc(profile.username || 'user')}</p>
+            <p class="text-xs text-zinc-500 mt-1">${esc(profile.about_me || 'No bio')}</p>
+          </div>
+          <button onclick="showModal('profile-modal')" class="bg-[#14F1C6] text-black px-4 py-2 rounded-full font-bold text-sm hover:bg-teal-300 transition">EDIT</button>
+        </div>
+        <div class="grid grid-cols-3 gap-4 bg-zinc-800 rounded-xl p-4">
+          <div class="text-center"><p class="text-[10px] text-zinc-400">COMPLETED</p><p class="text-2xl font-bold">${profile.jobs_completed || 0}</p></div>
+          <div class="text-center"><p class="text-[10px] text-zinc-400">RATING</p><p class="text-lg">${stars || '—'}</p></div>
+          <div class="text-center"><p class="text-[10px] text-zinc-400">TRUST</p><p class="text-2xl font-bold text-[#14F1C6]">${profile.trust_score || 0}</p></div>
+        </div>
+      </div>
+      
+      ${profile.skills && profile.skills.length > 0 ? `
+      <div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+        <h2 class="font-bold text-sm mb-3">SKILLS</h2>
+        <div class="flex flex-wrap gap-2">
+          ${profile.skills.map(s => `<span class="bg-[#14F1C6]/20 text-[#14F1C6] px-3 py-1 rounded-full text-xs font-bold">${esc(s)}</span>`).join('')}
+        </div>
+      </div>
+      ` : ''}
+    </div>
+  `
 }
 
-async function publishPost(){
-  var title=gv('blog-title').trim(),body=gv('blog-body').trim()
-  if(!title||!body)return toast('Title and body required','error')
-  var slug=gv('blog-slug').trim()||title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
-  var tags=gv('blog-tags').split(',').map(function(t){return t.trim()}).filter(Boolean)
-  var{error}=await sb.from('blog_posts').insert({title:title,slug:slug,body:body,cover_url:gv('blog-cover').trim()||null,tags:tags,author_id:user.id,author_name:profile&&profile.full_name||user.email,status:gv('blog-status')})
-  if(error){toast('Error: '+error.message,'error');return}
-  hideModal('blog-editor-modal');gi('blog-title').value='';gi('blog-body').value='';gi('blog-slug').value='';gi('blog-cover').value='';gi('blog-tags').value=''
-  loadBlog();toast('Published!')
+async function acceptLegal() {
+  const agreements = ['tos', 'contractor_agreement', 'age']
+  for (const a of agreements) {
+    await authFetch('legal_agreements', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: user.id,
+        agreement_type: a,
+        ip_address: '0.0.0.0',
+        user_agent: navigator.userAgent
+      })
+    })
+  }
+  hideModal('legal-modal')
+  toast('Agreements accepted!')
 }
 
-function markdownToHtml(md){return md.replace(/^### (.*$)/gm,'<h3 class="text-lg font-extrabold text-white mt-6">$1</h3>').replace(/^## (.*$)/gm,'<h2 class="text-xl font-extrabold text-white mt-8">$1</h2>').replace(/^# (.*$)/gm,'<h1 class="text-2xl font-extrabold text-white mt-8">$1</h1>').replace(/\*\*(.*?)\*\*/g,'<strong class="text-white">$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/!\[(.*?)\]\((.*?)\)/g,'<img src="$2" alt="$1" class="rounded-xl my-4 w-full">').replace(/\[(.*?)\]\((.*?)\)/g,'<a href="$2" class="text-[#14F1C6] underline" target="_blank">$1</a>').replace(/\n\n/g,'</p><p class="text-zinc-300">').replace(/\n/g,'<br>')}
-
-function toggleExchange(){exchangeOpen=!exchangeOpen;gi('exchange-panel').style.display=exchangeOpen?'flex':'none'}
-
-async function sendExchange(){
-  var input=gi('exchange-input'),msg=input.value.trim();if(!msg)return;input.value=''
-  var mc=gi('exchange-messages')
-  mc.innerHTML+='<div class="bg-zinc-700 rounded-2xl rounded-tr-sm p-3 max-w-[85%] ml-auto"><p class="text-sm">'+esc(msg)+'</p></div>'
-  mc.scrollTop=mc.scrollHeight
-  var r=getExchangeResponse(msg)
-  setTimeout(function(){mc.innerHTML+='<div class="bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%]"><p class="text-sm">'+r+'</p></div>';mc.scrollTop=mc.scrollHeight},600)
+// ===== JOBS =====
+async function loadJobs() {
+  const res = await authFetch('jobs?status=eq.open&select=*&order=created_at.desc')
+  const data = await res.json() || []
+  allJobs = data
+  filterJobs(jobFilter)
 }
 
-function getExchangeResponse(msg){
-  var m=msg.toLowerCase()
-  if(m.indexOf('mv')>=0||m.indexOf('money')>=0||m.indexOf('currency')>=0)return'<strong class="text-[#14F1C6]">MV</strong> is our platform credit. 1 MV = $1 USD, always. Load MV to post jobs or pay workers. It\'s deflationary - 1 MV is burned per job posted!'
-  if(m.indexOf('job')>=0||m.indexOf('post')>=0||m.indexOf('hire')>=0)return'To post a job: tap <strong>+ POST JOB</strong>, set a budget, and your MV gets escrowed until the work is done. Workers apply, you pick the best one!'
-  if(m.indexOf('work')>=0||m.indexOf('earn')>=0||m.indexOf('apply')>=0)return'To earn MV: go to <strong>JOBS</strong>, find one you like, and apply! Once accepted, complete the work and the poster releases your payment.'
-  if(m.indexOf('escrow')>=0)return'Escrow locks the poster\'s MV until the job is done. Worker gets paid when the poster releases it. If there\'s a dispute, MV can be refunded.'
-  if(m.indexOf('muxi')>=0||m.indexOf('agent')>=0||m.indexOf('bot')>=0)return'<strong>MUXI</strong> is our AI operations team on Telegram! 10 agents managing content, growth, support and more. I\'m EXCHANGE, the customer-facing assistant here on the site.'
-  if(m.indexOf('transbid')>=0||m.indexOf('gunr')>=0)return'MUVR is part of the <strong>TransBid ecosystem</strong>. MV works across all our platforms - MUVR, TransBid, GUNR, and more coming soon!'
-  if(m.indexOf('help')>=0)return'I can help with: posting jobs, finding workers, understanding MV, loading your wallet, or navigating the ecosystem. What do you need?'
-  if(m.indexOf('hello')>=0||m.indexOf('hi')>=0||m.indexOf('hey')>=0)return'Hey! Welcome to MUVR. Need help posting a job, finding a worker, or understanding how MV works?'
-  return'Great question! For detailed help, try asking about: <strong>MV</strong>, <strong>posting jobs</strong>, <strong>earning as a worker</strong>, <strong>escrow</strong>, or the <strong>MUXI</strong> agent team. I\'m here to help!'
+function filterJobs(type) {
+  jobFilter = type
+  document.querySelectorAll('.job-filter').forEach(b => b.classList.toggle('bg-[#14F1C6]', false))
+  document.querySelectorAll('.job-filter').forEach(b => b.classList.toggle('text-black', false))
+  document.querySelectorAll('.job-filter').forEach(b => b.classList.toggle('bg-zinc-800', true))
+  document.querySelector('[onclick="filterJobs(\'' + type + '\')"]').classList.add('bg-[#14F1C6]', 'text-black')
+  document.querySelector('[onclick="filterJobs(\'' + type + '\')"]').classList.remove('bg-zinc-800')
+  
+  let jobs = allJobs
+  if (type !== 'all') {
+    jobs = jobs.filter(j => j.job_type === type)
+  }
+  
+  const html = jobs.length === 0
+    ? '<div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">📋</div><p class="font-bold">No gigs in this category</p></div>'
+    : jobs.map(j => `
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 card-hover">
+        <h3 class="font-bold text-sm mb-2">${esc(j.title)}</h3>
+        <p class="text-xs text-zinc-400 mb-3 line-clamp-2">${esc(j.description || '')}</p>
+        <div class="flex items-end justify-between">
+          <div>
+            <p class="text-[10px] text-zinc-500">Budget</p>
+            <p class="text-lg font-bold text-[#14F1C6]">${j.budget_mv} MV</p>
+          </div>
+          <button onclick="requireAuth(()=>{gi('apply-job-id').value='${j.id}';showModal('apply-modal')})" class="bg-[#14F1C6] text-black px-3 py-2 rounded-lg font-bold text-xs hover:bg-teal-300 transition">APPLY</button>
+        </div>
+      </div>
+    `).join('')
+  
+  gi('job-list').innerHTML = html
 }
 
-function setupRealtime(){sb.channel('jobs-rt').on('postgres_changes',{event:'*',schema:'public',table:'jobs'},function(){if(!gi('jobs-tab').classList.contains('hidden'))loadJobs()}).subscribe()}
+async function postJob() {
+  const t = gv('job-title').trim()
+  const d = gv('job-desc').trim()
+  const ty = gv('job-type')
+  const b = parseFloat(gv('job-budget'))
+  
+  if (!t) return toast('Enter job title', 'error')
+  if (!ty) return toast('Select job type', 'error')
+  if (!b || b < 1) return toast('Budget must be at least 1 MV', 'error')
+  if (b > 10000) return toast('Budget too high', 'error')
+  
+  if ((profile.mv_balance || 0) < (b + 1)) return toast('Not enough MV (need ' + (b + 1) + ')', 'error')
+  
+  const res = await authFetch('jobs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      poster_id: user.id,
+      title: t,
+      description: d,
+      job_type: ty,
+      urgency: gv('job-urgency'),
+      budget_mv: b,
+      fee_mv: 1,
+      total_escrowed: b + 1,
+      address: gv('job-address'),
+      status: 'open'
+    })
+  })
+  
+  if (res.ok) {
+    const j = await res.json()
+    const jobId = j[0].id
+    
+    // Lock escrow
+    await authFetch('escrow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        job_id: jobId,
+        poster_id: user.id,
+        amount_mv: b,
+        fee_mv: 1,
+        status: 'locked'
+      })
+    })
+    
+    // Log ledger
+    await authFetch('mv_ledger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: user.id,
+        type: 'burn',
+        amount_mv: 1,
+        description: 'Job posting fee (removed from supply)',
+        tx_hash: 'BURN' + Date.now(),
+        related_job_id: jobId
+      })
+    })
+    
+    // Update user balance
+    const newBal = (profile.mv_balance || 0) - (b + 1)
+    await authFetch('users?id=eq.' + user.id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mv_balance: newBal })
+    })
+    
+    profile.mv_balance = newBal
+    hideModal('post-job-modal')
+    loadJobs()
+    loadWallet()
+    toast('Gig posted! ' + (b + 1) + ' MV escrowed.')
+  } else {
+    toast('Error posting job', 'error')
+  }
+}
 
-function showTab(t){document.querySelectorAll('.tab-content').forEach(function(e){e.classList.add('hidden')});var el=gi(t+'-tab');if(el)el.classList.remove('hidden');document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});var tb=document.querySelector('.tab-btn[data-tab="'+t+'"]');if(tb)tb.classList.add('active');document.querySelectorAll('.mob-tab').forEach(function(b){b.classList.remove('active')});var mb=document.querySelector('.mob-tab[data-tab="'+t+'"]');if(mb)mb.classList.add('active');if(t==='jobs')loadJobs();if(t==='go'){initMap();loadWorkers('all')};if(t==='wallet')loadWallet();if(t==='profile')renderProfile();if(t==='blog')loadBlog()}
+async function applyJob() {
+  const jobId = gv('apply-job-id')
+  const pitch = gv('apply-pitch').trim()
+  const rate = parseFloat(gv('apply-rate'))
+  const turn = gv('apply-turn').trim()
+  
+  if (!pitch) return toast('Write a pitch', 'error')
+  if (!rate || rate < 1) return toast('Enter a rate', 'error')
+  if (!turn) return toast('Enter turnaround time', 'error')
+  
+  const res = await authFetch('applications', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      job_id: jobId,
+      worker_id: user.id,
+      pitch,
+      rate_mv: rate,
+      turnaround: turn,
+      status: 'pending'
+    })
+  })
+  
+  if (res.ok) {
+    hideModal('apply-modal')
+    toast('Application submitted!')
+  } else {
+    const err = await res.json()
+    toast(err.message || 'Error applying', 'error')
+  }
+}
 
-function showModal(id){var el=gi(id);if(el)el.classList.remove('hidden')}
+// ===== WALLET =====
+async function loadWallet() {
+  if (!user) return
+  
+  const res = await authFetch('users?id=eq.' + user.id + '&select=mv_balance')
+  const data = await res.json()
+  if (data.length > 0) {
+    profile = { ...profile, mv_balance: data[0].mv_balance }
+  }
+  
+  gi('balance-display').textContent = balRevealed ? (profile.mv_balance || 0) + ' MV' : '------'
+  
+  // Load supply
+  const sres = await authFetch('mv_supply?id=eq.1&select=*')
+  const sdata = await sres.json()
+  if (sdata.length > 0) {
+    const s = sdata[0]
+    gi('supply-minted').textContent = Math.floor(s.total_minted || 0) + ' MV'
+    gi('supply-burned').textContent = Math.floor(s.total_burned || 0) + ' MV'
+    gi('supply-escrowed').textContent = Math.floor(s.total_escrowed || 0) + ' MV'
+  }
+  
+  // Load ledger
+  const lres = await authFetch('mv_ledger?user_id=eq.' + user.id + '&order=created_at.desc&limit=20')
+  const ledger = await lres.json()
+  const lhtml = ledger.length === 0
+    ? '<div class="text-zinc-500 text-sm py-4">No transactions yet</div>'
+    : ledger.map(l => {
+      let icon = '📊'
+      if (l.type === 'load') icon = '📥'
+      else if (l.type === 'send') icon = '📤'
+      else if (l.type === 'receive') icon = '📨'
+      else if (l.type === 'burn') icon = '🔥'
+      else if (l.type === 'withdrawal') icon = '🏦'
+      
+      return `<div class="bg-zinc-800 rounded-lg p-3 flex justify-between items-start text-xs border-l-2 border-[#14F1C6]">
+        <div class="flex items-start gap-3">
+          <span class="text-lg">${icon}</span>
+          <div>
+            <p class="font-bold capitalize">${l.type}</p>
+            <p class="text-zinc-500">${esc(l.description || '')}</p>
+            <p class="text-[10px] text-zinc-600 mt-1">${new Date(l.created_at).toLocaleDateString()}</p>
+          </div>
+        </div>
+        <p class="font-mono font-bold whitespace-nowrap ml-2 ${l.type === 'burn' ? 'text-red-400' : 'text-[#14F1C6]'}">${l.type === 'burn' ? '-' : '+'}${l.amount_mv}</p>
+      </div>`
+    }).join('')
+  
+  gi('ledger-list').innerHTML = lhtml
+  
+  // Load escrows
+  const eres = await authFetch('escrow?poster_id=eq.' + user.id + '&status=eq.locked&select=*')
+  const escrows = await eres.json()
+  const ehtml = escrows.length === 0
+    ? '<div class="text-zinc-500 text-sm py-2">None</div>'
+    : escrows.map(e => `<div class="bg-zinc-800 rounded-lg p-3 flex justify-between items-center border-l-2 border-yellow-500"><div><p class="font-bold text-sm">Job Escrow</p><p class="text-[10px] text-zinc-500">Locked</p></div><p class="font-bold text-yellow-400">${e.amount_mv} MV</p></div>`).join('')
+  
+  gi('escrow-list').innerHTML = ehtml
+}
 
-function hideModal(id){var el=gi(id);if(el)el.classList.add('hidden')}
+async function sendMV() {
+  const to = gv('send-to').trim()
+  const amt = parseFloat(gv('send-amount'))
+  
+  if (!to) return toast('Enter recipient', 'error')
+  if (!amt || amt < 1) return toast('Enter amount', 'error')
+  if ((profile.mv_balance || 0) < amt) return toast('Not enough MV', 'error')
+  
+  // Find recipient by email or username
+  let recipId = null
+  const res1 = await authFetch('users?or=(email.eq.' + to.toLowerCase() + ',username.eq.' + to.toLowerCase() + ')&select=id')
+  const data1 = await res1.json()
+  if (data1.length > 0) recipId = data1[0].id
+  
+  if (!recipId) return toast('User not found', 'error')
+  
+  // Create transaction
+  const txHash = 'TX' + Date.now() + Math.random().toString(36).substr(2, 9)
+  
+  await authFetch('mv_ledger', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_id: user.id,
+      type: 'send',
+      amount_mv: amt,
+      description: 'Sent to ' + to,
+      tx_hash: txHash,
+      related_user_id: recipId
+    })
+  })
+  
+  await authFetch('mv_ledger', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_id: recipId,
+      type: 'receive',
+      amount_mv: amt,
+      description: 'Received from ' + (profile.full_name || user.email),
+      tx_hash: txHash,
+      related_user_id: user.id
+    })
+  })
+  
+  // Update balances
+  const newBal = (profile.mv_balance || 0) - amt
+  await authFetch('users?id=eq.' + user.id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mv_balance: newBal })
+  })
+  
+  const res2 = await authFetch('users?id=eq.' + recipId + '&select=mv_balance')
+  const recip = await res2.json()
+  const recipNewBal = (recip[0].mv_balance || 0) + amt
+  
+  await authFetch('users?id=eq.' + recipId, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mv_balance: recipNewBal })
+  })
+  
+  profile.mv_balance = newBal
+  hideModal('send-modal')
+  loadWallet()
+  toast('Sent ' + amt + ' MV!')
+}
 
-function gv(id){var el=gi(id);return el&&el.value||''}
+async function loadMV(amt) {
+  toast('Stripe integration coming soon. For now, use admin panel.', 'info')
+}
 
-function gi(id){return document.getElementById(id)}
+async function loadCustomMV() {
+  const amt = parseFloat(gv('load-custom'))
+  if (!amt || amt < 1 || amt > 1000) return toast('Enter amount 1-1000', 'error')
+  toast('Stripe integration coming soon. For now, use admin panel.', 'info')
+}
 
-function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
+async function cashOut() {
+  const amt = parseFloat(gv('cashout-amount'))
+  if (!amt || amt < 1) return toast('Enter amount', 'error')
+  if ((profile.mv_balance || 0) < amt) return toast('Not enough MV', 'error')
+  
+  const fee = amt * 0.005
+  const receive = amt - fee
+  
+  await authFetch('mv_ledger', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_id: user.id,
+      type: 'withdrawal',
+      amount_mv: amt,
+      description: 'Withdrawn $' + receive.toFixed(2) + ' (fee: $' + fee.toFixed(2) + ')',
+      tx_hash: 'WITHDRAW' + Date.now()
+    })
+  })
+  
+  const newBal = (profile.mv_balance || 0) - amt
+  await authFetch('users?id=eq.' + user.id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mv_balance: newBal })
+  })
+  
+  profile.mv_balance = newBal
+  hideModal('cashout-modal')
+  loadWallet()
+  toast('Withdrawal processed! ($' + receive.toFixed(2) + ' sent to bank account)')
+}
 
-function renderSkills(){var c=gi('skill-boxes');if(!c)return;c.innerHTML=SKILLS.map(function(s){return'<label class="skill-tag flex items-center gap-1.5 bg-zinc-800 px-3 py-1.5 rounded-full cursor-pointer text-sm font-bold"><input type="checkbox" value="'+s+'" class="sk hidden">'+s+'</label>'}).join('')}
+// ===== WORKERS MAP =====
+function initMap() {
+  lmap = L.map('map').setView([37.7749, -122.4194], 12)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 19
+  }).addTo(lmap)
+  loadWorkers()
+}
 
-window.onload=init
+async function loadWorkers() {
+  const res = await authFetch('users?is_available=eq.true&select=*&limit=100')
+  const workers = await res.json()
+  
+  // Clear old markers
+  markers.forEach(m => lmap.removeLayer(m))
+  markers = []
+  
+  // Add new markers
+  workers.forEach(w => {
+    if (w.latitude && w.longitude) {
+      const m = L.circleMarker([w.latitude, w.longitude], {
+        radius: 8,
+        fillColor: '#14F1C6',
+        color: '#06af86',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.8
+      })
+      m.bindPopup(`<strong>${esc(w.full_name || 'Worker')}</strong><br>Rating: ${w.rating || 0}⭐<br>Jobs: ${w.jobs_completed || 0}`)
+      m.addTo(lmap)
+      markers.push(m)
+    }
+  })
+  
+  // Render worker list
+  const html = workers.length === 0
+    ? '<div class="text-zinc-500 text-center py-16 col-span-full">No workers available</div>'
+    : workers.map(w => `
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 card-hover">
+        <div class="flex items-start gap-3 mb-3">
+          <div class="w-10 h-10 rounded-full bg-[#14F1C6] flex-shrink-0"></div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-sm">${esc(w.full_name || 'Worker')}</h3>
+            <p class="text-[10px] text-zinc-500">@${esc(w.username || 'user')}</p>
+          </div>
+          <span class="text-yellow-400 text-sm font-bold whitespace-nowrap">${w.rating || 0}⭐</span>
+        </div>
+        <p class="text-xs text-zinc-400 mb-2 line-clamp-2">${esc(w.about_me || 'No bio')}</p>
+        ${w.skills && w.skills.length > 0 ? '<div class="flex flex-wrap gap-1 mb-2">' + w.skills.slice(0, 2).map(s => `<span class="bg-[#14F1C6]/20 text-[#14F1C6] px-2 py-1 rounded text-[10px]">${esc(s)}</span>`).join('') + '</div>' : ''}
+        <button onclick="requireAuth(()=>toast('Message feature coming soon', 'info'))" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-2 rounded-lg font-bold text-xs transition">MESSAGE</button>
+      </div>
+    `).join('')
+  
+  gi('worker-grid').innerHTML = html
+}
+
+// ===== BLOG =====
+async function loadBlog() {
+  const res = await authFetch('blog_posts?status=eq.published&order=created_at.desc&limit=9')
+  const posts = await res.json()
+  
+  const html = posts.length === 0
+    ? '<div class="text-zinc-500 text-center py-16 col-span-full"><div class="text-5xl mb-4">📚</div><p class="font-bold">No articles yet</p></div>'
+    : posts.map(p => `
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden blog-card cursor-pointer" onclick="toast('Full article view coming soon', 'info')">
+        ${p.cover_url ? `<img src="${p.cover_url}" class="w-full h-32 object-cover">` : '<div class="w-full h-32 bg-zinc-800 flex items-center justify-center"><span class="text-3xl">📖</span></div>'}
+        <div class="p-4">
+          <h3 class="font-bold text-sm mb-2 line-clamp-2">${esc(p.title)}</h3>
+          <p class="text-xs text-zinc-400 line-clamp-2">${esc(p.body || '')}</p>
+          <div class="flex justify-between items-center mt-3">
+            <p class="text-[10px] text-zinc-600">${new Date(p.created_at).toLocaleDateString()}</p>
+            ${p.tags && p.tags.length > 0 ? '<div class="flex gap-1">' + p.tags.slice(0, 2).map(t => `<span class="bg-[#14F1C6]/20 text-[#14F1C6] px-2 py-0.5 rounded text-[10px]">${esc(t)}</span>`).join('') + '</div>' : ''}
+          </div>
+        </div>
+      </div>
+    `).join('')
+  
+  gi('blog-list').innerHTML = html
+}
+
+// ===== EXCHANGE CHATBOT =====
+async function sendToExchange() {
+  const msg = gv('exchange-input').trim()
+  if (!msg) return
+  
+  const cont = gi('exchange-messages')
+  const userEl = document.createElement('div')
+  userEl.className = 'bg-[#14F1C6]/20 rounded-2xl rounded-br-sm p-3 max-w-[85%] self-end text-sm'
+  userEl.innerHTML = '<p class="text-[#14F1C6]">' + esc(msg) + '</p>'
+  cont.appendChild(userEl)
+  gi('exchange-input').value = ''
+  cont.scrollTop = cont.scrollHeight
+  
+  // Simulate response
+  setTimeout(() => {
+    const respEl = document.createElement('div')
+    respEl.className = 'bg-zinc-800 rounded-2xl rounded-tl-sm p-3 max-w-[85%] text-sm'
+    
+    let resp = 'MUVR helps you earn more. Here's what you need to know:\n\n🔥 ZERO COMMISSION - No platform fees\n⚡ INSTANT PAYOUTS - No waiting 7-14 days\n📈 WEALTH GROWS - Deflationary MV appreciates over time\n🌍 BORDERLESS - Work anyone, anywhere, 1 currency\n📊 TRANSPARENT - Immutable ledger, no black boxes\n\nAsk me anything!'
+    
+    if (msg.toLowerCase().includes('earn')) resp = 'On MUVR, you keep 100% of your agreed rate. The only cost is 1 MV burned per job (which doesn't go to MUVR, it's removed from supply forever). On Fiverr/Upwork, you lose 20%. On Uber, you lose 25-30%. That's 25-50% more income on MUVR!'
+    else if (msg.toLowerCase().includes('burn')) resp = '1 MV burned per job means it's removed from the total supply forever. This creates SCARCITY. As the supply shrinks, remaining MV increases in value. It's like owning Bitcoin for work - the more jobs posted, the more valuable your MV becomes!'
+    else if (msg.toLowerCase().includes('price')) resp = '1 MV = $1 USD always. It\'s a stablecoin, not cryptocurrency. No volatility. No risk. Your 1000 MV = $1000 USD today, tomorrow, and forever.'
+    else if (msg.toLowerCase().includes('Uber')) resp = 'Uber takes 25-30% commission. MUVR takes 0%. On a $60 ride:\nUber: You get $42-45\nMUVR: You get $59 (keep 1 MV burned fee)\nThat\'s $14-17 MORE per ride. 1000 rides/year = $14,000-17,000 extra!'
+    else if (msg.toLowerCase().includes('Fiverr')) resp = 'Fiverr takes 20% commission AND makes you wait 14 days. MUVR: 0% commission, instant payouts. On $50K/year earnings:\nFiverr: Keep ~$38K (after fees, delays, forex loss)\nMUVR: Keep ~$49.75K\nThat\'s +$11.75K/year (29% more)!'
+    
+    respEl.innerHTML = '<p class="text-zinc-300 whitespace-pre-wrap">' + esc(resp) + '</p>'
+    cont.appendChild(respEl)
+    cont.scrollTop = cont.scrollHeight
+  }, 500)
+}
+
+// ===== REALTIME SUBSCRIPTIONS =====
+function setupRealtime() {
+  if (!user) return
+  
+  sb.channel('jobs-rt')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'jobs'
+    }, () => {
+      loadJobs()
+    })
+    .subscribe()
+  
+  sb.channel('workers-rt')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'users',
+      filter: 'is_available=eq.true'
+    }, () => {
+      if (lmap) loadWorkers()
+    })
+    .subscribe()
+  
+  sb.channel('wallet-rt')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'mv_ledger',
+      filter: 'user_id=eq.' + user.id
+    }, () => {
+      loadWallet()
+    })
+    .subscribe()
+}
+
+// ===== INIT =====
+init()
+loadBlog()
+
 </script>
 </body>
 </html>
