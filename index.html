@@ -398,7 +398,10 @@ var state = {
   realtimeSubs: [],
   unreadMsgCount: 0,
   presenceInterval: null,
-  notifications: []
+  notifications: [],
+  myGigsView: false,
+  myGigs: [],
+  myActiveWork: []
 };
 
 
@@ -837,6 +840,9 @@ function renderJobsTab() {
   var c = getEl('tab-content');
   if (!c) return;
 
+  /* Check if viewing My Gigs */
+  if (state.myGigsView) { renderMyGigsView(); return; }
+
   var cats = [
     {k:'all',l:'All',icon:'&#128300;'},
     {k:'rideshare',l:'Rideshare',icon:'&#128663;'},
@@ -901,12 +907,536 @@ function renderJobsTab() {
         '<h1 class="text-3xl sm:text-4xl font-black mb-1">Available Gigs</h1>' +
         '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Find work. Keep 100%. Level up. ' + state.jobs.length + ' gig' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
       '</div>' +
-      '<div class="hidden sm:block"><button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a gig</button></div>' +
+      '<div class="flex gap-2">' +
+        (state.user ? '<button onclick="state.myGigsView=true;renderJobsTab();loadMyGigs()" class="btn-pill btn-pill-ghost"><i class="fas fa-folder-open mr-1"></i>My Gigs</button>' : '') +
+        '<div class="hidden sm:block"><button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a gig</button></div>' +
+      '</div>' +
     '</div>' +
     '<div class="flex gap-2 mb-5 overflow-x-auto pb-1">' + btns + '</div>' +
     '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' + cards + '</div>' +
     '<div class="sm:hidden mt-5"><button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button></div>' +
   '</div>';
+}
+
+
+/* =============================================================================
+   MY GIGS VIEW - Job Lifecycle Management
+   Flow: open -> awarded -> in_progress -> completed -> paid
+============================================================================= */
+var JOB_STATUS_CONFIG = {
+  open:        { label: 'OPEN',        color: 'var(--accent)',   icon: '&#128994;' },
+  awarded:     { label: 'AWARDED',     color: 'var(--yellow)',   icon: '&#127942;' },
+  in_progress: { label: 'IN PROGRESS', color: 'var(--accent-2)', icon: '&#9889;' },
+  completed:   { label: 'COMPLETED',   color: 'var(--accent-3)', icon: '&#9989;' },
+  paid:        { label: 'PAID',        color: 'var(--accent)',   icon: '&#128176;' },
+  cancelled:   { label: 'CANCELLED',   color: 'var(--red)',      icon: '&#10060;' },
+  disputed:    { label: 'DISPUTED',    color: 'var(--red)',      icon: '&#9888;' }
+};
+
+async function loadMyGigs() {
+  if (!state.user) return;
+  try {
+    /* Jobs I posted (any status) */
+    var res = await apiRequest('jobs?poster_id=eq.' + state.user.id + '&select=*&order=created_at.desc');
+    state.myGigs = (res && res.ok) ? await res.json() : [];
+    /* Jobs I am working (awarded to me via applications) */
+    var workRes = await apiRequest('applications?worker_id=eq.' + state.user.id + '&status=in.(accepted,in_progress,completed)&select=*');
+    var myApps = (workRes && workRes.ok) ? await workRes.json() : [];
+    if (myApps.length > 0) {
+      var jobIds = myApps.map(function(a) { return a.job_id; }).filter(Boolean);
+      var jobRes = await apiRequest('jobs?id=in.(' + jobIds.join(',') + ')&select=*');
+      var jobData = (jobRes && jobRes.ok) ? await jobRes.json() : [];
+      state.myActiveWork = jobData.map(function(j) {
+        var app = myApps.find(function(a) { return a.job_id === j.id; });
+        j._myApp = app;
+        return j;
+      });
+    } else {
+      state.myActiveWork = [];
+    }
+    if (state.myGigsView && state.currentTab === 'jobs') renderMyGigsView();
+  } catch(e) { console.error('loadMyGigs error:', e); }
+}
+
+function renderMyGigsView() {
+  var c = getEl('tab-content');
+  if (!c) return;
+
+  var myGigsFilter = state.myGigsFilter || 'posted';
+
+  var postedHtml = '';
+  var workHtml = '';
+
+  if (myGigsFilter === 'posted') {
+    if (state.myGigs.length === 0) {
+      postedHtml = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) +
+        '<p class="font-black mt-3">No gigs posted yet</p>' +
+        '<p class="text-sm mt-1">Post your first gig to get started.</p>' +
+        '<button onclick="openPostJobModal()" class="btn-pill btn-pill-accent mt-4">Post a gig</button></div>';
+    } else {
+      postedHtml = state.myGigs.map(function(job) {
+        var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.open;
+        var apps = Number(job.applicant_count || 0);
+        return '<div class="card p-5 mb-3 cursor-pointer" onclick="openJobManageModal(\'' + job.id + '\')">' +
+          '<div class="flex items-start justify-between mb-2">' +
+            '<div class="flex-1 mr-3">' +
+              '<h3 class="font-black text-sm">' + escapeHtml(job.title) + '</h3>' +
+              '<p class="text-[11px] mt-1" style="color:var(--text-dim)">' + escapeHtml(job.description || '').substring(0, 80) + '</p>' +
+            '</div>' +
+            '<span class="text-[10px] font-black px-2 py-1 rounded-full whitespace-nowrap" style="color:' + sc.color + ';border:1px solid ' + sc.color + '40;background:' + sc.color + '15">' + sc.icon + ' ' + sc.label + '</span>' +
+          '</div>' +
+          '<div class="flex items-center justify-between mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.06)">' +
+            '<div class="flex gap-4 text-[11px]">' +
+              '<span style="color:var(--accent)" class="font-black">' + Number(job.budget_mv || 0) + ' MV</span>' +
+              '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
+            '</div>' +
+            (job.status === 'open' ? '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);color:' + (apps > 0 ? 'var(--yellow)' : 'var(--text-dim)') + '">' + apps + ' applicant' + (apps !== 1 ? 's' : '') + '</span>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  } else {
+    /* My Active Work */
+    if (state.myActiveWork.length === 0) {
+      workHtml = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) +
+        '<p class="font-black mt-3">No active work</p>' +
+        '<p class="text-sm mt-1">Apply to gigs to get started.</p>' +
+        '<button onclick="state.myGigsView=false;renderJobsTab()" class="btn-pill btn-pill-accent mt-4">Browse gigs</button></div>';
+    } else {
+      workHtml = state.myActiveWork.map(function(job) {
+        var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.open;
+        var canMarkDone = (job.status === 'in_progress');
+        var canStart = (job.status === 'awarded');
+        var isPaid = (job.status === 'paid');
+        return '<div class="card p-5 mb-3">' +
+          '<div class="flex items-start justify-between mb-2">' +
+            '<div class="flex-1 mr-3">' +
+              '<h3 class="font-black text-sm">' + escapeHtml(job.title) + '</h3>' +
+              '<p class="text-[11px] mt-1" style="color:var(--text-dim)">' + escapeHtml(job.description || '').substring(0, 80) + '</p>' +
+            '</div>' +
+            '<span class="text-[10px] font-black px-2 py-1 rounded-full whitespace-nowrap" style="color:' + sc.color + ';border:1px solid ' + sc.color + '40;background:' + sc.color + '15">' + sc.icon + ' ' + sc.label + '</span>' +
+          '</div>' +
+          '<div class="flex items-center justify-between mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.06)">' +
+            '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</span>' +
+            '<div class="flex gap-2">' +
+              '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
+              (canStart ? '<button onclick="workerStartJob(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-play mr-1"></i>Start work</button>' : '') +
+              (canMarkDone ? '<button onclick="workerMarkComplete(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-check mr-1"></i>Mark done</button>' : '') +
+              (isPaid ? '<span class="text-[10px] font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid</span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  c.innerHTML = '<div class="fade-up">' +
+    '<div class="mb-6 flex items-start justify-between gap-3">' +
+      '<div>' +
+        '<button onclick="state.myGigsView=false;renderJobsTab()" class="text-xs font-black mb-2 flex items-center gap-1" style="color:var(--accent)"><i class="fas fa-arrow-left"></i> Back to all gigs</button>' +
+        '<h1 class="text-3xl font-black mb-1">My Gigs</h1>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Manage your posted gigs and active work.</p>' +
+      '</div>' +
+      '<button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a gig</button>' +
+    '</div>' +
+    '<div class="flex gap-2 mb-5">' +
+      '<button onclick="state.myGigsFilter=\'posted\';renderMyGigsView()" class="btn-pill ' + (myGigsFilter === 'posted' ? 'btn-pill-accent' : 'btn-pill-ghost') + '"><i class="fas fa-clipboard-list mr-1"></i>Posted (' + state.myGigs.length + ')</button>' +
+      '<button onclick="state.myGigsFilter=\'work\';renderMyGigsView()" class="btn-pill ' + (myGigsFilter === 'work' ? 'btn-pill-accent' : 'btn-pill-ghost') + '"><i class="fas fa-hard-hat mr-1"></i>My Work (' + state.myActiveWork.length + ')</button>' +
+    '</div>' +
+    (myGigsFilter === 'posted' ? postedHtml : workHtml) +
+  '</div>';
+}
+
+/* Job management modal - shows applications, status controls, progress tracker */
+async function openJobManageModal(jobId) {
+  var job = state.myGigs.find(function(j) { return j.id === jobId; });
+  if (!job) return showToast('Job not found', 'error');
+
+  /* Load applications for this job */
+  try {
+    var appRes = await apiRequest('applications?job_id=eq.' + jobId + '&select=*&order=created_at.desc');
+    var apps = (appRes && appRes.ok) ? await appRes.json() : [];
+
+    /* Load applicant user info */
+    var workerIds = apps.map(function(a) { return a.worker_id; }).filter(Boolean);
+    var workerMap = {};
+    if (workerIds.length > 0) {
+      var wRes = await apiRequest('users?id=in.(' + workerIds.join(',') + ')&select=id,full_name,username,rating,jobs_completed,trust_score');
+      var wData = (wRes && wRes.ok) ? await wRes.json() : [];
+      wData.forEach(function(u) { workerMap[u.id] = u; });
+    }
+
+    var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.open;
+
+    /* Status progress bar */
+    var steps = ['open', 'awarded', 'in_progress', 'completed', 'paid'];
+    var currentIdx = steps.indexOf(job.status);
+    if (currentIdx < 0) currentIdx = 0;
+    var progressHtml = '<div class="flex items-center gap-1 mb-5">' +
+      steps.map(function(s, i) {
+        var active = i <= currentIdx;
+        var sConf = JOB_STATUS_CONFIG[s];
+        return '<div class="flex-1 text-center">' +
+          '<div class="h-2 rounded-full mb-1" style="background:' + (active ? sConf.color : 'rgba(255,255,255,0.08)') + '"></div>' +
+          '<span class="text-[9px] font-black" style="color:' + (active ? sConf.color : 'var(--text-dim)') + '">' + sConf.label + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+
+    /* Applications list */
+    var appsHtml = '';
+    if (apps.length === 0) {
+      appsHtml = '<div class="p-4 rounded-xl text-center" style="background:rgba(255,255,255,0.03)">' +
+        '<p class="text-sm" style="color:var(--text-dim)">No applications yet. Share the gig link to get applicants.</p></div>';
+    } else {
+      appsHtml = apps.map(function(app) {
+        var w = workerMap[app.worker_id] || {};
+        var name = w.full_name || w.username || 'Unknown';
+        var rating = Number(w.rating || 0);
+        var stars = '';
+        for (var i = 0; i < Math.floor(rating); i++) stars += '&#11088;';
+        var isAccepted = app.status === 'accepted' || app.status === 'in_progress' || app.status === 'completed';
+        var isPending = app.status === 'pending';
+        var canAward = isPending && (job.status === 'open');
+
+        return '<div class="p-4 rounded-xl mb-2" style="background:rgba(255,255,255,' + (isAccepted ? '0.08' : '0.04') + ');border:1px solid ' + (isAccepted ? 'rgba(24,246,200,0.30)' : 'rgba(255,255,255,0.08)') + '">' +
+          '<div class="flex items-start justify-between mb-2">' +
+            '<div>' +
+              '<p class="font-black text-sm">' + escapeHtml(name) + '</p>' +
+              '<div class="flex items-center gap-2 mt-1">' +
+                '<span class="text-[11px]">' + (stars || '&#9734; New') + '</span>' +
+                '<span class="text-[10px]" style="color:var(--text-dim)">' + Number(w.jobs_completed || 0) + ' jobs done</span>' +
+              '</div>' +
+            '</div>' +
+            '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="color:' + (isAccepted ? 'var(--accent)' : isPending ? 'var(--yellow)' : 'var(--text-dim)') + ';border:1px solid ' + (isAccepted ? 'var(--accent)' : isPending ? 'var(--yellow)' : 'var(--text-dim)') + '30">' +
+              (isAccepted ? '&#9989; AWARDED' : isPending ? '&#9203; PENDING' : escapeHtml(app.status).toUpperCase()) +
+            '</span>' +
+          '</div>' +
+          '<p class="text-xs mb-2" style="color:rgba(232,236,241,0.65)">' + escapeHtml(app.pitch || '') + '</p>' +
+          '<div class="flex items-center gap-3 text-[11px] mb-2" style="color:var(--text-dim)">' +
+            '<span><i class="fas fa-coins mr-1" style="color:var(--accent)"></i>' + Number(app.rate_mv || 0) + ' MV</span>' +
+            '<span><i class="fas fa-clock mr-1"></i>' + escapeHtml(app.turnaround || '') + '</span>' +
+          '</div>' +
+          (canAward ? '<div class="flex gap-2 mt-2">' +
+            '<button onclick="awardJob(\'' + jobId + '\',\'' + app.id + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-trophy mr-1"></i>Award job</button>' +
+            '<button onclick="startConvoFromJob(\'' + jobId + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
+          '</div>' : '') +
+        '</div>';
+      }).join('');
+    }
+
+    /* Action buttons based on current status */
+    var actionsHtml = '';
+    if (job.status === 'in_progress') {
+      actionsHtml = '<div class="mt-4 space-y-2">' +
+        '<p class="text-[11px] font-black" style="color:var(--text-dim)">POSTER ACTIONS</p>' +
+        '<button onclick="posterMarkComplete(\'' + jobId + '\')" class="btn-primary rounded-full"><i class="fas fa-check-circle mr-2"></i>Approve & release escrow</button>' +
+        '<button onclick="openDisputeModal(\'' + jobId + '\')" class="text-xs font-black py-2 text-center block" style="color:var(--red)"><i class="fas fa-exclamation-triangle mr-1"></i>Open dispute</button>' +
+      '</div>';
+    } else if (job.status === 'awarded') {
+      actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.20)">' +
+        '<p class="text-xs font-black" style="color:var(--yellow)"><i class="fas fa-info-circle mr-1"></i>Waiting for worker to start the job.</p>' +
+        '<p class="text-[11px] mt-1" style="color:var(--text-dim)">Once the worker begins, the status will update to In Progress.</p>' +
+      '</div>';
+    } else if (job.status === 'completed') {
+      actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
+        '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check mr-1"></i>Job completed! Reviewing for payment release.</p>' +
+        '<button onclick="releaseEscrow(\'' + jobId + '\')" class="btn-primary rounded-full mt-3"><i class="fas fa-unlock mr-2"></i>Release escrow payment</button>' +
+      '</div>';
+    } else if (job.status === 'paid') {
+      actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
+        '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Payment released. This gig is complete!</p>' +
+      '</div>';
+    } else if (job.status === 'open') {
+      actionsHtml = '<div class="mt-4">' +
+        '<button onclick="cancelJob(\'' + jobId + '\')" class="text-xs font-black py-2" style="color:var(--red)"><i class="fas fa-times mr-1"></i>Cancel gig & refund escrow</button>' +
+      '</div>';
+    }
+
+    openModal(
+      '<div class="card p-6" style="max-width:540px;margin:auto;max-height:90vh;overflow:auto">' +
+        '<div class="flex justify-between items-center mb-4">' +
+          '<h2 class="text-lg font-black">Manage Gig</h2>' +
+          '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+        '</div>' +
+
+        /* Job info header */
+        '<div class="p-4 rounded-xl mb-4" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+          '<h3 class="font-black mb-1">' + escapeHtml(job.title) + '</h3>' +
+          '<p class="text-xs mb-2" style="color:var(--text-dim)">' + escapeHtml(job.description || '') + '</p>' +
+          '<div class="flex gap-3 text-[11px]">' +
+            '<span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV budget</span>' +
+            '<span style="color:var(--text-dim)">' + escapeHtml(job.category || '') + '</span>' +
+            '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
+          '</div>' +
+        '</div>' +
+
+        /* Progress tracker */
+        progressHtml +
+
+        /* Applications section */
+        '<div class="mb-4">' +
+          '<h4 class="font-black text-sm mb-3"><i class="fas fa-users mr-1" style="color:var(--accent-2)"></i>Applications (' + apps.length + ')</h4>' +
+          appsHtml +
+        '</div>' +
+
+        actionsHtml +
+      '</div>',
+      { width: 'max-w-lg' }
+    );
+  } catch(e) { console.error('openJobManageModal error:', e); showToast('Error loading job details', 'error'); }
+}
+
+/* Award a job to a specific applicant */
+async function awardJob(jobId, applicationId, workerId) {
+  if (!confirm('Award this gig? The worker will be notified and can start immediately.')) return;
+  try {
+    /* Update application status to accepted */
+    await apiRequest('applications?id=eq.' + applicationId, {
+      method: 'PATCH', body: JSON.stringify({ status: 'accepted' })
+    });
+    /* Reject other pending applications */
+    await apiRequest('applications?job_id=eq.' + jobId + '&id=neq.' + applicationId + '&status=eq.pending', {
+      method: 'PATCH', body: JSON.stringify({ status: 'rejected' })
+    });
+    /* Update job status to awarded */
+    await apiRequest('jobs?id=eq.' + jobId, {
+      method: 'PATCH', body: JSON.stringify({ status: 'awarded' })
+    });
+    /* Create or get conversation with the worker */
+    try {
+      var convoRes = await apiRequest('rpc/get_or_create_conversation', {
+        method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: workerId, p_job_id: jobId })
+      });
+      if (convoRes && convoRes.ok) {
+        var cid = await convoRes.json();
+        if (cid) {
+          var j = state.myGigs.find(function(x) { return x.id === jobId; });
+          await apiRequest('messages', {
+            method: 'POST', body: JSON.stringify({
+              conversation_id: cid, sender_id: state.user.id,
+              body: 'You have been awarded the gig "' + (j ? j.title : 'untitled') + '"! You can start whenever you are ready. Update me on progress here.'
+            })
+          });
+        }
+      }
+    } catch(ce) { console.warn('Award convo msg failed:', ce); }
+    /* Notify worker */
+    try {
+      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'job_awarded', title: 'You got the gig!', body: 'You were awarded a gig. Check your messages for details.', channel: 'email' }) });
+    } catch(e) {}
+    closeModal();
+    showToast('Gig awarded! Worker notified.');
+    setMuxi('Another one bites the dust. Nice hire, boss.');
+    loadMyGigs();
+  } catch(e) { showToast('Error awarding gig: ' + (e.message || ''), 'error'); console.error('awardJob error:', e); }
+}
+
+/* Worker starts the job (updates to in_progress) */
+async function workerStartJob(jobId) {
+  try {
+    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'in_progress' }) });
+    await apiRequest('applications?job_id=eq.' + jobId + '&worker_id=eq.' + state.user.id, {
+      method: 'PATCH', body: JSON.stringify({ status: 'in_progress' })
+    });
+    showToast('Job started! Keep the poster updated.');
+    setMuxi('Let\'s get this bread. You got this!');
+    loadMyGigs();
+  } catch(e) { showToast('Error starting job', 'error'); }
+}
+
+/* Worker marks job as complete */
+async function workerMarkComplete(jobId) {
+  if (!confirm('Mark this job as complete? The poster will review and release payment.')) return;
+  try {
+    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'completed' }) });
+    await apiRequest('applications?job_id=eq.' + jobId + '&worker_id=eq.' + state.user.id, {
+      method: 'PATCH', body: JSON.stringify({ status: 'completed' })
+    });
+    /* Notify poster */
+    var job = state.myActiveWork.find(function(j) { return j.id === jobId; });
+    if (job && job.poster_id) {
+      try {
+        await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'job_completed', title: 'Job completed', body: 'A worker marked "' + (job.title || 'your gig') + '" as complete. Review and release payment.', channel: 'email' }) });
+      } catch(e) {}
+      /* Send message to poster */
+      try {
+        var convoRes = await apiRequest('rpc/get_or_create_conversation', {
+          method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: job.poster_id, p_job_id: jobId })
+        });
+        if (convoRes && convoRes.ok) {
+          var cid = await convoRes.json();
+          if (cid) {
+            await apiRequest('messages', { method: 'POST', body: JSON.stringify({
+              conversation_id: cid, sender_id: state.user.id,
+              body: 'I have completed the work on "' + (job.title || 'this gig') + '". Please review and release payment when ready!'
+            })});
+          }
+        }
+      } catch(e) {}
+    }
+    showToast('Marked as complete! Waiting for poster to release payment.');
+    setMuxi('Work done! Now we wait for that sweet MV.');
+    loadMyGigs();
+  } catch(e) { showToast('Error completing job', 'error'); console.error('workerMarkComplete error:', e); }
+}
+
+/* Poster approves completion and releases escrow */
+async function posterMarkComplete(jobId) {
+  if (!confirm('Approve this work and release escrow payment to the worker?')) return;
+  await releaseEscrow(jobId);
+}
+
+async function releaseEscrow(jobId) {
+  try {
+    var job = state.myGigs.find(function(j) { return j.id === jobId; });
+    if (!job) return showToast('Job not found', 'error');
+
+    /* Find the awarded worker */
+    var appRes = await apiRequest('applications?job_id=eq.' + jobId + '&status=in.(accepted,in_progress,completed)&select=worker_id,rate_mv');
+    var apps = (appRes && appRes.ok) ? await appRes.json() : [];
+    if (!apps.length) return showToast('No awarded worker found', 'error');
+    var workerId = apps[0].worker_id;
+    var payAmount = Number(apps[0].rate_mv || job.budget_mv || 0);
+
+    var txh = 'ESC_REL_' + Date.now() + Math.random().toString(36).slice(2, 6);
+
+    /* Use transfer_mv RPC to move funds from poster to worker */
+    var rpcOk = false;
+    try {
+      var rpcRes = await apiRequest('rpc/transfer_mv', {
+        method: 'POST', body: JSON.stringify({ p_from_id: state.user.id, p_to_id: workerId, p_amount: payAmount, p_tx_hash: txh })
+      });
+      if (rpcRes && rpcRes.ok) rpcOk = true;
+    } catch(re) { console.warn('transfer_mv for escrow release failed:', re); }
+
+    if (!rpcOk) {
+      /* Fallback: credit worker directly */
+      await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({
+        user_id: workerId, type: 'receive', amount_mv: payAmount, description: 'Escrow release for job', tx_hash: txh, related_job_id: jobId, related_user_id: state.user.id
+      })});
+      try {
+        var wb = await apiRequest('users?id=eq.' + workerId + '&select=mv_balance');
+        var wd = (wb && wb.ok) ? await wb.json() : [];
+        if (wd.length) await apiRequest('users?id=eq.' + workerId, { method: 'PATCH', body: JSON.stringify({ mv_balance: Number(wd[0].mv_balance || 0) + payAmount }) });
+      } catch(e) {}
+    }
+
+    /* Update escrow record */
+    try {
+      await apiRequest('escrow?job_id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'released' }) });
+    } catch(e) { console.warn('escrow update failed:', e); }
+
+    /* Update job status to paid */
+    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'paid' }) });
+    await apiRequest('applications?job_id=eq.' + jobId + '&worker_id=eq.' + workerId, {
+      method: 'PATCH', body: JSON.stringify({ status: 'paid' })
+    });
+
+    /* Update worker stats */
+    try {
+      var wUser = await apiRequest('users?id=eq.' + workerId + '&select=jobs_completed');
+      var wud = (wUser && wUser.ok) ? await wUser.json() : [];
+      if (wud.length) {
+        await apiRequest('users?id=eq.' + workerId, { method: 'PATCH', body: JSON.stringify({ jobs_completed: Number(wud[0].jobs_completed || 0) + 1 }) });
+      }
+    } catch(e) {}
+
+    /* Publish escrow release event */
+    await publishEvent('escrow_release', payAmount, txh, state.user.id, workerId, jobId);
+
+    /* Notify worker */
+    try {
+      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'payment_released', title: 'Payment released!', body: payAmount + ' MV has been released to your wallet for completing a gig.', channel: 'email' }) });
+    } catch(e) {}
+
+    /* Send message */
+    try {
+      var convoRes = await apiRequest('rpc/get_or_create_conversation', {
+        method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: workerId, p_job_id: jobId })
+      });
+      if (convoRes && convoRes.ok) {
+        var cid = await convoRes.json();
+        if (cid) {
+          await apiRequest('messages', { method: 'POST', body: JSON.stringify({
+            conversation_id: cid, sender_id: state.user.id,
+            body: 'Payment of ' + payAmount + ' MV has been released! Thanks for the great work.'
+          })});
+        }
+      }
+    } catch(e) {}
+
+    closeModal();
+    showToast('Escrow released! ' + payAmount + ' MV paid to worker.');
+    setMuxi('Money moved. Trust verified. That is the MUVR way.');
+    loadMyGigs();
+    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+  } catch(e) { showToast('Error releasing escrow: ' + (e.message || ''), 'error'); console.error('releaseEscrow error:', e); }
+}
+
+/* Cancel a job and refund escrow to poster */
+async function cancelJob(jobId) {
+  if (!confirm('Cancel this gig? Your escrowed MV will be refunded (minus the 1 MV burn fee).')) return;
+  try {
+    var job = state.myGigs.find(function(j) { return j.id === jobId; });
+    if (!job) return;
+    var refund = Number(job.budget_mv || 0); /* burn fee already gone */
+
+    /* Refund balance */
+    var bal = Number((state.profile && state.profile.mv_balance) || 0);
+    await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: bal + refund }) });
+    state.profile.mv_balance = bal + refund;
+
+    /* Log refund in ledger */
+    var txh = 'REFUND_' + Date.now();
+    await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({
+      user_id: state.user.id, type: 'receive', amount_mv: refund, description: 'Escrow refund (gig cancelled)', tx_hash: txh, related_job_id: jobId
+    })});
+
+    /* Update escrow */
+    try { await apiRequest('escrow?job_id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'refunded' }) }); } catch(e) {}
+
+    /* Update job */
+    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'cancelled' }) });
+
+    /* Reject any pending applications */
+    try { await apiRequest('applications?job_id=eq.' + jobId + '&status=eq.pending', { method: 'PATCH', body: JSON.stringify({ status: 'rejected' }) }); } catch(e) {}
+
+    await publishEvent('escrow_release', refund, txh, null, state.user.id, jobId);
+
+    closeModal();
+    showToast('Gig cancelled. ' + refund + ' MV refunded.');
+    setMuxi('No worries. That MV is back in your wallet.');
+    loadMyGigs(); loadJobsSafe();
+  } catch(e) { showToast('Error cancelling gig', 'error'); console.error('cancelJob error:', e); }
+}
+
+/* Open dispute modal */
+function openDisputeModal(jobId) {
+  openModal(
+    '<div class="card p-6" style="max-width:420px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-lg font-black" style="color:var(--red)"><i class="fas fa-exclamation-triangle mr-2"></i>Open Dispute</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<p class="text-xs mb-3" style="color:var(--text-dim)">Disputes freeze the escrow until resolved. Please describe the issue:</p>' +
+      '<textarea id="dispute-reason" placeholder="Describe the problem..." rows="4" maxlength="500" class="field" style="resize:none"></textarea>' +
+      '<button onclick="submitDispute(\'' + jobId + '\')" class="btn-primary rounded-full mt-3" style="background:var(--red)"><i class="fas fa-gavel mr-2"></i>Submit Dispute</button>' +
+      '<p class="text-[10px] mt-2" style="color:var(--text-dim)">Escrow will be held until the dispute is reviewed. Our team will reach out within 24-48 hours.</p>' +
+    '</div>',
+    { width: 'max-w-md' }
+  );
+}
+
+async function submitDispute(jobId) {
+  var reason = ((getEl('dispute-reason') || {}).value || '').trim();
+  if (!reason) return showToast('Please describe the issue', 'error');
+  try {
+    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'disputed' }) });
+    /* Log dispute (notifications_queue as a proxy - could add a disputes table later) */
+    await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'dispute_opened', title: 'Dispute opened', body: 'Job ' + jobId.slice(0,8) + ': ' + reason, channel: 'email' }) });
+    closeModal();
+    showToast('Dispute submitted. Escrow frozen until resolved.');
+    setMuxi('Dispute filed. We will look into this. Escrow is safe.');
+    loadMyGigs();
+  } catch(e) { showToast('Error submitting dispute', 'error'); }
 }
 
 
@@ -2349,7 +2879,7 @@ async function handleSignIn() {
 async function handleLogout() {
   try { await sb.auth.signOut(); } catch(e) {}
   state.realtimeSubs.forEach(function(ch) { try { sb.removeChannel(ch); } catch(e) {} });
-  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[] };
+  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[], myGigsView:false, myGigs:[], myActiveWork:[] };
   renderLanding();
   var fab = getEl('muxi-fab'); if (fab) fab.remove();
   var bub = getEl('muxi-bubble'); if (bub) bub.remove();
