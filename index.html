@@ -9,8 +9,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
 
 ```
 :root {
@@ -314,15 +316,15 @@ body {
 
   </style>
 </head>
-<body>
+<body style="background:#06080f;color:#e8ecf1;font-family:'Outfit',sans-serif;margin:0">
 
 <!-- Boot Screen (shown during auth check) -->
 
-<div id="boot-screen">
-  <div class="text-center">
-    <div class="boot-spinner mx-auto mb-4"></div>
-    <div class="text-xl font-extrabold tracking-tight">
-      MU<span style="color: var(--accent)">V</span>R
+<div id="boot-screen" style="position:fixed;inset:0;z-index:10000;background:#06080f;display:flex;align-items:center;justify-content:center">
+  <div style="text-align:center">
+    <div class="boot-spinner" style="width:40px;height:40px;border:3px solid #1e2633;border-top-color:#14F1C6;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px"></div>
+    <div style="font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#e8ecf1">
+      MU<span style="color:#14F1C6">V</span>R
     </div>
   </div>
 </div>
@@ -1565,10 +1567,24 @@ showToast(‘Withdrawn $’ + receiveAmount.toFixed(2) + ‘!’);
 // BOOT SEQUENCE
 // =============================================================================
 async function boot() {
+// Safety timeout — if boot takes more than 5s, show landing anyway
+const bootTimeout = setTimeout(() => {
+console.warn(‘Boot timeout — showing landing’);
+if (getEl(‘root’).innerHTML === ‘’) {
+renderLanding();
+getEl(‘boot-screen’).classList.add(‘done’);
+}
+}, 5000);
+
 try {
-const { data: { session } } = await sb.auth.getSession();
+// Check if Supabase loaded
+if (typeof supabase === ‘undefined’) {
+throw new Error(‘Supabase not loaded’);
+}
 
 ```
+const { data: { session } } = await sb.auth.getSession();
+
 if (session?.user) {
   // Returning user — load data and show app
   state.user = session.user;
@@ -1587,10 +1603,13 @@ console.error(‘Boot error:’, error);
 renderLanding();
 }
 
+clearTimeout(bootTimeout);
+
 // Fade out boot screen
 getEl(‘boot-screen’).classList.add(‘done’);
 
 // Listen for auth state changes
+try {
 sb.auth.onAuthStateChange((event, session) => {
 if (session?.user) {
 state.user = session.user;
@@ -1600,6 +1619,9 @@ state.user = null;
 state.token = null;
 }
 });
+} catch (e) {
+console.error(‘Auth listener error:’, e);
+}
 }
 
 // Start the app
