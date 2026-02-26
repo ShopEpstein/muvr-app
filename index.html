@@ -1,363 +1,429 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MUVR - Zero Commission. Instant Payouts. Your Wealth Grows.</title>
-  <meta name="description" content="MUVR: Earn 25-50% more. Zero commission. Instant payouts. Deflationary currency.">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>MUVR — Zero Commission. Instant Release. The Real-World Work Game.</title>
+  <meta name="description" content="MUVR: A borderless work marketplace. Keep 100%. Use MUVR Credits (MV) — platform credits for in-app work flows." />
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
+    :root {
+      /* Adjusted palette (more playful, higher contrast, still premium) */
+      --accent: #18F6C8;
+      --accent-2: #7C5CFF;
+      --accent-3: #FF3D9A;
+      --accent-hover: #42FBE0;
 
-```
-:root {
-  --accent: #14F1C6;
-  --accent-hover: #3df5d4;
-  --bg-deep: #06080f;
-  --bg-card: #0d1117;
-  --bg-card2: #131920;
-  --border: #1e2633;
-  --text-dim: #5a6577;
-  --text-mid: #8b95a5;
-  --text-bright: #e8ecf1;
-  --red: #f87171;
-  --yellow: #facc15;
-}
+      --bg-deep: #050716;
+      --bg-card: rgba(14, 18, 34, 0.82);
+      --bg-card2: rgba(18, 24, 44, 0.86);
+      --border: rgba(255,255,255,0.10);
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+      --text-dim: rgba(232, 236, 241, 0.52);
+      --text-mid: rgba(232, 236, 241, 0.72);
+      --text-bright: rgba(232, 236, 241, 0.96);
 
-body {
-  font-family: 'Outfit', sans-serif;
-  background: var(--bg-deep);
-  color: var(--text-bright);
-  overflow-x: hidden;
-  min-height: 100vh;
-}
+      --red: #ff6b6b;
+      --yellow: #ffd166;
 
-/* ===== Boot Screen ===== */
-#boot-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  background: var(--bg-deep);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-#boot-screen.done {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-.boot-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+      --shadow: rgba(0,0,0,0.55);
+    }
 
-/* ===== Page Transitions ===== */
-.fade-up {
-  animation: fadeUpIn 0.45s ease both;
-}
-.fade-up.d1 { animation-delay: 0.06s; }
-.fade-up.d2 { animation-delay: 0.12s; }
-.fade-up.d3 { animation-delay: 0.18s; }
-.fade-up.d4 { animation-delay: 0.24s; }
-@keyframes fadeUpIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-bright);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
 
-/* ===== Ticker ===== */
-.ticker-scroll {
-  animation: tickerMove 25s linear infinite;
-}
-@keyframes tickerMove {
-  to { transform: translateX(-50%); }
-}
+    /* ===== Animated Background ===== */
+    .bg-stage {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      overflow: hidden;
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(24,246,200,0.14), transparent 60%),
+                  radial-gradient(900px 700px at 90% 20%, rgba(124,92,255,0.14), transparent 60%),
+                  radial-gradient(900px 700px at 70% 90%, rgba(255,61,154,0.10), transparent 60%),
+                  linear-gradient(180deg, #050716, #040515 45%, #050716);
+    }
+    .blob {
+      position: absolute;
+      width: 520px; height: 520px;
+      filter: blur(38px);
+      opacity: 0.28;
+      border-radius: 999px;
+      transform: translate3d(0,0,0);
+      mix-blend-mode: screen;
+      animation: floaty 10s ease-in-out infinite;
+    }
+    .blob.b1 { background: rgba(24,246,200,0.9); left: -140px; top: -180px; animation-duration: 12s; }
+    .blob.b2 { background: rgba(124,92,255,0.9); right: -180px; top: -120px; animation-duration: 14s; }
+    .blob.b3 { background: rgba(255,61,154,0.8); left: 10%; bottom: -220px; animation-duration: 16s; }
+    @keyframes floaty {
+      0%,100% { transform: translate3d(0,0,0) scale(1); }
+      50% { transform: translate3d(30px,-18px,0) scale(1.06); }
+    }
 
-/* ===== Modal System ===== */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(4, 6, 14, 0.88);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
-}
-.modal-overlay.open {
-  opacity: 1;
-  visibility: visible;
-}
-.modal-overlay .modal-body {
-  transform: translateY(14px) scale(0.97);
-  transition: transform 0.25s ease;
-}
-.modal-overlay.open .modal-body {
-  transform: translateY(0) scale(1);
-}
+    /* ===== Boot Screen ===== */
+    #boot-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(5, 7, 22, 0.92);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    #boot-screen.done {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .boot-spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(255,255,255,0.14);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ===== Form Fields ===== */
-.field {
-  width: 100%;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 14px;
-  color: var(--text-bright);
-  font-family: 'Outfit', sans-serif;
-  transition: border-color 0.2s ease;
-}
-.field:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-.field::placeholder {
-  color: var(--text-dim);
-}
+    /* ===== Page Transitions ===== */
+    .fade-up { animation: fadeUpIn 0.5s ease both; }
+    .fade-up.d1 { animation-delay: 0.06s; }
+    .fade-up.d2 { animation-delay: 0.12s; }
+    .fade-up.d3 { animation-delay: 0.18s; }
+    .fade-up.d4 { animation-delay: 0.24s; }
+    @keyframes fadeUpIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-/* ===== Buttons ===== */
-.btn-primary {
-  background: var(--accent);
-  color: #000;
-  font-weight: 700;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 14px;
-  cursor: pointer;
-  width: 100%;
-  font-family: 'Outfit', sans-serif;
-  transition: background 0.15s ease, transform 0.1s ease;
-}
-.btn-primary:hover { background: var(--accent-hover); }
-.btn-primary:active { transform: scale(0.98); }
-.btn-primary:disabled {
-  background: var(--border);
-  color: var(--text-dim);
-  cursor: not-allowed;
-}
+    /* ===== Buttons / Fields ===== */
+    .field {
+      width: 100%;
+      background: rgba(12, 16, 30, 0.88);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--text-bright);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+    .field:focus {
+      outline: none;
+      border-color: rgba(24,246,200,0.65);
+      box-shadow: 0 0 0 6px rgba(24,246,200,0.10), 0 12px 34px rgba(0,0,0,0.22);
+    }
+    .field::placeholder { color: rgba(232,236,241,0.38); }
 
-.btn-secondary {
-  background: var(--bg-card2);
-  color: var(--text-bright);
-  font-weight: 600;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 14px;
-  cursor: pointer;
-  width: 100%;
-  font-family: 'Outfit', sans-serif;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-.btn-secondary:hover {
-  background: #1a2230;
-  border-color: #2e3a4a;
-}
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), rgba(24,246,200,0.65));
+      color: #00110B;
+      font-weight: 900;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
+      box-shadow: 0 14px 40px rgba(24,246,200,0.14);
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+    .btn-primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0) scale(0.99); }
+    .btn-primary:disabled { background: rgba(255,255,255,0.08); color: rgba(232,236,241,0.45); cursor: not-allowed; box-shadow: none; }
 
-.btn-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 22px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  font-family: 'Outfit', sans-serif;
-  transition: all 0.15s ease;
-}
-.btn-pill-accent {
-  background: var(--accent);
-  color: #000;
-}
-.btn-pill-accent:hover { background: var(--accent-hover); }
-.btn-pill-ghost {
-  background: var(--bg-card2);
-  color: var(--text-mid);
-  border: 1px solid var(--border);
-}
-.btn-pill-ghost:hover { background: #1a2230; }
-.btn-pill-ghost.active {
-  background: var(--accent);
-  color: #000;
-  border-color: var(--accent);
-}
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-bright);
+      font-weight: 800;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); transform: translateY(-1px); }
+    .btn-secondary:active { transform: translateY(0); }
 
-/* ===== Toast Notifications ===== */
-#toast-container {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  pointer-events: none;
-}
-.toast {
-  padding: 14px 22px;
-  border-radius: 14px;
-  font-size: 13px;
-  font-weight: 600;
-  animation: toastSlide 0.3s ease;
-  max-width: 340px;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  pointer-events: auto;
-}
-.toast-success { background: rgba(6, 95, 70, 0.92); color: #6ee7b7; }
-.toast-error { background: rgba(127, 29, 29, 0.92); color: #fca5a5; }
-.toast-info { background: rgba(20, 40, 70, 0.92); color: #93c5fd; }
-@keyframes toastSlide {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .btn-pill-accent { background: rgba(24,246,200,0.92); color: #00110B; box-shadow: 0 14px 40px rgba(24,246,200,0.10); }
+    .btn-pill-accent:hover { filter: brightness(1.06); transform: translateY(-1px); }
+    .btn-pill-ghost { background: rgba(255,255,255,0.06); color: rgba(232,236,241,0.75); border: 1px solid rgba(255,255,255,0.10); }
+    .btn-pill-ghost:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); transform: translateY(-1px); }
+    .btn-pill-ghost.active { background: rgba(24,246,200,0.92); color: #00110B; border-color: rgba(24,246,200,0.92); }
 
-/* ===== Cards ===== */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  transition: border-color 0.2s ease, transform 0.2s ease;
-}
-.card-interactive:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
+    /* ===== Cards ===== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      backdrop-filter: blur(12px);
+    }
+    .card-interactive { transition: transform 0.18s ease, border-color 0.18s ease, filter 0.18s ease; }
+    .card-interactive:hover { border-color: rgba(24,246,200,0.35); transform: translateY(-2px); filter: brightness(1.02); }
 
-/* ===== Desktop Nav Tabs ===== */
-.desktop-tab {
-  padding: 6px 0;
-  border-bottom: 2px solid transparent;
-  color: var(--text-mid);
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  font-family: 'Outfit', sans-serif;
-}
-.desktop-tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
+    /* ===== Modal ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(4, 6, 14, 0.80);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+    .modal-overlay .modal-body { transform: translateY(14px) scale(0.97); transition: transform 0.25s ease; }
+    .modal-overlay.open .modal-body { transform: translateY(0) scale(1); }
 
-/* ===== Mobile Nav Tabs ===== */
-.mobile-tab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  color: var(--text-dim);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: 'Outfit', sans-serif;
-  transition: color 0.15s ease;
-}
-.mobile-tab.active {
-  color: var(--accent);
-}
+    .close-btn {
+      color: rgba(232,236,241,0.55);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .close-btn:hover { color: rgba(232,236,241,0.95); transform: rotate(6deg); }
 
-/* ===== Utility ===== */
-.hero-gradient {
-  background: linear-gradient(135deg, #14F1C6, #06af86);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.mono { font-family: 'JetBrains Mono', monospace; }
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.close-btn {
-  color: var(--text-dim);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 22px;
-  line-height: 1;
-  transition: color 0.15s;
-}
-.close-btn:hover { color: var(--text-bright); }
+    /* ===== Toast ===== */
+    #toast-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast {
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 800;
+      animation: toastSlide 0.28s ease;
+      max-width: 360px;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      pointer-events: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.24);
+    }
+    .toast-success { background: rgba(6, 95, 70, 0.90); color: #9ff7d5; }
+    .toast-error { background: rgba(127, 29, 29, 0.90); color: #ffd2d2; }
+    .toast-info { background: rgba(20, 40, 70, 0.90); color: #c9ddff; }
+    @keyframes toastSlide {
+      from { transform: translateX(16px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
 
-/* ===== Scrollbar ===== */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-```
+    /* ===== Ticker ===== */
+    .ticker-scroll { animation: tickerMove 22s linear infinite; }
+    @keyframes tickerMove { to { transform: translateX(-50%); } }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 
+    /* ===== Helpers ===== */
+    .hero-gradient {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ===== MUXI Assistant ===== */
+    #muxi {
+      position: fixed;
+      right: 16px;
+      bottom: 88px;
+      z-index: 9998;
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.26);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      user-select: none;
+      transform: translate3d(0,0,0);
+      transition: transform 0.16s ease, filter 0.16s ease, border-color 0.16s ease;
+      animation: muxiFloat 4.2s ease-in-out infinite;
+    }
+    #muxi:hover { transform: translateY(-2px) scale(1.02); border-color: rgba(24,246,200,0.35); filter: brightness(1.04); }
+    @keyframes muxiFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    #muxi-bubble {
+      position: fixed;
+      right: 16px;
+      bottom: 182px;
+      z-index: 9998;
+      max-width: 280px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(14, 18, 34, 0.88);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.30);
+      display: none;
+    }
+    #muxi-bubble.show { display: block; animation: fadeUpIn 0.28s ease both; }
+    #muxi-bubble .t { font-weight: 900; font-size: 12px; letter-spacing: 0.2px; }
+    #muxi-bubble .m { margin-top: 6px; font-weight: 600; font-size: 12px; color: rgba(232,236,241,0.74); line-height: 1.3; }
+    #muxi-bubble .cta { margin-top: 10px; display: flex; gap: 8px; }
+    #muxi-bubble .mini {
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      color: rgba(232,236,241,0.9);
+      font-weight: 900;
+      font-size: 11px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.12s ease;
+    }
+    #muxi-bubble .mini:hover { transform: translateY(-1px); background: rgba(255,255,255,0.10); }
+
+    /* Mobile spacing */
+    @media (max-width: 640px) {
+      #muxi { bottom: 94px; width: 84px; height: 84px; }
+      #muxi-bubble { bottom: 184px; right: 12px; }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); border-radius: 3px; }
   </style>
 </head>
-<body style="background:#06080f;color:#e8ecf1;font-family:'Outfit',sans-serif;margin:0">
 
-<!-- Boot Screen (shown during auth check) -->
+<body>
+  <div class="bg-stage" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+  </div>
 
-<div id="boot-screen" style="position:fixed;inset:0;z-index:10000;background:#06080f;display:flex;align-items:center;justify-content:center">
-  <div style="text-align:center">
-    <div class="boot-spinner" style="width:40px;height:40px;border:3px solid #1e2633;border-top-color:#14F1C6;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px"></div>
-    <div style="font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#e8ecf1">
-      MU<span style="color:#14F1C6">V</span>R
+  <!-- Boot Screen -->
+  <div id="boot-screen">
+    <div style="text-align:center">
+      <div class="boot-spinner" style="margin:0 auto 14px"></div>
+      <div style="font-size:20px;font-weight:900;letter-spacing:-0.4px;color:var(--text-bright)">
+        <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R
+      </div>
+      <div style="margin-top:10px;font-size:11px;font-weight:800;color:rgba(232,236,241,0.60);letter-spacing:0.24px;text-transform:uppercase">
+        Loading the network…
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Toast Container -->
+  <!-- Toast -->
+  <div id="toast-container"></div>
 
-<div id="toast-container"></div>
+  <!-- App Root -->
+  <div id="root"></div>
 
-<!-- Root - dynamically populated with either landing or app -->
+  <!-- Modals -->
+  <div id="modal-layer"></div>
 
-<div id="root"></div>
-
-<!-- Modal Layer - modals injected here -->
-
-<div id="modal-layer"></div>
+  <!-- MUXI Assistant -->
+  <div id="muxi" title="MUXI — your chaotic helper">
+    <!-- Simple “sketchy donkey” SVG (no external assets) -->
+    <svg width="52" height="52" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <path d="M18 20 L12 10 L22 14" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M46 20 L52 10 L42 14" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18 20 C18 14, 46 14, 46 20" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M16 22 C14 34, 18 48, 32 50 C46 48, 50 34, 48 22" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M24 34 C24 34, 24 34, 24 34" stroke="rgba(24,246,200,0.95)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M40 34 C40 34, 40 34, 40 34" stroke="rgba(24,246,200,0.95)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M30 40 C32 42, 34 42, 36 40" stroke="rgba(232,236,241,0.92)" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M28 44 C30 46, 34 46, 36 44" stroke="rgba(232,236,241,0.62)" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M20 30 C22 26, 26 26, 28 30" stroke="rgba(232,236,241,0.35)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M36 30 C38 26, 42 26, 44 30" stroke="rgba(232,236,241,0.35)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div id="muxi-bubble">
+    <div class="t">MUXI</div>
+    <div class="m" id="muxi-msg">I keep the app from face-planting. Tap me if something feels weird.</div>
+    <div class="cta">
+      <button class="mini" id="muxi-action-1">Diagnose</button>
+      <button class="mini" id="muxi-action-2">Quick Tips</button>
+    </div>
+  </div>
 
 <script>
-
-// =============================================================================
-// SUPABASE CONFIG
-// =============================================================================
+/* =============================================================================
+   SUPABASE CONFIG
+============================================================================= */
 const SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o';
+
 let sb = null;
 try {
-  sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+  sb = supabase.createClient(SUPA_URL, SUPA_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
 } catch (e) {
   console.error('Failed to create Supabase client:', e);
 }
 
-// =============================================================================
-// APPLICATION STATE
-// =============================================================================
+/* =============================================================================
+   STATE
+============================================================================= */
 let state = {
   user: null,
   token: null,
@@ -365,61 +431,143 @@ let state = {
   jobs: [],
   jobFilter: 'all',
   balanceVisible: false,
-  currentTab: 'jobs'
+  currentTab: 'jobs',
+  mode: 'online',     // 'online' | 'offline'
+  muxiMood: 'idle'    // idle | loading | success | error
 };
 
-// =============================================================================
-// DOM HELPERS
-// =============================================================================
+/* =============================================================================
+   DOM HELPERS
+============================================================================= */
 const getEl = (id) => document.getElementById(id);
 
 function escapeHtml(str) {
   const div = document.createElement('div');
-  div.textContent = str || '';
+  div.textContent = (str ?? '').toString();
   return div.innerHTML;
 }
 
-// =============================================================================
-// TOAST NOTIFICATION SYSTEM
-// =============================================================================
+function withTimeout(promise, ms, label) {
+  let t;
+  const timeout = new Promise((_, reject) => {
+    t = setTimeout(() => reject(new Error('timeout:' + (label || 'op'))), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+}
+
+/* =============================================================================
+   TOAST
+============================================================================= */
 function showToast(message, type = 'success') {
   const container = getEl('toast-container');
+  if (!container) return;
   const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
+  toast.className = 'toast toast-' + type;
   toast.textContent = message;
   container.appendChild(toast);
 
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
-  }, 3500);
+    toast.style.transition = 'opacity 0.25s ease';
+    setTimeout(() => toast.remove(), 260);
+  }, 3200);
 }
 
-// =============================================================================
-// AUTHENTICATED API HELPER
-// =============================================================================
-async function apiRequest(path, options = {}) {
-  if (!state.token) {
-    const session = await sb.auth.getSession();
-    state.token = session.data.session?.access_token;
+/* =============================================================================
+   MUXI
+============================================================================= */
+function setMuxi(mood, msg) {
+  state.muxiMood = mood || state.muxiMood;
+  const bubble = getEl('muxi-bubble');
+  const m = getEl('muxi-msg');
+  if (msg && m) m.textContent = msg;
+
+  // subtle mood-based toasts
+  if (mood === 'error') {
+    // no spam; only toast on major errors
   }
-  if (!state.token) return null;
-
-  const headers = {
-    'apikey': SUPA_KEY,
-    'Authorization': 'Bearer ' + state.token,
-    ...(options.headers || {})
-  };
-
-  return fetch(SUPA_URL + '/rest/v1/' + path, { ...options, headers });
+  // show bubble briefly
+  if (bubble) {
+    bubble.classList.add('show');
+    clearTimeout(window.__muxiHideTimer);
+    window.__muxiHideTimer = setTimeout(() => bubble.classList.remove('show'), 4200);
+  }
 }
 
-// =============================================================================
-// MODAL SYSTEM
-// =============================================================================
+(function initMuxiUI(){
+  const muxi = getEl('muxi');
+  const bubble = getEl('muxi-bubble');
+  const b1 = getEl('muxi-action-1');
+  const b2 = getEl('muxi-action-2');
+
+  if (muxi) {
+    muxi.addEventListener('click', () => {
+      if (bubble) bubble.classList.toggle('show');
+      setMuxi('idle', pickMuxiLine());
+    });
+  }
+
+  if (b1) b1.addEventListener('click', () => {
+    const hints = getQuickDiagnostics();
+    setMuxi('idle', hints);
+  });
+  if (b2) b2.addEventListener('click', () => {
+    setMuxi('idle', "Try: Sign in → Post a gig → Apply → Watch realtime updates. If anything stalls, I’ll fall back safely.");
+  });
+})();
+
+function pickMuxiLine() {
+  const lines = [
+    "Welcome to the real-world work game. Want the fastest path to a payout? Finish your profile.",
+    "If the network lags, I’ll keep the UI alive. No black screens on my watch.",
+    "Pro tip: Post a gig with a clear title + budget. You’ll get better applications.",
+    "Keep it clean: your profile handle should be unique and simple.",
+    "If you see weirdness, it’s usually RLS or a missing row. I can sniff it out."
+  ];
+  return lines[Math.floor(Math.random() * lines.length)];
+}
+
+function getQuickDiagnostics() {
+  const online = navigator.onLine ? "online" : "offline";
+  const sbOk = (typeof supabase !== 'undefined' && sb) ? "ok" : "missing";
+  const token = state.token ? "present" : "none";
+  const user = state.user ? "yes" : "no";
+  return `Diag: net=${online}, supabase=${sbOk}, user=${user}, token=${token}. If supabase is missing, check CDN + adblock. If user=yes but token=none, session refresh failed.`;
+}
+
+/* =============================================================================
+   AUTHENTICATED REST REQUEST
+============================================================================= */
+async function apiRequest(path, options = {}) {
+  if (!sb) return null;
+
+  try {
+    if (!state.token) {
+      const session = await sb.auth.getSession();
+      state.token = session.data.session?.access_token || null;
+    }
+    if (!state.token) return null;
+
+    const headers = {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + state.token,
+      ...(options.headers || {})
+    };
+
+    const res = await fetch(SUPA_URL + '/rest/v1/' + path, { ...options, headers });
+    return res;
+  } catch (err) {
+    console.error('apiRequest failed:', err);
+    return null;
+  }
+}
+
+/* =============================================================================
+   MODALS
+============================================================================= */
 function openModal(contentHtml, options = {}) {
   const layer = getEl('modal-layer');
+  if (!layer) return;
   const widthClass = options.width || 'max-w-sm';
 
   layer.innerHTML = `
@@ -430,16 +578,18 @@ function openModal(contentHtml, options = {}) {
     </div>
   `;
 
-  // Trigger open animation on next frame
   requestAnimationFrame(() => {
-    getEl('active-modal').classList.add('open');
+    const modal = getEl('active-modal');
+    if (modal) modal.classList.add('open');
   });
 
-  // Click outside to close (unless locked)
   if (!options.locked) {
-    getEl('active-modal').addEventListener('click', (e) => {
-      if (e.target === getEl('active-modal')) closeModal();
-    });
+    const modal = getEl('active-modal');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
   }
 }
 
@@ -448,235 +598,225 @@ function closeModal() {
   if (!modal) return;
   modal.classList.remove('open');
   setTimeout(() => {
-    getEl('modal-layer').innerHTML = '';
+    const layer = getEl('modal-layer');
+    if (layer) layer.innerHTML = '';
   }, 260);
 }
 
+/* =============================================================================
+   RENDER: LANDING
+============================================================================= */
+function brandMarkHTML(size = 'text-5xl') {
+  // M and V same color (requested)
+  return `
+    <div class="inline-flex items-center gap-3">
+      <div class="relative">
+        <div class="absolute -inset-2 blur-2xl opacity-40" style="background: radial-gradient(circle at 30% 30%, rgba(24,246,200,0.6), transparent 60%), radial-gradient(circle at 70% 50%, rgba(124,92,255,0.4), transparent 60%);"></div>
+        <div class="${size} font-black tracking-tight relative">
+          <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R
+        </div>
+      </div>
+      <span class="text-[10px] font-black px-3 py-1 rounded-full" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.10); color: rgba(232,236,241,0.85); letter-spacing:0.22px;">
+        WORK GAME
+      </span>
+    </div>
+  `;
+}
 
-// =============================================================================
-// RENDER: LANDING PAGE
-// =============================================================================
 function renderLanding() {
-  getEl('root').innerHTML = `
+  const root = getEl('root');
+  if (!root) return;
+
+  root.innerHTML = `
     <div class="fade-up">
-      <!-- Contractor Disclaimer -->
-      <div style="background: rgba(180, 30, 30, 0.85)" class="text-center py-1.5 text-[10px] font-bold tracking-widest">
+      <div style="background: rgba(180, 30, 30, 0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">
         MUVR IS A MARKETPLACE ONLY — NOT AN EMPLOYER — ALL WORKERS ARE INDEPENDENT CONTRACTORS
       </div>
 
-      <!-- Hero Section -->
-      <section class="max-w-4xl mx-auto px-5 pt-16 sm:pt-24 pb-12 text-center">
-        <div class="fade-up d1 inline-flex items-center gap-3 mb-8">
-          <span class="text-5xl">💸</span>
-          <h1 class="text-5xl sm:text-6xl font-black tracking-tight">
-            MU<span style="color: var(--accent)">V</span>R
-          </h1>
+      <section class="max-w-5xl mx-auto px-5 pt-14 sm:pt-20 pb-10 text-center">
+        <div class="fade-up d1 flex items-center justify-center mb-6">
+          ${brandMarkHTML('text-5xl sm:text-6xl')}
         </div>
 
-        <p class="fade-up d2 text-3xl sm:text-5xl font-black leading-tight mb-5">
-          Earn 25–50% More.<br>
-          Keep 100%.<br>
-          <span class="hero-gradient">Your Wealth Grows.</span>
+        <div class="fade-up d2 text-4xl sm:text-6xl font-black leading-[1.02] mb-5">
+          Work. Earn. <span class="hero-gradient">Level Up.</span>
+        </div>
+
+        <p class="fade-up d3 text-base sm:text-lg max-w-2xl mx-auto mb-8" style="color: var(--text-mid)">
+          A borderless on-demand marketplace for real-world labor + digital work.
+          Keep 100% of what you earn. Use <strong>MUVR Credits (MV)</strong> — in-platform credits for escrowed work flows.
         </p>
 
-        <p class="fade-up d3 text-base sm:text-lg max-w-xl mx-auto mb-10" style="color: var(--text-mid)">
-          Zero commission marketplace. Instant payouts in MV — a deflationary currency 
-          pegged $1 that appreciates over time.
-        </p>
-
-        <div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+        <div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">
           <button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full">
-            GET STARTED
+            ENTER THE NETWORK
           </button>
-          <button onclick="document.getElementById('why-section').scrollIntoView({behavior:'smooth'})" 
+          <button onclick="document.getElementById('why-section').scrollIntoView({behavior:'smooth'})"
                   class="btn-secondary text-base py-4 rounded-full">
-            LEARN MORE
+            WHY MUVR
           </button>
         </div>
+
+        <div class="fade-up d4 mt-6 flex items-center justify-center gap-2 text-[11px] font-bold"
+             style="color: rgba(232,236,241,0.62)">
+          <span class="mono px-2 py-1 rounded-full" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10)">0% commission</span>
+          <span class="mono px-2 py-1 rounded-full" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10)">escrow protection</span>
+          <span class="mono px-2 py-1 rounded-full" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10)">realtime updates</span>
+        </div>
       </section>
 
-      <!-- Value Propositions -->
-      <section class="max-w-5xl mx-auto px-5 py-12 grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div class="card card-interactive p-7 text-center">
-          <p class="text-4xl font-black mb-2" style="color: var(--accent)">0%</p>
-          <p class="font-bold text-lg mb-1">Commission</p>
+      <section class="max-w-6xl mx-auto px-5 py-10 grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="card card-interactive p-7 text-left">
+          <div class="text-3xl mb-3">🎮</div>
+          <p class="font-black text-lg mb-1">The Real-World Work Game</p>
           <p class="text-sm" style="color: var(--text-dim)">
-            Keep 100% of your rate. Only 1 MV burned per job.
+            Earn XP, build rank, unlock status. Work is the quest. Reputation is the scoreboard.
           </p>
         </div>
-        <div class="card card-interactive p-7 text-center">
-          <p class="text-4xl mb-2">⚡</p>
-          <p class="font-bold text-lg mb-1">Instant Payouts</p>
+        <div class="card card-interactive p-7 text-left">
+          <div class="text-3xl mb-3">🧲</div>
+          <p class="font-black text-lg mb-1">Keep 100%</p>
           <p class="text-sm" style="color: var(--text-dim)">
-            No delays. No risk. 1 MV = $1 USD. Always.
+            No commission on worker earnings. The platform is built to minimize extraction.
           </p>
         </div>
-        <div class="card card-interactive p-7 text-center">
-          <p class="text-4xl mb-2">📈</p>
-          <p class="font-bold text-lg mb-1">Your Wealth Grows</p>
+        <div class="card card-interactive p-7 text-left">
+          <div class="text-3xl mb-3">🔒</div>
+          <p class="font-black text-lg mb-1">Escrow-first</p>
           <p class="text-sm" style="color: var(--text-dim)">
-            Deflationary. Hard cap 100M. MV appreciates over time.
+            Funds are locked before work begins and released when complete (with dispute controls).
           </p>
         </div>
       </section>
 
-      <!-- Platform Comparison -->
-      <section id="why-section" class="max-w-3xl mx-auto px-5 py-16">
-        <h2 class="text-2xl sm:text-3xl font-black text-center mb-8">Why Workers Choose MUVR</h2>
-        <div class="card overflow-hidden">
-          <table class="w-full text-sm">
-            <thead>
-              <tr style="border-bottom: 1px solid var(--border)">
-                <th class="px-5 py-4 text-left font-bold">Platform</th>
-                <th class="px-5 py-4 text-center font-bold">Commission</th>
-                <th class="px-5 py-4 text-center font-bold">Payouts</th>
-                <th class="px-5 py-4 text-center font-bold">Equity</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom: 1px solid var(--border)">
-                <td class="px-5 py-4 font-bold">Uber</td>
-                <td class="px-5 py-4 text-center" style="color: var(--red)">25-30%</td>
-                <td class="px-5 py-4 text-center">Real-time</td>
-                <td class="px-5 py-4 text-center" style="color: var(--red)">❌</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border)">
-                <td class="px-5 py-4 font-bold">Fiverr</td>
-                <td class="px-5 py-4 text-center" style="color: var(--red)">20%</td>
-                <td class="px-5 py-4 text-center" style="color: var(--red)">14+ days</td>
-                <td class="px-5 py-4 text-center" style="color: var(--red)">❌</td>
-              </tr>
-              <tr style="background: rgba(20, 241, 198, 0.06)">
-                <td class="px-5 py-4 font-black" style="color: var(--accent)">MUVR</td>
-                <td class="px-5 py-4 text-center font-bold" style="color: var(--accent)">0%</td>
-                <td class="px-5 py-4 text-center font-bold" style="color: var(--accent)">Instant</td>
-                <td class="px-5 py-4 text-center font-bold" style="color: var(--accent)">✅ MV</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <section id="why-section" class="max-w-4xl mx-auto px-5 py-14">
+        <div class="card p-6 sm:p-8">
+          <h2 class="text-2xl sm:text-3xl font-black mb-2">Why Workers Choose MUVR</h2>
+          <p class="text-sm mb-6" style="color: var(--text-mid)">
+            Designed for speed, fairness, and a fun “level up” economy — without calling MV a currency.
+          </p>
 
-      <!-- How It Works -->
-      <section class="max-w-4xl mx-auto px-5 py-16">
-        <h2 class="text-2xl sm:text-3xl font-black text-center mb-10">How It Works</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div class="text-center">
-            <div class="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" 
-                 style="background: rgba(20, 241, 198, 0.1)">
-              <span class="text-2xl">📝</span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+              <div class="font-black mb-1">MUVR Credits (MV)</div>
+              <div class="text-sm" style="color: var(--text-dim)">
+                In-platform credits used for posting, escrow, transfers, and settlement flows.
+                <span style="color: rgba(232,236,241,0.82); font-weight:800;">Not currency.</span>
+              </div>
             </div>
-            <p class="font-bold mb-1">Post or Apply</p>
-            <p class="text-xs" style="color: var(--text-dim)">Post a gig or apply. No upfront cost.</p>
+            <div class="p-4 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+              <div class="font-black mb-1">Faster release</div>
+              <div class="text-sm" style="color: var(--text-dim)">
+                When the job is marked complete, escrow release updates in realtime (network dependent).
+              </div>
+            </div>
           </div>
-          <div class="text-center">
-            <div class="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" 
-                 style="background: rgba(20, 241, 198, 0.1)">
-              <span class="text-2xl">🔒</span>
+
+          <div class="mt-6 p-4 rounded-2xl" style="background: rgba(24,246,200,0.08); border: 1px solid rgba(24,246,200,0.18)">
+            <div class="text-[11px] font-black tracking-widest" style="color: rgba(232,236,241,0.70)">LEGAL NOTE</div>
+            <div class="text-sm mt-2" style="color: rgba(232,236,241,0.78); line-height:1.35">
+              <strong>MUVR Credits (MV)</strong> are platform-limited digital credits used solely within MUVR for marketplace features.
+              They are not currency, cryptocurrency, or financial instruments.
             </div>
-            <p class="font-bold mb-1">Escrow Locked</p>
-            <p class="text-xs" style="color: var(--text-dim)">Budget locked. 1 MV burned. Protected.</p>
-          </div>
-          <div class="text-center">
-            <div class="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" 
-                 style="background: rgba(20, 241, 198, 0.1)">
-              <span class="text-2xl">✅</span>
-            </div>
-            <p class="font-bold mb-1">Work Complete</p>
-            <p class="text-xs" style="color: var(--text-dim)">Keep 100%. Instantly.</p>
-          </div>
-          <div class="text-center">
-            <div class="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" 
-                 style="background: rgba(20, 241, 198, 0.1)">
-              <span class="text-2xl">📈</span>
-            </div>
-            <p class="font-bold mb-1">MV Appreciates</p>
-            <p class="text-xs" style="color: var(--text-dim)">Deflationary. Value grows.</p>
           </div>
         </div>
       </section>
 
-      <!-- Final CTA -->
-      <section class="max-w-3xl mx-auto px-5 py-16 text-center">
-        <h2 class="text-3xl sm:text-4xl font-black mb-4">Ready to Earn More?</h2>
-        <p class="text-base mb-8" style="color: var(--text-mid)">
-          Join workers earning 25-50% more. Zero commission. Instant payouts.
-        </p>
-        <button onclick="openAuthModal()" class="btn-primary text-base py-4 px-10 rounded-full" 
-                style="width: auto; display: inline-block">
-          SIGN UP NOW
-        </button>
+      <section class="max-w-5xl mx-auto px-5 pb-16">
+        <div class="card p-6 sm:p-8">
+          <h3 class="text-xl font-black mb-3">How it works (simple)</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            ${howStep("📝", "Post or Apply", "Create a gig or apply instantly.")}
+            ${howStep("🔒", "Escrow Locks", "Budget locks before work begins.")}
+            ${howStep("✅", "Work Complete", "Mark complete; release triggers.")}
+            ${howStep("🏁", "Level Up", "Earn XP, rank up, get picked faster.")}
+          </div>
+        </div>
       </section>
 
-      <!-- Footer -->
-      <footer style="border-top: 1px solid var(--border)" class="py-8 text-center text-xs">
-        <p class="mb-1" style="color: var(--text-dim)">MUVR is operated by TransBid LLC (Delaware, USA)</p>
-        <p style="color: #2e3a4a">&copy; 2026 TransBid LLC. All rights reserved.</p>
+      <footer class="py-10 text-center text-xs" style="color: rgba(232,236,241,0.52)">
+        <div class="max-w-4xl mx-auto px-5">
+          <div class="mb-2 font-bold" style="color: rgba(232,236,241,0.70)">MUVR is operated by TransBid LLC (Delaware, USA)</div>
+          <div class="mb-4">
+            MUVR Credits (MV) are platform-limited digital credits used solely within MUVR. Not currency, cryptocurrency, or financial instruments.
+          </div>
+          <div style="color: rgba(232,236,241,0.38)">&copy; 2026 TransBid LLC. All rights reserved.</div>
+        </div>
       </footer>
     </div>
   `;
 }
 
+function howStep(icon, title, desc) {
+  return `
+    <div class="p-4 rounded-2xl text-left" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+      <div class="text-2xl mb-2">${icon}</div>
+      <div class="font-black">${title}</div>
+      <div class="text-xs mt-1" style="color: var(--text-dim)">${desc}</div>
+    </div>
+  `;
+}
 
-// =============================================================================
-// RENDER: APP SHELL (injected only after successful login)
-// =============================================================================
+/* =============================================================================
+   RENDER: APP SHELL
+============================================================================= */
 function renderApp() {
-  getEl('root').innerHTML = `
+  const root = getEl('root');
+  if (!root) return;
+
+  root.innerHTML = `
     <div class="fade-up">
-      <!-- Contractor Disclaimer -->
-      <div style="background: rgba(180, 30, 30, 0.85)" class="text-center py-1.5 text-[10px] font-bold tracking-widest">
+      <div style="background: rgba(180, 30, 30, 0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">
         MUVR IS A MARKETPLACE ONLY — NOT AN EMPLOYER — ALL WORKERS ARE INDEPENDENT CONTRACTORS
       </div>
 
-      <!-- App Header -->
-      <header style="border-bottom: 1px solid var(--border); background: rgba(13,17,23,0.96); backdrop-filter: blur(12px)" 
-              class="sticky top-0 z-50">
+      <header class="sticky top-0 z-50" style="border-bottom: 1px solid rgba(255,255,255,0.10); background: rgba(10, 12, 26, 0.72); backdrop-filter: blur(16px)">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('jobs')">
-            <span class="text-xl">💸</span>
-            <span class="text-xl font-black tracking-tight">
-              MU<span style="color: var(--accent)">V</span>R
-            </span>
-            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full" 
-                  style="background: var(--accent); color: #000">
-              DEFLATIONARY
-            </span>
+          <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('jobs')">
+            <div class="w-9 h-9 rounded-2xl grid place-items-center"
+                 style="background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10)">
+              <span style="font-weight:900;color:var(--accent)">M</span>
+            </div>
+            <div>
+              <div class="text-lg font-black tracking-tight">
+                <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R
+              </div>
+              <div class="text-[10px] font-bold" style="color: rgba(232,236,241,0.55); letter-spacing:0.22px; text-transform:uppercase">
+                The real-world work game
+              </div>
+            </div>
           </div>
 
           <nav class="hidden sm:flex gap-6">
-            <button onclick="switchTab('jobs')" class="desktop-tab active" data-tab="jobs">JOBS</button>
-            <button onclick="switchTab('wallet')" class="desktop-tab" data-tab="wallet">WALLET</button>
-            <button onclick="switchTab('profile')" class="desktop-tab" data-tab="profile">PROFILE</button>
+            <button onclick="switchTab('jobs')" class="desktop-tab active" data-tab="jobs">GIGS</button>
+            <button onclick="switchTab('wallet')" class="desktop-tab" data-tab="wallet">CREDITS</button>
+            <button onclick="switchTab('profile')" class="desktop-tab" data-tab="profile">ME</button>
           </nav>
 
-          <button onclick="handleLogout()" class="text-xs font-semibold cursor-pointer" 
-                  style="color: var(--text-dim); background: none; border: none; font-family: 'Outfit'">
-            sign out
+          <button onclick="handleLogout()" class="text-xs font-black cursor-pointer"
+                  style="color: rgba(232,236,241,0.62); background: none; border: none; text-transform:uppercase; letter-spacing:0.2px">
+            Sign out
           </button>
         </div>
 
-        <!-- Ticker -->
-        <div style="background: #000" class="py-1 overflow-hidden">
-          <div class="ticker-scroll whitespace-nowrap flex gap-8 text-[10px] mono tracking-wider" 
-               style="color: var(--accent)">
-            <span>⚡ ZERO COMMISSION • 1 MV = $1 USD • DEFLATIONARY • INSTANT PAYOUTS • TRANSPARENT LEDGER ⚡</span>
-            <span>⚡ ZERO COMMISSION • 1 MV = $1 USD • DEFLATIONARY • INSTANT PAYOUTS • TRANSPARENT LEDGER ⚡</span>
+        <div class="py-1 overflow-hidden" style="background: rgba(0,0,0,0.55); border-top: 1px solid rgba(255,255,255,0.06)">
+          <div class="ticker-scroll whitespace-nowrap flex gap-8 text-[10px] mono tracking-wider"
+               style="color: rgba(24,246,200,0.95)">
+            <span>⚡ 0% COMMISSION • MUVR CREDITS (MV) • ESCROW-FIRST • REALTIME UPDATES • LEVEL UP WITH XP ⚡</span>
+            <span>⚡ 0% COMMISSION • MUVR CREDITS (MV) • ESCROW-FIRST • REALTIME UPDATES • LEVEL UP WITH XP ⚡</span>
           </div>
         </div>
       </header>
 
-      <!-- Tab Content Area -->
       <main class="max-w-6xl mx-auto px-4 py-6 pb-28 sm:pb-8">
         <div id="tab-content"></div>
       </main>
 
-      <!-- Mobile Bottom Nav -->
-      <div class="sm:hidden fixed bottom-0 left-0 right-0 z-50" 
-           style="background: rgba(13,17,23,0.96); border-top: 1px solid var(--border); backdrop-filter: blur(12px)">
+      <div class="sm:hidden fixed bottom-0 left-0 right-0 z-50"
+           style="background: rgba(10, 12, 26, 0.82); border-top: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(16px)">
         <div class="flex justify-around py-3">
           <button onclick="switchTab('jobs')" class="mobile-tab active" data-tab="jobs">
-            <i class="fas fa-briefcase text-base"></i>Jobs
+            <i class="fas fa-briefcase text-base"></i>Gigs
           </button>
           <button onclick="switchTab('wallet')" class="mobile-tab" data-tab="wallet">
             <i class="fas fa-coins text-base"></i>MV
@@ -689,36 +829,30 @@ function renderApp() {
     </div>
   `;
 
-  // Render default tab
   switchTab('jobs');
 }
 
-// =============================================================================
-// TAB SWITCHING
-// =============================================================================
 function switchTab(tabName) {
   state.currentTab = tabName;
 
-  // Update desktop tab styles
   document.querySelectorAll('.desktop-tab').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.mobile-tab').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll(`[data-tab="${tabName}"]`).forEach(btn => btn.classList.add('active'));
+  document.querySelectorAll('[data-tab="' + tabName + '"]').forEach(btn => btn.classList.add('active'));
 
-  // Render the selected tab
   if (tabName === 'jobs') renderJobsTab();
   else if (tabName === 'wallet') { renderWalletTab(); loadWalletData(); }
   else if (tabName === 'profile') renderProfileTab();
 }
 
-// =============================================================================
-// JOBS TAB
-// =============================================================================
+/* =============================================================================
+   JOBS TAB
+============================================================================= */
 function renderJobsTab() {
   const content = getEl('tab-content');
   if (!content) return;
 
-  const filteredJobs = state.jobFilter === 'all' 
-    ? state.jobs 
+  const filteredJobs = (state.jobFilter === 'all')
+    ? state.jobs
     : state.jobs.filter(j => j.job_type === state.jobFilter);
 
   const categories = [
@@ -730,50 +864,58 @@ function renderJobsTab() {
   ];
 
   const filterButtons = categories.map(cat => `
-    <button onclick="state.jobFilter='${cat.key}'; renderJobsTab()" 
-            class="btn-pill ${state.jobFilter === cat.key ? 'btn-pill-accent' : 'btn-pill-ghost'} whitespace-nowrap">
+    <button onclick="state.jobFilter='${cat.key}'; renderJobsTab()"
+            class="btn-pill ${state.jobFilter === cat.key ? 'btn-pill-accent' : 'btn-pill-ghost'}">
       ${cat.label}
     </button>
   `).join('');
 
   const jobCards = filteredJobs.length === 0
-    ? `<div class="col-span-full text-center py-16" style="color: var(--text-dim)">
-         <p class="text-4xl mb-3">🔍</p>
-         <p class="font-bold">No gigs in this category</p>
-         <p class="text-sm mt-1">Be the first to post one!</p>
-       </div>`
-    : filteredJobs.map(job => `
-        <div class="card card-interactive p-5 cursor-pointer">
-          <div class="flex items-start justify-between mb-2">
-            <h3 class="font-bold text-sm">${escapeHtml(job.title)}</h3>
-            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" 
-                  style="background: var(--bg-card2); color: var(--text-dim); border: 1px solid var(--border)">
-              ${escapeHtml(job.job_type || '')}
-            </span>
-          </div>
-          <p class="text-xs line-clamp-2 mb-4" style="color: var(--text-dim)">
-            ${escapeHtml(job.description || '')}
-          </p>
-          <div class="flex items-end justify-between">
-            <div>
-              <p class="text-[10px]" style="color: var(--text-dim)">Budget</p>
-              <p class="text-lg font-bold" style="color: var(--accent)">${job.budget_mv} MV</p>
-            </div>
-            <button onclick="openApplyModal('${job.id}')" class="btn-pill btn-pill-accent">
-              APPLY
-            </button>
-          </div>
+    ? `
+      <div class="col-span-full text-center py-16" style="color: rgba(232,236,241,0.55)">
+        <p class="text-4xl mb-2">🫏</p>
+        <p class="font-black">No gigs here yet</p>
+        <p class="text-sm mt-1" style="color: rgba(232,236,241,0.52)">Muxi says: be the first to post one.</p>
+        <div class="mt-6 max-w-sm mx-auto">
+          <button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button>
         </div>
-      `).join('');
+      </div>
+    `
+    : filteredJobs.map(job => `
+      <div class="card card-interactive p-5">
+        <div class="flex items-start justify-between mb-2">
+          <h3 class="font-black text-sm">${escapeHtml(job.title)}</h3>
+          <span class="text-[10px] px-2 py-1 rounded-full font-black"
+                style="background: rgba(255,255,255,0.06); color: rgba(232,236,241,0.65); border: 1px solid rgba(255,255,255,0.10)">
+            ${escapeHtml(job.job_type || '')}
+          </span>
+        </div>
+        <p class="text-xs line-clamp-2 mb-4" style="color: rgba(232,236,241,0.56)">
+          ${escapeHtml(job.description || '')}
+        </p>
+        <div class="flex items-end justify-between">
+          <div>
+            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45); letter-spacing:0.18px; text-transform:uppercase">Budget</p>
+            <p class="text-lg font-black mono" style="color: var(--accent)">${Number(job.budget_mv || 0)} MV</p>
+          </div>
+          <button onclick="openApplyModal('${job.id}')" class="btn-pill btn-pill-accent">
+            Apply
+          </button>
+        </div>
+      </div>
+    `).join('');
 
   content.innerHTML = `
     <div class="fade-up">
-      <div class="mb-6">
-        <h1 class="text-3xl sm:text-4xl font-black mb-1">Available Gigs</h1>
-        <p class="text-sm mb-5" style="color: var(--text-mid)">Find work. Keep more. Build wealth.</p>
-        <button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">
-          + POST A GIG
-        </button>
+      <div class="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-black mb-1">Available Gigs</h1>
+          <p class="text-sm" style="color: rgba(232,236,241,0.65)">Find work. Keep 100%. Level up.</p>
+        </div>
+
+        <div class="hidden sm:block">
+          <button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a gig</button>
+        </div>
       </div>
 
       <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
@@ -783,13 +925,17 @@ function renderJobsTab() {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         ${jobCards}
       </div>
+
+      <div class="sm:hidden mt-5">
+        <button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button>
+      </div>
     </div>
   `;
 }
 
-// =============================================================================
-// WALLET TAB
-// =============================================================================
+/* =============================================================================
+   WALLET TAB
+============================================================================= */
 function renderWalletTab() {
   const content = getEl('tab-content');
   if (!content) return;
@@ -798,59 +944,60 @@ function renderWalletTab() {
 
   content.innerHTML = `
     <div class="fade-up">
-      <h1 class="text-3xl font-black mb-5">Your MV Wallet</h1>
+      <h1 class="text-3xl font-black mb-2">MUVR Credits</h1>
+      <p class="text-sm mb-6" style="color: rgba(232,236,241,0.62)">
+        MV are in-platform credits used for escrow and marketplace flows. Not currency.
+      </p>
 
-      <!-- Network Status -->
-      <div class="card p-5 mb-5" 
-           style="border-color: rgba(20,241,198,0.15); background: linear-gradient(135deg, rgba(20,241,198,0.06), rgba(6,175,134,0.04))">
-        <p class="text-[10px] tracking-widest font-bold mb-3" style="color: var(--text-dim)">
-          MV NETWORK STATUS
-        </p>
+      <div class="card p-5 mb-5"
+           style="border-color: rgba(24,246,200,0.14); background: linear-gradient(135deg, rgba(24,246,200,0.08), rgba(124,92,255,0.06), rgba(255,61,154,0.04))">
+        <p class="text-[10px] tracking-widest font-black mb-3" style="color: rgba(232,236,241,0.55)">NETWORK STATUS</p>
         <div class="grid grid-cols-4 gap-3 text-center">
           <div>
-            <p class="text-[10px]" style="color: var(--text-dim)">CAP</p>
+            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45)">CAP</p>
             <p class="text-xl font-black mono" style="color: var(--accent)">100M</p>
           </div>
           <div>
-            <p class="text-[10px]" style="color: var(--text-dim)">MINTED</p>
-            <p class="text-xl font-black mono" style="color: var(--accent)" id="stat-minted">0</p>
+            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45)">MINTED</p>
+            <p class="text-xl font-black mono" style="color: var(--accent)" id="stat-minted">—</p>
           </div>
           <div>
-            <p class="text-[10px]" style="color: var(--text-dim)">ESCROWED</p>
-            <p class="text-xl font-bold mono" style="color: var(--yellow)" id="stat-escrowed">0</p>
+            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45)">ESCROWED</p>
+            <p class="text-xl font-black mono" style="color: var(--yellow)" id="stat-escrowed">—</p>
           </div>
           <div>
-            <p class="text-[10px]" style="color: var(--text-dim)">BURNED</p>
-            <p class="text-xl font-bold mono" style="color: var(--red)" id="stat-burned">0</p>
+            <p class="text-[10px] font-black" style="color: rgba(232,236,241,0.45)">BURNED</p>
+            <p class="text-xl font-black mono" style="color: var(--red)" id="stat-burned">—</p>
           </div>
         </div>
       </div>
 
-      <!-- Balance Card -->
       <div class="card p-5 max-w-md mb-6">
-        <p class="text-[10px] tracking-widest font-bold mb-2" style="color: var(--text-dim)">
-          YOUR MV BALANCE
-        </p>
+        <p class="text-[10px] tracking-widest font-black mb-2" style="color: rgba(232,236,241,0.55)">YOUR BALANCE</p>
         <div class="flex items-end justify-between mb-5">
           <p class="text-4xl font-black mono" style="color: var(--accent)" id="balance-display">
-            ${state.balanceVisible ? balance + ' MV' : '••••••'}
+            ${state.balanceVisible ? (balance + ' MV') : '••••••'}
           </p>
-          <button onclick="toggleBalance()" class="text-xs font-bold cursor-pointer" 
-                  style="color: var(--text-dim); background: none; border: none; font-family: 'Outfit'">
-            ${state.balanceVisible ? 'HIDE' : 'SHOW'}
+          <button onclick="toggleBalance()" class="text-xs font-black cursor-pointer"
+                  style="color: rgba(232,236,241,0.55); background: none; border: none; text-transform:uppercase">
+            ${state.balanceVisible ? 'Hide' : 'Show'}
           </button>
         </div>
+
         <div class="grid grid-cols-3 gap-3">
-          <button onclick="openSendModal()" class="btn-pill btn-pill-ghost w-full justify-center">SEND</button>
-          <button onclick="openLoadModal()" class="btn-pill btn-pill-accent w-full justify-center">LOAD</button>
-          <button onclick="openCashoutModal()" class="btn-pill btn-pill-ghost w-full justify-center">CASH OUT</button>
+          <button onclick="openSendModal()" class="btn-pill btn-pill-ghost w-full justify-center">Send</button>
+          <button onclick="openLoadModal()" class="btn-pill btn-pill-accent w-full justify-center">Load</button>
+          <button onclick="openCashoutModal()" class="btn-pill btn-pill-ghost w-full justify-center">Payout</button>
+        </div>
+
+        <div class="mt-4 text-[11px]" style="color: rgba(232,236,241,0.50)">
+          Note: “Payout” is a partner-integrated feature (beta). MUXI will keep you safe if it’s not enabled yet.
         </div>
       </div>
 
-      <!-- Ledger -->
-      <h2 class="font-bold mb-3">Transaction Ledger</h2>
+      <h2 class="font-black mb-3">Ledger (recent)</h2>
       <div id="ledger-list">
-        <p class="text-sm py-4" style="color: var(--text-dim)">Loading transactions...</p>
+        <p class="text-sm py-4" style="color: rgba(232,236,241,0.55)">Loading…</p>
       </div>
     </div>
   `;
@@ -867,780 +1014,994 @@ function toggleBalance() {
 async function loadWalletData() {
   if (!state.user) return;
 
-  // Refresh balance
-  const balRes = await apiRequest('users?id=eq.' + state.user.id + '&select=mv_balance');
-  if (balRes) {
-    const data = await balRes.json();
-    if (data?.length) {
-      state.profile = { ...state.profile, mv_balance: data[0].mv_balance };
+  try {
+    const balRes = await apiRequest('users?id=eq.' + state.user.id + '&select=mv_balance');
+    if (balRes && balRes.ok) {
+      const data = await balRes.json();
+      if (data && data.length) state.profile = { ...(state.profile || {}), mv_balance: data[0].mv_balance };
     }
+  } catch (e) {
+    console.error('balance load error', e);
   }
 
-  // Update display
   const balDisplay = getEl('balance-display');
   if (balDisplay) {
-    balDisplay.textContent = state.balanceVisible 
-      ? (state.profile?.mv_balance || 0) + ' MV' 
-      : '••••••';
+    balDisplay.textContent = state.balanceVisible ? ((state.profile?.mv_balance || 0) + ' MV') : '••••••';
   }
 
-  // Load ledger
-  const ledgerRes = await apiRequest(
-    'mv_ledger?user_id=eq.' + state.user.id + '&order=created_at.desc&limit=20'
-  );
-  const ledger = (ledgerRes && await ledgerRes.json()) || [];
+  // ledger
   const ledgerEl = getEl('ledger-list');
-  if (!ledgerEl) return;
+  try {
+    const ledgerRes = await apiRequest('mv_ledger?user_id=eq.' + state.user.id + '&order=created_at.desc&limit=20');
+    const ledger = (ledgerRes && ledgerRes.ok) ? await ledgerRes.json() : [];
+    if (!ledgerEl) return;
 
-  if (ledger.length === 0) {
-    ledgerEl.innerHTML = '<p class="text-sm py-4" style="color: var(--text-dim)">No transactions yet</p>';
-    return;
+    if (!ledger || ledger.length === 0) {
+      ledgerEl.innerHTML = '<p class="text-sm py-4" style="color: rgba(232,236,241,0.55)">No transactions yet</p>';
+      return;
+    }
+
+    const typeIcons = { load:'📥', send:'📤', receive:'📨', burn:'🔥', withdrawal:'🏦' };
+
+    ledgerEl.innerHTML = ledger.map(entry => {
+      const isNegative = ['burn','send','withdrawal'].includes(entry.type);
+      const icon = typeIcons[entry.type] || '📊';
+      const color = isNegative ? 'var(--red)' : 'var(--accent)';
+      const sign = isNegative ? '-' : '+';
+      const when = entry.created_at ? new Date(entry.created_at) : null;
+
+      return `
+        <div class="card p-3 mb-2 flex justify-between items-start" style="border-left: 2px solid rgba(24,246,200,0.65)">
+          <div class="flex items-start gap-3">
+            <span class="text-base">${icon}</span>
+            <div>
+              <p class="font-black text-xs capitalize">${escapeHtml(entry.type || '')}</p>
+              <p class="text-[11px]" style="color: rgba(232,236,241,0.55)">${escapeHtml(entry.description || '')}</p>
+              <p class="text-[10px] mt-1" style="color: rgba(232,236,241,0.38)">
+                ${when ? when.toLocaleString() : ''}
+              </p>
+            </div>
+          </div>
+          <p class="mono font-black text-xs whitespace-nowrap ml-2" style="color: ${color}">
+            ${sign}${Number(entry.amount_mv || 0)} MV
+          </p>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    console.error('ledger load error', e);
+    if (ledgerEl) ledgerEl.innerHTML = '<p class="text-sm py-4" style="color: rgba(232,236,241,0.55)">Ledger unavailable right now.</p>';
   }
 
-  const typeIcons = {
-    load: '📥', send: '📤', receive: '📨', burn: '🔥', withdrawal: '🏦'
-  };
-
-  ledgerEl.innerHTML = ledger.map(entry => {
-    const isNegative = ['burn', 'send', 'withdrawal'].includes(entry.type);
-    const icon = typeIcons[entry.type] || '📊';
-    const color = isNegative ? 'var(--red)' : 'var(--accent)';
-    const sign = isNegative ? '-' : '+';
-
-    return `
-      <div class="card p-3 mb-2 flex justify-between items-start" 
-           style="border-left: 2px solid var(--accent)">
-        <div class="flex items-start gap-3">
-          <span class="text-base">${icon}</span>
-          <div>
-            <p class="font-bold text-xs capitalize">${entry.type}</p>
-            <p class="text-[11px]" style="color: var(--text-dim)">${escapeHtml(entry.description || '')}</p>
-            <p class="text-[10px] mt-1" style="color: #2e3a4a">
-              ${new Date(entry.created_at).toLocaleDateString()}
-            </p>
-          </div>
-        </div>
-        <p class="mono font-bold text-xs whitespace-nowrap ml-2" style="color: ${color}">
-          ${sign}${entry.amount_mv} MV
-        </p>
-      </div>
-    `;
-  }).join('');
+  // Optional network stats (best-effort; do not block)
+  // If you later add tables/metrics for minted/escrowed/burned totals, set them here.
+  const minted = getEl('stat-minted');
+  const escrowed = getEl('stat-escrowed');
+  const burned = getEl('stat-burned');
+  if (minted) minted.textContent = '—';
+  if (escrowed) escrowed.textContent = '—';
+  if (burned) burned.textContent = '—';
 }
 
-// =============================================================================
-// PROFILE TAB
-// =============================================================================
+/* =============================================================================
+   PROFILE TAB
+============================================================================= */
+function calcLevel(prof) {
+  const completed = Number(prof?.jobs_completed || 0);
+  const xp = completed * 120 + (prof?.full_name ? 40 : 0) + (prof?.about_me ? 40 : 0) + (prof?.username ? 30 : 0);
+  const level = Math.max(1, Math.floor(xp / 200) + 1);
+  const titles = ["Runner","Carrier","Operator","Elite Operator","Legend","Mythic"];
+  const title = titles[Math.min(titles.length - 1, Math.floor((level - 1) / 2))];
+  const next = level * 200;
+  const pct = Math.min(1, xp / next);
+  return { xp, level, title, next, pct };
+}
+
 function renderProfileTab() {
   const content = getEl('tab-content');
   if (!content) return;
 
   const prof = state.profile || {};
-  const rating = prof.rating || 0;
+  const rating = Number(prof.rating || 0);
   const stars = '⭐'.repeat(Math.floor(rating)) + (rating % 1 > 0 ? '✨' : '');
+  const lvl = calcLevel(prof);
 
   content.innerHTML = `
     <div class="fade-up">
-      <h1 class="text-3xl font-black mb-5">Your Profile</h1>
+      <h1 class="text-3xl font-black mb-2">Your Profile</h1>
+      <p class="text-sm mb-6" style="color: rgba(232,236,241,0.62)">
+        Level up to get picked faster. MUXI loves complete profiles.
+      </p>
 
-      <div class="card p-5 max-w-lg">
-        <div class="mb-5" style="border-bottom: 1px solid var(--border); padding-bottom: 16px">
-          <h2 class="text-2xl font-black mb-1">${escapeHtml(prof.full_name || 'No Name Set')}</h2>
-          <p class="text-sm" style="color: var(--text-dim)">@${escapeHtml(prof.username || 'no_handle')}</p>
-          <p class="text-xs mt-2" style="color: var(--text-dim)">${escapeHtml(prof.about_me || 'No bio yet')}</p>
+      <div class="card p-5 max-w-2xl">
+        <div class="flex items-start justify-between gap-4 mb-5" style="border-bottom: 1px solid rgba(255,255,255,0.10); padding-bottom: 16px">
+          <div>
+            <h2 class="text-2xl font-black mb-1">${escapeHtml(prof.full_name || 'No Name Set')}</h2>
+            <p class="text-sm font-bold" style="color: rgba(232,236,241,0.55)">@${escapeHtml(prof.username || 'no_handle')}</p>
+            <p class="text-xs mt-3" style="color: rgba(232,236,241,0.55)">${escapeHtml(prof.about_me || 'No bio yet — add one to level up.')}</p>
+          </div>
+
+          <div class="text-right">
+            <div class="text-[10px] font-black tracking-widest" style="color: rgba(232,236,241,0.55)">RANK</div>
+            <div class="text-xl font-black hero-gradient">${escapeHtml(lvl.title)}</div>
+            <div class="text-[11px] font-black mt-1" style="color: rgba(232,236,241,0.65)">Level ${lvl.level}</div>
+          </div>
         </div>
 
         <div class="grid grid-cols-3 gap-4 text-center mb-5">
-          <div>
-            <p class="text-[10px]" style="color: var(--text-dim)">COMPLETED</p>
-            <p class="text-xl font-bold">${prof.jobs_completed || 0}</p>
+          <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+            <p class="text-[10px] font-black tracking-widest" style="color: rgba(232,236,241,0.55)">COMPLETED</p>
+            <p class="text-xl font-black">${Number(prof.jobs_completed || 0)}</p>
           </div>
-          <div>
-            <p class="text-[10px]" style="color: var(--text-dim)">RATING</p>
+          <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+            <p class="text-[10px] font-black tracking-widest" style="color: rgba(232,236,241,0.55)">RATING</p>
             <p class="text-base">${stars || '—'}</p>
           </div>
-          <div>
-            <p class="text-[10px]" style="color: var(--text-dim)">BALANCE</p>
-            <p class="text-xl font-bold" style="color: var(--accent)">${prof.mv_balance || 0}</p>
+          <div class="p-3 rounded-2xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+            <p class="text-[10px] font-black tracking-widest" style="color: rgba(232,236,241,0.55)">MV</p>
+            <p class="text-xl font-black" style="color: var(--accent)">${Number(prof.mv_balance || 0)}</p>
           </div>
         </div>
 
-        <button onclick="openEditProfileModal()" class="btn-primary rounded-xl">EDIT PROFILE</button>
+        <div class="mb-5">
+          <div class="flex justify-between text-[11px] font-black" style="color: rgba(232,236,241,0.62)">
+            <span>XP: ${lvl.xp}</span>
+            <span>Next: ${lvl.next}</span>
+          </div>
+          <div class="mt-2 h-3 rounded-full" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.10)">
+            <div class="h-full rounded-full" style="width:${Math.round(lvl.pct * 100)}%; background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));"></div>
+          </div>
+        </div>
+
+        <button onclick="openEditProfileModal()" class="btn-primary rounded-full">Edit profile</button>
       </div>
     </div>
   `;
 }
 
-
-// =============================================================================
-// MODAL: AUTH (Login / Sign Up)
-// =============================================================================
+/* =============================================================================
+   AUTH MODAL
+============================================================================= */
 function openAuthModal() {
   openModal(`
-    <div class="card p-6" style="max-width: 400px; margin: auto">
+    <div class="card p-6" style="max-width: 420px; margin:auto">
       <div class="flex justify-between items-center mb-2">
-        <h2 class="text-xl font-black">Join MUVR</h2>
+        <h2 class="text-xl font-black">Enter MUVR</h2>
         <button onclick="closeModal()" class="close-btn">&times;</button>
       </div>
-      <p class="text-sm mb-5" style="color: var(--text-mid)">
-        Zero commission. Instant payouts. Your wealth grows.
+      <p class="text-sm mb-5" style="color: rgba(232,236,241,0.65)">
+        Zero commission. Escrow-first. Level up with every completed gig.
       </p>
-      <input id="auth-email" type="email" placeholder="you@email.com" class="field mb-3">
-      <input id="auth-password" type="password" placeholder="Password (6+ chars)" class="field mb-4">
-      <button onclick="handleSignUp()" class="btn-primary mb-2">CREATE ACCOUNT</button>
-      <button onclick="handleSignIn()" class="btn-secondary">ALREADY HAVE ACCOUNT</button>
-      <p id="auth-error" class="text-xs text-center mt-3 hidden" style="color: #fca5a5"></p>
+      <input id="auth-email" type="email" placeholder="you@email.com" class="field mb-3" autocomplete="email">
+      <input id="auth-password" type="password" placeholder="Password (6+ chars)" class="field mb-4" autocomplete="current-password">
+
+      <button onclick="handleSignUp()" class="btn-primary mb-2 rounded-full">Create account</button>
+      <button onclick="handleSignIn()" class="btn-secondary rounded-full">I already have an account</button>
+      <p id="auth-error" class="text-xs text-center mt-3 hidden" style="color: #ffd2d2; font-weight:800"></p>
+
+      <div class="mt-5 text-[11px]" style="color: rgba(232,236,241,0.52)">
+        By continuing you agree to marketplace terms. MUVR Credits (MV) are platform credits (not currency).
+      </div>
     </div>
   `);
 }
 
-// =============================================================================
-// MODAL: LEGAL AGREEMENTS
-// =============================================================================
+/* =============================================================================
+   LEGAL MODAL
+============================================================================= */
 function openLegalModal() {
   openModal(`
-    <div class="card p-6" style="max-width: 480px; margin: auto">
-      <h2 class="text-xl font-black mb-4">Before You Start</h2>
+    <div class="card p-6" style="max-width: 520px; margin:auto">
+      <h2 class="text-xl font-black mb-4">Before you start</h2>
 
       <div class="space-y-3 mb-5">
-        <div class="p-4 rounded-xl" style="background: var(--bg-card2)">
-          <h3 class="font-bold text-sm mb-1" style="color: var(--accent)">Terms of Service</h3>
-          <p class="text-xs" style="color: var(--text-mid)">
+        <div class="p-4 rounded-2xl" style="background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10)">
+          <h3 class="font-black text-sm mb-1" style="color: var(--accent)">Marketplace Terms</h3>
+          <p class="text-xs" style="color: rgba(232,236,241,0.62)">
             MUVR is a technology marketplace. MUVR is NOT an employer. You are an independent contractor.
           </p>
         </div>
-        <div class="p-4 rounded-xl" style="background: var(--bg-card2)">
-          <h3 class="font-bold text-sm mb-1" style="color: var(--accent)">Contractor Agreement</h3>
-          <p class="text-xs" style="color: var(--text-mid)">
+        <div class="p-4 rounded-2xl" style="background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10)">
+          <h3 class="font-black text-sm mb-1" style="color: var(--accent)">Contractor Agreement</h3>
+          <p class="text-xs" style="color: rgba(232,236,241,0.62)">
             You control your schedule, rates, methods. You're responsible for taxes, insurance, and compliance.
+          </p>
+        </div>
+        <div class="p-4 rounded-2xl" style="background: rgba(24,246,200,0.06); border:1px solid rgba(24,246,200,0.16)">
+          <h3 class="font-black text-sm mb-1" style="color: rgba(232,236,241,0.88)">MUVR Credits (MV)</h3>
+          <p class="text-xs" style="color: rgba(232,236,241,0.70)">
+            MV are platform-limited digital credits used within MUVR for escrow and marketplace flows. Not currency.
           </p>
         </div>
       </div>
 
       <div class="space-y-2 mb-5">
-        <label class="flex items-start gap-3 cursor-pointer p-2 rounded hover:opacity-80">
-          <input type="checkbox" id="check-tos" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5">
-          <span class="text-sm">I accept the <strong>Terms of Service</strong></span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer p-2 rounded hover:opacity-80">
-          <input type="checkbox" id="check-contractor" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5">
-          <span class="text-sm">I accept <strong>Contractor Agreement</strong></span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer p-2 rounded hover:opacity-80">
-          <input type="checkbox" id="check-age" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5">
-          <span class="text-sm">I am <strong>18+</strong></span>
-        </label>
+        ${legalCheck("check-tos","I accept the Marketplace Terms")}
+        ${legalCheck("check-contractor","I accept the Contractor Agreement")}
+        ${legalCheck("check-age","I am 18+")}
       </div>
 
-      <button onclick="handleAcceptLegal()" id="legal-submit-btn" class="btn-secondary" disabled>
-        Check all boxes
-      </button>
+      <button onclick="handleAcceptLegal()" id="legal-submit-btn" class="btn-secondary rounded-full" disabled>Check all boxes</button>
     </div>
   `, { locked: true, width: 'max-w-lg' });
 }
 
+function legalCheck(id, label) {
+  return `
+    <label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90">
+      <input type="checkbox" id="${id}" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5">
+      <span class="text-sm font-bold">${label}</span>
+    </label>
+  `;
+}
+
 function updateLegalButton() {
-  const allChecked = getEl('check-tos')?.checked 
-    && getEl('check-contractor')?.checked 
-    && getEl('check-age')?.checked;
+  const allChecked =
+    getEl('check-tos')?.checked &&
+    getEl('check-contractor')?.checked &&
+    getEl('check-age')?.checked;
+
   const btn = getEl('legal-submit-btn');
   if (!btn) return;
 
   btn.disabled = !allChecked;
-  btn.textContent = allChecked ? 'I AGREE & CONTINUE' : 'Check all boxes';
-  btn.className = allChecked ? 'btn-primary' : 'btn-secondary';
-  if (!allChecked) btn.disabled = true;
+  btn.textContent = allChecked ? 'I agree & continue' : 'Check all boxes';
+  btn.className = allChecked ? 'btn-primary rounded-full' : 'btn-secondary rounded-full';
 }
 
-// =============================================================================
-// MODAL: POST A JOB
-// =============================================================================
+/* =============================================================================
+   MODALS: POST / APPLY / SEND / LOAD / PAYOUT / EDIT PROFILE
+============================================================================= */
 function openPostJobModal() {
   openModal(`
-    <div class="card p-6" style="max-width: 440px; margin: auto; max-height: 90vh; overflow-y: auto">
+    <div class="card p-6" style="max-width: 460px; margin:auto; max-height: 90vh; overflow:auto">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-black">Post a Gig</h2>
+        <h2 class="text-xl font-black">Post a gig</h2>
         <button onclick="closeModal()" class="close-btn">&times;</button>
       </div>
+
       <div class="space-y-3">
         <input id="job-title" placeholder="What do you need done?" maxlength="100" class="field">
-        <textarea id="job-desc" placeholder="Describe the work..." rows="3" maxlength="500" 
-                  class="field" style="resize: none"></textarea>
+        <textarea id="job-desc" placeholder="Describe the work..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>
 
-```
-    <select id="job-type" class="field">
-      <option value="">Select type...</option>
-      <option value="rideshare">Rideshare</option>
-      <option value="delivery">Delivery</option>
-      <option value="physical">Physical Labor</option>
-      <option value="digital">Digital/Remote</option>
-    </select>
-    <select id="job-urgency" class="field">
-      <option value="asap">ASAP</option>
-      <option value="today">Today</option>
-      <option value="this_week">This Week</option>
-      <option value="flexible">Flexible</option>
-    </select>
-    <div>
-      <label class="text-[11px] font-bold mb-1 block" style="color: var(--text-dim)">Budget (MV)</label>
-      <input id="job-budget" type="number" min="1" max="10000" placeholder="50" 
-             class="field" oninput="updateJobFeeDisplay()">
+        <select id="job-type" class="field">
+          <option value="">Select type…</option>
+          <option value="rideshare">Rideshare</option>
+          <option value="delivery">Delivery</option>
+          <option value="physical">Physical labor</option>
+          <option value="digital">Digital/remote</option>
+        </select>
+
+        <select id="job-urgency" class="field">
+          <option value="asap">ASAP</option>
+          <option value="today">Today</option>
+          <option value="this_week">This week</option>
+          <option value="flexible">Flexible</option>
+        </select>
+
+        <div>
+          <label class="text-[11px] font-black mb-1 block" style="color: rgba(232,236,241,0.55)">Budget (MV)</label>
+          <input id="job-budget" type="number" min="1" max="10000" placeholder="50" class="field" oninput="updateJobFeeDisplay()">
+        </div>
+
+        <input id="job-address" placeholder="Location / Address" maxlength="200" class="field">
+
+        <div class="p-4 rounded-2xl text-sm" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+          <div class="flex justify-between mb-1">
+            <span style="color: rgba(232,236,241,0.55)">Budget</span>
+            <span class="font-black" id="fee-budget-display">0 MV</span>
+          </div>
+          <div class="flex justify-between mb-1">
+            <span style="color: rgba(232,236,241,0.55)">Posting fee (burn)</span>
+            <span class="font-black" style="color: var(--red)">1 MV</span>
+          </div>
+          <div class="flex justify-between font-black pt-2" style="border-top: 1px solid rgba(255,255,255,0.10)">
+            <span>Total locked</span>
+            <span id="fee-total-display" style="color: var(--accent)">1 MV</span>
+          </div>
+        </div>
+
+        <button onclick="handlePostJob()" class="btn-primary rounded-full">Post gig & lock escrow</button>
+        <div class="text-[11px]" style="color: rgba(232,236,241,0.50)">
+          MUXI note: If you don’t have enough MV, load credits first (beta).
+        </div>
+      </div>
     </div>
-    <input id="job-address" placeholder="Location / Address" maxlength="200" class="field">
-
-    <div class="p-3 rounded-xl text-sm" style="background: var(--bg-card2); border: 1px solid var(--border)">
-      <div class="flex justify-between mb-1">
-        <span style="color: var(--text-dim)">Budget</span>
-        <span class="font-bold" id="fee-budget-display">0 MV</span>
-      </div>
-      <div class="flex justify-between mb-1">
-        <span style="color: var(--text-dim)">Fee (burned)</span>
-        <span class="font-bold" style="color: var(--red)">1 MV</span>
-      </div>
-      <div class="flex justify-between font-bold pt-2" style="border-top: 1px solid var(--border)">
-        <span>TOTAL</span>
-        <span id="fee-total-display" style="color: var(--accent)">1 MV</span>
-      </div>
-    </div>
-
-    <button onclick="handlePostJob()" class="btn-primary">POST GIG & ESCROW</button>
-  </div>
-</div>
-```
-
-`, { width: ‘max-w-md’ });
+  `, { width: 'max-w-md' });
 }
 
 function updateJobFeeDisplay() {
-const budget = parseFloat(getEl(‘job-budget’)?.value) || 0;
-const budgetEl = getEl(‘fee-budget-display’);
-const totalEl = getEl(‘fee-total-display’);
-if (budgetEl) budgetEl.textContent = budget + ’ MV’;
-if (totalEl) totalEl.textContent = (budget + 1) + ’ MV’;
+  const budget = parseFloat(getEl('job-budget')?.value) || 0;
+  const budgetEl = getEl('fee-budget-display');
+  const totalEl = getEl('fee-total-display');
+  if (budgetEl) budgetEl.textContent = budget + ' MV';
+  if (totalEl) totalEl.textContent = (budget + 1) + ' MV';
 }
 
-// =============================================================================
-// MODAL: APPLY FOR JOB
-// =============================================================================
 function openApplyModal(jobId) {
-openModal(`<div class="card p-6" style="max-width: 440px; margin: auto"> <div class="flex justify-between items-center mb-4"> <h2 class="text-xl font-black">Apply for Gig</h2> <button onclick="closeModal()" class="close-btn">&times;</button> </div> <input type="hidden" id="apply-job-id" value="${jobId}"> <div class="space-y-3"> <textarea id="apply-pitch" placeholder="Why you're perfect for this..." rows="3"  maxlength="500" class="field" style="resize: none"></textarea> <input id="apply-rate" type="number" min="1" placeholder="Your rate (MV)" class="field"> <input id="apply-turnaround" placeholder="Turnaround (e.g. 2 hours)" maxlength="50" class="field"> <button onclick="handleApply()" class="btn-primary">SUBMIT APPLICATION</button> </div> </div>`, { width: ‘max-w-md’ });
+  openModal(`
+    <div class="card p-6" style="max-width: 460px; margin:auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-black">Apply for gig</h2>
+        <button onclick="closeModal()" class="close-btn">&times;</button>
+      </div>
+
+      <input type="hidden" id="apply-job-id" value="${jobId}">
+      <div class="space-y-3">
+        <textarea id="apply-pitch" placeholder="Why you're perfect for this…" rows="3" maxlength="500" class="field" style="resize:none"></textarea>
+        <input id="apply-rate" type="number" min="1" placeholder="Your rate (MV)" class="field">
+        <input id="apply-turnaround" placeholder="Turnaround (e.g., 2 hours)" maxlength="50" class="field">
+        <button onclick="handleApply()" class="btn-primary rounded-full">Submit application</button>
+      </div>
+    </div>
+  `, { width: 'max-w-md' });
 }
 
-// =============================================================================
-// MODAL: SEND MV
-// =============================================================================
 function openSendModal() {
-openModal(`<div class="card p-6" style="max-width: 380px; margin: auto"> <div class="flex justify-between items-center mb-4"> <h2 class="text-xl font-black">Send MV</h2> <button onclick="closeModal()" class="close-btn">&times;</button> </div> <input id="send-to" type="text" placeholder="@handle or email" class="field mb-3"> <input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-4"> <button onclick="handleSend()" class="btn-primary">SEND</button> </div>`);
+  openModal(`
+    <div class="card p-6" style="max-width: 420px; margin:auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-black">Send MV</h2>
+        <button onclick="closeModal()" class="close-btn">&times;</button>
+      </div>
+      <input id="send-to" type="text" placeholder="@handle or email" class="field mb-3">
+      <input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-4">
+      <button onclick="handleSend()" class="btn-primary rounded-full">Send</button>
+      <div class="mt-3 text-[11px]" style="color: rgba(232,236,241,0.52)">
+        MV are platform credits used within MUVR. Transfers are recorded in the platform ledger.
+      </div>
+    </div>
+  `);
 }
 
-// =============================================================================
-// MODAL: LOAD MV
-// =============================================================================
 function openLoadModal() {
-openModal(`<div class="card p-6" style="max-width: 380px; margin: auto"> <div class="flex justify-between items-center mb-3"> <h2 class="text-xl font-black">Load MV</h2> <button onclick="closeModal()" class="close-btn">&times;</button> </div> <p class="text-sm font-bold mb-1" style="color: var(--accent)">1 MV = $1 USD. Always.</p> <p class="text-xs mb-4" style="color: var(--text-dim)">Zero fees. Instant. Powered by Stripe.</p> <div class="grid grid-cols-2 gap-3"> <button onclick="showToast('Stripe integration coming soon', 'info')" class="btn-secondary py-4 text-center"> $5<br><span class="text-xs" style="color: var(--accent)">5 MV</span> </button> <button onclick="showToast('Stripe integration coming soon', 'info')" class="btn-secondary py-4 text-center"> $10<br><span class="text-xs" style="color: var(--accent)">10 MV</span> </button> <button onclick="showToast('Stripe integration coming soon', 'info')" class="btn-secondary py-4 text-center"> $25<br><span class="text-xs" style="color: var(--accent)">25 MV</span> </button> <button onclick="showToast('Stripe integration coming soon', 'info')" class="btn-secondary py-4 text-center"> $50<br><span class="text-xs" style="color: var(--accent)">50 MV</span> </button> </div> </div>`);
+  openModal(`
+    <div class="card p-6" style="max-width: 420px; margin:auto">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-xl font-black">Load MV (beta)</h2>
+        <button onclick="closeModal()" class="close-btn">&times;</button>
+      </div>
+      <p class="text-sm font-black mb-1" style="color: var(--accent)">MUVR Credits (MV)</p>
+      <p class="text-xs mb-4" style="color: rgba(232,236,241,0.55)">Payment rails integration is staged. If it's not enabled, you'll see a safe stub.</p>
+      <div class="grid grid-cols-2 gap-3">
+        ${loadTile(5)}
+        ${loadTile(10)}
+        ${loadTile(25)}
+        ${loadTile(50)}
+      </div>
+      <div class="mt-4 text-[11px]" style="color: rgba(232,236,241,0.52)">
+        Legal: MV are platform credits, not currency. Loading is handled by compliant payment partners when enabled.
+      </div>
+    </div>
+  `);
+}
+function loadTile(n) {
+  return `
+    <button onclick="showToast('Loading MV is in beta (payment partner not enabled yet).', 'info')"
+            class="btn-secondary py-4 text-center rounded-2xl">
+      $${n}<br><span class="text-xs font-black" style="color: var(--accent)">${n} MV</span>
+    </button>
+  `;
 }
 
-// =============================================================================
-// MODAL: CASH OUT
-// =============================================================================
 function openCashoutModal() {
-openModal(`<div class="card p-6" style="max-width: 380px; margin: auto"> <div class="flex justify-between items-center mb-4"> <h2 class="text-xl font-black">Cash Out</h2> <button onclick="closeModal()" class="close-btn">&times;</button> </div> <input id="cashout-amount" type="number" min="1" placeholder="Amount (MV)"  class="field mb-3" oninput="updateCashoutDisplay()"> <div class="p-3 rounded-xl text-sm mb-4" style="background: var(--bg-card2)"> <div class="flex justify-between"> <span style="color: var(--text-dim)">You receive</span> <span class="font-bold" style="color: var(--accent)" id="cashout-receive">$0.00</span> </div> <div class="flex justify-between text-xs mt-1"> <span style="color: var(--text-dim)">Fee (0.5%)</span> <span style="color: var(--red)" id="cashout-fee">$0.00</span> </div> </div> <button onclick="handleCashout()" class="btn-primary">WITHDRAW</button> </div>`);
+  openModal(`
+    <div class="card p-6" style="max-width: 420px; margin:auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-black">Payout (beta)</h2>
+        <button onclick="closeModal()" class="close-btn">&times;</button>
+      </div>
+
+      <input id="cashout-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-3" oninput="updateCashoutDisplay()">
+      <div class="p-4 rounded-2xl text-sm mb-4" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+        <div class="flex justify-between">
+          <span style="color: rgba(232,236,241,0.55)">Estimated receive</span>
+          <span class="font-black" style="color: var(--accent)" id="cashout-receive">$0.00</span>
+        </div>
+        <div class="flex justify-between text-xs mt-1">
+          <span style="color: rgba(232,236,241,0.55)">Fee (0.5%)</span>
+          <span style="color: var(--red)" class="font-black" id="cashout-fee">$0.00</span>
+        </div>
+      </div>
+
+      <button onclick="handleCashout()" class="btn-primary rounded-full">Request payout</button>
+
+      <div class="mt-4 text-[11px]" style="color: rgba(232,236,241,0.52)">
+        This is a staged feature. If payout rails aren’t enabled, the app will safely record a ledger entry only.
+      </div>
+    </div>
+  `);
 }
 
 function updateCashoutDisplay() {
-const amount = parseFloat(getEl(‘cashout-amount’)?.value) || 0;
-const fee = amount * 0.005;
-const receive = amount - fee;
-const recvEl = getEl(‘cashout-receive’);
-const feeEl = getEl(‘cashout-fee’);
-if (recvEl) recvEl.textContent = ‘$’ + receive.toFixed(2);
-if (feeEl) feeEl.textContent = ‘$’ + fee.toFixed(2);
+  const amount = parseFloat(getEl('cashout-amount')?.value) || 0;
+  const fee = amount * 0.005;
+  const receive = amount - fee;
+  const recvEl = getEl('cashout-receive');
+  const feeEl = getEl('cashout-fee');
+  if (recvEl) recvEl.textContent = '$' + receive.toFixed(2);
+  if (feeEl) feeEl.textContent = '$' + fee.toFixed(2);
 }
 
-// =============================================================================
-// MODAL: EDIT PROFILE
-// =============================================================================
 function openEditProfileModal() {
-const prof = state.profile || {};
-openModal(`<div class="card p-6" style="max-width: 440px; margin: auto; max-height: 90vh; overflow-y: auto"> <div class="flex justify-between items-center mb-4"> <h2 class="text-xl font-black">Edit Profile</h2> <button onclick="closeModal()" class="close-btn">&times;</button> </div> <div class="space-y-3"> <input id="profile-name" placeholder="Your name" maxlength="100" class="field"  value="${escapeHtml(prof.full_name || '')}"> <input id="profile-username" placeholder="@handle" maxlength="30" class="field"  value="${escapeHtml(prof.username || '')}"> <textarea id="profile-about" placeholder="What services do you offer?" rows="3"  maxlength="280" class="field" style="resize: none">${escapeHtml(prof.about_me || '')}</textarea> <select id="profile-role" class="field"> <option value="both" ${prof.role === 'both' ? 'selected' : ''}>Work & Post Jobs</option> <option value="worker" ${prof.role === 'worker' ? 'selected' : ''}>Worker Only</option> <option value="poster" ${prof.role === 'poster' ? 'selected' : ''}>Post Jobs Only</option> </select> <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl" style="background: var(--bg-card2)"> <input type="checkbox" id="profile-vehicle" class="w-4 h-4" ${prof.has_vehicle ? 'checked' : ''}> <span class="text-sm">I have a vehicle</span> </label> <button onclick="handleSaveProfile()" class="btn-primary">SAVE PROFILE</button> </div> </div>`, { width: ‘max-w-md’ });
+  const prof = state.profile || {};
+  openModal(`
+    <div class="card p-6" style="max-width: 460px; margin:auto; max-height: 90vh; overflow:auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-black">Edit profile</h2>
+        <button onclick="closeModal()" class="close-btn">&times;</button>
+      </div>
+
+      <div class="space-y-3">
+        <input id="profile-name" placeholder="Your name" maxlength="100" class="field" value="${escapeHtml(prof.full_name || '')}">
+        <input id="profile-username" placeholder="@handle" maxlength="30" class="field" value="${escapeHtml(prof.username || '')}">
+        <textarea id="profile-about" placeholder="What services do you offer?" rows="3" maxlength="280" class="field" style="resize:none">${escapeHtml(prof.about_me || '')}</textarea>
+
+        <select id="profile-role" class="field">
+          <option value="both" ${prof.role === 'both' ? 'selected' : ''}>Work & post gigs</option>
+          <option value="worker" ${prof.role === 'worker' ? 'selected' : ''}>Worker only</option>
+          <option value="poster" ${prof.role === 'poster' ? 'selected' : ''}>Post gigs only</option>
+        </select>
+
+        <label class="flex items-center gap-3 cursor-pointer p-3 rounded-2xl"
+               style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10)">
+          <input type="checkbox" id="profile-vehicle" class="w-4 h-4" ${prof.has_vehicle ? 'checked' : ''}>
+          <span class="text-sm font-black">I have a vehicle</span>
+        </label>
+
+        <button onclick="handleSaveProfile()" class="btn-primary rounded-full">Save</button>
+      </div>
+    </div>
+  `, { width: 'max-w-md' });
 }
 
-// =============================================================================
-// AUTH ERROR HELPER
-// =============================================================================
+/* =============================================================================
+   AUTH ERROR
+============================================================================= */
 function showAuthError(message) {
-const el = getEl(‘auth-error’);
-if (!el) return;
-el.textContent = message;
-el.classList.remove(‘hidden’);
-setTimeout(() => el?.classList.add(‘hidden’), 5000);
+  const el = getEl('auth-error');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 5200);
 }
 
-// =============================================================================
-// ACTION: SIGN UP
-// =============================================================================
+/* =============================================================================
+   ACTIONS: SIGNUP / SIGNIN / LOGOUT / ACCEPT LEGAL
+============================================================================= */
 async function handleSignUp() {
-const email = getEl(‘auth-email’)?.value.trim();
-const password = getEl(‘auth-password’)?.value;
+  const email = getEl('auth-email')?.value.trim();
+  const password = getEl('auth-password')?.value;
 
-if (!email || !password) return showAuthError(‘Enter email and password’);
-if (password.length < 6) return showAuthError(‘Password: 6+ characters’);
+  if (!email || !password) return showAuthError('Enter email and password');
+  if (password.length < 6) return showAuthError('Password must be 6+ characters');
 
-try {
-const { data, error } = await sb.auth.signUp({ email, password });
-if (error) return showAuthError(error.message);
-
-```
-if (!data.session) {
-  // Try immediate sign-in (some Supabase configs auto-confirm)
-  const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({ email, password });
-  if (signInError) return showAuthError('Check email to confirm, then sign in.');
-  state.user = signInData.user;
-  state.token = signInData.session?.access_token;
-} else {
-  state.user = data.user;
-  state.token = data.session?.access_token;
-}
-
-closeModal();
-await loadProfile();
-openLegalModal();
-showToast('Account created! Welcome to MUVR!');
-```
-
-} catch (err) {
-showAuthError(err.message);
-}
-}
-
-// =============================================================================
-// ACTION: SIGN IN
-// =============================================================================
-async function handleSignIn() {
-const email = getEl(‘auth-email’)?.value.trim();
-const password = getEl(‘auth-password’)?.value;
-
-if (!email || !password) return showAuthError(‘Enter email and password’);
-
-const { data, error } = await sb.auth.signInWithPassword({ email, password });
-if (error) return showAuthError(error.message);
-
-state.user = data.user;
-state.token = data.session?.access_token;
-
-closeModal();
-await loadProfile();
-await loadJobs();
-renderApp();
-showToast(‘Welcome back!’);
-}
-
-// =============================================================================
-// ACTION: LOGOUT
-// =============================================================================
-async function handleLogout() {
-await sb.auth.signOut();
-state = {
-user: null,
-token: null,
-profile: null,
-jobs: [],
-jobFilter: ‘all’,
-balanceVisible: false,
-currentTab: ‘jobs’
-};
-renderLanding();
-showToast(‘Signed out’, ‘info’);
-}
-
-// =============================================================================
-// ACTION: ACCEPT LEGAL
-// =============================================================================
-async function handleAcceptLegal() {
-const agreementTypes = [‘tos’, ‘contractor_agreement’, ‘age’];
-for (const type of agreementTypes) {
-await apiRequest(‘legal_agreements’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({
-user_id: state.user.id,
-agreement_type: type,
-ip_address: ‘0.0.0.0’,
-user_agent: navigator.userAgent
-})
-});
-}
-
-closeModal();
-await loadJobs();
-renderApp();
-showToast(‘Agreements accepted!’);
-}
-
-// =============================================================================
-// DATA LOADERS
-// =============================================================================
-async function loadProfile() {
-if (!state.user) return;
-
-const res = await apiRequest(‘users?id=eq.’ + state.user.id + ‘&select=*’);
-if (!res) return;
-
-const data = await res.json();
-state.profile = data?.length ? data[0] : {
-id: state.user.id,
-email: state.user.email,
-mv_balance: 0,
-jobs_completed: 0,
-rating: 0,
-full_name: ‘’,
-username: ‘’,
-about_me: ‘’,
-role: ‘both’
-};
-}
-
-async function loadJobs() {
-const res = await apiRequest(‘jobs?status=eq.open&select=*&order=created_at.desc’);
-state.jobs = (res && await res.json()) || [];
-}
-
-// =============================================================================
-// ACTION: SAVE PROFILE
-// =============================================================================
-async function handleSaveProfile() {
-const updates = {
-full_name: getEl(‘profile-name’)?.value,
-username: getEl(‘profile-username’)?.value,
-about_me: getEl(‘profile-about’)?.value,
-role: getEl(‘profile-role’)?.value,
-has_vehicle: getEl(‘profile-vehicle’)?.checked
-};
-
-const res = await apiRequest(‘users?id=eq.’ + state.user.id, {
-method: ‘PATCH’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify(updates)
-});
-
-if (res?.ok) {
-state.profile = { …state.profile, …updates };
-closeModal();
-showToast(‘Profile saved!’);
-renderProfileTab();
-} else {
-showToast(‘Error saving profile’, ‘error’);
-}
-}
-
-// =============================================================================
-// ACTION: POST JOB
-// =============================================================================
-async function handlePostJob() {
-const title = getEl(‘job-title’)?.value.trim();
-const description = getEl(‘job-desc’)?.value.trim();
-const jobType = getEl(‘job-type’)?.value;
-const budget = parseFloat(getEl(‘job-budget’)?.value);
-
-if (!title) return showToast(‘Enter a title’, ‘error’);
-if (!jobType) return showToast(‘Select a job type’, ‘error’);
-if (!budget || budget < 1) return showToast(‘Budget must be at least 1 MV’, ‘error’);
-if (budget > 10000) return showToast(‘Budget too high’, ‘error’);
-if ((state.profile?.mv_balance || 0) < budget + 1) return showToast(‘Not enough MV’, ‘error’);
-
-const res = await apiRequest(‘jobs’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({
-poster_id: state.user.id,
-title: title,
-description: description,
-job_type: jobType,
-urgency: getEl(‘job-urgency’)?.value,
-budget_mv: budget,
-fee_mv: 1,
-total_escrowed: budget + 1,
-address: getEl(‘job-address’)?.value,
-status: ‘open’
-})
-});
-
-if (res?.ok) {
-const jobData = await res.json();
-const jobId = jobData[0].id;
-
-```
-// Create escrow record
-await apiRequest('escrow', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    job_id: jobId,
-    poster_id: state.user.id,
-    amount_mv: budget,
-    fee_mv: 1,
-    status: 'locked'
-  })
-});
-
-// Log the burn
-await apiRequest('mv_ledger', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    user_id: state.user.id,
-    type: 'burn',
-    amount_mv: 1,
-    description: 'Job posting fee',
-    tx_hash: 'BURN' + Date.now(),
-    related_job_id: jobId
-  })
-});
-
-// Update balance
-const newBalance = (state.profile.mv_balance || 0) - (budget + 1);
-await apiRequest('users?id=eq.' + state.user.id, {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ mv_balance: newBalance })
-});
-state.profile.mv_balance = newBalance;
-
-closeModal();
-await loadJobs();
-renderJobsTab();
-showToast('Gig posted! ' + (budget + 1) + ' MV escrowed.');
-```
-
-} else {
-showToast(‘Error posting job’, ‘error’);
-}
-}
-
-// =============================================================================
-// ACTION: APPLY FOR JOB
-// =============================================================================
-async function handleApply() {
-const jobId = getEl(‘apply-job-id’)?.value;
-const pitch = getEl(‘apply-pitch’)?.value.trim();
-const rate = parseFloat(getEl(‘apply-rate’)?.value);
-const turnaround = getEl(‘apply-turnaround’)?.value.trim();
-
-if (!pitch) return showToast(‘Write a pitch’, ‘error’);
-if (!rate || rate < 1) return showToast(‘Enter a rate’, ‘error’);
-if (!turnaround) return showToast(‘Enter turnaround time’, ‘error’);
-
-const res = await apiRequest(‘applications’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({
-job_id: jobId,
-worker_id: state.user.id,
-pitch: pitch,
-rate_mv: rate,
-turnaround: turnaround,
-status: ‘pending’
-})
-});
-
-if (res?.ok) {
-closeModal();
-showToast(‘Application submitted!’);
-} else {
-showToast(‘Error submitting application’, ‘error’);
-}
-}
-
-// =============================================================================
-// ACTION: SEND MV
-// =============================================================================
-async function handleSend() {
-const recipient = getEl(‘send-to’)?.value.trim();
-const amount = parseFloat(getEl(‘send-amount’)?.value);
-
-if (!recipient) return showToast(‘Enter a recipient’, ‘error’);
-if (!amount || amount < 1) return showToast(‘Enter an amount’, ‘error’);
-if ((state.profile?.mv_balance || 0) < amount) return showToast(‘Not enough MV’, ‘error’);
-
-// Look up recipient
-const lookupRes = await apiRequest(
-‘users?or=(email.eq.’ + encodeURIComponent(recipient.toLowerCase()) +
-‘,username.eq.’ + encodeURIComponent(recipient.toLowerCase()) + ‘)&select=id’
-);
-const lookupData = (lookupRes && await lookupRes.json()) || [];
-if (!lookupData.length) return showToast(‘User not found’, ‘error’);
-
-const recipientId = lookupData[0].id;
-const txHash = ‘TX’ + Date.now() + Math.random().toString(36).substr(2, 9);
-
-// Sender ledger entry
-await apiRequest(‘mv_ledger’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({
-user_id: state.user.id,
-type: ‘send’,
-amount_mv: amount,
-description: ’Sent to ’ + recipient,
-tx_hash: txHash,
-related_user_id: recipientId
-})
-});
-
-// Receiver ledger entry
-await apiRequest(‘mv_ledger’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({
-user_id: recipientId,
-type: ‘receive’,
-amount_mv: amount,
-description: ’Received from ’ + (state.profile?.full_name || state.user.email),
-tx_hash: txHash,
-related_user_id: state.user.id
-})
-});
-
-// Update sender balance
-const newBalance = (state.profile.mv_balance || 0) - amount;
-await apiRequest(‘users?id=eq.’ + state.user.id, {
-method: ‘PATCH’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ mv_balance: newBalance })
-});
-
-// Update receiver balance
-const recipientRes = await apiRequest(‘users?id=eq.’ + recipientId + ‘&select=mv_balance’);
-const recipientData = (recipientRes && await recipientRes.json()) || [{ mv_balance: 0 }];
-const recipientNewBalance = (recipientData[0].mv_balance || 0) + amount;
-await apiRequest(‘users?id=eq.’ + recipientId, {
-method: ‘PATCH’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ mv_balance: recipientNewBalance })
-});
-
-state.profile.mv_balance = newBalance;
-closeModal();
-if (state.currentTab === ‘wallet’) {
-renderWalletTab();
-loadWalletData();
-}
-showToast(‘Sent ’ + amount + ’ MV!’);
-}
-
-// =============================================================================
-// ACTION: CASH OUT
-// =============================================================================
-async function handleCashout() {
-const amount = parseFloat(getEl(‘cashout-amount’)?.value);
-
-if (!amount || amount < 1) return showToast(‘Enter an amount’, ‘error’);
-if ((state.profile?.mv_balance || 0) < amount) return showToast(‘Not enough MV’, ‘error’);
-
-const fee = amount * 0.005;
-const receiveAmount = amount - fee;
-
-await apiRequest(‘mv_ledger’, {
-method: ‘POST’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({
-user_id: state.user.id,
-type: ‘withdrawal’,
-amount_mv: amount,
-description: ‘Withdrawn $’ + receiveAmount.toFixed(2),
-tx_hash: ‘WD’ + Date.now()
-})
-});
-
-const newBalance = (state.profile.mv_balance || 0) - amount;
-await apiRequest(‘users?id=eq.’ + state.user.id, {
-method: ‘PATCH’,
-headers: { ‘Content-Type’: ‘application/json’ },
-body: JSON.stringify({ mv_balance: newBalance })
-});
-
-state.profile.mv_balance = newBalance;
-closeModal();
-if (state.currentTab === ‘wallet’) {
-renderWalletTab();
-loadWalletData();
-}
-showToast(‘Withdrawn $’ + receiveAmount.toFixed(2) + ‘!’);
-}
-
-// =============================================================================
-// BOOT SEQUENCE
-// =============================================================================
-async function boot() {
-const dismissBoot = () => {
-const bs = getEl(‘boot-screen’);
-if (bs) bs.classList.add(‘done’);
-};
-
-try {
-// Check if Supabase loaded at all
-if (typeof supabase === ‘undefined’ || !sb) {
-console.warn(‘Supabase SDK not available’);
-renderLanding();
-dismissBoot();
-return;
-}
-
-```
-// Race the session check against a 3-second timeout
-const sessionResult = await Promise.race([
-  sb.auth.getSession(),
-  new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
-]);
-
-const session = sessionResult?.data?.session;
-
-if (session?.user) {
-  state.user = session.user;
-  state.token = session.access_token;
-
-  // Load profile and jobs with their own timeout
   try {
-    await Promise.race([
-      Promise.all([loadProfile(), loadJobs()]),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('data timeout')), 4000))
-    ]);
-  } catch (dataErr) {
-    console.warn('Data load timeout, showing app with defaults:', dataErr);
+    setMuxi('loading', 'Creating your account…');
+    const { data, error } = await sb.auth.signUp({ email, password });
+    if (error) return showAuthError(error.message);
+
+    // If email confirmation is required, session may be null.
+    if (!data.session) {
+      const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({ email, password });
+      if (signInError) return showAuthError('Check your email to confirm, then sign in.');
+      state.user = signInData.user;
+      state.token = signInData.session?.access_token || null;
+    } else {
+      state.user = data.user;
+      state.token = data.session?.access_token || null;
+    }
+
+    closeModal();
+    await loadProfileSafe();
+    openLegalModal();
+    showToast('Account created. Welcome to MUVR!');
+    setMuxi('success', 'Welcome. Check the boxes, then you’re in.');
+  } catch (err) {
+    console.error(err);
+    showAuthError(err.message || 'Sign up error');
+    setMuxi('error', 'Sign up hit an error. I logged it in the console.');
+  }
+}
+
+async function handleSignIn() {
+  const email = getEl('auth-email')?.value.trim();
+  const password = getEl('auth-password')?.value;
+
+  if (!email || !password) return showAuthError('Enter email and password');
+
+  try {
+    setMuxi('loading', 'Signing you in…');
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) return showAuthError(error.message);
+
+    state.user = data.user;
+    state.token = data.session?.access_token || null;
+
+    closeModal();
+    // Render app immediately, load data in background
+    renderApp();
+    showToast('Welcome back!', 'success');
+    setMuxi('success', 'You’re in. I’ll fetch your data in the background.');
+
+    loadProfileSafe();
+    loadJobsSafe();
+  } catch (err) {
+    console.error(err);
+    showAuthError(err.message || 'Sign in error');
+    setMuxi('error', 'Sign in hit an error. Check the console.');
+  }
+}
+
+async function handleLogout() {
+  try { await sb.auth.signOut(); } catch (e) {}
+  state = { user:null, token:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', mode: state.mode, muxiMood:'idle' };
+  renderLanding();
+  showToast('Signed out', 'info');
+  setMuxi('idle', 'Signed out. Want to post a gig? Sign back in.');
+}
+
+async function handleAcceptLegal() {
+  try {
+    setMuxi('loading', 'Saving agreements…');
+    const agreementTypes = ['tos', 'contractor_agreement', 'age'];
+
+    for (const type of agreementTypes) {
+      await apiRequest('legal_agreements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: state.user.id,
+          agreement_type: type,
+          ip_address: '0.0.0.0',
+          user_agent: navigator.userAgent
+        })
+      });
+    }
+
+    closeModal();
+    renderApp();
+    showToast('Agreements accepted!', 'success');
+    setMuxi('success', 'Nice. You’re live.');
+
+    loadJobsSafe();
+    loadProfileSafe();
+  } catch (e) {
+    console.error(e);
+    showToast('Error saving agreements', 'error');
+    setMuxi('error', 'Agreement save failed. Console has details.');
+  }
+}
+
+/* =============================================================================
+   DATA LOADERS (SAFE, NON-BLOCKING)
+============================================================================= */
+async function loadProfileSafe() {
+  if (!state.user) return;
+  try {
+    const res = await withTimeout(apiRequest('users?id=eq.' + state.user.id + '&select=*'), 1500, 'profile');
+    if (res && res.ok) {
+      const data = await res.json();
+      state.profile = (data && data.length) ? data[0] : null;
+    }
+
+    if (!state.profile) {
+      // fallback profile (does not write)
+      state.profile = {
+        id: state.user.id,
+        email: state.user.email,
+        mv_balance: 0,
+        jobs_completed: 0,
+        rating: 0,
+        full_name: '',
+        username: '',
+        about_me: '',
+        role: 'both'
+      };
+    }
+
+    // refresh visible tab
+    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+    if (state.currentTab === 'profile') renderProfileTab();
+  } catch (e) {
+    console.error('loadProfileSafe error', e);
+    setMuxi('error', 'Profile load timed out. UI stays alive.');
+  }
+}
+
+async function loadJobsSafe() {
+  try {
+    const res = await withTimeout(apiRequest('jobs?status=eq.open&select=*&order=created_at.desc'), 1500, 'jobs');
+    state.jobs = (res && res.ok) ? await res.json() : [];
+    if (state.currentTab === 'jobs') renderJobsTab();
+  } catch (e) {
+    console.error('loadJobsSafe error', e);
+    setMuxi('error', 'Jobs load timed out. Try again in a moment.');
+  }
+}
+
+/* =============================================================================
+   ACTION: SAVE PROFILE
+============================================================================= */
+async function handleSaveProfile() {
+  const updates = {
+    full_name: getEl('profile-name')?.value || '',
+    username: (getEl('profile-username')?.value || '').toLowerCase(),
+    about_me: getEl('profile-about')?.value || '',
+    role: getEl('profile-role')?.value || 'both',
+    has_vehicle: !!getEl('profile-vehicle')?.checked
+  };
+
+  try {
+    const res = await apiRequest('users?id=eq.' + state.user.id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+
+    if (res && res.ok) {
+      state.profile = { ...(state.profile || {}), ...updates };
+      closeModal();
+      showToast('Profile saved!', 'success');
+      renderProfileTab();
+      setMuxi('success', 'Profile upgraded. You just gained XP.');
+    } else {
+      showToast('Error saving profile', 'error');
+      setMuxi('error', 'Save failed. Likely RLS or missing row.');
+    }
+  } catch (e) {
+    console.error(e);
+    showToast('Error saving profile', 'error');
+    setMuxi('error', 'Save crashed. Console has details.');
+  }
+}
+
+/* =============================================================================
+   ACTION: POST JOB
+============================================================================= */
+async function handlePostJob() {
+  const title = getEl('job-title')?.value.trim();
+  const description = getEl('job-desc')?.value.trim();
+  const jobType = getEl('job-type')?.value;
+  const budget = parseFloat(getEl('job-budget')?.value);
+
+  if (!title) return showToast('Enter a title', 'error');
+  if (!jobType) return showToast('Select a job type', 'error');
+  if (!budget || budget < 1) return showToast('Budget must be at least 1 MV', 'error');
+  if (budget > 10000) return showToast('Budget too high', 'error');
+
+  const bal = Number(state.profile?.mv_balance || 0);
+  if (bal < (budget + 1)) return showToast('Not enough MV', 'error');
+
+  try {
+    setMuxi('loading', 'Posting your gig…');
+    const res = await apiRequest('jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        poster_id: state.user.id,
+        title,
+        description,
+        job_type: jobType,
+        urgency: getEl('job-urgency')?.value || 'asap',
+        budget_mv: budget,
+        fee_mv: 1,
+        total_escrowed: budget + 1,
+        address: getEl('job-address')?.value || '',
+        status: 'open'
+      })
+    });
+
+    if (!(res && res.ok)) {
+      showToast('Error posting job', 'error');
+      setMuxi('error', 'Job post failed. Check console.');
+      return;
+    }
+
+    const jobData = await res.json();
+    const jobId = jobData && jobData[0] ? jobData[0].id : null;
+    if (!jobId) {
+      showToast('Job created but missing ID', 'error');
+      return;
+    }
+
+    // Create escrow record
+    await apiRequest('escrow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        job_id: jobId,
+        poster_id: state.user.id,
+        amount_mv: budget,
+        fee_mv: 1,
+        status: 'locked'
+      })
+    });
+
+    // Log burn
+    await apiRequest('mv_ledger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: state.user.id,
+        type: 'burn',
+        amount_mv: 1,
+        description: 'Gig posting fee (burn)',
+        tx_hash: 'BURN' + Date.now(),
+        related_job_id: jobId
+      })
+    });
+
+    // Update balance
+    const newBalance = bal - (budget + 1);
+    await apiRequest('users?id=eq.' + state.user.id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mv_balance: newBalance })
+    });
+
+    state.profile.mv_balance = newBalance;
+
+    closeModal();
+    showToast('Gig posted! Escrow locked.', 'success');
+    setMuxi('success', 'Gig posted. Now watch applications roll in.');
+    loadJobsSafe();
+    if (state.currentTab === 'jobs') renderJobsTab();
+  } catch (e) {
+    console.error(e);
+    showToast('Error posting job', 'error');
+    setMuxi('error', 'Post crashed. Console has details.');
+  }
+}
+
+/* =============================================================================
+   ACTION: APPLY
+============================================================================= */
+async function handleApply() {
+  const jobId = getEl('apply-job-id')?.value;
+  const pitch = getEl('apply-pitch')?.value.trim();
+  const rate = parseFloat(getEl('apply-rate')?.value);
+  const turnaround = getEl('apply-turnaround')?.value.trim();
+
+  if (!pitch) return showToast('Write a pitch', 'error');
+  if (!rate || rate < 1) return showToast('Enter a rate', 'error');
+  if (!turnaround) return showToast('Enter turnaround time', 'error');
+
+  try {
+    const res = await apiRequest('applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        job_id: jobId,
+        worker_id: state.user.id,
+        pitch,
+        rate_mv: rate,
+        turnaround,
+        status: 'pending'
+      })
+    });
+
+    if (res && res.ok) {
+      closeModal();
+      showToast('Application submitted!', 'success');
+      setMuxi('success', 'Applied. Want higher win-rate? Tighten your pitch.');
+    } else {
+      showToast('Error submitting application', 'error');
+      setMuxi('error', 'Apply failed. Likely RLS or table mismatch.');
+    }
+  } catch (e) {
+    console.error(e);
+    showToast('Error submitting application', 'error');
+    setMuxi('error', 'Apply crashed. Console has details.');
+  }
+}
+
+/* =============================================================================
+   ACTION: SEND MV
+============================================================================= */
+async function handleSend() {
+  const recipient = (getEl('send-to')?.value || '').trim();
+  const amount = parseFloat(getEl('send-amount')?.value);
+
+  if (!recipient) return showToast('Enter a recipient', 'error');
+  if (!amount || amount < 1) return showToast('Enter an amount', 'error');
+
+  const bal = Number(state.profile?.mv_balance || 0);
+  if (bal < amount) return showToast('Not enough MV', 'error');
+
+  try {
+    // Look up recipient by email or username
+    const enc = encodeURIComponent(recipient.toLowerCase());
+    const lookupRes = await apiRequest('users?or=(email.eq.' + enc + ',username.eq.' + enc + ')&select=id');
+    const lookupData = (lookupRes && lookupRes.ok) ? await lookupRes.json() : [];
+    if (!lookupData.length) return showToast('User not found', 'error');
+
+    const recipientId = lookupData[0].id;
+    const txHash = 'TX' + Date.now() + Math.random().toString(36).slice(2, 10);
+
+    await apiRequest('mv_ledger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: state.user.id,
+        type: 'send',
+        amount_mv: amount,
+        description: 'Sent to ' + recipient,
+        tx_hash: txHash,
+        related_user_id: recipientId
+      })
+    });
+
+    await apiRequest('mv_ledger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: recipientId,
+        type: 'receive',
+        amount_mv: amount,
+        description: 'Received from ' + (state.profile?.full_name || state.user.email),
+        tx_hash: txHash,
+        related_user_id: state.user.id
+      })
+    });
+
+    // Update sender balance
+    const newBalance = bal - amount;
+    await apiRequest('users?id=eq.' + state.user.id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mv_balance: newBalance })
+    });
+    state.profile.mv_balance = newBalance;
+
+    // Update recipient balance best-effort
+    try {
+      const recBalRes = await apiRequest('users?id=eq.' + recipientId + '&select=mv_balance');
+      const recData = (recBalRes && recBalRes.ok) ? await recBalRes.json() : [{ mv_balance: 0 }];
+      const recNew = Number(recData[0]?.mv_balance || 0) + amount;
+      await apiRequest('users?id=eq.' + recipientId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mv_balance: recNew })
+      });
+    } catch (e) {}
+
+    closeModal();
+    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+    showToast('Sent ' + amount + ' MV!', 'success');
+    setMuxi('success', 'Transfer done. Ledger updated.');
+  } catch (e) {
+    console.error(e);
+    showToast('Transfer failed', 'error');
+    setMuxi('error', 'Transfer failed. Console has details.');
+  }
+}
+
+/* =============================================================================
+   ACTION: PAYOUT (SAFE STUB)
+============================================================================= */
+async function handleCashout() {
+  const amount = parseFloat(getEl('cashout-amount')?.value);
+
+  if (!amount || amount < 1) return showToast('Enter an amount', 'error');
+
+  const bal = Number(state.profile?.mv_balance || 0);
+  if (bal < amount) return showToast('Not enough MV', 'error');
+
+  const fee = amount * 0.005;
+  const receiveAmount = amount - fee;
+
+  try {
+    // Record ledger entry (safe even if payout rails are not enabled)
+    await apiRequest('mv_ledger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: state.user.id,
+        type: 'withdrawal',
+        amount_mv: amount,
+        description: 'Payout requested (beta). Est. $' + receiveAmount.toFixed(2),
+        tx_hash: 'WD' + Date.now()
+      })
+    });
+
+    // Deduct balance (if you want payout to be "request only", comment this out)
+    const newBalance = bal - amount;
+    await apiRequest('users?id=eq.' + state.user.id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mv_balance: newBalance })
+    });
+    state.profile.mv_balance = newBalance;
+
+    closeModal();
+    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+
+    showToast('Payout requested (beta).', 'success');
+    setMuxi('success', 'Logged. If rails aren’t live yet, you’re still safe.');
+  } catch (e) {
+    console.error(e);
+    showToast('Payout failed', 'error');
+    setMuxi('error', 'Payout failed. Likely RLS or missing table.');
+  }
+}
+
+/* =============================================================================
+   BOOT SEQUENCE (NEVER HANG)
+============================================================================= */
+async function boot() {
+  const dismissBoot = () => {
+    const bs = getEl('boot-screen');
+    if (bs) bs.classList.add('done');
+  };
+
+  // HARD GUARANTEE: never show boot longer than 900ms
+  const hardDismiss = setTimeout(() => dismissBoot(), 900);
+
+  // Always render landing immediately so UI never blocks
+  renderLanding();
+  setMuxi('idle', 'Tap me if anything feels slow. I’ll keep the UI alive.');
+
+  try {
+    if (typeof supabase === 'undefined' || !sb) {
+      console.warn('Supabase SDK not available');
+      state.mode = 'offline';
+      showToast('Network mode: offline (Supabase unavailable)', 'info');
+      setMuxi('error', 'Supabase missing. Check CDN or adblock.');
+      dismissBoot();
+      return;
+    }
+
+    // Fast session check (non-blocking UI)
+    let session = null;
+    try {
+      const s = await withTimeout(sb.auth.getSession(), 700, 'session');
+      session = s?.data?.session || null;
+    } catch (e) {
+      console.warn('Session check timeout:', e);
+    }
+
+    if (session?.user) {
+      state.user = session.user;
+      state.token = session.access_token || null;
+
+      // Render app immediately
+      renderApp();
+      setMuxi('success', 'Session found. Welcome back. Loading data…');
+
+      // Load data in background, with independent timeouts
+      loadProfileSafe();
+      loadJobsSafe();
+    } else {
+      // landing already rendered
+    }
+
+  } catch (error) {
+    console.error('Boot error:', error);
+    setMuxi('error', 'Boot hit an error. Landing stays live.');
+  } finally {
+    clearTimeout(hardDismiss);
+    dismissBoot();
   }
 
-  renderApp();
-} else {
-  renderLanding();
-}
-```
-
-} catch (error) {
-console.error(‘Boot error:’, error);
-renderLanding();
-}
-
-dismissBoot();
-
-// Listen for auth state changes (non-blocking)
-try {
-sb.auth.onAuthStateChange((event, session) => {
-if (session?.user) {
-state.user = session.user;
-state.token = session.access_token;
-} else {
-state.user = null;
-state.token = null;
-}
-});
-} catch (e) {
-console.error(‘Auth listener error:’, e);
-}
+  // Auth listener (non-blocking)
+  try {
+    sb.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        state.user = session.user;
+        state.token = session.access_token || null;
+      } else {
+        state.user = null;
+        state.token = null;
+      }
+    });
+  } catch (e) {
+    console.error('Auth listener error:', e);
+  }
 }
 
-// Start the app
+// Start
 boot();
-
 </script>
 </body>
 </html>
