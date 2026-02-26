@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -19,8 +20,6 @@
     .card-hover{transition:all .2s;cursor:pointer}
     .card-hover:hover{border-color:#14F1C6;transform:translateY(-2px)}
     input:focus,textarea:focus,select:focus{outline:none;border-color:#14F1C6 !important}
-    .modal-hidden{display:none}
-    .modal-visible{display:flex}
     .mob-tab.active{color:#14F1C6}
     #toast-container{position:fixed;top:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
     .toast{padding:12px 20px;border-radius:16px;font-size:14px;font-weight:700;animation:slideIn .3s ease;max-width:340px;opacity:1}
@@ -30,15 +29,39 @@
     @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
     .hero-gradient{background:linear-gradient(135deg,#14F1C6 0%,#06af86 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .mv-price{font-size:2rem;font-weight:800;color:#14F1C6}
+
+```
+/* Modal overlay styles */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;z-index:100;padding:1rem}
+.modal-overlay.open{display:flex}
+
+/* Loading screen */
+#loading-screen{position:fixed;inset:0;background:#0a0e27;display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .4s ease}
+#loading-screen.fade-out{opacity:0;pointer-events:none}
+.loader{width:48px;height:48px;border:4px solid #14F1C633;border-top-color:#14F1C6;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+```
+
   </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen">
+
+<!-- LOADING SCREEN - shown while checking auth -->
+
+<div id="loading-screen">
+  <div class="text-center">
+    <div class="loader mx-auto mb-4"></div>
+    <span class="text-2xl font-extrabold tracking-tighter">MU<span class="text-[#14F1C6]">V</span>R</span>
+  </div>
+</div>
 
 <div id="toast-container"></div>
 
 <div class="bg-red-700/90 text-center py-1.5 text-xs font-bold tracking-widest">
   MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL WORKERS ARE INDEPENDENT CONTRACTORS
 </div>
+
+<!-- ============ APP HEADER (hidden until logged in) ============ -->
 
 <header id="app-header" class="border-b border-zinc-800 bg-zinc-900/95 sticky top-0 z-50 backdrop-blur-md hidden">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -62,6 +85,8 @@
   </div>
 </header>
 
+<!-- ============ MOBILE NAV (hidden until logged in) ============ -->
+
 <div id="mobile-nav" class="sm:hidden fixed bottom-0 left-0 right-0 bg-zinc-900/95 border-t border-zinc-800 z-50 hidden backdrop-blur-md">
   <div class="flex justify-around py-3">
     <button onclick="showTab('jobs')" class="flex flex-col items-center text-xs gap-1 mob-tab active" data-tab="jobs"><i class="fas fa-briefcase text-lg"></i>Jobs</button>
@@ -70,7 +95,9 @@
   </div>
 </div>
 
-<div id="landing-page" class="min-h-screen pb-16 sm:pb-0">
+<!-- ============ LANDING PAGE (default visible state) ============ -->
+
+<div id="landing-page" class="min-h-screen pb-16 sm:pb-0 hidden">
   <section class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
     <div class="text-center mb-12">
       <div class="inline-flex items-center gap-3 mb-6">
@@ -80,28 +107,31 @@
       <p class="text-4xl sm:text-5xl font-extrabold mb-4 leading-tight">Earn 25-50% More.<br/>Keep 100%.<br/><span class="hero-gradient">Your Wealth Grows.</span></p>
       <p class="text-zinc-400 text-lg sm:text-xl max-w-2xl mx-auto mb-8">Zero commission marketplace. Instant payouts. Deflationary currency that appreciates over time. Transparent. Borderless.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <button onclick="showModal('login-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-8 py-4 rounded-full font-bold text-lg transition">GET STARTED</button>
-        <button onclick="scrollTo('how-it-works')" class="border-2 border-[#14F1C6] text-[#14F1C6] hover:bg-[#14F1C6]/10 px-8 py-4 rounded-full font-bold text-lg transition">LEARN MORE</button>
+        <button onclick="openLoginModal()" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-8 py-4 rounded-full font-bold text-lg transition">GET STARTED</button>
+        <button onclick="smoothScrollTo('how-it-works')" class="border-2 border-[#14F1C6] text-[#14F1C6] hover:bg-[#14F1C6]/10 px-8 py-4 rounded-full font-bold text-lg transition">LEARN MORE</button>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
-      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
-        <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">0%</p>
-        <p class="font-bold text-lg mb-2">Commission</p>
-        <p class="text-sm text-zinc-400">Keep 100% of your rate. Only 1 MV burned per job.</p>
-      </div>
-      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
-        <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">⚡</p>
-        <p class="font-bold text-lg mb-2">Instant Payouts</p>
-        <p class="text-sm text-zinc-400">No delays. No currency risk. 1 MV = $1 USD always.</p>
-      </div>
-      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
-        <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">📈</p>
-        <p class="font-bold text-lg mb-2">Your Wealth Grows</p>
-        <p class="text-sm text-zinc-400">Deflationary. Hard cap 100M. MV appreciates over time.</p>
-      </div>
-    </div>
+```
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
+    <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">0%</p>
+    <p class="font-bold text-lg mb-2">Commission</p>
+    <p class="text-sm text-zinc-400">Keep 100% of your rate. Only 1 MV burned per job.</p>
+  </div>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
+    <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">⚡</p>
+    <p class="font-bold text-lg mb-2">Instant Payouts</p>
+    <p class="text-sm text-zinc-400">No delays. No currency risk. 1 MV = $1 USD always.</p>
+  </div>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center hover:border-[#14F1C6]/50 transition">
+    <p class="text-4xl font-extrabold text-[#14F1C6] mb-2">📈</p>
+    <p class="font-bold text-lg mb-2">Your Wealth Grows</p>
+    <p class="text-sm text-zinc-400">Deflationary. Hard cap 100M. MV appreciates over time.</p>
+  </div>
+</div>
+```
+
   </section>
 
   <section id="how-it-works" class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
@@ -146,30 +176,22 @@
     <h2 class="text-3xl sm:text-4xl font-extrabold mb-12 text-center">How It Works</h2>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="text-center">
-        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4">
-          <span class="text-3xl">📝</span>
-        </div>
+        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4"><span class="text-3xl">📝</span></div>
         <h3 class="font-bold text-lg mb-2">Post or Apply</h3>
         <p class="text-sm text-zinc-400">Post a gig or apply. No upfront commission.</p>
       </div>
       <div class="text-center">
-        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4">
-          <span class="text-3xl">🔒</span>
-        </div>
+        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4"><span class="text-3xl">🔒</span></div>
         <h3 class="font-bold text-lg mb-2">Escrow Locked</h3>
         <p class="text-sm text-zinc-400">Budget locked. 1 MV burned. Protected.</p>
       </div>
       <div class="text-center">
-        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4">
-          <span class="text-3xl">✅</span>
-        </div>
+        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4"><span class="text-3xl">✅</span></div>
         <h3 class="font-bold text-lg mb-2">Work Complete</h3>
         <p class="text-sm text-zinc-400">Keep 100%. Instantly.</p>
       </div>
       <div class="text-center">
-        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4">
-          <span class="text-3xl">📈</span>
-        </div>
+        <div class="w-16 h-16 rounded-full bg-[#14F1C6]/20 flex items-center justify-center mx-auto mb-4"><span class="text-3xl">📈</span></div>
         <h3 class="font-bold text-lg mb-2">MV Appreciates</h3>
         <p class="text-sm text-zinc-400">Deflationary. Value grows.</p>
       </div>
@@ -179,79 +201,86 @@
   <section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
     <h2 class="text-4xl sm:text-5xl font-extrabold mb-6">Ready to Earn More?</h2>
     <p class="text-xl text-zinc-400 mb-8 max-w-2xl mx-auto">Join workers earning 25-50% more. Zero commission. Instant payouts. Your wealth grows.</p>
-    <button onclick="showModal('login-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-8 py-4 rounded-full font-bold text-lg transition">SIGN UP NOW</button>
+    <button onclick="openLoginModal()" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-8 py-4 rounded-full font-bold text-lg transition">SIGN UP NOW</button>
   </section>
 
   <footer class="border-t border-zinc-800 mt-12 py-8 text-center text-xs text-zinc-600 px-4">
     <p class="mb-2">MUVR is operated by TransBid LLC (Delaware, USA)</p>
-    <p>© 2026 TransBid LLC. All rights reserved.</p>
+    <p>&copy; 2026 TransBid LLC. All rights reserved.</p>
   </footer>
 </div>
 
+<!-- ============ APP INTERFACE (hidden until logged in) ============ -->
+
 <main id="app-interface" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24 sm:pb-6 hidden">
 
-<div id="jobs-tab" class="tab-content">
-  <div class="mb-8">
-    <h1 class="text-4xl sm:text-5xl font-extrabold mb-2">Available Gigs</h1>
-    <p class="text-zinc-400 text-base mb-6">Find work. Keep more. Build wealth.</p>
-    <button onclick="showModal('post-job-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-6 py-3 rounded-full font-bold text-base transition">+ POST A GIG</button>
+  <div id="jobs-tab" class="tab-content">
+    <div class="mb-8">
+      <h1 class="text-4xl sm:text-5xl font-extrabold mb-2">Available Gigs</h1>
+      <p class="text-zinc-400 text-base mb-6">Find work. Keep more. Build wealth.</p>
+      <button onclick="openModal('post-job-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black px-6 py-3 rounded-full font-bold text-base transition">+ POST A GIG</button>
+    </div>
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <button onclick="filterJobs('all')" class="job-filter bg-[#14F1C6] text-black px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">All</button>
+      <button onclick="filterJobs('rideshare')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Rideshare</button>
+      <button onclick="filterJobs('delivery')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Delivery</button>
+      <button onclick="filterJobs('physical')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Labor</button>
+      <button onclick="filterJobs('digital')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Digital</button>
+    </div>
+    <div id="job-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="text-zinc-500 text-center py-16 col-span-full"><p class="font-bold">No jobs posted yet</p></div>
+    </div>
   </div>
-  <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
-    <button onclick="filterJobs('all')" class="job-filter bg-[#14F1C6] text-black px-4 py-2 rounded-full text-sm whitespace-nowrap font-bold">All</button>
-    <button onclick="filterJobs('rideshare')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Rideshare</button>
-    <button onclick="filterJobs('delivery')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Delivery</button>
-    <button onclick="filterJobs('physical')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Labor</button>
-    <button onclick="filterJobs('digital')" class="job-filter bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-full text-sm whitespace-nowrap">Digital</button>
-  </div>
-  <div id="job-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="text-zinc-500 text-center py-16 col-span-full"><p class="font-bold">No jobs posted yet</p></div>
-  </div>
-</div>
 
-<div id="wallet-tab" class="tab-content hidden">
-  <h1 class="text-3xl font-extrabold mb-5">Your MV Wallet</h1>
-  <div class="bg-gradient-to-r from-[#14F1C6]/20 to-[#06af86]/20 border border-[#14F1C6]/30 rounded-2xl p-6 mb-6">
-    <p class="text-[10px] text-zinc-400 tracking-widest font-bold mb-4 uppercase">MV Network Status</p>
-    <div class="grid grid-cols-4 gap-4 text-center">
-      <div><p class="text-[10px] text-zinc-500 mb-1">CAP</p><p class="mv-price">100M</p></div>
-      <div><p class="text-[10px] text-zinc-500 mb-1">MINTED</p><p class="mv-price" id="supply-minted">0</p></div>
-      <div><p class="text-[10px] text-zinc-500 mb-1">ESCROWED</p><p class="text-2xl font-bold text-yellow-400" id="supply-escrowed">0</p></div>
-      <div><p class="text-[10px] text-zinc-500 mb-1">BURNED</p><p class="text-2xl font-bold text-red-400" id="supply-burned">0</p></div>
+  <div id="wallet-tab" class="tab-content hidden">
+    <h1 class="text-3xl font-extrabold mb-5">Your MV Wallet</h1>
+    <div class="bg-gradient-to-r from-[#14F1C6]/20 to-[#06af86]/20 border border-[#14F1C6]/30 rounded-2xl p-6 mb-6">
+      <p class="text-[10px] text-zinc-400 tracking-widest font-bold mb-4 uppercase">MV Network Status</p>
+      <div class="grid grid-cols-4 gap-4 text-center">
+        <div><p class="text-[10px] text-zinc-500 mb-1">CAP</p><p class="mv-price">100M</p></div>
+        <div><p class="text-[10px] text-zinc-500 mb-1">MINTED</p><p class="mv-price" id="supply-minted">0</p></div>
+        <div><p class="text-[10px] text-zinc-500 mb-1">ESCROWED</p><p class="text-2xl font-bold text-yellow-400" id="supply-escrowed">0</p></div>
+        <div><p class="text-[10px] text-zinc-500 mb-1">BURNED</p><p class="text-2xl font-bold text-red-400" id="supply-burned">0</p></div>
+      </div>
+    </div>
+    <div class="bg-zinc-900 rounded-2xl p-6 max-w-md border border-zinc-800 mb-6">
+      <p class="text-zinc-500 text-xs tracking-widest font-bold mb-2 uppercase">Your MV Balance</p>
+      <div class="flex items-end justify-between mb-6">
+        <p id="balance-display" class="text-5xl font-mono font-extrabold text-[#14F1C6]">------</p>
+        <button onclick="toggleBalance()" id="balance-toggle" class="text-zinc-400 hover:text-[#14F1C6] text-sm font-bold transition">SHOW</button>
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <button onclick="openModal('send-modal')" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">SEND</button>
+        <button onclick="openModal('load-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black py-4 rounded-xl text-sm font-bold transition">LOAD</button>
+        <button onclick="openModal('cashout-modal')" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">CASH OUT</button>
+      </div>
+    </div>
+    <h2 class="text-lg font-bold mb-3">Transaction Ledger</h2>
+    <div id="ledger-list" class="space-y-2">
+      <div class="text-zinc-500 text-sm py-4">No transactions yet</div>
     </div>
   </div>
-  <div class="bg-zinc-900 rounded-2xl p-6 max-w-md border border-zinc-800 mb-6">
-    <p class="text-zinc-500 text-xs tracking-widest font-bold mb-2 uppercase">Your MV Balance</p>
-    <div class="flex items-end justify-between mb-6">
-      <p id="balance-display" class="text-5xl font-mono font-extrabold text-[#14F1C6]">------</p>
-      <button onclick="toggleBalance()" id="balance-toggle" class="text-zinc-400 hover:text-[#14F1C6] text-sm font-bold transition">SHOW</button>
-    </div>
-    <div class="grid grid-cols-3 gap-3">
-      <button onclick="showModal('send-modal')" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">SEND</button>
-      <button onclick="showModal('load-modal')" class="bg-[#14F1C6] hover:bg-teal-300 text-black py-4 rounded-xl text-sm font-bold transition">LOAD</button>
-      <button onclick="showModal('cashout-modal')" class="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl text-sm font-bold transition">CASH OUT</button>
-    </div>
-  </div>
-  <h2 class="text-lg font-bold mb-3">Transaction Ledger</h2>
-  <div id="ledger-list" class="space-y-2">
-    <div class="text-zinc-500 text-sm py-4">No transactions yet</div>
-  </div>
-</div>
 
-<div id="profile-tab" class="tab-content hidden">
-  <h1 class="text-3xl font-extrabold mb-4">Your Profile</h1>
-  <button onclick="showModal('profile-modal')" class="bg-[#14F1C6] text-black px-6 py-3 rounded-full font-bold mb-6">EDIT PROFILE</button>
-  <div id="profile-content" class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-    <div class="text-zinc-500 text-center py-8">Loading...</div>
+  <div id="profile-tab" class="tab-content hidden">
+    <h1 class="text-3xl font-extrabold mb-4">Your Profile</h1>
+    <button onclick="openModal('profile-modal')" class="bg-[#14F1C6] text-black px-6 py-3 rounded-full font-bold mb-6">EDIT PROFILE</button>
+    <div id="profile-content" class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+      <div class="text-zinc-500 text-center py-8">Loading...</div>
+    </div>
   </div>
-</div>
 
 </main>
 
-<!-- MODALS -->
+<!-- ============ MODALS ============ -->
 
-<div id="login-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- LOGIN MODAL -->
+
+<div id="login-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('login-modal')">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
-    <h2 class="text-2xl font-extrabold mb-2">Join MUVR</h2>
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="text-2xl font-extrabold">Join MUVR</h2>
+      <button onclick="closeModal('login-modal')" class="text-zinc-400 hover:text-white text-2xl leading-none">&times;</button>
+    </div>
     <p class="text-zinc-400 text-sm mb-6">Zero commission. Instant payouts. Your wealth grows.</p>
     <input id="auth-email" type="email" placeholder="you@email.com" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
     <input id="auth-password" type="password" placeholder="Password (6+ chars)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4 text-sm">
@@ -261,7 +290,9 @@
   </div>
 </div>
 
-<div id="legal-modal" class="modal-hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-4">
+<!-- LEGAL MODAL -->
+
+<div id="legal-modal" class="modal-overlay">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <h2 class="text-xl font-extrabold mb-4">Before You Start</h2>
     <div class="space-y-4 mb-6">
@@ -292,11 +323,13 @@
   </div>
 </div>
 
-<div id="post-job-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- POST JOB MODAL -->
+
+<div id="post-job-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('post-job-modal')">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-extrabold">Post a Gig</h2>
-      <button onclick="hideModal('post-job-modal')" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+      <button onclick="closeModal('post-job-modal')" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
     </div>
     <div class="space-y-3">
       <input id="job-title" placeholder="What do you need done?" maxlength="100" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
@@ -329,11 +362,13 @@
   </div>
 </div>
 
-<div id="apply-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- APPLY MODAL -->
+
+<div id="apply-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('apply-modal')">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-extrabold">Apply for Gig</h2>
-      <button onclick="hideModal('apply-modal')" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
+      <button onclick="closeModal('apply-modal')" class="text-zinc-400 hover:text-white text-2xl">&times;</button>
     </div>
     <input type="hidden" id="apply-job-id">
     <div class="space-y-3">
@@ -345,11 +380,13 @@
   </div>
 </div>
 
-<div id="send-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- SEND MODAL -->
+
+<div id="send-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('send-modal')">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-extrabold">Send MV</h2>
-      <button onclick="hideModal('send-modal')" class="text-zinc-400 text-2xl">&times;</button>
+      <button onclick="closeModal('send-modal')" class="text-zinc-400 text-2xl">&times;</button>
     </div>
     <input id="send-to" type="text" placeholder="@handle or email" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
     <input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4 text-sm">
@@ -357,11 +394,13 @@
   </div>
 </div>
 
-<div id="load-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- LOAD MODAL -->
+
+<div id="load-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('load-modal')">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-3">
       <h2 class="text-xl font-extrabold">Load MV</h2>
-      <button onclick="hideModal('load-modal')" class="text-zinc-400 text-2xl">&times;</button>
+      <button onclick="closeModal('load-modal')" class="text-zinc-400 text-2xl">&times;</button>
     </div>
     <p class="text-[#14F1C6] text-sm font-bold mb-1">1 MV = $1 USD. Always.</p>
     <p class="text-zinc-400 text-xs mb-4">Zero fees. Instant. Powered by Stripe.</p>
@@ -374,11 +413,13 @@
   </div>
 </div>
 
-<div id="cashout-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- CASHOUT MODAL -->
+
+<div id="cashout-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('cashout-modal')">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-sm border border-zinc-700">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-extrabold">Cash Out</h2>
-      <button onclick="hideModal('cashout-modal')" class="text-zinc-400 text-2xl">&times;</button>
+      <button onclick="closeModal('cashout-modal')" class="text-zinc-400 text-2xl">&times;</button>
     </div>
     <input id="cashout-amount" type="number" min="1" placeholder="Amount (MV)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm" oninput="updateCashoutFee()">
     <div class="bg-zinc-800 rounded-xl p-3 text-sm mb-4">
@@ -389,11 +430,13 @@
   </div>
 </div>
 
-<div id="profile-modal" class="modal-hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
+<!-- PROFILE MODAL -->
+
+<div id="profile-modal" class="modal-overlay" onclick="if(event.target===this)closeModal('profile-modal')">
   <div class="bg-zinc-900 rounded-2xl p-6 w-full max-w-md border border-zinc-700 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-extrabold">Edit Profile</h2>
-      <button onclick="hideModal('profile-modal')" class="text-zinc-400 text-2xl">&times;</button>
+      <button onclick="closeModal('profile-modal')" class="text-zinc-400 text-2xl">&times;</button>
     </div>
     <div class="space-y-4">
       <input id="p-name" placeholder="Your name" maxlength="100" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm">
@@ -414,11 +457,12 @@
 </div>
 
 <script>
+// ============ SUPABASE CONFIG ============
 const SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co'
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o'
-
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY)
 
+// ============ STATE ============
 let user = null
 let profile = null
 let balRevealed = false
@@ -426,9 +470,14 @@ let jobFilter = 'all'
 let allJobs = []
 let authToken = null
 
+// ============ HELPERS ============
 const gi = id => document.getElementById(id)
 const gv = id => gi(id).value
-const esc = s => (new DOMParser()).parseFromString(s, 'text/html').documentElement.textContent
+const esc = s => {
+  const d = document.createElement('div')
+  d.textContent = s
+  return d.innerHTML
+}
 
 function toast(msg, type = 'success') {
   const c = gi('toast-container')
@@ -443,97 +492,33 @@ function toast(msg, type = 'success') {
   }, 3500)
 }
 
-function showModal(id) {
-  gi(id).classList.remove('modal-hidden')
-  gi(id).classList.add('modal-visible')
+// ============ MODAL SYSTEM (unified) ============
+function openModal(id) {
+  gi(id).classList.add('open')
+}
+function closeModal(id) {
+  gi(id).classList.remove('open')
+}
+function openLoginModal() {
+  gi('auth-error').classList.add('hidden')
+  openModal('login-modal')
 }
 
-function hideModal(id) {
-  gi(id).classList.add('modal-hidden')
-  gi(id).classList.remove('modal-visible')
-}
-
+// ============ NAVIGATION ============
 function showTab(name) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'))
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
   document.querySelectorAll('.mob-tab').forEach(b => b.classList.remove('active'))
   gi(name + '-tab').classList.remove('hidden')
-  const tabBtn = document.querySelector('[data-tab="' + name + '"]')
-  if(tabBtn) tabBtn.classList.add('active')
+  document.querySelectorAll('[data-tab="' + name + '"]').forEach(b => b.classList.add('active'))
 }
 
-function scrollTo(id) {
+function smoothScrollTo(id) {
   const el = gi(id)
-  if(el) el.scrollIntoView({behavior: 'smooth'})
+  if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
 
-function toggleBalance() {
-  balRevealed = !balRevealed
-  gi('balance-toggle').textContent = balRevealed ? 'HIDE' : 'SHOW'
-  gi('balance-display').textContent = balRevealed && profile ? (profile.mv_balance || 0) + ' MV' : '------'
-}
-
-function updateFee() {
-  const b = parseFloat(gv('job-budget')) || 0
-  gi('fee-budget').textContent = b + ' MV'
-  gi('fee-total').textContent = (b + 1) + ' MV'
-}
-
-function updateCashoutFee() {
-  const amt = parseFloat(gv('cashout-amount')) || 0
-  const fee = amt * 0.005
-  const receive = amt - fee
-  gi('cashout-receive').textContent = '$' + receive.toFixed(2)
-  gi('cashout-fee').textContent = '$' + fee.toFixed(2)
-}
-
-function updateLegalBtn() {
-  const ok = gi('accept-tos').checked && gi('accept-contractor').checked && gi('accept-age').checked
-  gi('legal-btn').disabled = !ok
-  gi('legal-btn').textContent = ok ? 'I AGREE & CONTINUE' : 'Check all boxes'
-  gi('legal-btn').classList.toggle('bg-zinc-700', !ok)
-  gi('legal-btn').classList.toggle('text-zinc-500', !ok)
-  gi('legal-btn').classList.toggle('bg-[#14F1C6]', ok)
-  gi('legal-btn').classList.toggle('text-black', ok)
-}
-
-async function authFetch(path, opts = {}) {
-  if(!authToken) {
-    const sess = await sb.auth.getSession()
-    authToken = sess.data.session?.access_token
-  }
-  if(!authToken) return null
-  const headers = {
-    'apikey': SUPA_KEY,
-    'Authorization': 'Bearer ' + authToken,
-    ...(opts.headers || {})
-  }
-  return fetch(SUPA_URL + '/rest/v1/' + path, { ...opts, headers })
-}
-
-async function init() {
-  const { data: { session } } = await sb.auth.getSession()
-  
-  if(session && session.user) {
-    user = session.user
-    authToken = session.access_token
-    await loadProfile()
-    showApp()
-  } else {
-    showLanding()
-  }
-  
-  sb.auth.onAuthStateChange((ev, sess) => {
-    if(sess && sess.user) {
-      user = sess.user
-      authToken = sess.access_token
-    } else {
-      user = null
-      authToken = null
-    }
-  })
-}
-
+// ============ UI STATE TRANSITIONS ============
 function showApp() {
   gi('landing-page').classList.add('hidden')
   gi('app-interface').classList.remove('hidden')
@@ -549,117 +534,125 @@ function showLanding() {
   gi('app-interface').classList.add('hidden')
   gi('app-header').classList.add('hidden')
   gi('mobile-nav').classList.add('hidden')
-  hideModal('login-modal')
-  hideModal('legal-modal')
-  hideModal('profile-modal')
-  hideModal('post-job-modal')
-  hideModal('apply-modal')
-  hideModal('send-modal')
-  hideModal('load-modal')
-  hideModal('cashout-modal')
+  // Close all modals
+  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'))
 }
 
-async function loadProfile() {
-  if(!user || !user.id) return
-  
-  const res = await authFetch('users?id=eq.' + user.id + '&select=*')
-  if(!res) return
-  
-  const data = await res.json()
-  if(data && data.length > 0) {
-    profile = data[0]
-  } else {
-    profile = { 
-      id: user.id,
-      email: user.email,
-      mv_balance: 0, 
-      jobs_completed: 0, 
-      rating: 0,
-      full_name: '',
-      username: '',
-      about_me: '',
-      role: 'both'
+function hideLoadingScreen() {
+  const ls = gi('loading-screen')
+  ls.classList.add('fade-out')
+  setTimeout(() => ls.style.display = 'none', 400)
+}
+
+// ============ BALANCE / FEES ============
+function toggleBalance() {
+  balRevealed = !balRevealed
+  gi('balance-toggle').textContent = balRevealed ? 'HIDE' : 'SHOW'
+  gi('balance-display').textContent = balRevealed && profile ? (profile.mv_balance || 0) + ' MV' : '------'
+}
+
+function updateFee() {
+  const b = parseFloat(gv('job-budget')) || 0
+  gi('fee-budget').textContent = b + ' MV'
+  gi('fee-total').textContent = (b + 1) + ' MV'
+}
+
+function updateCashoutFee() {
+  const amt = parseFloat(gv('cashout-amount')) || 0
+  const fee = amt * 0.005
+  gi('cashout-receive').textContent = '$' + (amt - fee).toFixed(2)
+  gi('cashout-fee').textContent = '$' + fee.toFixed(2)
+}
+
+function updateLegalBtn() {
+  const ok = gi('accept-tos').checked && gi('accept-contractor').checked && gi('accept-age').checked
+  const btn = gi('legal-btn')
+  btn.disabled = !ok
+  btn.textContent = ok ? 'I AGREE & CONTINUE' : 'Check all boxes'
+  btn.className = ok
+    ? 'w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold transition hover:bg-teal-300'
+    : 'w-full bg-zinc-700 text-zinc-500 py-3 rounded-xl font-bold transition'
+}
+
+// ============ AUTH FETCH HELPER ============
+async function authFetch(path, opts = {}) {
+  if (!authToken) {
+    const sess = await sb.auth.getSession()
+    authToken = sess.data.session?.access_token
+  }
+  if (!authToken) return null
+  const headers = {
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + authToken,
+    ...(opts.headers || {})
+  }
+  return fetch(SUPA_URL + '/rest/v1/' + path, { ...opts, headers })
+}
+
+// ============ INIT - THE KEY FIX ============
+async function init() {
+  try {
+    const { data: { session } } = await sb.auth.getSession()
+
+    if (session && session.user) {
+      // Returning user with valid session → go straight to app
+      user = session.user
+      authToken = session.access_token
+      await loadProfile()
+      showApp()
+    } else {
+      // No session → show landing page (NOT the login modal)
+      showLanding()
     }
+  } catch (err) {
+    console.error('Init error:', err)
+    showLanding()
   }
-  renderProfile()
-}
 
-async function saveProfile() {
-  const upd = {
-    full_name: gv('p-name'),
-    username: gv('p-username'),
-    about_me: gv('p-about'),
-    role: gv('p-role'),
-    has_vehicle: gi('p-vehicle').checked
-  }
-  
-  const res = await authFetch('users?id=eq.' + user.id, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(upd)
+  // Remove loading screen after routing decision
+  hideLoadingScreen()
+
+  // Listen for auth changes
+  sb.auth.onAuthStateChange((ev, sess) => {
+    if (sess && sess.user) {
+      user = sess.user
+      authToken = sess.access_token
+    } else {
+      user = null
+      authToken = null
+    }
   })
-  
-  if(res && res.ok) {
-    profile = { ...profile, ...upd }
-    hideModal('profile-modal')
-    toast('Profile saved!')
-    renderProfile()
-  } else {
-    toast('Error saving profile','error')
-  }
 }
 
-function renderProfile() {
-  const cont = gi('profile-content')
-  if(!profile) return
-  
-  const rating = profile.rating || 0
-  const stars = '⭐'.repeat(Math.floor(rating)) + (rating % 1 > 0 ? '✨' : '')
-  
-  cont.innerHTML = `
-    <div class="space-y-6">
-      <div class="bg-zinc-800 rounded-xl p-4">
-        <h2 class="text-2xl font-extrabold mb-2">${esc(profile.full_name || 'No Name Set')}</h2>
-        <p class="text-zinc-400 text-sm">@${esc(profile.username || 'no_handle')}</p>
-        <p class="text-xs text-zinc-500 mt-2">${esc(profile.about_me || 'No bio')}</p>
-      </div>
-      <div class="grid grid-cols-3 gap-4 bg-zinc-800 rounded-xl p-4">
-        <div class="text-center"><p class="text-[10px] text-zinc-400">COMPLETED</p><p class="text-2xl font-bold">${profile.jobs_completed || 0}</p></div>
-        <div class="text-center"><p class="text-[10px] text-zinc-400">RATING</p><p class="text-lg">${stars || '—'}</p></div>
-        <div class="text-center"><p class="text-[10px] text-zinc-400">BALANCE</p><p class="text-2xl font-bold text-[#14F1C6]">${profile.mv_balance || 0}</p></div>
-      </div>
-      <button onclick="showModal('profile-modal')" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">EDIT</button>
-    </div>
-  `
-}
-
+// ============ AUTH ACTIONS ============
 async function signUp() {
   const e = gv('auth-email').trim()
   const p = gv('auth-password')
-  if(!e || !p) return authErr('Enter email and password')
-  if(p.length < 6) return authErr('Password: 6+ characters')
-  
+  if (!e || !p) return authErr('Enter email and password')
+  if (p.length < 6) return authErr('Password: 6+ characters')
+
   try {
     const { data, error } = await sb.auth.signUp({ email: e, password: p })
-    if(error) return authErr(error.message)
-    
-    if(!data.session) {
+    if (error) return authErr(error.message)
+
+    if (!data.session) {
+      // Try immediate sign in (some Supabase configs auto-confirm)
       const { data: d2, error: e2 } = await sb.auth.signInWithPassword({ email: e, password: p })
-      if(e2) return authErr('Check email to confirm, then sign in.')
+      if (e2) return authErr('Check email to confirm, then sign in.')
       user = d2.user
       authToken = d2.session?.access_token
     } else {
       user = data.user
       authToken = data.session?.access_token
     }
-    
-    hideModal('login-modal')
+
+    closeModal('login-modal')
     await loadProfile()
-    showModal('legal-modal')
+    openModal('legal-modal')
     toast('Account created! Welcome to MUVR!')
     gi('auth-email').value = ''
     gi('auth-password').value = ''
-  } catch(err) {
+  } catch (err) {
     authErr('Error: ' + err.message)
   }
 }
@@ -667,14 +660,14 @@ async function signUp() {
 async function signIn() {
   const e = gv('auth-email').trim()
   const p = gv('auth-password')
-  if(!e || !p) return authErr('Enter email and password')
-  
+  if (!e || !p) return authErr('Enter email and password')
+
   const { data, error } = await sb.auth.signInWithPassword({ email: e, password: p })
-  if(error) return authErr(error.message)
-  
+  if (error) return authErr(error.message)
+
   user = data.user
   authToken = data.session?.access_token
-  hideModal('login-modal')
+  closeModal('login-modal')
   await loadProfile()
   showApp()
   gi('auth-email').value = ''
@@ -694,12 +687,14 @@ async function logout() {
   user = null
   profile = null
   authToken = null
+  balRevealed = false
   showLanding()
-  toast('Signed out','info')
+  toast('Signed out', 'info')
 }
 
+// ============ LEGAL ============
 async function acceptLegal() {
-  for(const a of ['tos', 'contractor_agreement', 'age']) {
+  for (const a of ['tos', 'contractor_agreement', 'age']) {
     await authFetch('legal_agreements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -715,11 +710,87 @@ async function acceptLegal() {
   gi('accept-contractor').checked = false
   gi('accept-age').checked = false
   updateLegalBtn()
-  hideModal('legal-modal')
+  closeModal('legal-modal')
   showApp()
   toast('Agreements accepted!')
 }
 
+// ============ PROFILE ============
+async function loadProfile() {
+  if (!user || !user.id) return
+
+  const res = await authFetch('users?id=eq.' + user.id + '&select=*')
+  if (!res) return
+
+  const data = await res.json()
+  if (data && data.length > 0) {
+    profile = data[0]
+  } else {
+    profile = {
+      id: user.id,
+      email: user.email,
+      mv_balance: 0,
+      jobs_completed: 0,
+      rating: 0,
+      full_name: '',
+      username: '',
+      about_me: '',
+      role: 'both'
+    }
+  }
+  renderProfile()
+}
+
+async function saveProfile() {
+  const upd = {
+    full_name: gv('p-name'),
+    username: gv('p-username'),
+    about_me: gv('p-about'),
+    role: gv('p-role'),
+    has_vehicle: gi('p-vehicle').checked
+  }
+
+  const res = await authFetch('users?id=eq.' + user.id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(upd)
+  })
+
+  if (res && res.ok) {
+    profile = { ...profile, ...upd }
+    closeModal('profile-modal')
+    toast('Profile saved!')
+    renderProfile()
+  } else {
+    toast('Error saving profile', 'error')
+  }
+}
+
+function renderProfile() {
+  const cont = gi('profile-content')
+  if (!profile) return
+
+  const rating = profile.rating || 0
+  const stars = '⭐'.repeat(Math.floor(rating)) + (rating % 1 > 0 ? '✨' : '')
+
+  cont.innerHTML = `
+    <div class="space-y-6">
+      <div class="bg-zinc-800 rounded-xl p-4">
+        <h2 class="text-2xl font-extrabold mb-2">${esc(profile.full_name || 'No Name Set')}</h2>
+        <p class="text-zinc-400 text-sm">@${esc(profile.username || 'no_handle')}</p>
+        <p class="text-xs text-zinc-500 mt-2">${esc(profile.about_me || 'No bio')}</p>
+      </div>
+      <div class="grid grid-cols-3 gap-4 bg-zinc-800 rounded-xl p-4">
+        <div class="text-center"><p class="text-[10px] text-zinc-400">COMPLETED</p><p class="text-2xl font-bold">${profile.jobs_completed || 0}</p></div>
+        <div class="text-center"><p class="text-[10px] text-zinc-400">RATING</p><p class="text-lg">${stars || '—'}</p></div>
+        <div class="text-center"><p class="text-[10px] text-zinc-400">BALANCE</p><p class="text-2xl font-bold text-[#14F1C6]">${profile.mv_balance || 0}</p></div>
+      </div>
+      <button onclick="openModal('profile-modal')" class="w-full bg-[#14F1C6] text-black py-3 rounded-xl font-bold hover:bg-teal-300 transition">EDIT</button>
+    </div>
+  `
+}
+
+// ============ JOBS ============
 async function loadJobs() {
   const res = await authFetch('jobs?status=eq.open&select=*&order=created_at.desc')
   const data = (res && await res.json()) || []
@@ -730,19 +801,19 @@ async function loadJobs() {
 function filterJobs(type) {
   jobFilter = type
   document.querySelectorAll('.job-filter').forEach(b => {
-    b.classList.remove('bg-[#14F1C6]','text-black')
+    b.classList.remove('bg-[#14F1C6]', 'text-black')
     b.classList.add('bg-zinc-800')
   })
   const activeBtn = document.querySelector('[onclick="filterJobs(\'' + type + '\')"]')
-  if(activeBtn) {
-    activeBtn.classList.add('bg-[#14F1C6]','text-black')
+  if (activeBtn) {
+    activeBtn.classList.add('bg-[#14F1C6]', 'text-black')
     activeBtn.classList.remove('bg-zinc-800')
   }
-  
+
   let jobs = allJobs
-  if(type !== 'all') jobs = jobs.filter(j => j.job_type === type)
-  
-  const html = jobs.length === 0
+  if (type !== 'all') jobs = jobs.filter(j => j.job_type === type)
+
+  gi('job-list').innerHTML = jobs.length === 0
     ? '<div class="text-zinc-500 text-center py-16 col-span-full">No gigs in this category</div>'
     : jobs.map(j => `
       <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 card-hover">
@@ -750,12 +821,10 @@ function filterJobs(type) {
         <p class="text-xs text-zinc-400 mb-3 line-clamp-2">${esc(j.description || '')}</p>
         <div class="flex items-end justify-between">
           <div><p class="text-[10px] text-zinc-500">Budget</p><p class="text-lg font-bold text-[#14F1C6]">${j.budget_mv} MV</p></div>
-          <button onclick="gi('apply-job-id').value='${j.id}'; showModal('apply-modal')" class="bg-[#14F1C6] text-black px-3 py-2 rounded-lg font-bold text-xs hover:bg-teal-300 transition">APPLY</button>
+          <button onclick="gi('apply-job-id').value='${j.id}'; openModal('apply-modal')" class="bg-[#14F1C6] text-black px-3 py-2 rounded-lg font-bold text-xs hover:bg-teal-300 transition">APPLY</button>
         </div>
       </div>
     `).join('')
-  
-  gi('job-list').innerHTML = html
 }
 
 async function postJob() {
@@ -763,13 +832,13 @@ async function postJob() {
   const d = gv('job-desc').trim()
   const ty = gv('job-type')
   const b = parseFloat(gv('job-budget'))
-  
-  if(!t) return toast('Enter job title','error')
-  if(!ty) return toast('Select job type','error')
-  if(!b || b < 1) return toast('Budget must be at least 1 MV','error')
-  if(b > 10000) return toast('Budget too high','error')
-  if((profile.mv_balance || 0) < (b + 1)) return toast('Not enough MV','error')
-  
+
+  if (!t) return toast('Enter job title', 'error')
+  if (!ty) return toast('Select job type', 'error')
+  if (!b || b < 1) return toast('Budget must be at least 1 MV', 'error')
+  if (b > 10000) return toast('Budget too high', 'error')
+  if ((profile.mv_balance || 0) < (b + 1)) return toast('Not enough MV', 'error')
+
   const res = await authFetch('jobs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -786,55 +855,42 @@ async function postJob() {
       status: 'open'
     })
   })
-  
-  if(res && res.ok) {
+
+  if (res && res.ok) {
     const j = await res.json()
     const jobId = j[0].id
-    
+
     await authFetch('escrow', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        job_id: jobId,
-        poster_id: user.id,
-        amount_mv: b,
-        fee_mv: 1,
-        status: 'locked'
-      })
+      body: JSON.stringify({ job_id: jobId, poster_id: user.id, amount_mv: b, fee_mv: 1, status: 'locked' })
     })
-    
+
     await authFetch('mv_ledger', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: user.id,
-        type: 'burn',
-        amount_mv: 1,
-        description: 'Job posting fee',
-        tx_hash: 'BURN' + Date.now(),
-        related_job_id: jobId
-      })
+      body: JSON.stringify({ user_id: user.id, type: 'burn', amount_mv: 1, description: 'Job posting fee', tx_hash: 'BURN' + Date.now(), related_job_id: jobId })
     })
-    
+
     const newBal = (profile.mv_balance || 0) - (b + 1)
     await authFetch('users?id=eq.' + user.id, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mv_balance: newBal })
     })
-    
+
     profile.mv_balance = newBal
     gi('job-title').value = ''
     gi('job-desc').value = ''
     gi('job-type').value = ''
     gi('job-budget').value = ''
     gi('job-address').value = ''
-    hideModal('post-job-modal')
+    closeModal('post-job-modal')
     loadJobs()
     loadWallet()
     toast('Gig posted! ' + (b + 1) + ' MV escrowed.')
   } else {
-    toast('Error posting job','error')
+    toast('Error posting job', 'error')
   }
 }
 
@@ -843,58 +899,48 @@ async function applyJob() {
   const pitch = gv('apply-pitch').trim()
   const rate = parseFloat(gv('apply-rate'))
   const turn = gv('apply-turn').trim()
-  
-  if(!pitch) return toast('Write a pitch','error')
-  if(!rate || rate < 1) return toast('Enter a rate','error')
-  if(!turn) return toast('Enter turnaround time','error')
-  
+
+  if (!pitch) return toast('Write a pitch', 'error')
+  if (!rate || rate < 1) return toast('Enter a rate', 'error')
+  if (!turn) return toast('Enter turnaround time', 'error')
+
   const res = await authFetch('applications', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      job_id: jobId,
-      worker_id: user.id,
-      pitch,
-      rate_mv: rate,
-      turnaround: turn,
-      status: 'pending'
-    })
+    body: JSON.stringify({ job_id: jobId, worker_id: user.id, pitch, rate_mv: rate, turnaround: turn, status: 'pending' })
   })
-  
-  if(res && res.ok) {
+
+  if (res && res.ok) {
     gi('apply-pitch').value = ''
     gi('apply-rate').value = ''
     gi('apply-turn').value = ''
-    hideModal('apply-modal')
+    closeModal('apply-modal')
     toast('Application submitted!')
   } else {
-    toast('Error applying','error')
+    toast('Error applying', 'error')
   }
 }
 
+// ============ WALLET ============
 async function loadWallet() {
-  if(!user) return
-  
+  if (!user) return
+
   const res = await authFetch('users?id=eq.' + user.id + '&select=mv_balance')
-  if(res) {
+  if (res) {
     const data = await res.json()
-    if(data && data.length > 0) profile = { ...profile, mv_balance: data[0].mv_balance }
+    if (data && data.length > 0) profile = { ...profile, mv_balance: data[0].mv_balance }
   }
-  
+
   gi('balance-display').textContent = balRevealed ? (profile.mv_balance || 0) + ' MV' : '------'
-  
+
   const lres = await authFetch('mv_ledger?user_id=eq.' + user.id + '&order=created_at.desc&limit=20')
   const ledger = (lres && await lres.json()) || []
-  const lhtml = ledger.length === 0
+
+  gi('ledger-list').innerHTML = ledger.length === 0
     ? '<div class="text-zinc-500 text-sm py-4">No transactions yet</div>'
     : ledger.map(l => {
-      let icon = '📊'
-      if(l.type === 'load') icon = '📥'
-      else if(l.type === 'send') icon = '📤'
-      else if(l.type === 'receive') icon = '📨'
-      else if(l.type === 'burn') icon = '🔥'
-      else if(l.type === 'withdrawal') icon = '🏦'
-      
+      const icons = { load: '📥', send: '📤', receive: '📨', burn: '🔥', withdrawal: '🏦' }
+      const icon = icons[l.type] || '📊'
       return `<div class="bg-zinc-800 rounded-lg p-3 flex justify-between items-start text-xs border-l-2 border-[#14F1C6]">
         <div class="flex items-start gap-3">
           <span class="text-lg">${icon}</span>
@@ -904,118 +950,96 @@ async function loadWallet() {
             <p class="text-[10px] text-zinc-600 mt-1">${new Date(l.created_at).toLocaleDateString()}</p>
           </div>
         </div>
-        <p class="font-mono font-bold whitespace-nowrap ml-2 ${l.type === 'burn' ? 'text-red-400' : 'text-[#14F1C6]'}">${l.type === 'burn' ? '-' : '+'}${l.amount_mv}</p>
+        <p class="font-mono font-bold whitespace-nowrap ml-2 ${l.type === 'burn' || l.type === 'send' || l.type === 'withdrawal' ? 'text-red-400' : 'text-[#14F1C6]'}">${l.type === 'burn' || l.type === 'send' || l.type === 'withdrawal' ? '-' : '+'}${l.amount_mv}</p>
       </div>`
     }).join('')
-  
-  gi('ledger-list').innerHTML = lhtml
 }
 
 async function sendMV() {
   const to = gv('send-to').trim()
   const amt = parseFloat(gv('send-amount'))
-  
-  if(!to) return toast('Enter recipient','error')
-  if(!amt || amt < 1) return toast('Enter amount','error')
-  if((profile.mv_balance || 0) < amt) return toast('Not enough MV','error')
-  
-  const res1 = await authFetch('users?or=(email.eq.' + to.toLowerCase() + ',username.eq.' + to.toLowerCase() + ')&select=id')
+
+  if (!to) return toast('Enter recipient', 'error')
+  if (!amt || amt < 1) return toast('Enter amount', 'error')
+  if ((profile.mv_balance || 0) < amt) return toast('Not enough MV', 'error')
+
+  const res1 = await authFetch('users?or=(email.eq.' + encodeURIComponent(to.toLowerCase()) + ',username.eq.' + encodeURIComponent(to.toLowerCase()) + ')&select=id')
   const data1 = (res1 && await res1.json()) || []
-  if(data1.length === 0) return toast('User not found','error')
-  
+  if (data1.length === 0) return toast('User not found', 'error')
+
   const recipId = data1[0].id
   const txHash = 'TX' + Date.now() + Math.random().toString(36).substr(2, 9)
-  
+
   await authFetch('mv_ledger', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      user_id: user.id,
-      type: 'send',
-      amount_mv: amt,
-      description: 'Sent to ' + to,
-      tx_hash: txHash,
-      related_user_id: recipId
-    })
+    body: JSON.stringify({ user_id: user.id, type: 'send', amount_mv: amt, description: 'Sent to ' + to, tx_hash: txHash, related_user_id: recipId })
   })
-  
+
   await authFetch('mv_ledger', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      user_id: recipId,
-      type: 'receive',
-      amount_mv: amt,
-      description: 'Received from ' + (profile.full_name || user.email),
-      tx_hash: txHash,
-      related_user_id: user.id
-    })
+    body: JSON.stringify({ user_id: recipId, type: 'receive', amount_mv: amt, description: 'Received from ' + (profile.full_name || user.email), tx_hash: txHash, related_user_id: user.id })
   })
-  
+
   const newBal = (profile.mv_balance || 0) - amt
   await authFetch('users?id=eq.' + user.id, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ mv_balance: newBal })
   })
-  
+
   const res2 = await authFetch('users?id=eq.' + recipId + '&select=mv_balance')
   const recip = (res2 && await res2.json()) || [{ mv_balance: 0 }]
-  const recipNewBal = (recip[0].mv_balance || 0) + amt
-  
   await authFetch('users?id=eq.' + recipId, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mv_balance: recipNewBal })
+    body: JSON.stringify({ mv_balance: (recip[0].mv_balance || 0) + amt })
   })
-  
+
   profile.mv_balance = newBal
   gi('send-to').value = ''
   gi('send-amount').value = ''
-  hideModal('send-modal')
+  closeModal('send-modal')
   loadWallet()
   toast('Sent ' + amt + ' MV!')
 }
 
 async function loadMV(amt) {
-  toast('Stripe integration coming soon','info')
+  toast('Stripe integration coming soon', 'info')
 }
 
 async function cashOut() {
   const amt = parseFloat(gv('cashout-amount'))
-  if(!amt || amt < 1) return toast('Enter amount','error')
-  if((profile.mv_balance || 0) < amt) return toast('Not enough MV','error')
-  
+  if (!amt || amt < 1) return toast('Enter amount', 'error')
+  if ((profile.mv_balance || 0) < amt) return toast('Not enough MV', 'error')
+
   const fee = amt * 0.005
   const receive = amt - fee
-  
+
   await authFetch('mv_ledger', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      user_id: user.id,
-      type: 'withdrawal',
-      amount_mv: amt,
-      description: 'Withdrawn $' + receive.toFixed(2),
-      tx_hash: 'WITHDRAW' + Date.now()
-    })
+    body: JSON.stringify({ user_id: user.id, type: 'withdrawal', amount_mv: amt, description: 'Withdrawn $' + receive.toFixed(2), tx_hash: 'WITHDRAW' + Date.now() })
   })
-  
+
   const newBal = (profile.mv_balance || 0) - amt
   await authFetch('users?id=eq.' + user.id, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ mv_balance: newBal })
   })
-  
+
   profile.mv_balance = newBal
   gi('cashout-amount').value = ''
-  hideModal('cashout-modal')
+  closeModal('cashout-modal')
   loadWallet()
   toast('Withdrawal processed! ($' + receive.toFixed(2) + ' sent)')
 }
 
+// ============ START ============
 init()
 </script>
+
 </body>
 </html>
