@@ -845,7 +845,7 @@ function renderJobsTab() {
     {k:'digital',l:'Digital',icon:'&#128187;'}
   ];
 
-  var filtered = state.jobFilter === 'all' ? state.jobs : state.jobs.filter(function(j) { return j.job_type === state.jobFilter; });
+  var filtered = state.jobFilter === 'all' ? state.jobs : state.jobs.filter(function(j) { return j.category === state.jobFilter; });
 
   var btns = cats.map(function(cat) {
     return '<button onclick="state.jobFilter=\'' + cat.k + '\';renderJobsTab()" class="btn-pill ' + (state.jobFilter === cat.k ? 'btn-pill-accent' : 'btn-pill-ghost') + '">' + cat.icon + ' ' + cat.l + '</button>';
@@ -869,7 +869,7 @@ function renderJobsTab() {
         '<div class="flex items-start justify-between mb-2">' +
           '<h3 class="font-black text-sm flex-1 mr-2">' + escapeHtml(job.title) + '</h3>' +
           '<div class="flex gap-1">' +
-            '<span class="text-[10px] px-2 py-1 rounded-full font-black" style="background:rgba(255,255,255,0.06);color:rgba(232,236,241,0.65);border:1px solid rgba(255,255,255,0.10)">' + escapeHtml(job.job_type || '') + '</span>' +
+            '<span class="text-[10px] px-2 py-1 rounded-full font-black" style="background:rgba(255,255,255,0.06);color:rgba(232,236,241,0.65);border:1px solid rgba(255,255,255,0.10)">' + escapeHtml(job.category || '') + '</span>' +
             '<span class="text-[10px] px-2 py-1 rounded-full font-black" style="color:' + urgColor + ';border:1px solid ' + urgColor + '30">' + escapeHtml(job.urgency || '') + '</span>' +
           '</div>' +
         '</div>' +
@@ -1247,7 +1247,7 @@ async function loadMapData() {
     });
 
     /* Load open gigs and show in sidebar list */
-    var jobsRes = await apiRequest('jobs?status=eq.open&select=id,title,budget_mv,address,job_type&order=created_at.desc&limit=20');
+    var jobsRes = await apiRequest('jobs?status=eq.open&select=id,title,budget_mv,address,category&order=created_at.desc&limit=20');
     var jobs = (jobsRes && jobsRes.ok) ? await jobsRes.json() : [];
 
     var gigList = getEl('map-gig-list');
@@ -1259,7 +1259,7 @@ async function loadMapData() {
           return '<div class="card card-interactive p-3 mb-2 flex items-center justify-between">' +
             '<div class="flex-1 min-w-0">' +
               '<p class="font-black text-xs truncate">' + escapeHtml(j.title) + '</p>' +
-              '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(j.address || j.job_type || '') + '</p>' +
+              '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(j.address || j.category || '') + '</p>' +
             '</div>' +
             '<span class="mono font-black text-xs ml-2" style="color:var(--accent)">' + Number(j.budget_mv || 0) + ' MV</span>' +
           '</div>';
@@ -2376,7 +2376,7 @@ async function handlePostJob() {
     var res = await apiRequest('jobs', {
       method: 'POST',
       body: JSON.stringify({
-        poster_id: state.user.id, title: title, description: desc, job_type: type,
+        poster_id: state.user.id, title: title, description: desc, category: type,
         urgency: (getEl('job-urgency') || {}).value || 'asap', budget_mv: budget, fee_mv: 1,
         total_escrowed: budget + 1, address: (getEl('job-address') || {}).value || '', status: 'open'
       })
