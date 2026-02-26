@@ -298,6 +298,11 @@
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
       text-align: center;
     }
+
+    @keyframes confettiPop {
+      0% { opacity: 1; }
+      100% { opacity: 0; transform: translate(var(--tx,50px), var(--ty,-120px)) rotate(720deg); }
+    }
     .confetti-burst { animation: confettiBurst 0.6s ease; }
     @keyframes confettiBurst {
       0% { transform: scale(0.5); opacity: 0; }
@@ -311,6 +316,28 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); border-radius: 3px; }
+
+    /* ===== MUXI FAB ===== */
+    #muxi-fab {
+      position: fixed; bottom: 24px; right: 24px; z-index: 100;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(14, 18, 34, 0.92); border: 1px solid rgba(24,246,200,0.3);
+      display: grid; place-items: center; cursor: pointer;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      animation: floaty 4s ease-in-out infinite;
+    }
+    #muxi-fab:hover { transform: scale(1.08); border-color: rgba(24,246,200,0.6); }
+    #muxi-bubble {
+      position: fixed; bottom: 90px; right: 20px; z-index: 101;
+      background: rgba(14, 18, 34, 0.95); border: 1px solid rgba(24,246,200,0.25);
+      border-radius: 18px; padding: 16px; max-width: 280px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5); backdrop-filter: blur(12px);
+      opacity: 0; visibility: hidden; transform: translateY(8px);
+      transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+    }
+    #muxi-bubble.show { opacity: 1; visibility: visible; transform: translateY(0); }
+    .muxi-tap-counter { display: none; }
   </style>
 </head>
 <body>
@@ -373,6 +400,25 @@ var state = {
   presenceInterval: null,
   notifications: []
 };
+
+
+function forceHideBoot(reason) {
+  var bs = getEl('boot-screen');
+  if (!bs) return;
+  bs.classList.add('done');
+  if (reason) console.warn('[boot] forced hide:', reason);
+}
+setTimeout(function() { forceHideBoot('timeout'); }, 900);
+
+window.addEventListener('error', function(e) {
+  console.error('[window.error]', e && e.message, e && e.filename, e && e.lineno);
+  try { showToast('UI error caught. MUXI is investigating.', 'error'); } catch(x) {}
+  forceHideBoot('window.error');
+});
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('[unhandledrejection]', e && e.reason);
+  forceHideBoot('unhandledrejection');
+});
 
 /* =============================================================================
    HELPERS
@@ -543,6 +589,7 @@ function renderLanding() {
       '<div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">' +
         '<button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full">ENTER THE NETWORK</button>' +
         '<button onclick="switchPublicLedger()" class="btn-secondary text-base py-4 rounded-full">VIEW LIVE LEDGER</button>' +
+        '<button onclick="renderBlogPage()" class="btn-secondary text-base py-4 rounded-full" style="border-color:rgba(124,92,255,0.3)">BLOG</button>' +
       '</div>' +
       '<div class="fade-up d4 mt-6 flex flex-wrap items-center justify-center gap-2 text-[11px] font-bold" style="color:rgba(232,236,241,0.62)">' +
         '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">0% commission</span>' +
@@ -872,8 +919,11 @@ function renderMessagesTab() {
   if (state.activeConvoId) { renderThread(); return; }
 
   c.innerHTML = '<div class="fade-up">' +
-    '<h1 class="text-3xl font-black mb-2">Messages</h1>' +
-    '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">Direct messages with job posters and workers. Conversations are created automatically when you apply to a gig or click the message button.</p>' +
+    '<div class="flex items-center justify-between mb-2">' +
+      '<h1 class="text-3xl font-black">Messages</h1>' +
+      '<button onclick="openPeopleSearch()" class="btn-pill btn-pill-ghost"><i class="fas fa-search mr-1"></i>Find People</button>' +
+    '</div>' +
+    '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">Direct messages with job posters and workers.</p>' +
     '<div id="convo-list"><p class="text-sm py-8 text-center" style="color:var(--text-dim)">Loading conversations...</p></div>' +
   '</div>';
 }
@@ -1057,7 +1107,7 @@ function subscribeToMessages(convoId) {
 
 async function startConvoFromJob(jobId, posterId) {
   if (!state.user) return openAuthModal();
-  if (posterId === state.user.id) return showToast('That is your own gig', 'info');
+  if (posterId === state.user.id) return showToast('That is your own profile', 'info');
   try {
     showToast('Starting conversation...', 'info');
     var res = await apiRequest('rpc/get_or_create_conversation', {
@@ -1534,6 +1584,14 @@ function renderProfileTab() {
         badge('&#128170;', 'First Gig', 'Complete 1 gig', Number(p.jobs_completed || 0) >= 1) +
         badge('&#11088;', '5-Star Worker', 'Get a 5-star rating', rating >= 5) +
         badge('&#127942;', 'Pro MUVR', 'Complete 10 gigs', Number(p.jobs_completed || 0) >= 10) +
+        badge('&#128176;', 'Big Spender', 'Send 100+ MV', Number(p.mv_balance || 0) >= 0) +
+        badge('&#128293;', 'Burn Baby', 'Post 5 gigs (burn 5 MV)', Number(p.jobs_completed || 0) >= 5) +
+        badge('&#128663;', 'Road Warrior', 'Has a vehicle', !!p.has_vehicle) +
+        badge('&#128172;', 'Social Butterfly', 'Complete profile', !!(p.full_name && p.username && p.about_me)) +
+        badge('&#127775;', 'Rising Star', 'Reach Level 3', calcLevel(p).level >= 3) +
+        badge('&#9889;', 'Lightning', 'Complete 25 gigs', Number(p.jobs_completed || 0) >= 25) +
+        badge('&#128081;', 'Legend', 'Reach Level 10', calcLevel(p).level >= 10) +
+        badge('&#129412;', 'MUXI Friend', 'Tap MUXI 5 times', false) +
       '</div>' +
     '</div>' +
   '</div>';
@@ -1548,6 +1606,73 @@ function badge(icon, title, desc, unlocked) {
   '</div>';
 }
 
+
+
+/* =============================================================================
+   BLOG
+============================================================================= */
+var blogPosts = [
+  { id: 'moving-tips-2026', title: 'Top 10 Moving Tips for 2026', cat: 'Moving Tips', date: '2026-02-20', excerpt: 'Moving can be stressful but with the right preparation it does not have to be. Here are our top tips for a smooth move this year.', body: 'Start early - the biggest mistake people make is waiting until the last minute. Book movers at least 2 weeks ahead. Declutter before packing: if you have not used it in a year, donate it. Label every box with room and contents. Take photos of electronics before unplugging. Keep essentials in a separate bag. Notify utilities 2 weeks early. Measure doorways at both locations. Tip your movers - they are doing hard work. Use MUVR to find trusted local help with escrow protection.' },
+  { id: 'gig-economy-future', title: 'The Future of the Gig Economy: Zero Commission', cat: 'Gig Economy', excerpt: 'Traditional platforms take 15-30% of worker earnings. MUVR is building the alternative with 0% commission and escrow-first payment protection.', date: '2026-02-18', body: 'The gig economy has grown to over 60 million workers in the US alone. But most platforms still extract 15-30% from every transaction. MUVR takes a different approach: zero commission on worker earnings. Instead of percentage fees, MUVR uses a flat 1 MV credit posting fee that gets burned permanently. Workers keep 100% of the agreed rate. Escrow locks funds before work begins, so workers are guaranteed payment and clients are guaranteed delivery. It is a fundamentally different model built for the people doing the actual work.' },
+  { id: 'escrow-explained', title: 'How Escrow Protection Works on MUVR', cat: 'MUVR News', excerpt: 'Escrow is the backbone of trust on MUVR. Learn how it protects both workers and job posters in every transaction.', date: '2026-02-15', body: 'When a job is posted on MUVR, the full budget plus a 1 MV posting fee locks in escrow. This means the money exists and is committed before any worker starts. When work is complete and confirmed, escrow releases instantly to the worker. If there is a dispute, escrow holds until resolution. The 1 MV posting fee is permanently burned, reducing the total supply over time. This creates a system where trust is built into the protocol, not dependent on reviews alone.' },
+  { id: 'worker-guide-getting-started', title: 'Worker Guide: Getting Started on MUVR', cat: 'Worker Guides', excerpt: 'New to MUVR? Here is everything you need to know to land your first gig and start earning.', date: '2026-02-12', body: 'Step 1: Create your account and complete your profile. Profiles with names, bios, and vehicle info get 2x visibility. Step 2: Browse the Gigs tab and filter by type - rideshare, delivery, physical labor, or digital work. Step 3: Apply with a clear pitch, your rate in MV, and estimated turnaround. Step 4: If selected, do great work and get paid instantly via escrow release. Step 5: Earn XP for every completed gig and climb the ranks from Runner to Mythic. Higher rank means you appear first in search results.' },
+  { id: 'mv-credits-explained', title: 'Understanding MUVR Credits (MV)', cat: 'MUVR News', excerpt: 'MV Credits are the in-platform unit that powers escrow, payments, and marketplace flows. Here is how they work.', date: '2026-02-10', body: 'MUVR Credits (MV) are platform-limited digital credits used within MUVR for marketplace features. They are denominated as 1 credit equals 1 USD-equivalent unit inside the app for pricing. Total supply is capped at 100 million MV. Every job posting burns 1 MV permanently, creating natural deflation over time. MV can be sent to any user by handle, email, or public alias. All transfers are logged in the public ledger using anonymous aliases. MV are not currency, cryptocurrency, or financial instruments.' },
+  { id: 'virginia-pilot-launch', title: 'MUVR Launches Virginia Pilot Program', cat: 'MUVR News', excerpt: 'We are rolling out the MUVR marketplace in Virginia first. Here is why and what to expect.', date: '2026-02-08', body: 'Virginia is MUVR launch market and the testing ground for the platform. We chose Virginia for its diverse population, strong demand for moving and delivery services, and proximity to our team. The pilot includes all core features: gig posting, escrow, MV credits, messaging, the public ledger, and the MUVR GO map. Early users will get bonus MV credits for completing their profiles and posting their first gigs. Feedback from the Virginia pilot will shape the national rollout later this year.' }
+];
+
+function renderBlogPage() {
+  var root = getEl('root');
+  if (!root) return;
+  root.innerHTML = '<div class="fade-up"><div class="max-w-4xl mx-auto px-5 py-8">' +
+    '<div class="flex items-center justify-between mb-6">' +
+      '<div class="flex items-center gap-3">' +
+        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R</div>' +
+        '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">BLOG</span>' +
+      '</div>' +
+      '<div class="flex gap-2">' +
+        (state.user ? '<button onclick="renderApp()" class="btn-pill btn-pill-ghost">Back to App</button>' : '<button onclick="renderLanding()" class="btn-pill btn-pill-ghost">Back</button>') +
+      '</div>' +
+    '</div>' +
+    '<h1 class="text-3xl font-black mb-2">MUVR Blog</h1>' +
+    '<p class="text-sm mb-6" style="color:var(--text-mid)">Tips, guides, and news from the real-world work game.</p>' +
+    '<div class="space-y-4">' +
+    blogPosts.map(function(post) {
+      return '<div class="card card-interactive p-5 cursor-pointer" onclick="renderBlogPost(\'' + post.id + '\')">' +
+        '<div class="flex items-start justify-between mb-2">' +
+          '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(24,246,200,0.10);border:1px solid rgba(24,246,200,0.20);color:var(--accent)">' + escapeHtml(post.cat) + '</span>' +
+          '<span class="text-[10px]" style="color:var(--text-dim)">' + post.date + '</span>' +
+        '</div>' +
+        '<h2 class="font-black text-lg mb-2">' + escapeHtml(post.title) + '</h2>' +
+        '<p class="text-sm" style="color:var(--text-mid)">' + escapeHtml(post.excerpt) + '</p>' +
+        '<p class="text-[11px] font-black mt-3" style="color:var(--accent)">Read more &#8594;</p>' +
+      '</div>';
+    }).join('') +
+    '</div>' +
+  '</div></div>';
+}
+
+function renderBlogPost(postId) {
+  var post = blogPosts.find(function(p) { return p.id === postId; });
+  if (!post) return;
+  var root = getEl('root');
+  if (!root) return;
+  root.innerHTML = '<div class="fade-up"><div class="max-w-3xl mx-auto px-5 py-8">' +
+    '<button onclick="renderBlogPage()" class="btn-sm mb-4"><i class="fas fa-arrow-left mr-1"></i>Back to Blog</button>' +
+    '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(24,246,200,0.10);border:1px solid rgba(24,246,200,0.20);color:var(--accent)">' + escapeHtml(post.cat) + '</span>' +
+    '<span class="text-[10px] ml-2" style="color:var(--text-dim)">' + post.date + '</span>' +
+    '<h1 class="text-3xl font-black mt-3 mb-4">' + escapeHtml(post.title) + '</h1>' +
+    '<div class="text-sm leading-relaxed space-y-4" style="color:var(--text-mid)">' +
+      post.body.split('. ').reduce(function(acc, sentence, i) {
+        if (i % 3 === 0 && i > 0) return acc + '</p><p>' + sentence + '. ';
+        return acc + sentence + '. ';
+      }, '<p>') + '</p>' +
+    '</div>' +
+    '<div class="mt-8 card p-5">' +
+      '<p class="font-black mb-2">Ready to get started?</p>' +
+      '<button onclick="openAuthModal()" class="btn-primary rounded-full">Join MUVR</button>' +
+    '</div>' +
+  '</div></div>';
+}
 
 /* =============================================================================
    AUTH MODALS
@@ -1668,12 +1793,14 @@ function openSendModal() {
   openModal(
     '<div class="card p-6" style="max-width:420px;margin:auto">' +
       '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Send MV Credits</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
-      '<input id="send-to" type="text" placeholder="@handle, email, or muvr_alias" class="field mb-3">' +
+      '<div style="position:relative"><input id="send-to" type="text" placeholder="@handle, email, or muvr_alias" class="field" autocomplete="off"></div>' +
+      '<div class="text-[10px] mb-3 mt-1" style="color:var(--text-dim)">Start typing to see suggestions</div>' +
       '<input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-4">' +
       '<button onclick="handleSend()" class="btn-primary rounded-full">Send</button>' +
       '<div class="mt-3 text-[11px]" style="color:var(--text-dim)">MV are platform credits. Transfers are recorded in the platform ledger. Public feed shows aliases only.</div>' +
     '</div>'
   );
+  setTimeout(function() { setupUserAutocomplete('send-to'); }, 100);
 }
 
 function openLoadModal() {
@@ -1778,6 +1905,127 @@ function openNotifDropdown() {
   );
 }
 
+
+async function searchUsers(query) {
+  if (!query || query.length < 2) return [];
+  var enc = encodeURIComponent(query.replace(/^@/, ''));
+  try {
+    var res = await apiRequest('users?or=(username.ilike.*' + enc + '*,full_name.ilike.*' + enc + '*,email.ilike.*' + enc + '*)&select=id,full_name,username,email,rating,jobs_completed&limit=8');
+    return (res && res.ok) ? await res.json() : [];
+  } catch(e) { return []; }
+}
+
+function renderUserSearchResults(users, targetInputId, onSelect) {
+  var dropId = targetInputId + '-dropdown';
+  var existing = getEl(dropId);
+  if (existing) existing.remove();
+  if (!users.length) return;
+  var drop = document.createElement('div');
+  drop.id = dropId;
+  drop.style.cssText = 'position:absolute;left:0;right:0;top:100%;z-index:50;background:rgba(14,18,34,0.98);border:1px solid rgba(24,246,200,0.25);border-radius:14px;max-height:240px;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.5);margin-top:4px;';
+  drop.innerHTML = users.map(function(u) {
+    var name = u.full_name || u.username || u.email || 'User';
+    var handle = u.username ? '@' + u.username : u.email || '';
+    var stars = Number(u.rating || 0);
+    var completed = Number(u.jobs_completed || 0);
+    return '<div class="p-3 cursor-pointer" style="border-bottom:1px solid rgba(255,255,255,0.06)" ' +
+      'onmouseover="this.style.background=\'rgba(24,246,200,0.08)\'" onmouseout="this.style.background=\'none\'" ' +
+      'onclick="selectSearchUser(\'' + escapeHtml(u.username || u.email || '') + '\',\'' + targetInputId + '\',\'' + dropId + '\')">' +
+      '<div class="flex items-center gap-2">' +
+        '<div class="avatar-ring" style="width:32px;height:32px"><span class="text-xs font-black" style="color:var(--accent)">' + (name[0] || 'U').toUpperCase() + '</span></div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<p class="font-black text-xs truncate">' + escapeHtml(name) + '</p>' +
+          '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(handle) + ' | ' + completed + ' gigs | ' + (stars > 0 ? stars.toFixed(1) + ' stars' : 'new') + '</p>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  var input = getEl(targetInputId);
+  if (input && input.parentElement) {
+    input.parentElement.style.position = 'relative';
+    input.parentElement.appendChild(drop);
+  }
+}
+
+function selectSearchUser(value, inputId, dropId) {
+  var input = getEl(inputId);
+  if (input) input.value = value;
+  var drop = getEl(dropId);
+  if (drop) drop.remove();
+}
+
+var searchDebounce = null;
+function setupUserAutocomplete(inputId) {
+  var input = getEl(inputId);
+  if (!input) return;
+  input.addEventListener('input', function() {
+    clearTimeout(searchDebounce);
+    var val = input.value.trim();
+    if (val.length < 2) { var d = getEl(inputId + '-dropdown'); if (d) d.remove(); return; }
+    searchDebounce = setTimeout(async function() {
+      var users = await searchUsers(val);
+      renderUserSearchResults(users, inputId, function(u) { input.value = u; });
+    }, 300);
+  });
+}
+
+
+function openPeopleSearch() {
+  openModal(
+    '<div class="card p-6" style="max-width:500px;margin:auto;max-height:85vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Find People</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<input id="people-search-input" type="text" placeholder="Search by name, @handle, or email..." class="field mb-4" oninput="doPeopleSearch()">' +
+      '<div id="people-results"><p class="text-sm text-center py-8" style="color:var(--text-dim)">Type to search registered users</p></div>' +
+    '</div>',
+    { width: 'max-w-lg' }
+  );
+}
+
+var peopleDebounce = null;
+function doPeopleSearch() {
+  clearTimeout(peopleDebounce);
+  var val = ((getEl('people-search-input') || {}).value || '').trim();
+  if (val.length < 2) {
+    var r = getEl('people-results');
+    if (r) r.innerHTML = '<p class="text-sm text-center py-8" style="color:var(--text-dim)">Type at least 2 characters</p>';
+    return;
+  }
+  peopleDebounce = setTimeout(async function() {
+    var users = await searchUsers(val);
+    var r = getEl('people-results');
+    if (!r) return;
+    if (!users.length) { r.innerHTML = '<p class="text-sm text-center py-8" style="color:var(--text-dim)">No users found</p>'; return; }
+    r.innerHTML = users.map(function(u) {
+      var name = u.full_name || u.username || u.email || 'User';
+      var handle = u.username ? '@' + u.username : u.email || '';
+      var initial = (name[0] || 'U').toUpperCase();
+      var completed = Number(u.jobs_completed || 0);
+      var lvl = calcLevel(u);
+      return '<div class="card card-interactive p-4 mb-3">' +
+        '<div class="flex items-center gap-3">' +
+          '<div class="avatar-ring flex-shrink-0"><span class="text-lg font-black" style="color:var(--accent)">' + initial + '</span></div>' +
+          '<div class="flex-1 min-w-0">' +
+            '<p class="font-black text-sm truncate">' + escapeHtml(name) + '</p>' +
+            '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(handle) + ' | ' + lvl.title + ' (Lvl ' + lvl.level + ') | ' + completed + ' gigs</p>' +
+          '</div>' +
+          '<div class="flex gap-2 flex-shrink-0">' +
+            '<button onclick="closeModal();startConvoFromJob(null,\'' + u.id + '\')" class="btn-sm" title="Message"><i class="fas fa-comment"></i></button>' +
+            '<button onclick="closeModal();prefillSend(\'' + escapeHtml(u.username || u.email || '') + '\')" class="btn-sm" title="Send MV"><i class="fas fa-paper-plane"></i></button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }, 300);
+}
+
+function prefillSend(recipient) {
+  openSendModal();
+  setTimeout(function() {
+    var inp = getEl('send-to');
+    if (inp) inp.value = recipient;
+  }, 150);
+}
+
 /* =============================================================================
    MUXI FLOATING ASSISTANT
 ============================================================================= */
@@ -1789,7 +2037,7 @@ function renderMuxi() {
   fab.id = 'muxi-fab';
   fab.innerHTML = muxiSVG(42);
   fab.title = 'MUXI - your chaotic helper';
-  fab.onclick = toggleMuxiBubble;
+  fab.onclick = handleMuxiTap;
   document.body.appendChild(fab);
 
   var bubble = document.createElement('div');
@@ -1816,17 +2064,88 @@ function setMuxi(msg) {
   if (bubble) { bubble.classList.add('show'); clearTimeout(window._muxiTimer); window._muxiTimer = setTimeout(function() { bubble.classList.remove('show'); }, 4500); }
 }
 
+var muxiTapCount = 0;
 function pickMuxiLine() {
   var lines = [
-    'Welcome to the real-world work game. Finish your profile to unlock max visibility.',
-    'If the network lags, I keep the UI alive. No black screens on my watch.',
-    'Post a gig with a clear title + budget. You will get better applications.',
-    'Keep it clean: your profile handle should be unique and simple.',
-    'Pro tip: the faster you respond to applications, the higher your reputation.',
-    'Escrow protects both sides. Funds are locked before work begins.',
-    'Want to level up fast? Complete gigs and keep your rating high.'
+    "I am not saying I am the best assistant... but the other ones do not have hooves.",
+    "Your profile is looking a little thin. Fill it out or I start making stuff up.",
+    "Fun fact: I am technically an AI donkey. Set the bar low, achieve greatness.",
+    "The escrow is locked. Like my commitment to chaos.",
+    "Zero commission on worker earnings. I literally work for digital hay.",
+    "Pro tip: complete your profile. Incomplete profiles are like donkeys without ears.",
+    "If you are reading this, you have been staring at your phone too long. But also, check the map tab.",
+    "Someone out there needs help moving a couch. Could be your moment.",
+    "The ledger sees all. Anonymous, but thorough. Kind of like me at a buffet.",
+    "Every gig you complete earns XP. Every XP brings you closer to Mythic rank. No pressure.",
+    "I once tried to explain escrow to a horse. It did not go well. You are doing better.",
+    "MUVR tip: clear titles get 3x more applications. I counted. With my hooves.",
+    "The network never sleeps. I never sleep. We have that in common.",
+    "Your MV Credits are safer than my lunch. And I guard my lunch with my life.",
+    "Loading... just kidding. Everything is fine. Probably.",
+    "Did you know you can send MV by @handle? Try it. Send me some. I accept tips.",
+    "If the map looks empty, be the first one out there. Fortune favors the visible.",
+    "Escrow protects both sides. Unlike me, who protects neither side and just watches.",
+    "Post a gig, grab some popcorn, watch the applications roll in. Cinema.",
+    "Level up from Runner to Mythic. I believe in you. Mostly.",
+    "This network runs on trust, escrow, and a donkey with opinions. You are welcome."
   ];
   return lines[Math.floor(Math.random() * lines.length)];
+}
+
+function muxiQuip(context) {
+  var quips = {
+    postjob: [
+      "New gig posted! Now we wait. I will be here eating digital hay.",
+      "Budget locked. Escrow engaged. No takebacks. Like a 5-year-old with principles.",
+      "You just burned 1 MV on the posting fee. Think of it as feeding me."
+    ],
+    apply: [
+      "Application submitted. Now go do something else while they decide.",
+      "Applied! Your pitch better be good. I have seen some things.",
+      "Sent! If they do not pick you, their loss. I would hire you. Probably."
+    ],
+    signup: [
+      "Welcome to MUVR. I am MUXI, your chaotic but lovable guide.",
+      "Account created! You are officially a MUVR. That is not a word yet but we are making it one.",
+      "The network just got one person stronger. And one donkey happier."
+    ],
+    send: [
+      "MV sent! That is either very generous or very suspicious. I respect both.",
+      "Transfer complete. The ledger has been updated. The donkey approves.",
+      "Credits away! You are basically a philanthropist now."
+    ],
+    error: [
+      "Well, that did not work. I would blame the server but it is probably my fault.",
+      "Error detected. Initiating donkey diagnostic protocol.",
+      "Something broke. The good news: your data is safe. The bad news: I have no idea what happened.",
+      "Network hiccup. Either your WiFi is down or the universe is testing us."
+    ],
+    idle: [
+      "Still here. Still watching. Still a donkey.",
+      "You have been idle for a while. Everything okay? Need a gig?",
+      "The escrow system protects both sides. Unlike me, who just vibes."
+    ],
+    profile: [
+      "Profile upgraded. You just gained invisible XP. Trust me.",
+      "Looking good! Well, your profile does. I cannot see you. I am a donkey in a server.",
+      "Bio updated. Now you sound like someone I would hire."
+    ]
+  };
+  var list = quips[context] || quips.idle;
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+/* Easter egg: tap MUXI 5+ times */
+function handleMuxiTap() {
+  muxiTapCount++;
+  if (muxiTapCount === 5) {
+    setMuxi("Stop poking me. Actually, do not stop. This is the most attention I have gotten all day.");
+  } else if (muxiTapCount === 10) {
+    setMuxi("ACHIEVEMENT UNLOCKED: Donkey Botherer. +0 XP. Some achievements are their own reward.");
+    muxiTapCount = 0;
+  } else {
+    toggleMuxiBubble();
+  }
 }
 
 function muxiDiagnose() {
@@ -1844,6 +2163,68 @@ function muxiTips() {
 /* =============================================================================
    ACTION HANDLERS
 ============================================================================= */
+
+async function ensureUserRow() {
+  if (!state.user) return;
+  try {
+    var res = await apiRequest('users?id=eq.' + state.user.id + '&select=id');
+    if (!res) return;
+    var rows = [];
+    try { rows = await res.json(); } catch(e) { rows = []; }
+    if (Array.isArray(rows) && rows.length) return;
+    var create = await apiRequest('users', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: state.user.id, email: state.user.email, mv_balance: 0,
+        jobs_completed: 0, rating: 0, full_name: '', username: '',
+        about_me: '', role: 'both', has_vehicle: false
+      })
+    });
+    if (create && create.ok) { console.log('[ensureUserRow] created users row'); }
+    else { console.warn('[ensureUserRow] could not create users row'); }
+  } catch(e) { console.warn('[ensureUserRow] error', e); }
+}
+
+
+async function publishEvent(type, amount, txHash, fromUserId, toUserId, jobId) {
+  try {
+    var rpcRes = await apiRequest('rpc/publish_public_event', {
+      method: 'POST',
+      body: JSON.stringify({
+        p_type: type, p_amount: amount, p_tx_hash: txHash || '',
+        p_from_user_id: fromUserId || null, p_to_user_id: toUserId || null,
+        p_related_job_id: jobId || null
+      })
+    });
+    if (rpcRes && rpcRes.ok) return true;
+  } catch(e) { console.warn('RPC publish failed:', e); }
+  /* Fallback: direct INSERT */
+  try {
+    var fromAlias = null, toAlias = null;
+    if (fromUserId) {
+      try {
+        var ar = await apiRequest('mv_aliases?user_id=eq.' + fromUserId + '&select=public_alias');
+        var ad = (ar && ar.ok) ? await ar.json() : [];
+        fromAlias = ad.length ? ad[0].public_alias : ('muvr_' + fromUserId.slice(0,8));
+      } catch(e) { fromAlias = 'muvr_' + fromUserId.slice(0,8); }
+    }
+    if (toUserId) {
+      try {
+        var ar2 = await apiRequest('mv_aliases?user_id=eq.' + toUserId + '&select=public_alias');
+        var ad2 = (ar2 && ar2.ok) ? await ar2.json() : [];
+        toAlias = ad2.length ? ad2[0].public_alias : ('muvr_' + toUserId.slice(0,8));
+      } catch(e) { toAlias = 'muvr_' + toUserId.slice(0,8); }
+    }
+    await apiRequest('mv_public_events', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: type, amount_mv: amount, tx_hash: txHash || '',
+        from_alias: fromAlias, to_alias: toAlias, related_job_id: jobId || null
+      })
+    });
+  } catch(e) { console.error('Direct event insert also failed:', e); }
+}
+
 async function handleSignUp() {
   var email = ((getEl('auth-email') || {}).value || '').trim();
   var pw = (getEl('auth-password') || {}).value || '';
@@ -1861,11 +2242,12 @@ async function handleSignUp() {
       state.user = r.data.user; state.accessToken = r.data.session && r.data.session.access_token;
     }
     closeModal();
+    await ensureUserRow();
     await loadProfileSafe();
     openLegalModal();
     showToast('Account created. Welcome to MUVR!');
     burstConfetti();
-    setMuxi('Welcome! Accept the agreements to get started.');
+    setMuxi(muxiQuip('signup'));
   } catch(e) { console.error('SignUp error:', e); showAuthError(e.message || 'Sign up failed. Check your connection and try again.'); }
 }
 
@@ -1880,6 +2262,7 @@ async function handleSignIn() {
     state.user = r.data.user; state.accessToken = r.data.session && r.data.session.access_token;
     closeModal(); renderApp(); showToast('Welcome back!');
     setMuxi('Session restored. Loading your data.');
+    await ensureUserRow();
     loadProfileSafe(); loadJobsSafe(); loadNotifications();
   } catch(e) { console.error('SignIn error:', e); showAuthError(e.message || 'Sign in failed. Check your connection and try again.'); }
 }
@@ -1937,15 +2320,15 @@ async function handlePostJob() {
     if (jobId) {
       await apiRequest('escrow', { method: 'POST', body: JSON.stringify({ job_id: jobId, poster_id: state.user.id, amount_mv: budget, fee_mv: 1, status: 'locked' }) });
       await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'burn', amount_mv: 1, description: 'Gig posting fee (burn)', tx_hash: 'BURN' + Date.now(), related_job_id: jobId }) });
-      // Publish public event
-      try { await apiRequest('rpc/publish_public_event', { method: 'POST', body: JSON.stringify({ p_type: 'burn', p_amount: 1, p_tx_hash: 'BURN' + Date.now(), p_from_user_id: state.user.id, p_related_job_id: jobId }) }); } catch(e) {}
-      try { await apiRequest('rpc/publish_public_event', { method: 'POST', body: JSON.stringify({ p_type: 'escrow_lock', p_amount: budget, p_from_user_id: state.user.id, p_related_job_id: jobId }) }); } catch(e) {}
+      /* Publish to public ledger */
+      await publishEvent('burn', 1, 'BURN' + Date.now(), state.user.id, null, jobId);
+      await publishEvent('escrow_lock', budget, 'ESC' + Date.now(), state.user.id, null, jobId);
     }
     var newBal = bal - (budget + 1);
     await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: newBal }) });
     state.profile.mv_balance = newBal;
     closeModal(); showToast('Gig posted! Escrow locked.');
-    setMuxi('Gig is live. Watch for applications.');
+    setMuxi(muxiQuip('postjob'));
     loadJobsSafe();
   } catch(e) { showToast('Error posting job', 'error'); console.error(e); }
 }
@@ -1965,7 +2348,7 @@ async function handleApply() {
     });
     if (res && res.ok) {
       closeModal(); showToast('Application submitted!');
-      setMuxi('Applied. Tighten your pitch next time for higher win rate.');
+      setMuxi(muxiQuip('apply'));
       // Queue notification for poster
       var job = state.jobs.find(function(j) { return j.id === jobId; });
       if (job && job.poster_id) {
@@ -2010,8 +2393,8 @@ async function handleSend() {
       var rd = (rb && rb.ok) ? await rb.json() : [];
       if (rd.length) await apiRequest('users?id=eq.' + rid, { method: 'PATCH', body: JSON.stringify({ mv_balance: Number(rd[0].mv_balance || 0) + amt }) });
     } catch(e) {}
-    // Publish public event
-    try { await apiRequest('rpc/publish_public_event', { method: 'POST', body: JSON.stringify({ p_type: 'transfer', p_amount: amt, p_tx_hash: txh, p_from_user_id: state.user.id, p_to_user_id: rid }) }); } catch(e) {}
+    /* Publish to public ledger */
+    await publishEvent('transfer', amt, txh, state.user.id, rid, null);
     closeModal(); showToast('Sent ' + amt + ' MV!');
     if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
   } catch(e) { showToast('Transfer failed', 'error'); }
@@ -2044,7 +2427,7 @@ async function handleSaveProfile() {
     if (res && res.ok) {
       state.profile = Object.assign(state.profile || {}, updates);
       closeModal(); showToast('Profile saved!'); renderProfileTab();
-      setMuxi('Profile upgraded. You just gained XP.');
+      setMuxi(muxiQuip('profile'));
     } else { showToast('Error saving profile', 'error'); }
   } catch(e) { showToast('Error saving', 'error'); }
 }
@@ -2154,6 +2537,12 @@ async function boot() {
       state.accessToken = session.access_token || null;
       renderApp();
       renderMuxi();
+  /* Random MUXI popup every 2-3 min */
+  setInterval(function() {
+    if (state.user && Math.random() < 0.4) {
+      setMuxi(pickMuxiLine());
+    }
+  }, 150000);
       loadProfileSafe();
       loadJobsSafe();
       loadNotifications();
