@@ -348,7 +348,12 @@ body {
 // =============================================================================
 const SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o';
-const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+let sb = null;
+try {
+  sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+} catch (e) {
+  console.error('Failed to create Supabase client:', e);
+}
 
 // =============================================================================
 // APPLICATION STATE
@@ -1567,33 +1572,45 @@ showToast(‘Withdrawn $’ + receiveAmount.toFixed(2) + ‘!’);
 // BOOT SEQUENCE
 // =============================================================================
 async function boot() {
-// Safety timeout — if boot takes more than 5s, show landing anyway
-const bootTimeout = setTimeout(() => {
-console.warn(‘Boot timeout — showing landing’);
-if (getEl(‘root’).innerHTML === ‘’) {
-renderLanding();
-getEl(‘boot-screen’).classList.add(‘done’);
-}
-}, 5000);
+const dismissBoot = () => {
+const bs = getEl(‘boot-screen’);
+if (bs) bs.classList.add(‘done’);
+};
 
 try {
-// Check if Supabase loaded
-if (typeof supabase === ‘undefined’) {
-throw new Error(‘Supabase not loaded’);
+// Check if Supabase loaded at all
+if (typeof supabase === ‘undefined’ || !sb) {
+console.warn(‘Supabase SDK not available’);
+renderLanding();
+dismissBoot();
+return;
 }
 
 ```
-const { data: { session } } = await sb.auth.getSession();
+// Race the session check against a 3-second timeout
+const sessionResult = await Promise.race([
+  sb.auth.getSession(),
+  new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+]);
+
+const session = sessionResult?.data?.session;
 
 if (session?.user) {
-  // Returning user — load data and show app
   state.user = session.user;
   state.token = session.access_token;
-  await loadProfile();
-  await loadJobs();
+
+  // Load profile and jobs with their own timeout
+  try {
+    await Promise.race([
+      Promise.all([loadProfile(), loadJobs()]),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('data timeout')), 4000))
+    ]);
+  } catch (dataErr) {
+    console.warn('Data load timeout, showing app with defaults:', dataErr);
+  }
+
   renderApp();
 } else {
-  // No session — show landing page
   renderLanding();
 }
 ```
@@ -1603,12 +1620,9 @@ console.error(‘Boot error:’, error);
 renderLanding();
 }
 
-clearTimeout(bootTimeout);
+dismissBoot();
 
-// Fade out boot screen
-getEl(‘boot-screen’).classList.add(‘done’);
-
-// Listen for auth state changes
+// Listen for auth state changes (non-blocking)
 try {
 sb.auth.onAuthStateChange((event, session) => {
 if (session?.user) {
