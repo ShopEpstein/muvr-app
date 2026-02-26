@@ -499,7 +499,7 @@ async function apiRequest(path, options) {
       'Authorization': 'Bearer ' + state.accessToken
     }, options.headers || {});
     if (!headers['Content-Type'] && options.body) headers['Content-Type'] = 'application/json';
-    if (!headers['Prefer'] && options.method === 'POST') headers['Prefer'] = 'return=representation';
+    if (!headers['Prefer'] && (options.method === 'POST' || options.method === 'PATCH')) headers['Prefer'] = 'return=representation';
     return await fetch(SUPA_URL + '/rest/v1/' + path, Object.assign({}, options, { headers: headers }));
   } catch(err) { console.error('apiRequest:', err); return null; }
 }
@@ -927,9 +927,11 @@ async function loadMyGigs() {
     /* Jobs I posted (any status) */
     var res = await apiRequest('jobs?poster_id=eq.' + state.user.id + '&select=*&order=created_at.desc');
     state.myGigs = (res && res.ok) ? await res.json() : [];
+    console.log('[MyGigs] posted:', state.myGigs.length);
     /* Jobs I applied to or am working - include pending so workers see their applications */
     var workRes = await apiRequest('applications?worker_id=eq.' + state.user.id + '&select=*&order=created_at.desc');
     var myApps = (workRes && workRes.ok) ? await workRes.json() : [];
+    console.log('[MyGigs] my apps:', myApps.length, myApps.map(function(a) { return a.status; }));
     if (myApps.length > 0) {
       var jobIds = myApps.map(function(a) { return a.job_id; }).filter(Boolean);
       var unique = jobIds.filter(function(v, i, a) { return a.indexOf(v) === i; });
@@ -943,6 +945,7 @@ async function loadMyGigs() {
     } else {
       state.myActiveWork = [];
     }
+    console.log('[MyGigs] activeWork:', state.myActiveWork.length, state.myActiveWork.map(function(w) { return (w._myApp ? w._myApp.status : '?') + '/' + w.status; }));
     /* Load deliverables for active jobs */
     var activeJobIds = state.myActiveWork.filter(function(j) {
       return j._myApp && j._myApp.status !== 'rejected' && j._myApp.status !== 'pending';
@@ -1481,18 +1484,31 @@ async function openJobManageModal(jobId) {
 async function awardJob(jobId, applicationId, workerId) {
   if (!confirm('Award this gig? The worker will be notified and can start immediately.')) return;
   try {
+    setMuxi('Awarding gig...');
     /* Update application status to accepted */
-    await apiRequest('applications?id=eq.' + applicationId, {
+    var r1 = await apiRequest('applications?id=eq.' + applicationId, {
       method: 'PATCH', body: JSON.stringify({ status: 'accepted' })
     });
+    var r1data = (r1 && r1.ok) ? await r1.json() : [];
+    console.log('Award app PATCH:', r1 && r1.status, r1data);
+    if (!r1data || r1data.length === 0) {
+      console.error('Application PATCH returned 0 rows - RLS may be blocking');
+      showToast('Error: could not update application status', 'error');
+      return;
+    }
     /* Reject other pending applications */
     await apiRequest('applications?job_id=eq.' + jobId + '&id=neq.' + applicationId + '&status=eq.pending', {
       method: 'PATCH', body: JSON.stringify({ status: 'rejected' })
     });
-    /* Update job status to awarded */
-    await apiRequest('jobs?id=eq.' + jobId, {
+    /* Update job status to awarded + increment applicant_count */
+    var r2 = await apiRequest('jobs?id=eq.' + jobId, {
       method: 'PATCH', body: JSON.stringify({ status: 'awarded' })
     });
+    var r2data = (r2 && r2.ok) ? await r2.json() : [];
+    console.log('Award job PATCH:', r2 && r2.status, r2data);
+    if (!r2data || r2data.length === 0) {
+      console.error('Job PATCH returned 0 rows - RLS may be blocking');
+    }
     /* Create or get conversation with the worker */
     try {
       var convoRes = await apiRequest('rpc/get_or_create_conversation', {
@@ -1513,7 +1529,7 @@ async function awardJob(jobId, applicationId, workerId) {
     } catch(ce) { console.warn('Award convo msg failed:', ce); }
     /* Notify worker */
     try {
-      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'job_awarded', title: 'You got the gig!', body: 'You were awarded a gig. Check your messages for details.', channel: 'email' }) });
+      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'job_awarded', title: 'You got the gig!', body: 'You were awarded a gig. Check your messages for details.', channel: 'in_app', status: 'pending' }) });
     } catch(e) {}
     closeModal();
     showToast('Gig awarded! Worker notified.');
