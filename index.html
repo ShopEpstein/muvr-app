@@ -401,7 +401,8 @@ var state = {
   notifications: [],
   myGigsView: false,
   myGigs: [],
-  myActiveWork: []
+  myActiveWork: [],
+  deliverables: []
 };
 
 
@@ -924,13 +925,13 @@ function renderJobsTab() {
    Flow: open -> awarded -> in_progress -> completed -> paid
 ============================================================================= */
 var JOB_STATUS_CONFIG = {
-  open:        { label: 'OPEN',        color: 'var(--accent)',   icon: '&#128994;' },
-  awarded:     { label: 'AWARDED',     color: 'var(--yellow)',   icon: '&#127942;' },
-  in_progress: { label: 'IN PROGRESS', color: 'var(--accent-2)', icon: '&#9889;' },
-  completed:   { label: 'COMPLETED',   color: 'var(--accent-3)', icon: '&#9989;' },
-  paid:        { label: 'PAID',        color: 'var(--accent)',   icon: '&#128176;' },
-  cancelled:   { label: 'CANCELLED',   color: 'var(--red)',      icon: '&#10060;' },
-  disputed:    { label: 'DISPUTED',    color: 'var(--red)',      icon: '&#9888;' }
+  open:        { label: 'OPEN',        color: 'var(--accent)',   icon: '&#128994;', step: 0 },
+  awarded:     { label: 'AWARDED',     color: 'var(--yellow)',   icon: '&#127942;', step: 1 },
+  in_progress: { label: 'IN PROGRESS', color: 'var(--accent-2)', icon: '&#9889;',   step: 2 },
+  completed:   { label: 'COMPLETED',   color: 'var(--accent-3)', icon: '&#9989;',   step: 3 },
+  paid:        { label: 'PAID',        color: 'var(--accent)',   icon: '&#128176;', step: 4 },
+  cancelled:   { label: 'CANCELLED',   color: 'var(--red)',      icon: '&#10060;', step: -1 },
+  disputed:    { label: 'DISPUTED',    color: 'var(--red)',      icon: '&#9888;',  step: -1 }
 };
 
 async function loadMyGigs() {
@@ -939,12 +940,13 @@ async function loadMyGigs() {
     /* Jobs I posted (any status) */
     var res = await apiRequest('jobs?poster_id=eq.' + state.user.id + '&select=*&order=created_at.desc');
     state.myGigs = (res && res.ok) ? await res.json() : [];
-    /* Jobs I am working (awarded to me via applications) */
-    var workRes = await apiRequest('applications?worker_id=eq.' + state.user.id + '&status=in.(accepted,in_progress,completed)&select=*');
+    /* Jobs I applied to or am working - include pending so workers see their applications */
+    var workRes = await apiRequest('applications?worker_id=eq.' + state.user.id + '&select=*&order=created_at.desc');
     var myApps = (workRes && workRes.ok) ? await workRes.json() : [];
     if (myApps.length > 0) {
       var jobIds = myApps.map(function(a) { return a.job_id; }).filter(Boolean);
-      var jobRes = await apiRequest('jobs?id=in.(' + jobIds.join(',') + ')&select=*');
+      var unique = jobIds.filter(function(v, i, a) { return a.indexOf(v) === i; });
+      var jobRes = await apiRequest('jobs?id=in.(' + unique.join(',') + ')&select=*');
       var jobData = (jobRes && jobRes.ok) ? await jobRes.json() : [];
       state.myActiveWork = jobData.map(function(j) {
         var app = myApps.find(function(a) { return a.job_id === j.id; });
@@ -954,8 +956,34 @@ async function loadMyGigs() {
     } else {
       state.myActiveWork = [];
     }
+    /* Load deliverables for active jobs */
+    var activeJobIds = state.myActiveWork.filter(function(j) {
+      return j._myApp && j._myApp.status !== 'rejected' && j._myApp.status !== 'pending';
+    }).map(function(j) { return j.id; });
+    if (activeJobIds.length > 0) {
+      try {
+        var delRes = await apiRequest('job_deliverables?job_id=in.(' + activeJobIds.join(',') + ')&select=*&order=created_at.desc');
+        state.deliverables = (delRes && delRes.ok) ? await delRes.json() : [];
+      } catch(e) { state.deliverables = []; }
+    } else { state.deliverables = []; }
     if (state.myGigsView && state.currentTab === 'jobs') renderMyGigsView();
   } catch(e) { console.error('loadMyGigs error:', e); }
+}
+
+function renderProgressBar(status) {
+  var steps = ['open', 'awarded', 'in_progress', 'completed', 'paid'];
+  var currentIdx = steps.indexOf(status);
+  if (currentIdx < 0) currentIdx = 0;
+  return '<div class="flex items-center gap-1 my-4">' +
+    steps.map(function(s, i) {
+      var active = i <= currentIdx;
+      var sConf = JOB_STATUS_CONFIG[s];
+      return '<div class="flex-1 text-center">' +
+        '<div class="h-2 rounded-full mb-1" style="background:' + (active ? sConf.color : 'rgba(255,255,255,0.08)') + '"></div>' +
+        '<span class="text-[9px] font-black" style="color:' + (active ? sConf.color : 'var(--text-dim)') + '">' + sConf.label + '</span>' +
+      '</div>';
+    }).join('') +
+  '</div>';
 }
 
 function renderMyGigsView() {
@@ -966,6 +994,7 @@ function renderMyGigsView() {
 
   var postedHtml = '';
   var workHtml = '';
+  var appliedHtml = '';
 
   if (myGigsFilter === 'posted') {
     if (state.myGigs.length === 0) {
@@ -985,44 +1014,87 @@ function renderMyGigsView() {
             '</div>' +
             '<span class="text-[10px] font-black px-2 py-1 rounded-full whitespace-nowrap" style="color:' + sc.color + ';border:1px solid ' + sc.color + '40;background:' + sc.color + '15">' + sc.icon + ' ' + sc.label + '</span>' +
           '</div>' +
-          '<div class="flex items-center justify-between mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.06)">' +
+          renderProgressBar(job.status) +
+          '<div class="flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">' +
             '<div class="flex gap-4 text-[11px]">' +
               '<span style="color:var(--accent)" class="font-black">' + Number(job.budget_mv || 0) + ' MV</span>' +
               '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
             '</div>' +
-            (job.status === 'open' ? '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);color:' + (apps > 0 ? 'var(--yellow)' : 'var(--text-dim)') + '">' + apps + ' applicant' + (apps !== 1 ? 's' : '') + '</span>' : '') +
+            (job.status === 'open' ? '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);color:' + (apps > 0 ? 'var(--yellow)' : 'var(--text-dim)') + '">' + apps + ' applicant' + (apps !== 1 ? 's' : '') + ' - Tap to manage</span>' :
+              '<span class="text-[10px] font-black" style="color:var(--text-dim)">Tap to manage</span>') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  } else if (myGigsFilter === 'work') {
+    /* Active work - awarded/in_progress/completed jobs */
+    var activeWork = state.myActiveWork.filter(function(j) {
+      return j._myApp && (j._myApp.status === 'accepted' || j._myApp.status === 'in_progress' || j._myApp.status === 'completed' || j._myApp.status === 'paid');
+    });
+    if (activeWork.length === 0) {
+      workHtml = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) +
+        '<p class="font-black mt-3">No active work</p>' +
+        '<p class="text-sm mt-1">When you get awarded a gig, it shows up here.</p>' +
+        '<button onclick="state.myGigsView=false;renderJobsTab()" class="btn-pill btn-pill-accent mt-4">Browse gigs</button></div>';
+    } else {
+      workHtml = activeWork.map(function(job) {
+        var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.open;
+        var canStart = (job.status === 'awarded');
+        var canMarkDone = (job.status === 'in_progress');
+        var isPaid = (job.status === 'paid');
+        var isComplete = (job.status === 'completed');
+        /* Count deliverables for this job */
+        var delivCount = (state.deliverables || []).filter(function(d) { return d.job_id === job.id; }).length;
+
+        return '<div class="card p-5 mb-3">' +
+          '<div class="flex items-start justify-between mb-2">' +
+            '<div class="flex-1 mr-3">' +
+              '<h3 class="font-black text-sm">' + escapeHtml(job.title) + '</h3>' +
+              '<p class="text-[11px] mt-1" style="color:var(--text-dim)">' + escapeHtml(job.description || '').substring(0, 100) + '</p>' +
+            '</div>' +
+            '<span class="text-[10px] font-black px-2 py-1 rounded-full whitespace-nowrap" style="color:' + sc.color + ';border:1px solid ' + sc.color + '40;background:' + sc.color + '15">' + sc.icon + ' ' + sc.label + '</span>' +
+          '</div>' +
+
+          renderProgressBar(job.status) +
+
+          /* Deliverables summary */
+          (delivCount > 0 ? '<div class="mb-3 p-2 rounded-lg text-[11px]" style="background:rgba(255,255,255,0.04)"><i class="fas fa-paperclip mr-1" style="color:var(--accent-2)"></i>' + delivCount + ' deliverable' + (delivCount !== 1 ? 's' : '') + ' submitted</div>' : '') +
+
+          '<div class="flex items-center justify-between pt-3" style="border-top:1px solid rgba(255,255,255,0.06)">' +
+            '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</span>' +
+            '<div class="flex gap-2 flex-wrap justify-end">' +
+              '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
+              (canStart ? '<button onclick="workerStartJob(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-play mr-1"></i>Start work</button>' : '') +
+              (job.status === 'in_progress' ? '<button onclick="openWorkerJobModal(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-tasks mr-1"></i>Update / Deliver</button>' : '') +
+              (isComplete ? '<span class="text-[10px] font-black" style="color:var(--yellow)"><i class="fas fa-hourglass-half mr-1"></i>Awaiting payment</span>' : '') +
+              (isPaid ? '<span class="text-[10px] font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid</span>' : '') +
+            '</div>' +
           '</div>' +
         '</div>';
       }).join('');
     }
   } else {
-    /* My Active Work */
-    if (state.myActiveWork.length === 0) {
-      workHtml = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) +
-        '<p class="font-black mt-3">No active work</p>' +
-        '<p class="text-sm mt-1">Apply to gigs to get started.</p>' +
-        '<button onclick="state.myGigsView=false;renderJobsTab()" class="btn-pill btn-pill-accent mt-4">Browse gigs</button></div>';
+    /* Applied - pending applications */
+    var pending = state.myActiveWork.filter(function(j) {
+      return j._myApp && j._myApp.status === 'pending';
+    });
+    if (pending.length === 0) {
+      appliedHtml = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) +
+        '<p class="font-black mt-3">No pending applications</p>' +
+        '<p class="text-sm mt-1">Apply to gigs and your pending bids show up here.</p></div>';
     } else {
-      workHtml = state.myActiveWork.map(function(job) {
-        var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.open;
-        var canMarkDone = (job.status === 'in_progress');
-        var canStart = (job.status === 'awarded');
-        var isPaid = (job.status === 'paid');
+      appliedHtml = pending.map(function(job) {
         return '<div class="card p-5 mb-3">' +
           '<div class="flex items-start justify-between mb-2">' +
-            '<div class="flex-1 mr-3">' +
-              '<h3 class="font-black text-sm">' + escapeHtml(job.title) + '</h3>' +
-              '<p class="text-[11px] mt-1" style="color:var(--text-dim)">' + escapeHtml(job.description || '').substring(0, 80) + '</p>' +
-            '</div>' +
-            '<span class="text-[10px] font-black px-2 py-1 rounded-full whitespace-nowrap" style="color:' + sc.color + ';border:1px solid ' + sc.color + '40;background:' + sc.color + '15">' + sc.icon + ' ' + sc.label + '</span>' +
+            '<h3 class="font-black text-sm flex-1 mr-3">' + escapeHtml(job.title) + '</h3>' +
+            '<span class="text-[10px] font-black px-2 py-1 rounded-full whitespace-nowrap" style="color:var(--yellow);border:1px solid rgba(255,200,0,0.3);background:rgba(255,200,0,0.08)">&#9203; PENDING</span>' +
           '</div>' +
-          '<div class="flex items-center justify-between mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,0.06)">' +
-            '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</span>' +
-            '<div class="flex gap-2">' +
-              '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
-              (canStart ? '<button onclick="workerStartJob(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-play mr-1"></i>Start work</button>' : '') +
-              (canMarkDone ? '<button onclick="workerMarkComplete(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-check mr-1"></i>Mark done</button>' : '') +
-              (isPaid ? '<span class="text-[10px] font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid</span>' : '') +
+          '<p class="text-xs mb-2" style="color:var(--text-dim)">' + escapeHtml(job.description || '').substring(0, 80) + '</p>' +
+          '<div class="flex items-center justify-between text-[11px]">' +
+            '<span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</span>' +
+            '<div class="flex gap-3">' +
+              '<span style="color:var(--text-dim)">Your bid: ' + Number(job._myApp.rate_mv || 0) + ' MV</span>' +
+              '<span style="color:var(--text-dim)">' + relTime(job._myApp.created_at) + '</span>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -1030,34 +1102,250 @@ function renderMyGigsView() {
     }
   }
 
+  var pendingCount = state.myActiveWork.filter(function(j) { return j._myApp && j._myApp.status === 'pending'; }).length;
+  var activeCount = state.myActiveWork.filter(function(j) { return j._myApp && j._myApp.status !== 'pending' && j._myApp.status !== 'rejected'; }).length;
+
   c.innerHTML = '<div class="fade-up">' +
     '<div class="mb-6 flex items-start justify-between gap-3">' +
       '<div>' +
         '<button onclick="state.myGigsView=false;renderJobsTab()" class="text-xs font-black mb-2 flex items-center gap-1" style="color:var(--accent)"><i class="fas fa-arrow-left"></i> Back to all gigs</button>' +
         '<h1 class="text-3xl font-black mb-1">My Gigs</h1>' +
-        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Manage your posted gigs and active work.</p>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Manage your posted gigs, active work, and pending applications.</p>' +
       '</div>' +
-      '<button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a gig</button>' +
+      '<button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post</button>' +
     '</div>' +
-    '<div class="flex gap-2 mb-5">' +
+    '<div class="flex gap-2 mb-5 overflow-x-auto pb-1">' +
       '<button onclick="state.myGigsFilter=\'posted\';renderMyGigsView()" class="btn-pill ' + (myGigsFilter === 'posted' ? 'btn-pill-accent' : 'btn-pill-ghost') + '"><i class="fas fa-clipboard-list mr-1"></i>Posted (' + state.myGigs.length + ')</button>' +
-      '<button onclick="state.myGigsFilter=\'work\';renderMyGigsView()" class="btn-pill ' + (myGigsFilter === 'work' ? 'btn-pill-accent' : 'btn-pill-ghost') + '"><i class="fas fa-hard-hat mr-1"></i>My Work (' + state.myActiveWork.length + ')</button>' +
+      '<button onclick="state.myGigsFilter=\'work\';renderMyGigsView()" class="btn-pill ' + (myGigsFilter === 'work' ? 'btn-pill-accent' : 'btn-pill-ghost') + '"><i class="fas fa-hard-hat mr-1"></i>Active (' + activeCount + ')</button>' +
+      '<button onclick="state.myGigsFilter=\'applied\';renderMyGigsView()" class="btn-pill ' + (myGigsFilter === 'applied' ? 'btn-pill-accent' : 'btn-pill-ghost') + '"><i class="fas fa-paper-plane mr-1"></i>Applied (' + pendingCount + ')</button>' +
     '</div>' +
-    (myGigsFilter === 'posted' ? postedHtml : workHtml) +
+    (myGigsFilter === 'posted' ? postedHtml : myGigsFilter === 'work' ? workHtml : appliedHtml) +
   '</div>';
 }
 
-/* Job management modal - shows applications, status controls, progress tracker */
+/* =============================================================================
+   WORKER JOB MODAL - Status updates, deliverables, milestones
+============================================================================= */
+async function openWorkerJobModal(jobId) {
+  var job = state.myActiveWork.find(function(j) { return j.id === jobId; });
+  if (!job) return showToast('Job not found', 'error');
+
+  var delivs = (state.deliverables || []).filter(function(d) { return d.job_id === jobId; });
+  var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.in_progress;
+
+  /* Deliverables list */
+  var delivHtml = delivs.length === 0
+    ? '<p class="text-xs py-3 text-center" style="color:var(--text-dim)">No deliverables submitted yet. Add your first one below.</p>'
+    : delivs.map(function(d) {
+        var typeIcon = d.type === 'link' ? '&#128279;' : d.type === 'file' ? '&#128196;' : d.type === 'milestone' ? '&#127937;' : '&#128172;';
+        return '<div class="p-3 rounded-xl mb-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+          '<div class="flex items-start justify-between">' +
+            '<div class="flex-1">' +
+              '<p class="text-xs font-black">' + typeIcon + ' ' + escapeHtml(d.title || d.type) + '</p>' +
+              (d.content ? '<p class="text-[11px] mt-1" style="color:var(--text-dim)">' + escapeHtml(d.content).substring(0, 200) + '</p>' : '') +
+              (d.url ? '<a href="' + escapeHtml(d.url) + '" target="_blank" class="text-[11px] mt-1 block" style="color:var(--accent)"><i class="fas fa-external-link-alt mr-1"></i>' + escapeHtml(d.url).substring(0, 60) + '</a>' : '') +
+            '</div>' +
+            '<span class="text-[10px]" style="color:var(--text-dim)">' + relTime(d.created_at) + '</span>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+  openModal(
+    '<div class="card p-6" style="max-width:540px;margin:auto;max-height:90vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-4">' +
+        '<h2 class="text-lg font-black">Job Dashboard</h2>' +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
+
+      /* Job header */
+      '<div class="p-4 rounded-xl mb-3" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+        '<div class="flex items-start justify-between">' +
+          '<h3 class="font-black text-sm flex-1 mr-2">' + escapeHtml(job.title) + '</h3>' +
+          '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="color:' + sc.color + ';border:1px solid ' + sc.color + '40">' + sc.icon + ' ' + sc.label + '</span>' +
+        '</div>' +
+        '<p class="text-xs mt-1" style="color:var(--text-dim)">' + escapeHtml(job.description || '') + '</p>' +
+        '<div class="flex gap-3 text-[11px] mt-2"><span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</span></div>' +
+      '</div>' +
+
+      renderProgressBar(job.status) +
+
+      /* Quick actions */
+      '<div class="grid grid-cols-2 gap-2 mb-4">' +
+        '<button onclick="closeModal();startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="p-3 rounded-xl text-xs font-black text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)"><i class="fas fa-comment mr-1" style="color:var(--accent)"></i>Message poster</button>' +
+        '<button onclick="sendStatusUpdate(\'' + job.id + '\',\'' + job.poster_id + '\')" class="p-3 rounded-xl text-xs font-black text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)"><i class="fas fa-bullhorn mr-1" style="color:var(--yellow)"></i>Send update</button>' +
+      '</div>' +
+
+      /* Deliverables section */
+      '<div class="mb-4">' +
+        '<h4 class="font-black text-sm mb-3"><i class="fas fa-paperclip mr-1" style="color:var(--accent-2)"></i>Deliverables & Evidence</h4>' +
+        '<p class="text-[11px] mb-3" style="color:var(--text-dim)">Upload links, notes, or milestone updates. Poster can see these as proof of work.</p>' +
+        delivHtml +
+
+        /* Add deliverable form */
+        '<div class="mt-3 p-4 rounded-xl" style="background:rgba(24,246,200,0.04);border:1px solid rgba(24,246,200,0.12)">' +
+          '<p class="text-[11px] font-black mb-2" style="color:var(--accent)">Add deliverable</p>' +
+          '<select id="deliv-type" class="field mb-2" style="font-size:12px">' +
+            '<option value="update">Status update / Note</option>' +
+            '<option value="link">Link (URL to work)</option>' +
+            '<option value="file">File reference</option>' +
+            '<option value="milestone">Milestone checkpoint</option>' +
+          '</select>' +
+          '<input id="deliv-title" placeholder="Title (e.g., Draft v1, Homepage mockup)" class="field mb-2" style="font-size:12px">' +
+          '<textarea id="deliv-content" placeholder="Description or notes..." rows="2" class="field mb-2" style="font-size:12px;resize:none"></textarea>' +
+          '<input id="deliv-url" placeholder="URL (optional - paste link to deliverable)" class="field mb-2" style="font-size:12px">' +
+          '<button onclick="submitDeliverable(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-plus mr-1"></i>Submit deliverable</button>' +
+        '</div>' +
+      '</div>' +
+
+      /* Mark complete */
+      (job.status === 'in_progress' ?
+        '<div class="mt-3 p-4 rounded-xl" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.20)">' +
+          '<p class="text-xs font-black mb-2"><i class="fas fa-flag-checkered mr-1"></i>Ready to submit final work?</p>' +
+          '<p class="text-[11px] mb-3" style="color:var(--text-dim)">Make sure all deliverables are uploaded. The poster will review and release payment.</p>' +
+          '<button onclick="workerMarkComplete(\'' + job.id + '\')" class="btn-primary rounded-full"><i class="fas fa-check-circle mr-2"></i>Mark job complete</button>' +
+        '</div>' : '') +
+
+      (job.status === 'completed' ?
+        '<div class="p-4 rounded-xl" style="background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.20)">' +
+          '<p class="text-xs font-black" style="color:var(--yellow)"><i class="fas fa-hourglass-half mr-1"></i>Awaiting poster review & payment release</p>' +
+          '<p class="text-[11px] mt-1" style="color:var(--text-dim)">The poster has been notified. Payment will be released once they approve your work.</p>' +
+        '</div>' : '') +
+
+      (job.status === 'paid' ?
+        '<div class="p-4 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
+          '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid! This job is complete.</p>' +
+        '</div>' : '') +
+
+    '</div>',
+    { width: 'max-w-lg' }
+  );
+}
+
+/* Submit a deliverable */
+async function submitDeliverable(jobId, posterId) {
+  var type = (getEl('deliv-type') || {}).value || 'update';
+  var title = ((getEl('deliv-title') || {}).value || '').trim();
+  var content = ((getEl('deliv-content') || {}).value || '').trim();
+  var url = ((getEl('deliv-url') || {}).value || '').trim();
+  if (!title && !content) return showToast('Add a title or description', 'error');
+
+  try {
+    var payload = {
+      job_id: jobId, worker_id: state.user.id, type: type,
+      title: title || type, content: content, url: url || null
+    };
+    var res = await apiRequest('job_deliverables', { method: 'POST', body: JSON.stringify(payload) });
+    if (res && res.ok) {
+      showToast('Deliverable submitted!');
+      /* Notify poster */
+      try {
+        await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({
+          user_id: posterId, type: 'deliverable_submitted', title: 'New deliverable',
+          body: (state.profile && state.profile.full_name || 'A worker') + ' submitted: ' + (title || type), channel: 'in_app', status: 'pending'
+        })});
+      } catch(e) {}
+      /* Send message to poster about the deliverable */
+      try {
+        var convoRes = await apiRequest('rpc/get_or_create_conversation', {
+          method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: posterId, p_job_id: jobId })
+        });
+        if (convoRes && convoRes.ok) {
+          var cid = await convoRes.json();
+          if (cid) {
+            var msgBody = '&#128206; Deliverable submitted: ' + (title || type);
+            if (url) msgBody += '\n&#128279; ' + url;
+            if (content) msgBody += '\n' + content.substring(0, 150);
+            await apiRequest('messages', { method: 'POST', body: JSON.stringify({ conversation_id: cid, sender_id: state.user.id, body: msgBody }) });
+          }
+        }
+      } catch(e) {}
+      /* Reload and reopen modal */
+      await loadMyGigs();
+      openWorkerJobModal(jobId);
+    } else {
+      /* If job_deliverables table does not exist, fallback to message-only */
+      console.warn('job_deliverables insert failed, using message fallback');
+      try {
+        var convoRes2 = await apiRequest('rpc/get_or_create_conversation', {
+          method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: posterId, p_job_id: jobId })
+        });
+        if (convoRes2 && convoRes2.ok) {
+          var cid2 = await convoRes2.json();
+          if (cid2) {
+            var fb = '&#128206; DELIVERABLE: ' + (title || type) + '\n' + content + (url ? '\n&#128279; ' + url : '');
+            await apiRequest('messages', { method: 'POST', body: JSON.stringify({ conversation_id: cid2, sender_id: state.user.id, body: fb }) });
+          }
+        }
+      } catch(e) {}
+      showToast('Deliverable sent via message (table not yet created)');
+      closeModal();
+    }
+  } catch(e) { showToast('Error submitting', 'error'); console.error(e); }
+}
+
+/* Send a quick status update to poster */
+async function sendStatusUpdate(jobId, posterId) {
+  closeModal();
+  openModal(
+    '<div class="card p-6" style="max-width:420px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-lg font-black"><i class="fas fa-bullhorn mr-2" style="color:var(--yellow)"></i>Status Update</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<p class="text-xs mb-3" style="color:var(--text-dim)">Send a quick progress update to the job poster. They will be notified.</p>' +
+      '<div class="flex flex-wrap gap-2 mb-3">' +
+        '<button onclick="document.getElementById(\'status-msg\').value=\'Just getting started - will update you soon!\'" class="text-[10px] px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">Getting started</button>' +
+        '<button onclick="document.getElementById(\'status-msg\').value=\'Making good progress! About halfway done.\'" class="text-[10px] px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">Halfway done</button>' +
+        '<button onclick="document.getElementById(\'status-msg\').value=\'Almost finished - should be done shortly.\'" class="text-[10px] px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">Almost done</button>' +
+        '<button onclick="document.getElementById(\'status-msg\').value=\'Quick question for you about this job - check your messages.\'" class="text-[10px] px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">Have a question</button>' +
+        '<button onclick="document.getElementById(\'status-msg\').value=\'Running into a small delay but still on track.\'" class="text-[10px] px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">Small delay</button>' +
+      '</div>' +
+      '<textarea id="status-msg" placeholder="Type your update..." rows="3" class="field mb-3" style="resize:none"></textarea>' +
+      '<button onclick="sendStatusMsg(\'' + jobId + '\',\'' + posterId + '\')" class="btn-primary rounded-full"><i class="fas fa-paper-plane mr-2"></i>Send update</button>' +
+    '</div>',
+    { width: 'max-w-md' }
+  );
+}
+
+async function sendStatusMsg(jobId, posterId) {
+  var msg = ((getEl('status-msg') || {}).value || '').trim();
+  if (!msg) return showToast('Type a message', 'error');
+  try {
+    var convoRes = await apiRequest('rpc/get_or_create_conversation', {
+      method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: posterId, p_job_id: jobId })
+    });
+    if (convoRes && convoRes.ok) {
+      var cid = await convoRes.json();
+      if (cid) {
+        await apiRequest('messages', { method: 'POST', body: JSON.stringify({
+          conversation_id: cid, sender_id: state.user.id, body: '&#128227; STATUS UPDATE: ' + msg
+        })});
+      }
+    }
+    /* Notify poster */
+    try {
+      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({
+        user_id: posterId, type: 'status_update', title: 'Worker update',
+        body: (state.profile && state.profile.full_name || 'Worker') + ': ' + msg.substring(0, 100), channel: 'in_app', status: 'pending'
+      })});
+    } catch(e) {}
+    closeModal();
+    showToast('Update sent!');
+    setMuxi('Good communication is how you get 5-star reviews.');
+  } catch(e) { showToast('Error sending update', 'error'); }
+}
+
+/* =============================================================================
+   POSTER JOB MANAGEMENT MODAL
+============================================================================= */
 async function openJobManageModal(jobId) {
   var job = state.myGigs.find(function(j) { return j.id === jobId; });
   if (!job) return showToast('Job not found', 'error');
 
-  /* Load applications for this job */
   try {
     var appRes = await apiRequest('applications?job_id=eq.' + jobId + '&select=*&order=created_at.desc');
     var apps = (appRes && appRes.ok) ? await appRes.json() : [];
 
-    /* Load applicant user info */
+    /* Update applicant_count on the job object for display */
+    job.applicant_count = apps.length;
+
     var workerIds = apps.map(function(a) { return a.worker_id; }).filter(Boolean);
     var workerMap = {};
     if (workerIds.length > 0) {
@@ -1066,28 +1354,20 @@ async function openJobManageModal(jobId) {
       wData.forEach(function(u) { workerMap[u.id] = u; });
     }
 
-    var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.open;
+    /* Load deliverables for this job */
+    var delivs = [];
+    try {
+      var delRes = await apiRequest('job_deliverables?job_id=eq.' + jobId + '&select=*&order=created_at.desc');
+      delivs = (delRes && delRes.ok) ? await delRes.json() : [];
+    } catch(e) {}
 
-    /* Status progress bar */
-    var steps = ['open', 'awarded', 'in_progress', 'completed', 'paid'];
-    var currentIdx = steps.indexOf(job.status);
-    if (currentIdx < 0) currentIdx = 0;
-    var progressHtml = '<div class="flex items-center gap-1 mb-5">' +
-      steps.map(function(s, i) {
-        var active = i <= currentIdx;
-        var sConf = JOB_STATUS_CONFIG[s];
-        return '<div class="flex-1 text-center">' +
-          '<div class="h-2 rounded-full mb-1" style="background:' + (active ? sConf.color : 'rgba(255,255,255,0.08)') + '"></div>' +
-          '<span class="text-[9px] font-black" style="color:' + (active ? sConf.color : 'var(--text-dim)') + '">' + sConf.label + '</span>' +
-        '</div>';
-      }).join('') +
-    '</div>';
+    var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.open;
 
     /* Applications list */
     var appsHtml = '';
     if (apps.length === 0) {
       appsHtml = '<div class="p-4 rounded-xl text-center" style="background:rgba(255,255,255,0.03)">' +
-        '<p class="text-sm" style="color:var(--text-dim)">No applications yet. Share the gig link to get applicants.</p></div>';
+        '<p class="text-sm" style="color:var(--text-dim)">No applications yet. Share the gig to get applicants.</p></div>';
     } else {
       appsHtml = apps.map(function(app) {
         var w = workerMap[app.worker_id] || {};
@@ -1095,7 +1375,7 @@ async function openJobManageModal(jobId) {
         var rating = Number(w.rating || 0);
         var stars = '';
         for (var i = 0; i < Math.floor(rating); i++) stars += '&#11088;';
-        var isAccepted = app.status === 'accepted' || app.status === 'in_progress' || app.status === 'completed';
+        var isAccepted = app.status === 'accepted' || app.status === 'in_progress' || app.status === 'completed' || app.status === 'paid';
         var isPending = app.status === 'pending';
         var canAward = isPending && (job.status === 'open');
 
@@ -1105,47 +1385,71 @@ async function openJobManageModal(jobId) {
               '<p class="font-black text-sm">' + escapeHtml(name) + '</p>' +
               '<div class="flex items-center gap-2 mt-1">' +
                 '<span class="text-[11px]">' + (stars || '&#9734; New') + '</span>' +
-                '<span class="text-[10px]" style="color:var(--text-dim)">' + Number(w.jobs_completed || 0) + ' jobs done</span>' +
+                '<span class="text-[10px]" style="color:var(--text-dim)">' + Number(w.jobs_completed || 0) + ' jobs</span>' +
+                (Number(w.trust_score || 0) > 0 ? '<span class="text-[10px]" style="color:var(--accent)">Trust: ' + Number(w.trust_score) + '</span>' : '') +
               '</div>' +
             '</div>' +
-            '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="color:' + (isAccepted ? 'var(--accent)' : isPending ? 'var(--yellow)' : 'var(--text-dim)') + ';border:1px solid ' + (isAccepted ? 'var(--accent)' : isPending ? 'var(--yellow)' : 'var(--text-dim)') + '30">' +
+            '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="color:' + (isAccepted ? 'var(--accent)' : isPending ? 'var(--yellow)' : 'var(--red)') + ';border:1px solid ' + (isAccepted ? 'var(--accent)' : isPending ? 'var(--yellow)' : 'var(--red)') + '30">' +
               (isAccepted ? '&#9989; AWARDED' : isPending ? '&#9203; PENDING' : escapeHtml(app.status).toUpperCase()) +
             '</span>' +
           '</div>' +
           '<p class="text-xs mb-2" style="color:rgba(232,236,241,0.65)">' + escapeHtml(app.pitch || '') + '</p>' +
-          '<div class="flex items-center gap-3 text-[11px] mb-2" style="color:var(--text-dim)">' +
+          '<div class="flex items-center gap-3 text-[11px]" style="color:var(--text-dim)">' +
             '<span><i class="fas fa-coins mr-1" style="color:var(--accent)"></i>' + Number(app.rate_mv || 0) + ' MV</span>' +
             '<span><i class="fas fa-clock mr-1"></i>' + escapeHtml(app.turnaround || '') + '</span>' +
+            '<span>' + relTime(app.created_at) + '</span>' +
           '</div>' +
-          (canAward ? '<div class="flex gap-2 mt-2">' +
-            '<button onclick="awardJob(\'' + jobId + '\',\'' + app.id + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-trophy mr-1"></i>Award job</button>' +
-            '<button onclick="startConvoFromJob(\'' + jobId + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
+          (canAward ? '<div class="flex gap-2 mt-3">' +
+            '<button onclick="awardJob(\'' + jobId + '\',\'' + app.id + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-trophy mr-1"></i>Award gig</button>' +
+            '<button onclick="closeModal();startConvoFromJob(\'' + jobId + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
           '</div>' : '') +
         '</div>';
       }).join('');
     }
 
-    /* Action buttons based on current status */
+    /* Deliverables section (visible to poster) */
+    var posterDelivHtml = '';
+    if (delivs.length > 0) {
+      posterDelivHtml = '<div class="mb-4">' +
+        '<h4 class="font-black text-sm mb-3"><i class="fas fa-paperclip mr-1" style="color:var(--accent-2)"></i>Deliverables (' + delivs.length + ')</h4>' +
+        delivs.map(function(d) {
+          var typeIcon = d.type === 'link' ? '&#128279;' : d.type === 'file' ? '&#128196;' : d.type === 'milestone' ? '&#127937;' : '&#128172;';
+          return '<div class="p-3 rounded-xl mb-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+            '<div class="flex items-start justify-between">' +
+              '<div class="flex-1">' +
+                '<p class="text-xs font-black">' + typeIcon + ' ' + escapeHtml(d.title || d.type) + '</p>' +
+                (d.content ? '<p class="text-[11px] mt-1" style="color:var(--text-dim)">' + escapeHtml(d.content).substring(0, 200) + '</p>' : '') +
+                (d.url ? '<a href="' + escapeHtml(d.url) + '" target="_blank" class="text-[11px] mt-1 block" style="color:var(--accent)"><i class="fas fa-external-link-alt mr-1"></i>' + escapeHtml(d.url).substring(0, 60) + '</a>' : '') +
+              '</div>' +
+              '<span class="text-[10px]" style="color:var(--text-dim)">' + relTime(d.created_at) + '</span>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
+
+    /* Poster action buttons based on status */
     var actionsHtml = '';
     if (job.status === 'in_progress') {
       actionsHtml = '<div class="mt-4 space-y-2">' +
-        '<p class="text-[11px] font-black" style="color:var(--text-dim)">POSTER ACTIONS</p>' +
-        '<button onclick="posterMarkComplete(\'' + jobId + '\')" class="btn-primary rounded-full"><i class="fas fa-check-circle mr-2"></i>Approve & release escrow</button>' +
+        '<button onclick="posterMarkComplete(\'' + jobId + '\')" class="btn-primary rounded-full"><i class="fas fa-check-circle mr-2"></i>Approve work & release escrow</button>' +
         '<button onclick="openDisputeModal(\'' + jobId + '\')" class="text-xs font-black py-2 text-center block" style="color:var(--red)"><i class="fas fa-exclamation-triangle mr-1"></i>Open dispute</button>' +
       '</div>';
     } else if (job.status === 'awarded') {
       actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.20)">' +
-        '<p class="text-xs font-black" style="color:var(--yellow)"><i class="fas fa-info-circle mr-1"></i>Waiting for worker to start the job.</p>' +
-        '<p class="text-[11px] mt-1" style="color:var(--text-dim)">Once the worker begins, the status will update to In Progress.</p>' +
+        '<p class="text-xs font-black" style="color:var(--yellow)"><i class="fas fa-info-circle mr-1"></i>Waiting for worker to start</p>' +
+        '<p class="text-[11px] mt-1" style="color:var(--text-dim)">The worker has been notified. Once they begin, status moves to In Progress.</p>' +
       '</div>';
     } else if (job.status === 'completed') {
-      actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
-        '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check mr-1"></i>Job completed! Reviewing for payment release.</p>' +
-        '<button onclick="releaseEscrow(\'' + jobId + '\')" class="btn-primary rounded-full mt-3"><i class="fas fa-unlock mr-2"></i>Release escrow payment</button>' +
+      actionsHtml = '<div class="mt-4 p-4 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
+        '<p class="text-sm font-black mb-2" style="color:var(--accent)"><i class="fas fa-flag-checkered mr-1"></i>Worker marked this job complete!</p>' +
+        '<p class="text-[11px] mb-3" style="color:var(--text-dim)">Review the deliverables above and release payment if satisfied.</p>' +
+        '<button onclick="releaseEscrow(\'' + jobId + '\')" class="btn-primary rounded-full"><i class="fas fa-unlock mr-2"></i>Release ' + Number(job.budget_mv || 0) + ' MV to worker</button>' +
+        '<button onclick="openDisputeModal(\'' + jobId + '\')" class="text-xs font-black py-2 mt-2 text-center block" style="color:var(--red)"><i class="fas fa-exclamation-triangle mr-1"></i>Dispute</button>' +
       '</div>';
     } else if (job.status === 'paid') {
       actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
-        '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Payment released. This gig is complete!</p>' +
+        '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Payment released! This gig is complete.</p>' +
       '</div>';
     } else if (job.status === 'open') {
       actionsHtml = '<div class="mt-4">' +
@@ -1160,21 +1464,20 @@ async function openJobManageModal(jobId) {
           '<button onclick="closeModal()" class="close-btn">&times;</button>' +
         '</div>' +
 
-        /* Job info header */
-        '<div class="p-4 rounded-xl mb-4" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+        '<div class="p-4 rounded-xl mb-3" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
           '<h3 class="font-black mb-1">' + escapeHtml(job.title) + '</h3>' +
           '<p class="text-xs mb-2" style="color:var(--text-dim)">' + escapeHtml(job.description || '') + '</p>' +
           '<div class="flex gap-3 text-[11px]">' +
-            '<span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV budget</span>' +
+            '<span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV escrowed</span>' +
             '<span style="color:var(--text-dim)">' + escapeHtml(job.category || '') + '</span>' +
             '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
           '</div>' +
         '</div>' +
 
-        /* Progress tracker */
-        progressHtml +
+        renderProgressBar(job.status) +
 
-        /* Applications section */
+        posterDelivHtml +
+
         '<div class="mb-4">' +
           '<h4 class="font-black text-sm mb-3"><i class="fas fa-users mr-1" style="color:var(--accent-2)"></i>Applications (' + apps.length + ')</h4>' +
           appsHtml +
@@ -2479,10 +2782,19 @@ function openEditProfileModal() {
 async function loadNotifications() {
   if (!state.user) return;
   try {
-    var res = await apiRequest('notifications_queue?user_id=eq.' + state.user.id + '&status=eq.pending&order=created_at.desc&limit=10');
+    var res = await apiRequest('notifications_queue?user_id=eq.' + state.user.id + '&status=eq.pending&order=created_at.desc&limit=20');
     state.notifications = (res && res.ok) ? await res.json() : [];
     updateNotifBadge();
   } catch(e) { console.error(e); }
+}
+
+/* Poll notifications every 30s */
+var notifPollInterval = null;
+function startNotifPolling() {
+  if (notifPollInterval) clearInterval(notifPollInterval);
+  notifPollInterval = setInterval(function() {
+    if (state.user) { loadNotifications(); loadMyGigs(); }
+  }, 30000);
 }
 
 function updateNotifBadge() {
@@ -2499,19 +2811,50 @@ function openNotifDropdown() {
   var list = notifs.length === 0
     ? '<p class="text-sm py-4 text-center" style="color:var(--text-dim)">No new notifications</p>'
     : notifs.map(function(n) {
-        return '<div class="p-3 mb-2 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
-          '<p class="font-black text-xs">' + escapeHtml(n.title || n.type) + '</p>' +
-          '<p class="text-[11px]" style="color:var(--text-dim)">' + escapeHtml(n.body || '') + '</p>' +
-          '<p class="text-[10px] mt-1" style="color:rgba(232,236,241,0.38)">' + formatTime(n.created_at) + '</p>' +
+        var icon = '&#128276;';
+        var action = '';
+        if (n.type === 'new_application') { icon = '&#128229;'; action = 'onclick="closeModal();state.myGigsView=true;state.myGigsFilter=\'posted\';switchTab(\'jobs\');loadMyGigs()"'; }
+        else if (n.type === 'job_awarded') { icon = '&#127942;'; action = 'onclick="closeModal();state.myGigsView=true;state.myGigsFilter=\'work\';switchTab(\'jobs\');loadMyGigs()"'; }
+        else if (n.type === 'job_completed') { icon = '&#9989;'; action = 'onclick="closeModal();state.myGigsView=true;state.myGigsFilter=\'posted\';switchTab(\'jobs\');loadMyGigs()"'; }
+        else if (n.type === 'payment_released') { icon = '&#128176;'; action = 'onclick="closeModal();switchTab(\'wallet\')"'; }
+        else if (n.type === 'new_message') { icon = '&#128172;'; action = 'onclick="closeModal();switchTab(\'messages\')"'; }
+        else if (n.type === 'deliverable_submitted') { icon = '&#128206;'; action = 'onclick="closeModal();state.myGigsView=true;state.myGigsFilter=\'posted\';switchTab(\'jobs\');loadMyGigs()"'; }
+        else if (n.type === 'status_update') { icon = '&#128227;'; action = 'onclick="closeModal();switchTab(\'messages\')"'; }
+        else if (n.type === 'new_job_posted') { icon = '&#128188;'; action = 'onclick="closeModal();switchTab(\'jobs\')"'; }
+        return '<div class="p-3 mb-2 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)" ' + action + '>' +
+          '<div class="flex items-start gap-2">' +
+            '<span class="text-base">' + icon + '</span>' +
+            '<div class="flex-1">' +
+              '<p class="font-black text-xs">' + escapeHtml(n.title || n.type) + '</p>' +
+              '<p class="text-[11px]" style="color:var(--text-dim)">' + escapeHtml(n.body || '') + '</p>' +
+              '<p class="text-[10px] mt-1" style="color:rgba(232,236,241,0.38)">' + relTime(n.created_at) + '</p>' +
+            '</div>' +
+          '</div>' +
         '</div>';
       }).join('');
 
   openModal(
     '<div class="card p-5" style="max-width:380px;margin:auto">' +
-      '<div class="flex justify-between items-center mb-3"><h3 class="font-black">Notifications</h3><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div class="flex justify-between items-center mb-3"><h3 class="font-black">Notifications</h3>' +
+        (notifs.length > 0 ? '<button onclick="markAllNotifsRead()" class="text-[10px] font-black" style="color:var(--accent)">Mark all read</button>' : '') +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
       '<div style="max-height:50vh;overflow-y:auto">' + list + '</div>' +
     '</div>'
   );
+}
+
+async function markAllNotifsRead() {
+  if (!state.user || !state.notifications.length) return;
+  try {
+    await apiRequest('notifications_queue?user_id=eq.' + state.user.id + '&status=eq.pending', {
+      method: 'PATCH', body: JSON.stringify({ status: 'read' })
+    });
+    state.notifications = [];
+    updateNotifBadge();
+    closeModal();
+    showToast('All notifications cleared');
+  } catch(e) { console.error(e); }
 }
 
 
@@ -2872,14 +3215,15 @@ async function handleSignIn() {
     closeModal(); renderApp(); showToast('Welcome back!');
     setMuxi('Session restored. Loading your data.');
     await ensureUserRow();
-    loadProfileSafe(); loadJobsSafe(); loadNotifications();
+    loadProfileSafe(); loadJobsSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
   } catch(e) { console.error('SignIn error:', e); showAuthError(e.message || 'Sign in failed. Check your connection and try again.'); }
 }
 
 async function handleLogout() {
   try { await sb.auth.signOut(); } catch(e) {}
   state.realtimeSubs.forEach(function(ch) { try { sb.removeChannel(ch); } catch(e) {} });
-  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[], myGigsView:false, myGigs:[], myActiveWork:[] };
+  if (notifPollInterval) { clearInterval(notifPollInterval); notifPollInterval = null; }
+  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[], myGigsView:false, myGigs:[], myActiveWork:[], deliverables:[] };
   renderLanding();
   var fab = getEl('muxi-fab'); if (fab) fab.remove();
   var bub = getEl('muxi-bubble'); if (bub) bub.remove();
@@ -2898,7 +3242,7 @@ async function handleAcceptLegal() {
     }
     closeModal(); renderApp(); showToast('Agreements accepted!');
     setMuxi('You are live. Go post a gig or apply to one.');
-    loadJobsSafe(); loadProfileSafe(); loadNotifications();
+    loadJobsSafe(); loadProfileSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
   } catch(e) { showToast('Error saving agreements', 'error'); }
 }
 
