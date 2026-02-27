@@ -917,7 +917,7 @@ function switchTab(name) {
   if (name === 'jobs') { renderJobsTab(); loadJobsSafe(); }
   else if (name === 'messages') { renderMessagesTab(); loadConversations(); }
   else if (name === 'map') renderMapTab();
-  else if (name === 'wallet') { renderWalletTab(); loadWalletData(); }
+  else if (name === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
   else if (name === 'exchange') { renderExchangeTab(); loadP2POffers(); }
   else if (name === 'ledger') { renderLedgerTab(); loadPublicEvents(); }
   else if (name === 'profile') renderProfileTab();
