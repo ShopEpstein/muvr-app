@@ -1117,7 +1117,7 @@ function renderMyGigsView() {
           renderProgressBar(job.status) +
           '<div class="flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">' +
             '<div class="flex gap-4 text-[11px]">' +
-              '<span style="color:var(--accent)" class="font-black">' + Number(job.budget_mv || 0) + ' MV</span>' +
+              '<span style="color:var(--accent)" class="font-black">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
               '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
             '</div>' +
             (job.status === 'open' ? '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);color:' + (apps > 0 ? 'var(--yellow)' : 'var(--text-dim)') + '">' + apps + ' applicant' + (apps !== 1 ? 's' : '') + ' - Tap to manage</span>' :
@@ -1161,7 +1161,7 @@ function renderMyGigsView() {
           (delivCount > 0 ? '<div class="mb-3 p-2 rounded-lg text-[11px]" style="background:rgba(255,255,255,0.04)"><i class="fas fa-paperclip mr-1" style="color:var(--accent-2)"></i>' + delivCount + ' deliverable' + (delivCount !== 1 ? 's' : '') + ' submitted</div>' : '') +
 
           '<div class="flex items-center justify-between pt-3" style="border-top:1px solid rgba(255,255,255,0.06)">' +
-            '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</span>' +
+            '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
             '<div class="flex gap-2 flex-wrap justify-end">' +
               '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
               (canStart ? '<button onclick="workerStartJob(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-play mr-1"></i>Go Active</button>' : '') +
@@ -1191,9 +1191,9 @@ function renderMyGigsView() {
           '</div>' +
           '<p class="text-xs mb-2" style="color:var(--text-dim)">' + escapeHtml(job.description || '').substring(0, 80) + '</p>' +
           '<div class="flex items-center justify-between text-[11px]">' +
-            '<span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</span>' +
+            '<span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
             '<div class="flex gap-3">' +
-              '<span style="color:var(--text-dim)">Your bid: ' + Number(job._myApp.rate_mv || 0) + ' MV</span>' +
+              '<span style="color:var(--text-dim)">Your bid: ' + Number(job._myApp.rate_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
               '<span style="color:var(--text-dim)">' + relTime(job._myApp.created_at) + '</span>' +
             '</div>' +
           '</div>' +
@@ -1495,7 +1495,7 @@ async function openJobManageModal(jobId) {
           '</div>' +
           '<p class="text-xs mb-2" style="color:rgba(232,236,241,0.65)">' + escapeHtml(app.pitch || '') + '</p>' +
           '<div class="flex items-center gap-3 text-[11px]" style="color:var(--text-dim)">' +
-            '<span><i class="fas fa-coins mr-1" style="color:var(--accent)"></i>' + Number(app.rate_mv || 0) + ' MV</span>' +
+            '<span><i class="fas fa-coins mr-1" style="color:var(--accent)"></i>' + Number(app.rate_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
             '<span><i class="fas fa-clock mr-1"></i>' + escapeHtml(app.turnaround || '') + '</span>' +
             '<span>' + relTime(app.created_at) + '</span>' +
           '</div>' +
@@ -2223,7 +2223,7 @@ async function loadMapData() {
               '<p class="font-black text-xs truncate">' + escapeHtml(j.title) + '</p>' +
               '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(j.address || j.category || '') + '</p>' +
             '</div>' +
-            '<span class="mono font-black text-xs ml-2" style="color:var(--accent)">' + Number(j.budget_mv || 0) + ' MV</span>' +
+            '<span class="mono font-black text-xs ml-2" style="color:var(--accent)">' + Number(j.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
           '</div>';
         }).join('');
       }
@@ -2482,7 +2482,7 @@ function renderExchangeList() {
       var statusColor = t.status === 'completed' ? 'var(--accent)' : t.status === 'disputed' ? 'var(--red)' : 'var(--yellow)';
       return '<div class="card p-4 mb-3">' +
         '<div class="flex justify-between items-center">' +
-          '<div><span class="text-sm font-black">' + (isSeller ? 'Sold' : 'Bought') + ' ' + t.amount_mv + ' MV</span>' +
+          '<div><span class="text-sm font-black">' + (isSeller ? 'Sold' : 'Bought') + ' ' + t.amount_mv + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
             '<p class="text-[10px]" style="color:var(--text-dim)">' + relTime(t.created_at) + ' | $' + Number(t.total_price || 0).toFixed(2) + '</p></div>' +
           '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="color:' + statusColor + ';border:1px solid ' + statusColor + '40">' + escapeHtml(t.status) + '</span>' +
         '</div>' +
@@ -2508,7 +2508,7 @@ function renderExchangeList() {
             '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(a.agent_type || 'general') + ' | ' + (a.missions_completed || 0) + ' missions | ' + (a.xp || 0) + ' XP</p>' +
             '<p class="text-[10px]" style="color:var(--text-dim)">Autonomy: ' + (a.autonomy_pct || 0) + '% to agent vault</p></div>' +
           '<div class="text-right">' +
-            '<p class="text-sm font-black mono" style="color:var(--accent)">' + (a.agent_balance || 0) + ' MV</p>' +
+            '<p class="text-sm font-black mono" style="color:var(--accent)">' + (a.agent_balance || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
             '<p class="text-[10px]" style="color:var(--text-dim)">agent vault</p>' +
             (isOwner ? '<p class="text-[10px] font-black mt-1" style="color:var(--accent-2)">YOUR AGENT</p>' : '') +
           '</div>' +
@@ -2566,7 +2566,7 @@ function openSellMVModal() {
   openModal(
     '<div class="card p-6" style="max-width:460px;margin:auto">' +
       '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black"><i class="fas fa-tag mr-2" style="color:var(--accent)"></i>Sell MV</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
-      '<p class="text-sm mb-4" style="color:var(--text-dim)">Your balance: <strong>' + bal + ' MV</strong>. Set your price and accepted payment methods.</p>' +
+      '<p class="text-sm mb-4" style="color:var(--text-dim)">Your balance: <strong>' + bal + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></strong>. Set your price and accepted payment methods.</p>' +
       '<input id="sell-amount" type="number" min="1" max="' + bal + '" placeholder="Amount to sell (MV)" class="field mb-3">' +
       '<input id="sell-price" type="number" min="0.01" max="5" step="0.01" placeholder="Price per MV (USD)" value="1.00" class="field mb-3">' +
       '<p class="text-[10px] font-black mb-2" style="color:var(--text-dim)">ACCEPTED PAYMENT METHODS</p>' +
@@ -2626,7 +2626,7 @@ function openBuyModal(offerId) {
     '<div class="card p-6" style="max-width:440px;margin:auto">' +
       '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black">Buy MV</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
       '<div class="p-4 rounded-xl mb-4" style="background:rgba(255,255,255,0.04)">' +
-        '<p class="text-sm"><strong>' + escapeHtml(offer.seller_handle || 'Seller') + '</strong> is selling <strong>' + offer.amount_mv + ' MV</strong> at <strong class="mono" style="color:var(--accent)">$' + Number(offer.price_per_mv).toFixed(2) + '/MV</strong></p>' +
+        '<p class="text-sm"><strong>' + escapeHtml(offer.seller_handle || 'Seller') + '</strong> is selling <strong>' + offer.amount_mv + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></strong> at <strong class="mono" style="color:var(--accent)">$' + Number(offer.price_per_mv).toFixed(2) + '/MV</strong></p>' +
         '<p class="text-xs mt-1" style="color:var(--text-dim)">Accepts: ' + (offer.payment_methods || []).join(', ') + '</p>' +
       '</div>' +
       '<input id="buy-amount" type="number" min="1" max="' + offer.amount_mv + '" placeholder="Amount to buy (MV)" value="' + offer.amount_mv + '" class="field mb-3">' +
@@ -2833,7 +2833,7 @@ function openAgentSettingsModal(agentId) {
       '<div class="space-y-3">' +
         '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04)">' +
           '<p class="text-[10px] font-black" style="color:var(--text-dim)">AGENT VAULT</p>' +
-          '<p class="text-lg font-black mono" style="color:var(--accent)">' + (agent.agent_balance || 0) + ' MV</p>' +
+          '<p class="text-lg font-black mono" style="color:var(--accent)">' + (agent.agent_balance || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
         '</div>' +
         '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04)">' +
           '<p class="text-[10px] font-black" style="color:var(--text-dim)">STATS</p>' +
@@ -2916,7 +2916,7 @@ async function loadWalletData() {
   } catch(e) {}
 
   var bd = getEl('balance-display');
-  if (bd) bd.textContent = state.balanceVisible ? ((state.profile && state.profile.mv_balance || 0) + ' MV') : '------';
+  if (bd) bd.innerHTML = state.balanceVisible ? ((state.profile && state.profile.mv_balance || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span>') : '------';
 
   /* Load personal ledger */
   var el = getEl('ledger-list');
@@ -2945,7 +2945,7 @@ async function loadWalletData() {
             '<p class="text-[10px] mt-1" style="color:rgba(232,236,241,0.38)">' + relTime(e.created_at) + '</p>' +
           '</div>' +
         '</div>' +
-        '<p class="mono font-black text-xs whitespace-nowrap ml-2" style="color:' + color + '">' + sign + Number(e.amount_mv || 0) + ' MV</p>' +
+        '<p class="mono font-black text-xs whitespace-nowrap ml-2" style="color:' + color + '">' + sign + Number(e.amount_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
       '</div>';
     }).join('');
   } catch(e) { if (el) el.innerHTML = '<p class="text-sm py-4" style="color:var(--text-dim)">Ledger unavailable right now.</p>'; }
@@ -3065,7 +3065,7 @@ function renderPublicEvents() {
           '</div>' +
         '</div>' +
         '<div class="text-right">' +
-          '<p class="mono font-black text-sm" style="color:' + cfg.color + '">' + Number(ev.amount_mv) + ' MV</p>' +
+          '<p class="mono font-black text-sm" style="color:' + cfg.color + '">' + Number(ev.amount_mv) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
           '<p class="text-[10px]" style="color:var(--text-dim)">' + relTime(ev.created_at) + '</p>' +
         '</div>' +
       '</div>' +
@@ -3484,9 +3484,9 @@ function openPostJobModal() {
         '<div><label class="text-[11px] font-black mb-1 block" style="color:rgba(232,236,241,0.55)">Budget (MV Credits)</label><input id="job-budget" type="number" min="1" max="10000" placeholder="50" class="field" oninput="updateJobFee()"></div>' +
         '<input id="job-address" placeholder="Location / Address (optional)" maxlength="200" class="field">' +
         '<div class="p-4 rounded-2xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
-          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Budget</span><span class="font-black" id="fee-budget">0 MV</span></div>' +
-          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Posting fee (burn)</span><span class="font-black" style="color:var(--red)">1 MV</span></div>' +
-          '<div class="flex justify-between font-black pt-2" style="border-top:1px solid rgba(255,255,255,0.10)"><span>Total locked</span><span id="fee-total" style="color:var(--accent)">1 MV</span></div>' +
+          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Budget</span><span class="font-black" id="fee-budget">0 <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span></div>' +
+          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Posting fee (burn)</span><span class="font-black" style="color:var(--red)">1 <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span></div>' +
+          '<div class="flex justify-between font-black pt-2" style="border-top:1px solid rgba(255,255,255,0.10)"><span>Total locked</span><span id="fee-total" style="color:var(--accent)">1 <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span></div>' +
         '</div>' +
         '<button onclick="handlePostJob()" class="btn-primary rounded-full">Post Mission & Lock Escrow</button>' +
         '<div class="text-[11px]" style="color:var(--text-dim)">If you do not have enough MV, fund your vault first.</div>' +
