@@ -2657,6 +2657,7 @@ function openAuthModal() {
       '<input id="auth-password" type="password" placeholder="Password (6+ chars)" class="field mb-4" autocomplete="current-password">' +
       '<button onclick="handleSignUp()" class="btn-primary mb-2 rounded-full">Create account</button>' +
       '<button onclick="handleSignIn()" class="btn-secondary rounded-full">I already have an account</button>' +
+      '<div class="text-center mt-2"><a onclick="openResetPasswordModal()" class="text-xs font-bold cursor-pointer" style="color:var(--accent)">Forgot password?</a></div>' +
       '<p id="auth-error" class="text-xs text-center mt-3 hidden" style="color:#ffd2d2;font-weight:800"></p>' +
       '<div class="mt-5 text-[11px]" style="color:rgba(232,236,241,0.52)">By continuing you agree to marketplace terms. MUVR Credits (MV) are platform credits (not currency).</div>' +
     '</div>'
@@ -3485,6 +3486,72 @@ async function socialSignIn(provider) {
   }
 }
 
+function openResetPasswordModal() {
+  openModal(
+    '<div class="card p-6 sm:p-8" style="max-width:440px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-2">' +
+        '<h2 class="text-xl font-black">Reset Password</h2>' +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
+      '<p class="text-sm mb-5" style="color:rgba(232,236,241,0.65)">Enter your email and we\'ll send you a reset link.</p>' +
+      '<input id="reset-email" type="email" placeholder="you@email.com" class="field mb-4" autocomplete="email">' +
+      '<button onclick="handleResetPassword()" class="btn-primary rounded-full">Send Reset Link</button>' +
+      '<div class="text-center mt-3"><a onclick="openAuthModal()" class="text-xs font-bold cursor-pointer" style="color:var(--accent)">Back to sign in</a></div>' +
+      '<p id="reset-msg" class="text-xs text-center mt-3 hidden" style="font-weight:800"></p>' +
+    '</div>'
+  );
+}
+
+async function handleResetPassword() {
+  var email = (getEl('reset-email') || {}).value;
+  if (!email) {
+    var msg = getEl('reset-msg');
+    if (msg) { msg.textContent = 'Enter your email'; msg.style.color = '#ffd2d2'; msg.classList.remove('hidden'); }
+    return;
+  }
+  try {
+    var r = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname + '?reset=1'
+    });
+    if (r.error) {
+      var msg = getEl('reset-msg');
+      if (msg) { msg.textContent = r.error.message; msg.style.color = '#ffd2d2'; msg.classList.remove('hidden'); }
+    } else {
+      var msg = getEl('reset-msg');
+      if (msg) { msg.textContent = 'Reset link sent! Check your email.'; msg.style.color = 'var(--accent)'; msg.classList.remove('hidden'); }
+      setMuxi('Reset link sent. Check your inbox.');
+    }
+  } catch(e) {
+    showToast('Error: ' + (e.message || ''), 'error');
+  }
+}
+
+async function handleUpdatePassword() {
+  var pw = (getEl('new-password') || {}).value;
+  var pw2 = (getEl('new-password-confirm') || {}).value;
+  if (!pw || pw.length < 6) {
+    showToast('Password must be at least 6 characters', 'error');
+    return;
+  }
+  if (pw !== pw2) {
+    showToast('Passwords do not match', 'error');
+    return;
+  }
+  try {
+    var r = await sb.auth.updateUser({ password: pw });
+    if (r.error) {
+      showToast('Error: ' + r.error.message, 'error');
+    } else {
+      closeModal();
+      showToast('Password updated!');
+      setMuxi('New password locked in. You are good to go.');
+      history.replaceState({}, '', window.location.pathname);
+    }
+  } catch(e) {
+    showToast('Error: ' + (e.message || ''), 'error');
+  }
+}
+
 async function handleSignUp() {
   var email = ((getEl('auth-email') || {}).value || '').trim();
   var pw = (getEl('auth-password') || {}).value || '';
@@ -3979,6 +4046,24 @@ async function boot() {
   /* Debug panel: append ?debug=1 to URL */
   if (params.get('debug') === '1') {
     setTimeout(openDebugPanel, 1000);
+  }
+
+  /* Password reset: user clicked link in email, Supabase redirects with ?reset=1 */
+  if (params.get('reset') === '1' || window.location.hash.includes('type=recovery')) {
+    setTimeout(function() {
+      openModal(
+        '<div class="card p-6 sm:p-8" style="max-width:440px;margin:auto">' +
+          '<div class="flex justify-between items-center mb-2">' +
+            '<h2 class="text-xl font-black">Set New Password</h2>' +
+            '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+          '</div>' +
+          '<p class="text-sm mb-5" style="color:rgba(232,236,241,0.65)">Enter your new password below.</p>' +
+          '<input id="new-password" type="password" placeholder="New password (6+ chars)" class="field mb-3" autocomplete="new-password">' +
+          '<input id="new-password-confirm" type="password" placeholder="Confirm new password" class="field mb-4" autocomplete="new-password">' +
+          '<button onclick="handleUpdatePassword()" class="btn-primary rounded-full">Update Password</button>' +
+        '</div>'
+      );
+    }, 1000);
   }
 }
 
