@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>MUVR - The Real-World Work Game</title>
+  <title>MUVR - Missions, Not Jobs</title>
   <meta name="description" content="MUVR: A borderless work marketplace. Keep 100%. Use MUVR Credits (MV) for in-app work flows." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -572,7 +572,7 @@ function renderLanding() {
 
   root.innerHTML = '<div class="fade-up">' +
     '<div style="background:rgba(180,30,30,0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">' +
-      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL WORKERS ARE INDEPENDENT CONTRACTORS' +
+      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
     '</div>' +
 
     /* Hero */
@@ -602,9 +602,9 @@ function renderLanding() {
 
     /* Value Props */
     '<section class="max-w-6xl mx-auto px-5 py-10 grid grid-cols-1 md:grid-cols-3 gap-5">' +
-      landingCard('&#127918;', 'The Real-World Work Game', 'Earn XP, build rank, unlock status. Work is the quest. Reputation is the scoreboard. Every completed gig pushes you up the leaderboard.') +
-      landingCard('&#129688;', 'Keep 100%', 'No commission on worker earnings. The platform is built to minimize extraction. Your work, your money, your level.') +
-      landingCard('&#128274;', 'Escrow-first', 'Funds are locked before work begins and released when complete. Built-in dispute controls protect both sides of every gig.') +
+      landingCard('&#127918;', 'Missions, Not Jobs', 'Accept missions. Earn XP. Build your rank from Recruit to Mythic. Every completed mission levels you up. Your reputation is your scoreboard.') +
+      landingCard('&#129688;', 'Operatives Keep 100%', 'Zero commission on what you earn. The platform charges a flat 1 MV posting fee to commanders — operatives keep every credit they make.') +
+      landingCard('&#128274;', 'Escrow-Protected', 'Credits are locked before work begins and released when the mission is complete. Built-in dispute resolution protects both sides.') +
     '</section>' +
 
     /* How It Works */
@@ -613,10 +613,10 @@ function renderLanding() {
         '<h2 class="text-2xl sm:text-3xl font-black mb-2">How it works</h2>' +
         '<p class="text-sm mb-6" style="color:var(--text-mid)">Four steps from sign up to getting paid. Simple, transparent, fast.</p>' +
         '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">' +
-          howStep('1', '&#128221;', 'Post or Apply', 'Create a gig with a budget, or browse open gigs and submit your pitch. Set your rate and turnaround time.') +
-          howStep('2', '&#128274;', 'Escrow Locks', 'When a gig is posted, the full budget + posting fee locks in escrow. This protects both parties before work begins.') +
-          howStep('3', '&#9989;', 'Work Complete', 'Mark the job complete. The poster confirms delivery. Escrow funds release instantly to the worker.') +
-          howStep('4', '&#127937;', 'Level Up', 'Earn XP for every completed gig. Climb the ranks from Runner to Mythic. Higher rank = more visibility.') +
+          howStep('1', '&#128221;', 'Post or Accept', 'Create a mission with a budget, or browse open missions and submit your brief. Set your rate and turnaround time.') +
+          howStep('2', '&#128274;', 'Escrow Locks', 'When a mission is posted, the full budget + posting fee locks in escrow. This protects both parties before work begins.') +
+          howStep('3', '&#9989;', 'Mission Complete', 'Mark the mission complete. The commander confirms delivery. Escrow credits release instantly to the operative.') +
+          howStep('4', '&#127937;', 'Level Up', 'Earn XP for every completed mission. Climb the ranks from Recruit to Mythic. Higher rank = more visibility.') +
         '</div>' +
       '</div>' +
     '</section>' +
@@ -638,7 +638,7 @@ function renderLanding() {
               compRow('Escrow Protection', 'Built-in', 'Varies') +
               compRow('Rewards / Credits', 'MV Credits + XP', 'None') +
               compRow('Transparency', 'Public ledger', 'Opaque') +
-              compRow('Worker Control', '100%', 'Limited') +
+              compRow('Operative Control', '100%', 'Limited') +
             '</tbody>' +
           '</table>' +
         '</div>' +
@@ -653,8 +653,8 @@ function renderLanding() {
             '<h2 class="text-2xl font-black mb-3">MUVR Credits (MV)</h2>' +
             '<p class="text-sm mb-4" style="color:var(--text-mid)">In-platform credits used for posting, escrow, transfers, and settlement flows. MV are denominated as 1 credit = 1 USD-equivalent unit INSIDE the app for pricing.</p>' +
             '<div class="space-y-3">' +
-              mvFeature('Capped Supply', '1 million MV total. No inflation. Credits consumed (burned) on job posting reduce circulating supply over time.') +
-              mvFeature('Escrow Flow', 'Budget + 1 MV fee locks when posting. Releases to worker on completion. The 1 MV fee is permanently burned.') +
+              mvFeature('Capped Supply', '1 million MV total. No inflation. Credits consumed (burned) on mission posting reduce circulating supply over time.') +
+              mvFeature('Escrow Flow', 'Budget + 1 MV fee locks when posting. Releases to operative on completion. The 1 MV fee is permanently burned.') +
               mvFeature('Send & Receive', 'Transfer MV to any user by @handle, email, or public alias. All transfers are logged in the public ledger.') +
             '</div>' +
           '</div>' +
@@ -664,7 +664,7 @@ function renderLanding() {
               '<div class="space-y-4">' +
                 netStat('Total Cap', '1,000,000 MV', 'var(--accent)') +
                 netStat('Posting Fee', '1 MV (burned)', 'var(--red)') +
-                netStat('Worker Commission', '0%', 'var(--accent)') +
+                netStat('Operative Commission', '0%', 'var(--accent)') +
                 netStat('Payout Fee', '0.5% (beta)', 'var(--yellow)') +
               '</div>' +
               '<div class="mt-5 text-[11px]" style="color:rgba(232,236,241,0.55)">Withdrawals, if enabled, are subject to verification and provider terms.</div>' +
@@ -764,7 +764,7 @@ function renderApp() {
   root.innerHTML = '<div class="fade-up">' +
     /* Disclaimer */
     '<div style="background:rgba(180,30,30,0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">' +
-      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL WORKERS ARE INDEPENDENT CONTRACTORS' +
+      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
     '</div>' +
 
     /* Header */
@@ -778,7 +778,7 @@ function renderApp() {
           '</div>' +
         '</div>' +
         '<div class="flex items-center gap-3">' +
-          '<button onclick="openShareModal()" class="text-xs font-black" style="color:var(--accent);background:none;border:none;cursor:pointer" title="Invite friends"><i class="fas fa-share-alt"></i></button>' +
+          '<button onclick="openShareModal()" class="text-xs font-black" style="color:var(--accent);background:none;border:none;cursor:pointer" title="Recruit"><i class="fas fa-share-alt"></i></button>' +
           '<button onclick="openNotifDropdown()" class="relative text-xs" style="color:rgba(232,236,241,0.62);background:none;border:none;cursor:pointer" title="Notifications"><i class="fas fa-bell"></i><span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-black grid place-items-center" style="background:var(--accent-3);color:#fff;display:none"></span></button>' +
           '<button onclick="handleLogout()" class="text-xs font-black cursor-pointer" style="color:rgba(232,236,241,0.62);background:none;border:none;text-transform:uppercase;letter-spacing:0.2px">Sign out</button>' +
         '</div>' +
@@ -786,12 +786,12 @@ function renderApp() {
       /* Tab bar - universal for all screen sizes */
       '<div class="overflow-x-auto" style="background:rgba(0,0,0,0.35);border-top:1px solid rgba(255,255,255,0.06)">' +
         '<div class="flex max-w-6xl mx-auto px-2" style="min-width:max-content">' +
-          '<button onclick="switchTab(\'jobs\')" class="app-tab active" data-tab="jobs"><i class="fas fa-briefcase mr-1"></i>Gigs</button>' +
-          '<button onclick="switchTab(\'messages\')" class="app-tab" data-tab="messages"><i class="fas fa-comment mr-1"></i>Msgs</button>' +
-          '<button onclick="switchTab(\'map\')" class="app-tab" data-tab="map"><i class="fas fa-map-marked-alt mr-1"></i>Map</button>' +
-          '<button onclick="switchTab(\'wallet\')" class="app-tab" data-tab="wallet"><i class="fas fa-coins mr-1"></i>Credits</button>' +
+          '<button onclick="switchTab(\'jobs\')" class="app-tab active" data-tab="jobs"><i class="fas fa-crosshairs mr-1"></i>Missions</button>' +
+          '<button onclick="switchTab(\'messages\')" class="app-tab" data-tab="messages"><i class="fas fa-satellite-dish mr-1"></i>Comms</button>' +
+          '<button onclick="switchTab(\'map\')" class="app-tab" data-tab="map"><i class="fas fa-location-crosshairs mr-1"></i>MUVR GO</button>' +
+          '<button onclick="switchTab(\'wallet\')" class="app-tab" data-tab="wallet"><i class="fas fa-vault mr-1"></i>Vault</button>' +
           '<button onclick="switchTab(\'ledger\')" class="app-tab" data-tab="ledger"><i class="fas fa-scroll mr-1"></i>Ledger</button>' +
-          '<button onclick="switchTab(\'profile\')" class="app-tab" data-tab="profile"><i class="fas fa-user mr-1"></i>Me</button>' +
+          '<button onclick="switchTab(\'profile\')" class="app-tab" data-tab="profile"><i class="fas fa-id-badge mr-1"></i>Dossier</button>' +
         '</div>' +
       '</div>' +
     '</header>' +
@@ -848,9 +848,9 @@ function renderJobsTab() {
   if (filtered.length === 0) {
     cards = '<div class="col-span-full text-center py-16" style="color:rgba(232,236,241,0.55)">' +
       '<div class="mb-4">' + muxiSVG(64) + '</div>' +
-      '<p class="font-black text-lg mb-1">No gigs here yet</p>' +
-      '<p class="text-sm" style="color:var(--text-dim)">Muxi says: be the first to post one. The early bird gets the XP.</p>' +
-      '<div class="mt-6 max-w-sm mx-auto"><button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button></div>' +
+      '<p class="font-black text-lg mb-1">No missions here yet</p>' +
+      '<p class="text-sm" style="color:var(--text-dim)">Muxi says: be the first to post one. The early operative gets the XP.</p>' +
+      '<div class="mt-6 max-w-sm mx-auto"><button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a Mission</button></div>' +
     '</div>';
   } else {
     cards = filtered.map(function(job) {
@@ -874,8 +874,8 @@ function renderJobsTab() {
             '<p class="text-lg font-black mono" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</p>' +
           '</div>' +
           '<div class="flex gap-2">' +
-            (isMyJob ? '<span class="text-[10px] font-black px-3 py-2 rounded-full" style="background:rgba(255,255,255,0.06);color:var(--text-dim)">YOUR GIG</span>' :
-              '<button onclick="openApplyModal(\'' + job.id + '\')" class="btn-pill btn-pill-accent">Apply</button>' +
+            (isMyJob ? '<span class="text-[10px] font-black px-3 py-2 rounded-full" style="background:rgba(255,255,255,0.06);color:var(--text-dim)">YOUR MISSION</span>' :
+              '<button onclick="openApplyModal(\'' + job.id + '\')" class="btn-pill btn-pill-accent">Accept</button>' +
               '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost" title="Message poster"><i class="fas fa-comment"></i></button>'
             ) +
           '</div>' +
@@ -883,7 +883,7 @@ function renderJobsTab() {
         '<div class="mt-3 pt-3 flex items-center justify-between text-[10px]" style="border-top:1px solid rgba(255,255,255,0.06)">' +
           '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
           '<div class="flex gap-2 items-center">' +
-            '<button onclick="event.stopPropagation();shareGig(\'' + job.id + '\')" class="text-[10px]" style="color:var(--text-dim);background:none;border:none;cursor:pointer" title="Share gig"><i class="fas fa-share-alt"></i></button>' +
+            '<button onclick="event.stopPropagation();shareGig(\'' + job.id + '\')" class="text-[10px]" style="color:var(--text-dim);background:none;border:none;cursor:pointer" title="Share mission"><i class="fas fa-share-alt"></i></button>' +
             '<span style="color:var(--text-dim)">ID: ' + escapeHtml((job.id || '').slice(0,8)) + '</span>' +
           '</div>' +
         '</div>' +
@@ -894,17 +894,17 @@ function renderJobsTab() {
   c.innerHTML = '<div class="fade-up">' +
     '<div class="mb-6 flex items-start justify-between gap-3">' +
       '<div>' +
-        '<h1 class="text-3xl sm:text-4xl font-black mb-1">Available Gigs</h1>' +
-        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Find work. Keep 100%. Level up. ' + state.jobs.length + ' gig' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
+        '<h1 class="text-3xl sm:text-4xl font-black mb-1">Open Missions</h1>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Accept a mission. Keep 100%. Level up. ' + state.jobs.length + ' mission' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
       '</div>' +
       '<div class="flex gap-2">' +
-        (state.user ? '<button onclick="state.myGigsView=true;renderJobsTab();loadMyGigs()" class="btn-pill btn-pill-ghost"><i class="fas fa-folder-open mr-1"></i>My Gigs</button>' : '') +
-        '<div class="hidden sm:block"><button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a gig</button></div>' +
+        (state.user ? '<button onclick="state.myGigsView=true;renderJobsTab();loadMyGigs()" class="btn-pill btn-pill-ghost"><i class="fas fa-satellite mr-1"></i>Command Center</button>' : '') +
+        '<div class="hidden sm:block"><button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a Mission</button></div>' +
       '</div>' +
     '</div>' +
     '<div class="flex gap-2 mb-5 overflow-x-auto pb-1">' + btns + '</div>' +
     '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' + cards + '</div>' +
-    '<div class="sm:hidden mt-5"><button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a gig</button></div>' +
+    '<div class="sm:hidden mt-5"><button onclick="openPostJobModal()" class="btn-primary rounded-full">Post a Mission</button></div>' +
   '</div>';
 }
 
@@ -991,9 +991,9 @@ function renderMyGigsView() {
   if (myGigsFilter === 'posted') {
     if (state.myGigs.length === 0) {
       postedHtml = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) +
-        '<p class="font-black mt-3">No gigs posted yet</p>' +
-        '<p class="text-sm mt-1">Post your first gig to get started.</p>' +
-        '<button onclick="openPostJobModal()" class="btn-pill btn-pill-accent mt-4">Post a gig</button></div>';
+        '<p class="font-black mt-3">No missions deployed yet</p>' +
+        '<p class="text-sm mt-1">Post your first mission to get started.</p>' +
+        '<button onclick="openPostJobModal()" class="btn-pill btn-pill-accent mt-4">Post a Mission</button></div>';
     } else {
       postedHtml = state.myGigs.map(function(job) {
         var sc = JOB_STATUS_CONFIG[job.status] || JOB_STATUS_CONFIG.open;
@@ -1026,7 +1026,7 @@ function renderMyGigsView() {
     if (activeWork.length === 0) {
       workHtml = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) +
         '<p class="font-black mt-3">No active work</p>' +
-        '<p class="text-sm mt-1">When you get awarded a gig, it shows up here.</p>' +
+        '<p class="text-sm mt-1">When you get deployed on a mission, it shows up here.</p>' +
         '<button onclick="state.myGigsView=false;renderJobsTab()" class="btn-pill btn-pill-accent mt-4">Browse gigs</button></div>';
     } else {
       workHtml = activeWork.map(function(job) {
@@ -1056,7 +1056,7 @@ function renderMyGigsView() {
             '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</span>' +
             '<div class="flex gap-2 flex-wrap justify-end">' +
               '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
-              (canStart ? '<button onclick="workerStartJob(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-play mr-1"></i>Start work</button>' : '') +
+              (canStart ? '<button onclick="workerStartJob(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-play mr-1"></i>Go Active</button>' : '') +
               (job.status === 'in_progress' ? '<button onclick="openWorkerJobModal(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-tasks mr-1"></i>Update / Deliver</button>' : '') +
               (isComplete ? '<span class="text-[10px] font-black" style="color:var(--yellow)"><i class="fas fa-hourglass-half mr-1"></i>Awaiting payment</span>' : '') +
               (isPaid ? '<span class="text-[10px] font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid</span>' : '') +
@@ -1073,7 +1073,7 @@ function renderMyGigsView() {
     if (pending.length === 0) {
       appliedHtml = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) +
         '<p class="font-black mt-3">No pending applications</p>' +
-        '<p class="text-sm mt-1">Apply to gigs and your pending bids show up here.</p></div>';
+        '<p class="text-sm mt-1">Accept missions and your pending briefs show up here.</p></div>';
     } else {
       appliedHtml = pending.map(function(job) {
         return '<div class="card p-5 mb-3">' +
@@ -1101,8 +1101,8 @@ function renderMyGigsView() {
     '<div class="mb-6 flex items-start justify-between gap-3">' +
       '<div>' +
         '<button onclick="state.myGigsView=false;renderJobsTab()" class="text-xs font-black mb-2 flex items-center gap-1" style="color:var(--accent)"><i class="fas fa-arrow-left"></i> Back to all gigs</button>' +
-        '<h1 class="text-3xl font-black mb-1">My Gigs</h1>' +
-        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Manage your posted gigs, active work, and pending applications.</p>' +
+        '<h1 class="text-3xl font-black mb-1">Command Center</h1>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Manage your deployed missions, active work, and pending briefs.</p>' +
       '</div>' +
       '<button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post</button>' +
     '</div>' +
@@ -1193,8 +1193,8 @@ async function openWorkerJobModal(jobId) {
       (job.status === 'in_progress' ?
         '<div class="mt-3 p-4 rounded-xl" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.20)">' +
           '<p class="text-xs font-black mb-2"><i class="fas fa-flag-checkered mr-1"></i>Ready to submit final work?</p>' +
-          '<p class="text-[11px] mb-3" style="color:var(--text-dim)">Make sure all deliverables are uploaded. The poster will review and release payment.</p>' +
-          '<button onclick="workerMarkComplete(\'' + job.id + '\')" class="btn-primary rounded-full"><i class="fas fa-check-circle mr-2"></i>Mark job complete</button>' +
+          '<p class="text-[11px] mb-3" style="color:var(--text-dim)">Make sure all deliverables are uploaded. The commander will review and release payout.</p>' +
+          '<button onclick="workerMarkComplete(\'' + job.id + '\')" class="btn-primary rounded-full"><i class="fas fa-check-circle mr-2"></i>Mark mission complete</button>' +
         '</div>' : '') +
 
       (job.status === 'completed' ?
@@ -1244,8 +1244,8 @@ async function submitDeliverable(jobId, posterId) {
         if (convoRes && convoRes.ok) {
           var cid = await convoRes.json();
           if (cid) {
-            var msgBody = '&#128206; Deliverable submitted: ' + (title || type);
-            if (url) msgBody += '\n&#128279; ' + url;
+            var msgBody = '📎 Deliverable submitted: ' + (title || type);
+            if (url) msgBody += '\n🔗 ' + url;
             if (content) msgBody += '\n' + content.substring(0, 150);
             await apiRequest('messages', { method: 'POST', body: JSON.stringify({ conversation_id: cid, sender_id: state.user.id, body: msgBody }) });
           }
@@ -1264,7 +1264,7 @@ async function submitDeliverable(jobId, posterId) {
         if (convoRes2 && convoRes2.ok) {
           var cid2 = await convoRes2.json();
           if (cid2) {
-            var fb = '&#128206; DELIVERABLE: ' + (title || type) + '\n' + content + (url ? '\n&#128279; ' + url : '');
+            var fb = '📎 DELIVERABLE: ' + (title || type) + '\n' + content + (url ? '\n🔗 ' + url : '');
             await apiRequest('messages', { method: 'POST', body: JSON.stringify({ conversation_id: cid2, sender_id: state.user.id, body: fb }) });
           }
         }
@@ -1359,7 +1359,7 @@ async function openJobManageModal(jobId) {
     var appsHtml = '';
     if (apps.length === 0) {
       appsHtml = '<div class="p-4 rounded-xl text-center" style="background:rgba(255,255,255,0.03)">' +
-        '<p class="text-sm" style="color:var(--text-dim)">No applications yet. Share the gig to get applicants.</p></div>';
+        '<p class="text-sm" style="color:var(--text-dim)">No briefs yet. Share the mission to attract operatives.</p></div>';
     } else {
       appsHtml = apps.map(function(app) {
         var w = workerMap[app.worker_id] || {};
@@ -1392,7 +1392,7 @@ async function openJobManageModal(jobId) {
             '<span>' + relTime(app.created_at) + '</span>' +
           '</div>' +
           (canAward ? '<div class="flex gap-2 mt-3">' +
-            '<button onclick="awardJob(\'' + jobId + '\',\'' + app.id + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-trophy mr-1"></i>Award gig</button>' +
+            '<button onclick="awardJob(\'' + jobId + '\',\'' + app.id + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-trophy mr-1"></i>Deploy Operative</button>' +
             '<button onclick="closeModal();startConvoFromJob(\'' + jobId + '\',\'' + app.worker_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
           '</div>' : '') +
         '</div>';
@@ -1435,24 +1435,24 @@ async function openJobManageModal(jobId) {
     } else if (job.status === 'completed') {
       actionsHtml = '<div class="mt-4 p-4 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
         '<p class="text-sm font-black mb-2" style="color:var(--accent)"><i class="fas fa-flag-checkered mr-1"></i>Worker marked this job complete!</p>' +
-        '<p class="text-[11px] mb-3" style="color:var(--text-dim)">Review the deliverables above and release payment if satisfied.</p>' +
+        '<p class="text-[11px] mb-3" style="color:var(--text-dim)">Review the deliverables above and release payout if satisfied.</p>' +
         '<button onclick="releaseEscrow(\'' + jobId + '\')" class="btn-primary rounded-full"><i class="fas fa-unlock mr-2"></i>Release ' + Number(job.budget_mv || 0) + ' MV to worker</button>' +
         '<button onclick="openDisputeModal(\'' + jobId + '\')" class="text-xs font-black py-2 mt-2 text-center block" style="color:var(--red)"><i class="fas fa-exclamation-triangle mr-1"></i>Dispute</button>' +
       '</div>';
     } else if (job.status === 'paid') {
       actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
-        '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Payment released! This gig is complete.</p>' +
+        '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Payout released! Mission complete.</p>' +
       '</div>';
     } else if (job.status === 'open') {
       actionsHtml = '<div class="mt-4">' +
-        '<button onclick="cancelJob(\'' + jobId + '\')" class="text-xs font-black py-2" style="color:var(--red)"><i class="fas fa-times mr-1"></i>Cancel gig & refund escrow</button>' +
+        '<button onclick="cancelJob(\'' + jobId + '\')" class="text-xs font-black py-2" style="color:var(--red)"><i class="fas fa-times mr-1"></i>Cancel mission & refund escrow</button>' +
       '</div>';
     }
 
     openModal(
       '<div class="card p-6" style="max-width:540px;margin:auto;max-height:90vh;overflow:auto">' +
         '<div class="flex justify-between items-center mb-4">' +
-          '<h2 class="text-lg font-black">Manage Gig</h2>' +
+          '<h2 class="text-lg font-black">Manage Mission</h2>' +
           '<button onclick="closeModal()" class="close-btn">&times;</button>' +
         '</div>' +
 
@@ -1484,9 +1484,9 @@ async function openJobManageModal(jobId) {
 
 /* Award a job to a specific applicant */
 async function awardJob(jobId, applicationId, workerId) {
-  if (!confirm('Award this gig? The worker will be notified and can start immediately.')) return;
+  if (!confirm('Deploy this operative? They will be notified and can start immediately.')) return;
   try {
-    setMuxi('Awarding gig...');
+    setMuxi('Deploying operative...');
     /* Update application status to accepted */
     var r1 = await apiRequest('applications?id=eq.' + applicationId, {
       method: 'PATCH', body: JSON.stringify({ status: 'accepted' })
@@ -1519,7 +1519,7 @@ async function awardJob(jobId, applicationId, workerId) {
           await apiRequest('messages', {
             method: 'POST', body: JSON.stringify({
               conversation_id: cid, sender_id: state.user.id,
-              body: 'You have been awarded the gig "' + (j ? j.title : 'untitled') + '"! You can start whenever you are ready. Update me on progress here.'
+              body: 'You have been deployed on the mission "' + (j ? j.title : 'untitled') + '"! You can start whenever you are ready. Update me on progress here.'
             })
           });
         }
@@ -1527,10 +1527,10 @@ async function awardJob(jobId, applicationId, workerId) {
     } catch(ce) { console.warn('Award convo msg failed:', ce); }
     /* Notify worker */
     try {
-      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'job_awarded', title: 'You got the gig!', body: 'You were awarded a gig. Check your messages for details.', channel: 'in_app', status: 'pending' }) });
+      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'job_awarded', title: 'Mission deployed to you!', body: 'You have been deployed on a mission. Check your comms for details.', channel: 'in_app', status: 'pending' }) });
     } catch(e) {}
     closeModal();
-    showToast('Gig awarded! Worker notified.');
+    showToast('Operative deployed! Notification sent.');
     setMuxi('Another one bites the dust. Nice hire, boss.');
     loadMyGigs();
   } catch(e) { showToast('Error awarding gig: ' + (e.message || ''), 'error'); console.error('awardJob error:', e); }
@@ -1551,19 +1551,21 @@ async function workerStartJob(jobId) {
 
 /* Worker marks job as complete */
 async function workerMarkComplete(jobId) {
-  if (!confirm('Mark this job as complete? The poster will review and release payment.')) return;
+  if (state._completingJob) return;
+  if (!confirm('Mark mission complete? The commander will review and release payout.')) return;
+  state._completingJob = true;
   try {
     await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'completed' }) });
     await apiRequest('applications?job_id=eq.' + jobId + '&worker_id=eq.' + state.user.id, {
       method: 'PATCH', body: JSON.stringify({ status: 'completed' })
     });
-    /* Notify poster */
+    /* Notify commander */
     var job = state.myActiveWork.find(function(j) { return j.id === jobId; });
     if (job && job.poster_id) {
       try {
-        await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'job_completed', title: 'Job completed', body: 'A worker marked "' + (job.title || 'your gig') + '" as complete. Review and release payment.', channel: 'email' }) });
+        await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'job_completed', title: 'Mission complete', body: 'An operative marked "' + (job.title || 'your mission') + '" as complete. Review and release payout.', channel: 'in_app', status: 'pending' }) });
       } catch(e) {}
-      /* Send message to poster */
+      /* Send message to commander */
       try {
         var convoRes = await apiRequest('rpc/get_or_create_conversation', {
           method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: job.poster_id, p_job_id: jobId })
@@ -1573,21 +1575,22 @@ async function workerMarkComplete(jobId) {
           if (cid) {
             await apiRequest('messages', { method: 'POST', body: JSON.stringify({
               conversation_id: cid, sender_id: state.user.id,
-              body: 'I have completed the work on "' + (job.title || 'this gig') + '". Please review and release payment when ready!'
+              body: 'Mission complete: "' + (job.title || 'this mission') + '". Please review and deploy payout when ready!'
             })});
           }
         }
       } catch(e) {}
     }
-    showToast('Marked as complete! Waiting for poster to release payment.');
+    showToast('Mission complete! Waiting for commander to release payout.');
     setMuxi('Work done! Now we wait for that sweet MV.');
     loadMyGigs();
-  } catch(e) { showToast('Error completing job', 'error'); console.error('workerMarkComplete error:', e); }
+  } catch(e) { showToast('Error completing mission', 'error'); console.error('workerMarkComplete error:', e); }
+  state._completingJob = false;
 }
 
 /* Poster approves completion and releases escrow */
 async function posterMarkComplete(jobId) {
-  if (!confirm('Approve this work and release escrow payment to the worker?')) return;
+  if (!confirm('Approve this work and release escrow payout to the operative?')) return;
   await releaseEscrow(jobId);
 }
 
@@ -1680,7 +1683,7 @@ async function releaseEscrow(jobId) {
 
 /* Cancel a job and refund escrow to poster */
 async function cancelJob(jobId) {
-  if (!confirm('Cancel this gig? Your escrowed MV will be refunded (minus the 1 MV burn fee).')) return;
+  if (!confirm('Cancel this mission? Your escrowed MV will be refunded (minus the 1 MV burn fee).')) return;
   try {
     var job = state.myGigs.find(function(j) { return j.id === jobId; });
     if (!job) return;
@@ -1709,7 +1712,7 @@ async function cancelJob(jobId) {
     await publishEvent('escrow_release', refund, txh, null, state.user.id, jobId);
 
     closeModal();
-    showToast('Gig cancelled. ' + refund + ' MV refunded.');
+    showToast('Mission cancelled. ' + refund + ' MV refunded.');
     setMuxi('No worries. That MV is back in your wallet.');
     loadMyGigs(); loadJobsSafe();
   } catch(e) { showToast('Error cancelling gig', 'error'); console.error('cancelJob error:', e); }
@@ -1782,7 +1785,7 @@ async function loadConversations() {
       if (el) el.innerHTML = '<div class="text-center py-16" style="color:var(--text-dim)">' +
         '<div class="mb-4">' + muxiSVG(48) + '</div>' +
         '<p class="font-black text-lg mb-1">No messages yet</p>' +
-        '<p class="text-sm">Apply to a gig or click the message button on a gig card to start a conversation.</p>' +
+        '<p class="text-sm">Accept a mission or tap the message button on a mission card to start comms.</p>' +
       '</div>';
       return;
     }
@@ -2001,7 +2004,7 @@ function renderMapTab() {
     '<div class="flex items-center justify-between mb-4">' +
       '<div>' +
         '<h1 class="text-3xl font-black mb-1">MUVR GO</h1>' +
-        '<p class="text-sm" style="color:rgba(232,236,241,0.62)">See nearby workers and open gigs in realtime.</p>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.62)">See nearby operatives and open missions in realtime.</p>' +
       '</div>' +
       '<button id="avail-toggle" onclick="toggleAvailability()" class="btn-pill ' + (isAvail ? 'btn-pill-accent' : 'btn-pill-ghost') + '">' +
         (isAvail ? '<i class="fas fa-broadcast-tower mr-2"></i>LIVE' : '<i class="fas fa-eye-slash mr-2"></i>HIDDEN') +
@@ -2019,15 +2022,15 @@ function renderMapTab() {
       '</div>' +
       '<div class="stat-card flex items-center gap-2 justify-center">' +
         '<div class="map-legend-dot" style="background:var(--accent-3);box-shadow:0 0 8px var(--accent-3)"></div>' +
-        '<span class="text-[10px] font-black">OPEN GIG</span>' +
+        '<span class="text-[10px] font-black">OPEN MISSION</span>' +
       '</div>' +
     '</div>' +
     '<div class="mt-4 card p-4">' +
       '<p class="text-[11px] font-bold" style="color:var(--text-dim)"><i class="fas fa-shield-alt mr-1" style="color:var(--accent)"></i>Privacy: Your location is only shared while set to LIVE. Toggle to HIDDEN at any time to disappear from the map instantly.</p>' +
     '</div>' +
     '<div class="mt-4">' +
-      '<h3 class="font-black mb-3">Open Gigs Nearby</h3>' +
-      '<div id="map-gig-list"><p class="text-sm" style="color:var(--text-dim)">Loading gigs...</p></div>' +
+      '<h3 class="font-black mb-3">Open Missions Nearby</h3>' +
+      '<div id="map-gig-list"><p class="text-sm" style="color:var(--text-dim)">Loading missions...</p></div>' +
     '</div>' +
   '</div>';
 
@@ -2099,7 +2102,7 @@ async function loadMapData() {
     var gigList = getEl('map-gig-list');
     if (gigList) {
       if (jobs.length === 0) {
-        gigList.innerHTML = '<p class="text-sm" style="color:var(--text-dim)">No open gigs right now.</p>';
+        gigList.innerHTML = '<p class="text-sm" style="color:var(--text-dim)">No open missions right now.</p>';
       } else {
         gigList.innerHTML = jobs.map(function(j) {
           return '<div class="card card-interactive p-3 mb-2 flex items-center justify-between">' +
@@ -2176,7 +2179,7 @@ function renderWalletTab() {
   var bal = (state.profile && state.profile.mv_balance) || 0;
 
   c.innerHTML = '<div class="fade-up">' +
-    '<h1 class="text-3xl font-black mb-2">MUVR Credits</h1>' +
+    '<h1 class="text-3xl font-black mb-2">MUVR Vault</h1>' +
     '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">MV are in-platform credits used for escrow and marketplace flows. Not currency.</p>' +
 
     /* Network Stats */
@@ -2237,7 +2240,7 @@ async function loadWalletData() {
     var res = await apiRequest('mv_ledger?user_id=eq.' + state.user.id + '&order=created_at.desc&limit=25');
     var ledger = (res && res.ok) ? await res.json() : [];
     if (!el) return;
-    if (!ledger.length) { el.innerHTML = '<p class="text-sm py-4" style="color:var(--text-dim)">No transactions yet. Post or complete a gig to see activity here.</p>'; return; }
+    if (!ledger.length) { el.innerHTML = '<p class="text-sm py-4" style="color:var(--text-dim)">No transactions yet. Post or complete a mission to see activity here.</p>'; return; }
 
     el.innerHTML = ledger.map(function(e) {
       var neg = ['burn','send','withdrawal'].indexOf(e.type) >= 0;
@@ -2347,7 +2350,7 @@ function renderPublicEvents() {
   var el = getEl('public-events-list');
   if (!el) return;
   if (!state.publicEvents.length) {
-    el.innerHTML = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) + '<p class="font-black mt-3">No events recorded yet</p><p class="text-sm mt-1">Post a gig or load credits to create the first network event.</p></div>';
+    el.innerHTML = '<div class="text-center py-12" style="color:var(--text-dim)">' + muxiSVG(48) + '<p class="font-black mt-3">No events recorded yet</p><p class="text-sm mt-1">Post a Mission or load credits to create the first network event.</p></div>';
     return;
   }
   var typeConfig = {
@@ -2478,7 +2481,7 @@ function renderProfileTab() {
       '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
         '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
           '<p class="font-black text-xs mb-1">Escrow Protection</p>' +
-          '<p class="text-[11px]" style="color:var(--text-dim)">All gig payments locked in escrow before work begins. Funds release only on confirmation.</p>' +
+          '<p class="text-[11px]" style="color:var(--text-dim)">All mission payouts locked in escrow before work begins. Credits release only on confirmation.</p>' +
         '</div>' +
         '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
           '<p class="font-black text-xs mb-1">Public Ledger</p>' +
@@ -2498,10 +2501,10 @@ function renderProfileTab() {
 
     /* Recruit / Invite Card */
     '<div class="card p-5 max-w-2xl mb-6" style="border-color:rgba(24,246,200,0.18);background:linear-gradient(135deg,rgba(24,246,200,0.06),rgba(124,92,255,0.04))">' +
-      '<h3 class="font-black mb-2"><i class="fas fa-user-plus mr-2" style="color:var(--accent)"></i>Grow the Network</h3>' +
-      '<p class="text-xs mb-4" style="color:var(--text-dim)">Every person you bring in creates more gigs, more workers, and more value. Share MUVR and help break the broken gig economy.</p>' +
+      '<h3 class="font-black mb-2"><i class="fas fa-user-plus mr-2" style="color:var(--accent)"></i>Recruit Operatives</h3>' +
+      '<p class="text-xs mb-4" style="color:var(--text-dim)">Every person you bring in creates more missions, more operatives, and more value. Share MUVR and help break the broken gig economy.</p>' +
       '<div class="flex gap-2 flex-wrap">' +
-        '<button onclick="openShareModal()" class="btn-pill btn-pill-accent"><i class="fas fa-share-alt mr-1"></i>Invite friends</button>' +
+        '<button onclick="openShareModal()" class="btn-pill btn-pill-accent"><i class="fas fa-share-alt mr-1"></i>Recruit</button>' +
         '<button onclick="shareVia(\'twitter\')" class="btn-pill btn-pill-ghost"><i class="fab fa-twitter mr-1"></i>Tweet</button>' +
         '<button onclick="shareVia(\'whatsapp\')" class="btn-pill btn-pill-ghost"><i class="fab fa-whatsapp mr-1"></i>WhatsApp</button>' +
         '<button onclick="shareVia(\'sms\')" class="btn-pill btn-pill-ghost"><i class="fas fa-sms mr-1"></i>Text</button>' +
@@ -2513,15 +2516,15 @@ function renderProfileTab() {
       '<h3 class="font-black mb-3">Achievements</h3>' +
       '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">' +
         badge('&#128640;', 'Early Adopter', 'Joined MUVR', true) +
-        badge('&#128170;', 'First Gig', 'Complete 1 gig', Number(p.jobs_completed || 0) >= 1) +
+        badge('&#128170;', 'First Mission', 'Complete 1 mission', Number(p.jobs_completed || 0) >= 1) +
         badge('&#11088;', '5-Star Worker', 'Get a 5-star rating', rating >= 5) +
-        badge('&#127942;', 'Pro MUVR', 'Complete 10 gigs', Number(p.jobs_completed || 0) >= 10) +
+        badge('&#127942;', 'Pro MUVR', 'Complete 10 missions', Number(p.jobs_completed || 0) >= 10) +
         badge('&#128176;', 'Big Spender', 'Send 100+ MV', Number(p.mv_balance || 0) >= 0) +
-        badge('&#128293;', 'Burn Baby', 'Post 5 gigs (burn 5 MV)', Number(p.jobs_completed || 0) >= 5) +
+        badge('&#128293;', 'Burn Baby', 'Post 5 missions (burn 5 MV)', Number(p.jobs_completed || 0) >= 5) +
         badge('&#128663;', 'Road Warrior', 'Has a vehicle', !!p.has_vehicle) +
         badge('&#128172;', 'Social Butterfly', 'Complete profile', !!(p.full_name && p.username && p.about_me)) +
         badge('&#127775;', 'Rising Star', 'Reach Level 3', calcLevel(p).level >= 3) +
-        badge('&#9889;', 'Lightning', 'Complete 25 gigs', Number(p.jobs_completed || 0) >= 25) +
+        badge('&#9889;', 'Lightning', 'Complete 25 missions', Number(p.jobs_completed || 0) >= 25) +
         badge('&#128081;', 'Legend', 'Reach Level 10', calcLevel(p).level >= 10) +
         badge('&#129412;', 'MUXI Friend', 'Tap MUXI 5 times', false) +
       '</div>' +
@@ -2545,11 +2548,11 @@ function badge(icon, title, desc, unlocked) {
 ============================================================================= */
 var blogPosts = [
   { id: 'moving-tips-2026', title: 'Top 10 Moving Tips for 2026', cat: 'Moving Tips', date: '2026-02-20', excerpt: 'Moving can be stressful but with the right preparation it does not have to be. Here are our top tips for a smooth move this year.', body: 'Start early - the biggest mistake people make is waiting until the last minute. Book movers at least 2 weeks ahead. Declutter before packing: if you have not used it in a year, donate it. Label every box with room and contents. Take photos of electronics before unplugging. Keep essentials in a separate bag. Notify utilities 2 weeks early. Measure doorways at both locations. Tip your movers - they are doing hard work. Use MUVR to find trusted local help with escrow protection.' },
-  { id: 'gig-economy-future', title: 'The Future of the Gig Economy: Zero Commission', cat: 'Gig Economy', excerpt: 'Traditional platforms take 15-30% of worker earnings. MUVR is building the alternative with 0% commission and escrow-first payment protection.', date: '2026-02-18', body: 'The gig economy has grown to over 60 million workers in the US alone. But most platforms still extract 15-30% from every transaction. MUVR takes a different approach: zero commission on worker earnings. Instead of percentage fees, MUVR uses a flat 1 MV credit posting fee that gets burned permanently. Workers keep 100% of the agreed rate. Escrow locks funds before work begins, so workers are guaranteed payment and clients are guaranteed delivery. It is a fundamentally different model built for the people doing the actual work.' },
+  { id: 'gig-economy-future', title: 'The Future of the Gig Economy: Zero Commission', cat: 'Mission Economy', excerpt: 'Traditional platforms take 15-30% of operative earnings. MUVR is building the alternative with 0% commission and escrow-first payment protection.', date: '2026-02-18', body: 'The gig economy has grown to over 60 million workers in the US alone. But most platforms still extract 15-30% from every transaction. MUVR takes a different approach: zero commission on operative earnings. Instead of percentage fees, MUVR uses a flat 1 MV credit posting fee that gets burned permanently. Operatives keep 100% of the agreed rate. Escrow locks funds before work begins, so operatives are guaranteed payment and commanders are guaranteed delivery. It is a fundamentally different model built for the people doing the actual work.' },
   { id: 'escrow-explained', title: 'How Escrow Protection Works on MUVR', cat: 'MUVR News', excerpt: 'Escrow is the backbone of trust on MUVR. Learn how it protects both workers and job posters in every transaction.', date: '2026-02-15', body: 'When a job is posted on MUVR, the full budget plus a 1 MV posting fee locks in escrow. This means the money exists and is committed before any worker starts. When work is complete and confirmed, escrow releases instantly to the worker. If there is a dispute, escrow holds until resolution. The 1 MV posting fee is permanently burned, reducing the total supply over time. This creates a system where trust is built into the protocol, not dependent on reviews alone.' },
-  { id: 'worker-guide-getting-started', title: 'Worker Guide: Getting Started on MUVR', cat: 'Worker Guides', excerpt: 'New to MUVR? Here is everything you need to know to land your first gig and start earning.', date: '2026-02-12', body: 'Step 1: Create your account and complete your profile. Profiles with names, bios, and vehicle info get 2x visibility. Step 2: Browse the Gigs tab and filter by type - rideshare, delivery, physical labor, or digital work. Step 3: Apply with a clear pitch, your rate in MV, and estimated turnaround. Step 4: If selected, do great work and get paid instantly via escrow release. Step 5: Earn XP for every completed gig and climb the ranks from Runner to Mythic. Higher rank means you appear first in search results.' },
+  { id: 'worker-guide-getting-started', title: 'Operative Guide: Getting Started on MUVR', cat: 'Operative Guides', excerpt: 'New to MUVR? Here is everything you need to know to land your first mission and start earning.', date: '2026-02-12', body: 'Step 1: Create your account and complete your profile. Profiles with names, bios, and vehicle info get 2x visibility. Step 2: Browse the Missions tab and filter by type - rideshare, delivery, physical labor, or digital work. Step 3: Submit a brief with a clear pitch, your rate in MV, and estimated turnaround. Step 4: If selected, do great work and get paid instantly via escrow release. Step 5: Earn XP for every completed mission and climb the ranks from Recruit to Mythic. Higher rank means you appear first in search results.' },
   { id: 'mv-credits-explained', title: 'Understanding MUVR Credits (MV)', cat: 'MUVR News', excerpt: 'MV Credits are the in-platform unit that powers escrow, payments, and marketplace flows. Here is how they work.', date: '2026-02-10', body: 'MUVR Credits (MV) are platform-limited digital credits used within MUVR for marketplace features. They are denominated as 1 credit equals 1 USD-equivalent unit inside the app for pricing. Total supply is capped at 1 million MV. Every job posting burns 1 MV permanently, creating natural deflation over time. MV can be sent to any user by handle, email, or public alias. All transfers are logged in the public ledger using anonymous aliases. MV are not currency, cryptocurrency, or financial instruments.' },
-  { id: 'virginia-pilot-launch', title: 'MUVR Launches Virginia Pilot Program', cat: 'MUVR News', excerpt: 'We are rolling out the MUVR marketplace in Virginia first. Here is why and what to expect.', date: '2026-02-08', body: 'Virginia is MUVR launch market and the testing ground for the platform. We chose Virginia for its diverse population, strong demand for moving and delivery services, and proximity to our team. The pilot includes all core features: gig posting, escrow, MV credits, messaging, the public ledger, and the MUVR GO map. Early users will get bonus MV credits for completing their profiles and posting their first gigs. Feedback from the Virginia pilot will shape the national rollout later this year.' }
+  { id: 'virginia-pilot-launch', title: 'MUVR Launches Virginia Pilot Program', cat: 'MUVR News', excerpt: 'We are rolling out the MUVR marketplace in Virginia first. Here is why and what to expect.', date: '2026-02-08', body: 'Virginia is MUVR launch market and the testing ground for the platform. We chose Virginia for its diverse population, strong demand for moving and delivery services, and proximity to our team. The pilot includes all core features: mission posting, escrow, MV credits, messaging, the public ledger, and the MUVR GO map. Early users will get bonus MV credits for completing their profiles and posting their first missions. Feedback from the Virginia pilot will shape the national rollout later this year.' }
 ];
 
 function renderBlogPage() {
@@ -2616,7 +2619,7 @@ function openAuthModal() {
         '<h2 class="text-xl font-black">Enter MUVR</h2>' +
         '<button onclick="closeModal()" class="close-btn">&times;</button>' +
       '</div>' +
-      '<p class="text-sm mb-5" style="color:rgba(232,236,241,0.65)">Zero commission. Escrow-first. Level up with every gig.</p>' +
+      '<p class="text-sm mb-5" style="color:rgba(232,236,241,0.65)">Zero commission. Escrow-first. Level up with every mission.</p>' +
       '<input id="auth-email" type="email" placeholder="you@email.com" class="field mb-3" autocomplete="email">' +
       '<input id="auth-password" type="password" placeholder="Password (6+ chars)" class="field mb-4" autocomplete="current-password">' +
       '<button onclick="handleSignUp()" class="btn-primary mb-2 rounded-full">Create account</button>' +
@@ -2678,7 +2681,7 @@ function updateLegalButton() {
 function openPostJobModal() {
   openModal(
     '<div class="card p-6" style="max-width:460px;margin:auto;max-height:90vh;overflow:auto">' +
-      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Post a gig</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Post a Mission</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
       '<div class="space-y-3">' +
         '<input id="job-title" placeholder="What do you need done?" maxlength="100" class="field">' +
         '<textarea id="job-desc" placeholder="Describe the work in detail..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>' +
@@ -2691,7 +2694,7 @@ function openPostJobModal() {
           '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Posting fee (burn)</span><span class="font-black" style="color:var(--red)">1 MV</span></div>' +
           '<div class="flex justify-between font-black pt-2" style="border-top:1px solid rgba(255,255,255,0.10)"><span>Total locked</span><span id="fee-total" style="color:var(--accent)">1 MV</span></div>' +
         '</div>' +
-        '<button onclick="handlePostJob()" class="btn-primary rounded-full">Post gig & lock escrow</button>' +
+        '<button onclick="handlePostJob()" class="btn-primary rounded-full">Post Mission & Lock Escrow</button>' +
         '<div class="text-[11px]" style="color:var(--text-dim)">If you do not have enough MV, load credits first (beta).</div>' +
       '</div>' +
     '</div>',
@@ -2708,10 +2711,10 @@ function updateJobFee() {
 function openApplyModal(jobId) {
   openModal(
     '<div class="card p-6" style="max-width:460px;margin:auto">' +
-      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Apply for gig</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Submit Mission Brief</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
       '<input type="hidden" id="apply-job-id" value="' + jobId + '">' +
       '<div class="space-y-3">' +
-        '<textarea id="apply-pitch" placeholder="Why you are the right person for this gig..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>' +
+        '<textarea id="apply-pitch" placeholder="Why you are the right operative for this mission..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>' +
         '<input id="apply-rate" type="number" min="1" placeholder="Your rate (MV Credits)" class="field">' +
         '<input id="apply-turnaround" placeholder="Turnaround (e.g., 2 hours)" maxlength="50" class="field">' +
         '<button onclick="handleApply()" class="btn-primary rounded-full">Submit application</button>' +
@@ -2787,7 +2790,7 @@ function openEditProfileModal() {
         '<input id="profile-name" placeholder="Your full legal name" maxlength="100" class="field" value="' + escapeHtml(p.full_name || '') + '">' +
         '<input id="profile-username" placeholder="@handle (unique, public)" maxlength="30" class="field" value="' + escapeHtml(p.username || '') + '">' +
         '<textarea id="profile-about" placeholder="What services do you offer? Skills, experience, availability..." rows="4" maxlength="500" class="field" style="resize:none">' + escapeHtml(p.about_me || '') + '</textarea>' +
-        '<select id="profile-role" class="field"><option value="both" ' + (p.role === 'both' ? 'selected' : '') + '>Work & post gigs</option><option value="worker" ' + (p.role === 'worker' ? 'selected' : '') + '>Worker only</option><option value="poster" ' + (p.role === 'poster' ? 'selected' : '') + '>Post gigs only</option></select>' +
+        '<select id="profile-role" class="field"><option value="both" ' + (p.role === 'both' ? 'selected' : '') + '>Accept & post missions</option><option value="worker" ' + (p.role === 'worker' ? 'selected' : '') + '>Operative only</option><option value="poster" ' + (p.role === 'poster' ? 'selected' : '') + '>Commander only</option></select>' +
         '<label class="flex items-center gap-3 cursor-pointer p-3 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)"><input type="checkbox" id="profile-vehicle" class="w-4 h-4" ' + (p.has_vehicle ? 'checked' : '') + '><span class="text-sm font-black">I have a vehicle</span></label>' +
         '<div class="p-4 rounded-2xl" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16)">' +
           '<p class="font-black text-xs mb-2" style="color:var(--accent)"><i class="fas fa-shield-alt mr-1"></i>TRUST & SAFETY</p>' +
@@ -2815,9 +2818,9 @@ function openShareModal() {
   var url = getShareUrl();
 
   var msgs = {
-    worker: 'I am earning on MUVR with zero commission fees. Workers keep 100%. Join me: ' + url,
-    poster: 'I found great local help on MUVR. Escrow-protected, instant matching, no middleman fees. Try it: ' + url,
-    social: 'The gig economy is broken. MUVR is fixing it. 0% commission. Escrow protection. Workers keep everything. ' + url
+    worker: 'I am earning on MUVR with zero commission. Operatives keep 100%. Join me: ' + url,
+    poster: 'I found great local help on MUVR. Escrow-protected missions, instant matching, zero extraction. Try it: ' + url,
+    social: 'The gig economy is broken. MUVR is fixing it. 0% commission. Escrow protection. Operatives keep everything. ' + url
   };
 
   openModal(
@@ -2846,11 +2849,11 @@ function openShareModal() {
       '<p class="text-[11px] font-black mb-3" style="color:rgba(232,236,241,0.55)">COPY A MESSAGE</p>' +
       '<div class="space-y-2 mb-4">' +
         '<div class="p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)" onclick="copyText(\'' + escapeHtml(msgs.worker).replace(/'/g, "\\'") + '\')">' +
-          '<p class="text-[11px] font-black" style="color:var(--accent-2)"><i class="fas fa-hard-hat mr-1"></i>For workers</p>' +
+          '<p class="text-[11px] font-black" style="color:var(--accent-2)"><i class="fas fa-hard-hat mr-1"></i>For operatives</p>' +
           '<p class="text-[10px]" style="color:var(--text-dim)">Tap to copy</p>' +
         '</div>' +
         '<div class="p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)" onclick="copyText(\'' + escapeHtml(msgs.poster).replace(/'/g, "\\'") + '\')">' +
-          '<p class="text-[11px] font-black" style="color:var(--accent-3)"><i class="fas fa-clipboard-list mr-1"></i>For job posters</p>' +
+          '<p class="text-[11px] font-black" style="color:var(--accent-3)"><i class="fas fa-clipboard-list mr-1"></i>For commanders</p>' +
           '<p class="text-[10px]" style="color:var(--text-dim)">Tap to copy</p>' +
         '</div>' +
         '<div class="p-3 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)" onclick="copyText(\'' + escapeHtml(msgs.social).replace(/'/g, "\\'") + '\')">' +
@@ -2859,7 +2862,7 @@ function openShareModal() {
         '</div>' +
       '</div>' +
       (navigator.share ? '<button onclick="nativeShare()" class="btn-primary rounded-full mb-3"><i class="fas fa-share mr-2"></i>Share via device</button>' : '') +
-      '<p class="text-[10px] text-center" style="color:var(--text-dim)">More people = more gigs = more value for everyone.</p>' +
+      '<p class="text-[10px] text-center" style="color:var(--text-dim)">More people = more missions = more value for everyone.</p>' +
     '</div>',
     { width: 'max-w-md' }
   );
@@ -2875,7 +2878,7 @@ function copyText(text) {
 }
 function shareVia(platform) {
   var url = getShareUrl();
-  var text = 'Join MUVR - the real-world work game. 0% commission, escrow-protected gigs, workers keep 100%.';
+  var text = 'Join MUVR - the real-world work game. 0% commission, escrow-protected missions, operatives keep 100%.';
   var eu = encodeURIComponent(url), et = encodeURIComponent(text);
   var dest = '';
   if (platform === 'twitter') dest = 'https://twitter.com/intent/tweet?text=' + et + '&url=' + eu;
@@ -2887,14 +2890,14 @@ function shareVia(platform) {
   if (dest) window.open(dest, '_blank');
 }
 async function nativeShare() {
-  try { await navigator.share({ title: 'MUVR - The Real-World Work Game', text: 'Join MUVR. 0% commission gigs with escrow protection. Workers keep 100%.', url: getShareUrl() }); } catch(e) {}
+  try { await navigator.share({ title: 'MUVR - The Real-World Work Game', text: 'Join MUVR. 0% commission missions with escrow protection. Operatives keep 100%.', url: getShareUrl() }); } catch(e) {}
 }
 function shareGig(jobId) {
   var job = (state.jobs || []).concat(state.myGigs || []).find(function(j) { return j.id === jobId; });
   var url = getShareUrl() + '#gig-' + (jobId || '').slice(0, 8);
   var text = job ? 'Gig on MUVR: "' + (job.title || '') + '" for ' + Number(job.budget_mv || 0) + ' MV - ' + url : url;
   try { navigator.clipboard.writeText(text); } catch(e) {}
-  showToast('Gig link copied!');
+  showToast('Mission link copied!');
 }
 
 
@@ -3009,7 +3012,7 @@ function renderUserSearchResults(users, targetInputId, onSelect) {
         '<div class="avatar-ring" style="width:32px;height:32px"><span class="text-xs font-black" style="color:var(--accent)">' + (name[0] || 'U').toUpperCase() + '</span></div>' +
         '<div class="flex-1 min-w-0">' +
           '<p class="font-black text-xs truncate">' + escapeHtml(name) + '</p>' +
-          '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(handle) + ' | ' + completed + ' gigs | ' + (stars > 0 ? stars.toFixed(1) + ' stars' : 'new') + '</p>' +
+          '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(handle) + ' | ' + completed + ' missions | ' + (stars > 0 ? stars.toFixed(1) + ' stars' : 'new') + '</p>' +
         '</div>' +
       '</div>' +
     '</div>';
@@ -3080,7 +3083,7 @@ function doPeopleSearch() {
           '<div class="avatar-ring flex-shrink-0"><span class="text-lg font-black" style="color:var(--accent)">' + initial + '</span></div>' +
           '<div class="flex-1 min-w-0">' +
             '<p class="font-black text-sm truncate">' + escapeHtml(name) + '</p>' +
-            '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(handle) + ' | ' + lvl.title + ' (Lvl ' + lvl.level + ') | ' + completed + ' gigs</p>' +
+            '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(handle) + ' | ' + lvl.title + ' (Lvl ' + lvl.level + ') | ' + completed + ' missions</p>' +
           '</div>' +
           '<div class="flex gap-2 flex-shrink-0">' +
             '<button onclick="closeModal();startConvoFromJob(null,\'' + u.id + '\')" class="btn-sm" title="Message"><i class="fas fa-comment"></i></button>' +
@@ -3145,12 +3148,12 @@ function pickMuxiLine() {
     "Your profile is looking a little thin. Fill it out or I start making stuff up.",
     "Fun fact: I am technically an AI donkey. Set the bar low, achieve greatness.",
     "The escrow is locked. Like my commitment to chaos.",
-    "Zero commission on worker earnings. I literally work for digital hay.",
+    "Zero commission on operative earnings. I literally work for digital hay.",
     "Pro tip: complete your profile. Incomplete profiles are like donkeys without ears.",
     "If you are reading this, you have been staring at your phone too long. But also, check the map tab.",
     "Someone out there needs help moving a couch. Could be your moment.",
     "The ledger sees all. Anonymous, but thorough. Kind of like me at a buffet.",
-    "Every gig you complete earns XP. Every XP brings you closer to Mythic rank. No pressure.",
+    "Every mission you complete earns XP. Every XP brings you closer to Mythic rank. No pressure.",
     "I once tried to explain escrow to a horse. It did not go well. You are doing better.",
     "MUVR tip: clear titles get 3x more applications. I counted. With my hooves.",
     "The network never sleeps. I never sleep. We have that in common.",
@@ -3159,7 +3162,7 @@ function pickMuxiLine() {
     "Did you know you can send MV by @handle? Try it. Send me some. I accept tips.",
     "If the map looks empty, be the first one out there. Fortune favors the visible.",
     "Escrow protects both sides. Unlike me, who protects neither side and just watches.",
-    "Post a gig, grab some popcorn, watch the applications roll in. Cinema.",
+    "Post a Mission, grab some popcorn, watch the applications roll in. Cinema.",
     "Level up from Runner to Mythic. I believe in you. Mostly.",
     "This network runs on trust, escrow, and a donkey with opinions. You are welcome."
   ];
@@ -3169,7 +3172,7 @@ function pickMuxiLine() {
 function muxiQuip(context) {
   var quips = {
     postjob: [
-      "New gig posted! Now we wait. I will be here eating digital hay.",
+      "Mission deployed! Now we wait. I will be here eating digital hay.",
       "Budget locked. Escrow engaged. No takebacks. Like a 5-year-old with principles.",
       "You just burned 1 MV on the posting fee. Think of it as feeding me."
     ],
@@ -3196,7 +3199,7 @@ function muxiQuip(context) {
     ],
     idle: [
       "Still here. Still watching. Still a donkey.",
-      "You have been idle for a while. Everything okay? Need a gig?",
+      "You have been idle for a while. Everything okay? Need a mission?",
       "The escrow system protects both sides. Unlike me, who just vibes."
     ],
     profile: [
@@ -3231,7 +3234,7 @@ function muxiDiagnose() {
 }
 
 function muxiTips() {
-  setMuxi('Try: Sign in > Post a gig > Apply > Watch realtime updates. If anything stalls, the 900ms boot timeout keeps you safe.');
+  setMuxi('Try: Sign in > Post a Mission > Apply > Watch realtime updates. If anything stalls, the 900ms boot timeout keeps you safe.');
 }
 
 /* =============================================================================
@@ -3363,7 +3366,7 @@ async function handleAcceptLegal() {
       });
     }
     closeModal(); renderApp(); showToast('Agreements accepted!');
-    setMuxi('You are live. Go post a gig or apply to one.');
+    setMuxi('You are live. Go post a mission or accept one.');
     loadJobsSafe(); loadProfileSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
   } catch(e) { showToast('Error saving agreements', 'error'); }
 }
@@ -3380,7 +3383,7 @@ async function handlePostJob() {
   var bal = Number((state.profile && state.profile.mv_balance) || 0);
   if (bal < budget + 1) return showToast('Not enough MV Credits', 'error');
   try {
-    setMuxi('Posting your gig...');
+    setMuxi('Deploying your mission...');
     var res = await apiRequest('jobs', {
       method: 'POST',
       body: JSON.stringify({
@@ -3402,7 +3405,7 @@ async function handlePostJob() {
     var newBal = bal - (budget + 1);
     await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: newBal }) });
     state.profile.mv_balance = newBal;
-    closeModal(); showToast('Gig posted! Escrow locked.');
+    closeModal(); showToast('Mission deployed! Escrow locked.');
     setMuxi(muxiQuip('postjob'));
     loadJobsSafe();
   } catch(e) { showToast('Error posting job: ' + (e.message || ''), 'error'); console.error('PostJob error:', e); }
@@ -3441,7 +3444,7 @@ async function handleApply() {
                 body: JSON.stringify({
                   conversation_id: cid,
                   sender_id: state.user.id,
-                  body: 'Hi! I just applied to your gig "' + (job.title || 'untitled') + '" - ' + pitch.substring(0, 120) + (pitch.length > 120 ? '...' : '')
+                  body: 'Hi! I just submitted a brief for your mission "' + (job.title || 'untitled') + '" - ' + pitch.substring(0, 120) + (pitch.length > 120 ? '...' : '')
                 })
               });
             }
@@ -3449,7 +3452,7 @@ async function handleApply() {
         } catch(ce) { console.warn('Auto-convo creation failed:', ce); }
         /* Queue notification for poster */
         try {
-          await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'new_application', title: 'New application', body: 'Someone applied to: ' + (job.title || 'your gig'), channel: 'email' }) });
+          await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'new_application', title: 'New mission brief', body: 'New brief for: ' + (job.title || 'your gig'), channel: 'email' }) });
         } catch(e) {}
       }
     } else { showToast('Error submitting', 'error'); }
