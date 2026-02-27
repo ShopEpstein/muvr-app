@@ -299,8 +299,7 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .mv-brand { font-weight: 900; }
-    .mv-brand .mv-m { color: var(--accent); }
-    .mv-brand .mv-v { color: var(--accent-2); }
+    .mv-brand { color: var(--accent); }
     .line-clamp-2 {
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
@@ -469,7 +468,7 @@ function escapeHtml(str) {
 
 /* Branded MV label: M=teal V=purple */
 function mvLabel(amount) {
-  return '<span class="mv-brand">' + amount + ' <span class="mv-m">M</span><span class="mv-v">V</span></span>';
+  return '<span class="mv-brand" style="color:var(--accent)">' + amount + ' MV</span>';
 }
 
 function xpBooster(icon, label, xpVal, sub) {
@@ -978,7 +977,7 @@ function renderJobsTab() {
         '<div class="flex items-end justify-between">' +
           '<div>' +
             '<p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.45)">BUDGET</p>' +
-            '<p class="text-lg font-black mono" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
+            '<p class="text-lg font-black mono" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">MV</span></p>' +
           '</div>' +
           '<div class="flex gap-2">' +
             (isMyJob ? '<span class="text-[10px] font-black px-3 py-2 rounded-full" style="background:rgba(255,255,255,0.06);color:var(--text-dim)">YOUR MISSION</span>' :
@@ -1117,7 +1116,7 @@ function renderMyGigsView() {
           renderProgressBar(job.status) +
           '<div class="flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px">' +
             '<div class="flex gap-4 text-[11px]">' +
-              '<span style="color:var(--accent)" class="font-black">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
+              '<span style="color:var(--accent)" class="font-black">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">MV</span></span>' +
               '<span style="color:var(--text-dim)">' + relTime(job.created_at) + '</span>' +
             '</div>' +
             (job.status === 'open' ? '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);color:' + (apps > 0 ? 'var(--yellow)' : 'var(--text-dim)') + '">' + apps + ' applicant' + (apps !== 1 ? 's' : '') + ' - Tap to manage</span>' :
@@ -1161,7 +1160,7 @@ function renderMyGigsView() {
           (delivCount > 0 ? '<div class="mb-3 p-2 rounded-lg text-[11px]" style="background:rgba(255,255,255,0.04)"><i class="fas fa-paperclip mr-1" style="color:var(--accent-2)"></i>' + delivCount + ' deliverable' + (delivCount !== 1 ? 's' : '') + ' submitted</div>' : '') +
 
           '<div class="flex items-center justify-between pt-3" style="border-top:1px solid rgba(255,255,255,0.06)">' +
-            '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
+            '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">MV</span></span>' +
             '<div class="flex gap-2 flex-wrap justify-end">' +
               '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
               (canStart ? '<button onclick="workerStartJob(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-play mr-1"></i>Go Active</button>' : '') +
@@ -1191,9 +1190,9 @@ function renderMyGigsView() {
           '</div>' +
           '<p class="text-xs mb-2" style="color:var(--text-dim)">' + escapeHtml(job.description || '').substring(0, 80) + '</p>' +
           '<div class="flex items-center justify-between text-[11px]">' +
-            '<span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
+            '<span class="font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">MV</span></span>' +
             '<div class="flex gap-3">' +
-              '<span style="color:var(--text-dim)">Your bid: ' + Number(job._myApp.rate_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
+              '<span style="color:var(--text-dim)">Your bid: ' + Number(job._myApp.rate_mv || 0) + ' <span style="color:var(--accent)">MV</span></span>' +
               '<span style="color:var(--text-dim)">' + relTime(job._myApp.created_at) + '</span>' +
             '</div>' +
           '</div>' +
@@ -1495,7 +1494,7 @@ async function openJobManageModal(jobId) {
           '</div>' +
           '<p class="text-xs mb-2" style="color:rgba(232,236,241,0.65)">' + escapeHtml(app.pitch || '') + '</p>' +
           '<div class="flex items-center gap-3 text-[11px]" style="color:var(--text-dim)">' +
-            '<span><i class="fas fa-coins mr-1" style="color:var(--accent)"></i>' + Number(app.rate_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
+            '<span><i class="fas fa-coins mr-1" style="color:var(--accent)"></i>' + Number(app.rate_mv || 0) + ' <span style="color:var(--accent)">MV</span></span>' +
             '<span><i class="fas fa-clock mr-1"></i>' + escapeHtml(app.turnaround || '') + '</span>' +
             '<span>' + relTime(app.created_at) + '</span>' +
           '</div>' +
@@ -1611,7 +1610,7 @@ async function awardJob(jobId, applicationId, workerId) {
       method: 'PATCH', body: JSON.stringify({ status: 'rejected' })
     });
     /* Update job status to awarded */
-    var r2 = await apiRequest('jobs?id=eq.' + jobId, {
+    var r2 = await apiRequest('jobs?id=eq.' + jobId + '&status=eq.open', {
       method: 'PATCH', body: JSON.stringify({ status: 'awarded' })
     });
     console.log('Award job PATCH:', r2 && r2.status);
@@ -1647,8 +1646,10 @@ async function awardJob(jobId, applicationId, workerId) {
 /* Worker starts the job (updates to in_progress) */
 async function workerStartJob(jobId) {
   try {
-    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'in_progress' }) });
-    await apiRequest('applications?job_id=eq.' + jobId + '&worker_id=eq.' + state.user.id, {
+    var res = await apiRequest('jobs?id=eq.' + jobId + '&status=eq.awarded', { method: 'PATCH', body: JSON.stringify({ status: 'in_progress' }) });
+    var data = null; try { data = await res.json(); } catch(e) {}
+    if (!data || (Array.isArray(data) && data.length === 0)) { showToast('Job may have already been started', 'info'); loadMyGigs(); return; }
+    await apiRequest('applications?job_id=eq.' + jobId + '&worker_id=eq.' + state.user.id + '&status=eq.accepted', {
       method: 'PATCH', body: JSON.stringify({ status: 'in_progress' })
     });
     showToast('Job started! Keep the poster updated.');
@@ -1704,88 +1705,40 @@ async function posterMarkComplete(jobId) {
 
 async function releaseEscrow(jobId) {
   try {
-    var job = state.myGigs.find(function(j) { return j.id === jobId; });
-    if (!job) return showToast('Job not found', 'error');
-
-    /* Find the awarded worker */
-    var appRes = await apiRequest('applications?job_id=eq.' + jobId + '&status=in.(accepted,in_progress,completed)&select=worker_id,rate_mv');
-    var apps = (appRes && appRes.ok) ? await appRes.json() : [];
-    if (!apps.length) return showToast('No awarded worker found', 'error');
-    var workerId = apps[0].worker_id;
-    var payAmount = Number(apps[0].rate_mv || job.budget_mv || 0);
-
-    var txh = 'ESC_REL_' + Date.now() + Math.random().toString(36).slice(2, 6);
-
-    /* Use transfer_mv RPC to move funds from poster to worker */
-    var rpcOk = false;
-    try {
-      var rpcRes = await apiRequest('rpc/transfer_mv', {
-        method: 'POST', body: JSON.stringify({ p_from_id: state.user.id, p_to_id: workerId, p_amount: payAmount, p_tx_hash: txh })
-      });
-      if (rpcRes && rpcRes.ok) rpcOk = true;
-    } catch(re) { console.warn('transfer_mv for escrow release failed:', re); }
-
-    if (!rpcOk) {
-      /* Fallback: credit worker directly */
-      await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({
-        user_id: workerId, type: 'receive', amount_mv: payAmount, description: 'Escrow release for job', tx_hash: txh, related_job_id: jobId, related_user_id: state.user.id
-      })});
-      try {
-        var wb = await apiRequest('users?id=eq.' + workerId + '&select=mv_balance');
-        var wd = (wb && wb.ok) ? await wb.json() : [];
-        if (wd.length) await apiRequest('users?id=eq.' + workerId, { method: 'PATCH', body: JSON.stringify({ mv_balance: Number(wd[0].mv_balance || 0) + payAmount }) });
-      } catch(e) {}
-    }
-
-    /* Update escrow record */
-    try {
-      await apiRequest('escrow?job_id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'released' }) });
-    } catch(e) { console.warn('escrow update failed:', e); }
-
-    /* Update job status to paid */
-    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'paid' }) });
-    await apiRequest('applications?job_id=eq.' + jobId + '&worker_id=eq.' + workerId, {
-      method: 'PATCH', body: JSON.stringify({ status: 'paid' })
+    setMuxi('Releasing escrow...');
+    var res = await apiRequest('rpc/release_escrow_secure', {
+      method: 'POST',
+      body: JSON.stringify({ p_poster_id: state.user.id, p_job_id: jobId })
     });
-
-    /* Update worker stats */
-    try {
-      var wUser = await apiRequest('users?id=eq.' + workerId + '&select=jobs_completed');
-      var wud = (wUser && wUser.ok) ? await wUser.json() : [];
-      if (wud.length) {
-        await apiRequest('users?id=eq.' + workerId, { method: 'PATCH', body: JSON.stringify({ jobs_completed: Number(wud[0].jobs_completed || 0) + 1 }) });
+    if (res && res.ok) {
+      var job = state.myGigs.find(function(j) { return j.id === jobId; });
+      if (job) {
+        try {
+          var appRes = await apiRequest('applications?job_id=eq.' + jobId + '&status=eq.paid&select=worker_id');
+          var apps = (appRes && appRes.ok) ? await appRes.json() : [];
+          var workerId = apps.length ? apps[0].worker_id : null;
+          if (workerId) {
+            await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'payment_released', title: 'Payment released!', body: 'MV has been released to your wallet.', channel: 'email' }) });
+            var convoRes = await apiRequest('rpc/get_or_create_conversation', {
+              method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: workerId, p_job_id: jobId })
+            });
+            if (convoRes && convoRes.ok) {
+              var cid = await convoRes.json();
+              if (cid) {
+                await apiRequest('messages', { method: 'POST', body: JSON.stringify({ conversation_id: cid, sender_id: state.user.id, body: 'Payment has been released! Thanks for the great work.' })});
+              }
+            }
+          }
+        } catch(ne) { console.warn('Post-release notifications failed:', ne); }
       }
-    } catch(e) {}
-
-    /* Publish escrow release event */
-    await publishEvent('escrow_release', payAmount, txh, state.user.id, workerId, jobId);
-
-    /* Notify worker */
-    try {
-      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'payment_released', title: 'Payment released!', body: payAmount + ' MV has been released to your wallet for completing a gig.', channel: 'email' }) });
-    } catch(e) {}
-
-    /* Send message */
-    try {
-      var convoRes = await apiRequest('rpc/get_or_create_conversation', {
-        method: 'POST', body: JSON.stringify({ p_user_id: state.user.id, p_other_user_id: workerId, p_job_id: jobId })
-      });
-      if (convoRes && convoRes.ok) {
-        var cid = await convoRes.json();
-        if (cid) {
-          await apiRequest('messages', { method: 'POST', body: JSON.stringify({
-            conversation_id: cid, sender_id: state.user.id,
-            body: 'Payment of ' + payAmount + ' MV has been released! Thanks for the great work.'
-          })});
-        }
-      }
-    } catch(e) {}
-
-    closeModal();
-    showToast('Escrow released! ' + payAmount + ' MV paid to worker.');
-    setMuxi('Money moved. Trust verified. That is the MUVR way.');
-    loadMyGigs();
-    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+      closeModal(); showToast('Escrow released! Payment sent to worker.');
+      setMuxi('Money moved. Trust verified. That is the MUVR way.');
+      loadMyGigs();
+      if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
+    } else {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      showToast('Error releasing escrow: ' + (errText || 'unknown'), 'error');
+    }
   } catch(e) { showToast('Error releasing escrow: ' + (e.message || ''), 'error'); console.error('releaseEscrow error:', e); }
 }
 
@@ -1793,37 +1746,20 @@ async function releaseEscrow(jobId) {
 async function cancelJob(jobId) {
   if (!confirm('Cancel this mission? Your escrowed MV will be refunded (minus the 1 MV burn fee).')) return;
   try {
-    var job = state.myGigs.find(function(j) { return j.id === jobId; });
-    if (!job) return;
-    var refund = Number(job.budget_mv || 0); /* burn fee already gone */
-
-    /* Refund balance */
-    var bal = Number((state.profile && state.profile.mv_balance) || 0);
-    await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: bal + refund }) });
-    state.profile.mv_balance = bal + refund;
-
-    /* Log refund in ledger */
-    var txh = 'REFUND_' + Date.now();
-    await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({
-      user_id: state.user.id, type: 'receive', amount_mv: refund, description: 'Escrow refund (gig cancelled)', tx_hash: txh, related_job_id: jobId
-    })});
-
-    /* Update escrow */
-    try { await apiRequest('escrow?job_id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'refunded' }) }); } catch(e) {}
-
-    /* Update job */
-    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'cancelled' }) });
-
-    /* Reject any pending applications */
-    try { await apiRequest('applications?job_id=eq.' + jobId + '&status=eq.pending', { method: 'PATCH', body: JSON.stringify({ status: 'rejected' }) }); } catch(e) {}
-
-    await publishEvent('escrow_release', refund, txh, null, state.user.id, jobId);
-
-    closeModal();
-    showToast('Mission cancelled. ' + refund + ' MV refunded.');
-    setMuxi('No worries. That MV is back in your wallet.');
-    loadMyGigs(); loadJobsSafe();
-  } catch(e) { showToast('Error cancelling gig', 'error'); console.error('cancelJob error:', e); }
+    setMuxi('Cancelling mission...');
+    var res = await apiRequest('rpc/cancel_job_secure', {
+      method: 'POST',
+      body: JSON.stringify({ p_poster_id: state.user.id, p_job_id: jobId })
+    });
+    if (res && res.ok) {
+      closeModal(); showToast('Mission cancelled. Budget refunded to your vault.');
+      setMuxi('No worries. That MV is back in your wallet.');
+      loadProfileSafe(); loadMyGigs(); loadJobsSafe();
+    } else {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      showToast('Error cancelling: ' + (errText || 'unknown'), 'error');
+    }
+  } catch(e) { showToast('Error cancelling gig: ' + (e.message || ''), 'error'); console.error('cancelJob error:', e); }
 }
 
 /* Open dispute modal */
@@ -2223,7 +2159,7 @@ async function loadMapData() {
               '<p class="font-black text-xs truncate">' + escapeHtml(j.title) + '</p>' +
               '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(j.address || j.category || '') + '</p>' +
             '</div>' +
-            '<span class="mono font-black text-xs ml-2" style="color:var(--accent)">' + Number(j.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
+            '<span class="mono font-black text-xs ml-2" style="color:var(--accent)">' + Number(j.budget_mv || 0) + ' <span style="color:var(--accent)">MV</span></span>' +
           '</div>';
         }).join('');
       }
@@ -2385,7 +2321,7 @@ function renderExchangeTab() {
       '</div>' +
       '<div class="card p-4 text-center">' +
         '<p class="text-[10px] tracking-widest font-black" style="color:var(--text-dim)">YOUR BALANCE</p>' +
-        '<p class="text-xl font-black mono" style="color:var(--accent)">' + bal + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
+        '<p class="text-xl font-black mono" style="color:var(--accent)">' + bal + ' <span style="color:var(--accent)">MV</span></p>' +
       '</div>' +
       '<div class="card p-4 text-center">' +
         '<p class="text-[10px] tracking-widest font-black" style="color:var(--text-dim)">OPEN OFFERS</p>' +
@@ -2482,7 +2418,7 @@ function renderExchangeList() {
       var statusColor = t.status === 'completed' ? 'var(--accent)' : t.status === 'disputed' ? 'var(--red)' : 'var(--yellow)';
       return '<div class="card p-4 mb-3">' +
         '<div class="flex justify-between items-center">' +
-          '<div><span class="text-sm font-black">' + (isSeller ? 'Sold' : 'Bought') + ' ' + t.amount_mv + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span>' +
+          '<div><span class="text-sm font-black">' + (isSeller ? 'Sold' : 'Bought') + ' ' + t.amount_mv + ' <span style="color:var(--accent)">MV</span></span>' +
             '<p class="text-[10px]" style="color:var(--text-dim)">' + relTime(t.created_at) + ' | $' + Number(t.total_price || 0).toFixed(2) + '</p></div>' +
           '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="color:' + statusColor + ';border:1px solid ' + statusColor + '40">' + escapeHtml(t.status) + '</span>' +
         '</div>' +
@@ -2508,7 +2444,7 @@ function renderExchangeList() {
             '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(a.agent_type || 'general') + ' | ' + (a.missions_completed || 0) + ' missions | ' + (a.xp || 0) + ' XP</p>' +
             '<p class="text-[10px]" style="color:var(--text-dim)">Autonomy: ' + (a.autonomy_pct || 0) + '% to agent vault</p></div>' +
           '<div class="text-right">' +
-            '<p class="text-sm font-black mono" style="color:var(--accent)">' + (a.agent_balance || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
+            '<p class="text-sm font-black mono" style="color:var(--accent)">' + (a.agent_balance || 0) + ' <span style="color:var(--accent)">MV</span></p>' +
             '<p class="text-[10px]" style="color:var(--text-dim)">agent vault</p>' +
             (isOwner ? '<p class="text-[10px] font-black mt-1" style="color:var(--accent-2)">YOUR AGENT</p>' : '') +
           '</div>' +
@@ -2566,7 +2502,7 @@ function openSellMVModal() {
   openModal(
     '<div class="card p-6" style="max-width:460px;margin:auto">' +
       '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black"><i class="fas fa-tag mr-2" style="color:var(--accent)"></i>Sell MV</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
-      '<p class="text-sm mb-4" style="color:var(--text-dim)">Your balance: <strong>' + bal + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></strong>. Set your price and accepted payment methods.</p>' +
+      '<p class="text-sm mb-4" style="color:var(--text-dim)">Your balance: <strong>' + bal + ' <span style="color:var(--accent)">MV</span></strong>. Set your price and accepted payment methods.</p>' +
       '<input id="sell-amount" type="number" min="1" max="' + bal + '" placeholder="Amount to sell (MV)" class="field mb-3">' +
       '<input id="sell-price" type="number" min="0.01" max="5" step="0.01" placeholder="Price per MV (USD)" value="1.00" class="field mb-3">' +
       '<p class="text-[10px] font-black mb-2" style="color:var(--text-dim)">ACCEPTED PAYMENT METHODS</p>' +
@@ -2626,7 +2562,7 @@ function openBuyModal(offerId) {
     '<div class="card p-6" style="max-width:440px;margin:auto">' +
       '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black">Buy MV</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
       '<div class="p-4 rounded-xl mb-4" style="background:rgba(255,255,255,0.04)">' +
-        '<p class="text-sm"><strong>' + escapeHtml(offer.seller_handle || 'Seller') + '</strong> is selling <strong>' + offer.amount_mv + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></strong> at <strong class="mono" style="color:var(--accent)">$' + Number(offer.price_per_mv).toFixed(2) + '/MV</strong></p>' +
+        '<p class="text-sm"><strong>' + escapeHtml(offer.seller_handle || 'Seller') + '</strong> is selling <strong>' + offer.amount_mv + ' <span style="color:var(--accent)">MV</span></strong> at <strong class="mono" style="color:var(--accent)">$' + Number(offer.price_per_mv).toFixed(2) + '/MV</strong></p>' +
         '<p class="text-xs mt-1" style="color:var(--text-dim)">Accepts: ' + (offer.payment_methods || []).join(', ') + '</p>' +
       '</div>' +
       '<input id="buy-amount" type="number" min="1" max="' + offer.amount_mv + '" placeholder="Amount to buy (MV)" value="' + offer.amount_mv + '" class="field mb-3">' +
@@ -2842,7 +2778,7 @@ function openAgentSettingsModal(agentId) {
       '<div class="space-y-3">' +
         '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04)">' +
           '<p class="text-[10px] font-black" style="color:var(--text-dim)">AGENT VAULT</p>' +
-          '<p class="text-lg font-black mono" style="color:var(--accent)">' + (agent.agent_balance || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
+          '<p class="text-lg font-black mono" style="color:var(--accent)">' + (agent.agent_balance || 0) + ' <span style="color:var(--accent)">MV</span></p>' +
         '</div>' +
         '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04)">' +
           '<p class="text-[10px] font-black" style="color:var(--text-dim)">STATS</p>' +
@@ -2943,7 +2879,7 @@ function renderWalletTab() {
     '<div class="card p-5 max-w-md mb-6">' +
       '<p class="text-[10px] tracking-widest font-black mb-2" style="color:rgba(232,236,241,0.55)">YOUR BALANCE</p>' +
       '<div class="flex items-end justify-between mb-5">' +
-        '<p class="text-4xl font-black mono" style="color:var(--accent)" id="balance-display">' + (state.balanceVisible ? bal + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span>' : '------') + '</p>' +
+        '<p class="text-4xl font-black mono" style="color:var(--accent)" id="balance-display">' + (state.balanceVisible ? bal + ' <span style="color:var(--accent)">MV</span>' : '------') + '</p>' +
         '<button onclick="toggleBalance()" class="text-xs font-black cursor-pointer" style="color:rgba(232,236,241,0.55);background:none;border:none;text-transform:uppercase">' + (state.balanceVisible ? 'Hide' : 'Show') + '</button>' +
       '</div>' +
       '<div class="grid grid-cols-3 gap-3">' +
@@ -2962,7 +2898,10 @@ function renderWalletTab() {
 
 function toggleBalance() {
   state.balanceVisible = !state.balanceVisible;
-  if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
+  var bal = (state.profile && state.profile.mv_balance) || 0;
+  var bd = getEl('balance-display');
+  if (bd) bd.innerHTML = state.balanceVisible ? (bal + ' <span style="color:var(--accent)">MV</span>') : '------';
+  document.querySelectorAll('[onclick="toggleBalance()"]').forEach(function(b) { b.textContent = state.balanceVisible ? 'Hide' : 'Show'; });
 }
 
 async function loadWalletData() {
@@ -2976,7 +2915,7 @@ async function loadWalletData() {
   } catch(e) {}
 
   var bd = getEl('balance-display');
-  if (bd) bd.innerHTML = state.balanceVisible ? ((state.profile && state.profile.mv_balance || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span>') : '------';
+  if (bd) bd.innerHTML = state.balanceVisible ? ((state.profile && state.profile.mv_balance || 0) + ' <span style="color:var(--accent)">MV</span>') : '------';
 
   /* Load personal ledger */
   var el = getEl('ledger-list');
@@ -3005,7 +2944,7 @@ async function loadWalletData() {
             '<p class="text-[10px] mt-1" style="color:rgba(232,236,241,0.38)">' + relTime(e.created_at) + '</p>' +
           '</div>' +
         '</div>' +
-        '<p class="mono font-black text-xs whitespace-nowrap ml-2" style="color:' + color + '">' + sign + Number(e.amount_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
+        '<p class="mono font-black text-xs whitespace-nowrap ml-2" style="color:' + color + '">' + sign + Number(e.amount_mv || 0) + ' <span style="color:var(--accent)">MV</span></p>' +
       '</div>';
     }).join('');
   } catch(e) { if (el) el.innerHTML = '<p class="text-sm py-4" style="color:var(--text-dim)">Ledger unavailable right now.</p>'; }
@@ -3063,7 +3002,23 @@ async function loadPublicEvents() {
 }
 
 async function computeNetworkStats() {
-  var TOTAL_CAP = 10000000; /* 10 Million MV */
+  try {
+    var rpcRes = await apiRequest('rpc/get_network_stats', { method: 'POST', body: '{}' });
+    if (rpcRes && rpcRes.ok) {
+      var stats = await rpcRes.json();
+      if (stats && stats.cap) {
+        function fmtNum(n) { n = Number(n) || 0; return n >= 1000000 ? (n/1000000).toFixed(1) + 'M' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(Math.round(n)); }
+        ['stat-minted', 'pub-minted'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(stats.minted); });
+        ['stat-escrowed', 'pub-escrowed'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(stats.escrowed); });
+        ['stat-burned', 'pub-burned'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(stats.burned); });
+        ['stat-circulating', 'pub-circulating'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(stats.circulating); });
+        ['stat-available', 'pub-available'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(stats.available); });
+        return;
+      }
+    }
+  } catch(re) { console.warn('get_network_stats RPC failed, using fallback:', re); }
+  /* FALLBACK: original client-side computation */
+  var TOTAL_CAP = 10000000;
   try {
     var headers = { 'apikey': SUPA_KEY };
     if (state.accessToken) headers['Authorization'] = 'Bearer ' + state.accessToken;
@@ -3083,14 +3038,13 @@ async function computeNetworkStats() {
     if (circulating < 0) circulating = 0;
     var available = TOTAL_CAP - minted;
     if (available < 0) available = 0;
-
     function fmtNum(n) { return n >= 1000000 ? (n/1000000).toFixed(1) + 'M' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(Math.round(n)); }
     ['stat-minted', 'pub-minted'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(minted); });
     ['stat-escrowed', 'pub-escrowed'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(escrowed); });
     ['stat-burned', 'pub-burned'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(burned); });
     ['stat-circulating', 'pub-circulating'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(circulating); });
     ['stat-available', 'pub-available'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(available); });
-  } catch(e) { console.error('stats error:', e); }
+  } catch(e) { console.error('Stats fallback error:', e); }
 }
 
 function renderPublicEvents() {
@@ -3125,7 +3079,7 @@ function renderPublicEvents() {
           '</div>' +
         '</div>' +
         '<div class="text-right">' +
-          '<p class="mono font-black text-sm" style="color:' + cfg.color + '">' + Number(ev.amount_mv) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
+          '<p class="mono font-black text-sm" style="color:' + cfg.color + '">' + Number(ev.amount_mv) + ' <span style="color:var(--accent)">MV</span></p>' +
           '<p class="text-[10px]" style="color:var(--text-dim)">' + relTime(ev.created_at) + '</p>' +
         '</div>' +
       '</div>' +
@@ -3544,9 +3498,9 @@ function openPostJobModal() {
         '<div><label class="text-[11px] font-black mb-1 block" style="color:rgba(232,236,241,0.55)">Budget (MV Credits)</label><input id="job-budget" type="number" min="1" max="10000" placeholder="50" class="field" oninput="updateJobFee()"></div>' +
         '<input id="job-address" placeholder="Location / Address (optional)" maxlength="200" class="field">' +
         '<div class="p-4 rounded-2xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
-          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Budget</span><span class="font-black" id="fee-budget">0 <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span></div>' +
-          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Posting fee (burn)</span><span class="font-black" style="color:var(--red)">1 <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span></div>' +
-          '<div class="flex justify-between font-black pt-2" style="border-top:1px solid rgba(255,255,255,0.10)"><span>Total locked</span><span id="fee-total" style="color:var(--accent)">1 <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></span></div>' +
+          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Budget</span><span class="font-black" id="fee-budget">0 <span style="color:var(--accent)">MV</span></span></div>' +
+          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Posting fee (burn)</span><span class="font-black" style="color:var(--red)">1 <span style="color:var(--accent)">MV</span></span></div>' +
+          '<div class="flex justify-between font-black pt-2" style="border-top:1px solid rgba(255,255,255,0.10)"><span>Total locked</span><span id="fee-total" style="color:var(--accent)">1 <span style="color:var(--accent)">MV</span></span></div>' +
         '</div>' +
         '<button onclick="handlePostJob()" class="btn-primary rounded-full">Post Mission & Lock Escrow</button>' +
         '<div class="text-[11px]" style="color:var(--text-dim)">If you do not have enough MV, fund your vault first.</div>' +
@@ -3620,9 +3574,7 @@ function openLoadModal() {
   var hasStripe = !!stripeKey;
 
   var tiles = [5, 10, 25, 50, 100, 250].map(function(n) {
-    var onclick = hasStripe ?
-      'initStripeMint(' + n + ')' :
-      'betaMint(' + n + ')';
+    var onclick = 'initStripeMint(' + n + ')';
     return '<button onclick="' + onclick + '" class="btn-secondary py-4 text-center rounded-2xl hover:border-[rgba(24,246,200,0.35)] transition-all" style="position:relative;overflow:hidden">' +
       '<div class="text-lg font-black">$' + n + '</div>' +
       '<div class="text-xs font-black mt-1" style="color:var(--accent)">' + n + ' MV</div>' +
@@ -3639,7 +3591,7 @@ function openLoadModal() {
       /* Custom amount */
       '<div class="flex gap-2 mb-4">' +
         '<input id="custom-mint-amount" type="number" min="1" max="10000" placeholder="Custom amount" class="field flex-1">' +
-        '<button onclick="' + (hasStripe ? 'initStripeMint(parseInt(getEl(\'custom-mint-amount\').value))' : 'betaMint(parseInt(getEl(\'custom-mint-amount\').value))') + '" class="btn-pill btn-pill-accent">Fund</button>' +
+        '<button onclick="' + (hasStripe ? 'initStripeMint(parseInt(getEl(\'custom-mint-amount\').value))' : 'initStripeMint(parseInt(getEl(\'custom-mint-amount\').value))') + '" class="btn-pill btn-pill-accent">Fund</button>' +
       '</div>' +
 
       (hasStripe ?
@@ -3649,7 +3601,7 @@ function openLoadModal() {
         '</div>' :
         '<div class="flex items-center gap-2 p-3 rounded-xl mb-3" style="background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.16)">' +
           '<i class="fas fa-flask text-xs" style="color:var(--yellow)"></i>' +
-          '<span class="text-[11px] font-bold" style="color:var(--yellow)">Beta mode — payment rails staged. Credits added directly for testing.</span>' +
+          '<span class="text-[11px] font-bold" style="color:var(--yellow)">Payment rails being configured. Earn MV by completing missions or buy on the P2P Exchange.</span>' +
         '</div>'
       ) +
 
@@ -3664,7 +3616,7 @@ function openLoadModal() {
 async function initStripeMint(amount) {
   amount = parseInt(amount);
   if (!amount || amount < 1 || amount > 10000) { showToast('Enter an amount between 1 and 10,000', 'error'); return; }
-  if (!window.STRIPE_PK) { betaMint(amount); return; }
+  if (!window.STRIPE_PK) { showToast('Payment rails not yet configured. Earn MV by completing missions or buy on the P2P Exchange.', 'info'); return; }
 
   try {
     setMuxi('Opening secure checkout for ' + amount + ' MV...');
@@ -3701,30 +3653,7 @@ async function initStripeMint(amount) {
 }
 
 /* Beta mint - direct credit for testing (will be removed in production) */
-async function betaMint(amount) {
-  amount = parseInt(amount);
-  if (!amount || amount < 1) { showToast('Enter a valid amount', 'error'); return; }
-  if (!confirm('Beta mode: This will add ' + amount + ' MV directly to your vault for testing. In production, this will require real payment via Stripe.')) return;
 
-  try {
-    setMuxi('Minting ' + amount + ' MV...');
-    var res = await apiRequest('rpc/mint_mv', {
-      method: 'POST',
-      body: JSON.stringify({ p_user_id: state.user.id, p_amount: amount })
-    });
-    if (res && res.ok) {
-      closeModal();
-      showToast(amount + ' MV added to your vault!');
-      setMuxi('Ka-ching! ' + amount + ' MV in the vault. Spend wisely... or not.');
-      loadWalletData();
-    } else {
-      var errText = ''; try { errText = await res.text(); } catch(e) {}
-      showToast('Mint failed: ' + (errText || 'unknown'), 'error');
-    }
-  } catch(e) {
-    showToast('Mint error: ' + (e.message || ''), 'error');
-  }
-}
 
 function openCashoutModal() {
   openModal(
@@ -4816,42 +4745,29 @@ async function handlePostJob() {
   var desc = ((getEl('job-desc') || {}).value || '').trim();
   var type = (getEl('job-type') || {}).value;
   var budget = parseFloat((getEl('job-budget') || {}).value) || 0;
+  var urgency = (getEl('job-urgency') || {}).value || 'asap';
+  var address = (getEl('job-address') || {}).value || '';
   if (!title) return showToast('Enter a title', 'error');
   if (!type) return showToast('Select a type', 'error');
   if (budget < 1) return showToast('Budget must be at least 1 MV', 'error');
   if (budget > 10000) return showToast('Budget too high', 'error');
   var bal = Number((state.profile && state.profile.mv_balance) || 0);
-  if (bal < budget + 1) return showToast('Not enough MV Credits', 'error');
+  if (bal < budget + 1) return showToast('Not enough MV Credits. Fund your vault first.', 'error');
   try {
     setMuxi('Deploying your mission...');
-    var res = await apiRequest('jobs', {
+    var res = await apiRequest('rpc/post_job_secure', {
       method: 'POST',
-      body: JSON.stringify({
-        poster_id: state.user.id, title: title, description: desc, category: type,
-        urgency: (getEl('job-urgency') || {}).value || 'asap', budget_mv: budget, fee_mv: 1,
-        total_escrowed: budget + 1, address: (getEl('job-address') || {}).value || '', status: 'open'
-      })
+      body: JSON.stringify({ p_poster_id: state.user.id, p_title: title, p_description: desc, p_category: type, p_urgency: urgency, p_budget_mv: budget, p_address: address })
     });
-    if (!(res && res.ok)) return showToast('Error posting job', 'error');
-    var jobData = await res.json();
-    var jobId = jobData && jobData[0] ? jobData[0].id : null;
-    if (jobId) {
-      await apiRequest('escrow', { method: 'POST', body: JSON.stringify({ job_id: jobId, poster_id: state.user.id, amount_mv: budget, fee_mv: 1, status: 'locked' }) });
-      /* Posting fee split: 0.5 MV burned + 0.5 MV to referral/agent pool */
-      await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'burn', amount_mv: 0.5, description: 'Posting fee (burn 50%)', tx_hash: 'BURN' + Date.now(), related_job_id: jobId }) });
-      await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'send', amount_mv: 0.5, description: 'Posting fee (referral/agent pool 50%)', tx_hash: 'RPOOL' + Date.now(), related_job_id: jobId }) });
-      /* Credit the referral pool account */
-      await apiRequest('rpc/credit_referral_pool', { method: 'POST', body: JSON.stringify({ p_amount: 0.5, p_source_job_id: jobId, p_poster_id: state.user.id }) }).catch(function() {});
-      /* Publish to public ledger */
-      await publishEvent('burn', 0.5, 'BURN' + Date.now(), state.user.id, null, jobId);
-      await publishEvent('escrow_lock', budget, 'ESC' + Date.now(), state.user.id, null, jobId);
+    if (res && res.ok) {
+      state.profile.mv_balance = bal - (budget + 1);
+      closeModal(); showToast('Mission deployed! Escrow locked.');
+      setMuxi(muxiQuip('postjob'));
+      loadJobsSafe();
+    } else {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      showToast('Error posting job: ' + (errText || 'unknown'), 'error');
     }
-    var newBal = bal - (budget + 1);
-    await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: newBal }) });
-    state.profile.mv_balance = newBal;
-    closeModal(); showToast('Mission deployed! Escrow locked.');
-    setMuxi(muxiQuip('postjob'));
-    loadJobsSafe();
   } catch(e) { showToast('Error posting job: ' + (e.message || ''), 'error'); console.error('PostJob error:', e); }
 }
 
@@ -4912,10 +4828,8 @@ async function handleSend() {
   if (bal < amt) return showToast('Not enough MV', 'error');
   try {
     var enc = encodeURIComponent(to);
-    // Try by email/username first
     var look = await apiRequest('users?or=(email.eq.' + enc + ',username.eq.' + enc + ')&select=id');
     var ld = (look && look.ok) ? await look.json() : [];
-    // Fallback: try by alias
     if (!ld.length) {
       var aliasLook = await apiRequest('mv_aliases?public_alias=eq.' + enc + '&select=user_id');
       var ad = (aliasLook && aliasLook.ok) ? await aliasLook.json() : [];
@@ -4923,35 +4837,28 @@ async function handleSend() {
       ld = [{ id: ad[0].user_id }];
     }
     var rid = ld[0].id;
+    if (rid === state.user.id) return showToast('Cannot send to yourself', 'error');
     var txh = 'TX' + Date.now() + Math.random().toString(36).slice(2, 8);
-    /* Use transfer_mv RPC (SECURITY DEFINER - bypasses RLS for recipient credit) */
-    var rpcOk = false;
-    try {
-      var rpcRes = await apiRequest('rpc/transfer_mv', {
-        method: 'POST',
-        body: JSON.stringify({ p_from_id: state.user.id, p_to_id: rid, p_amount: amt, p_tx_hash: txh })
-      });
-      if (rpcRes && rpcRes.ok) { rpcOk = true; }
-      else { console.warn('transfer_mv RPC status:', rpcRes && rpcRes.status, await rpcRes.text().catch(function(){return '';})); }
-    } catch(re) { console.warn('transfer_mv RPC error:', re); }
-    if (!rpcOk) {
-      /* Fallback: direct inserts + balance updates */
-      await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'send', amount_mv: amt, description: 'Sent to ' + to, tx_hash: txh, related_user_id: rid }) });
-      await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: bal - amt }) });
-      try {
-        await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: rid, type: 'receive', amount_mv: amt, description: 'Received', tx_hash: txh, related_user_id: state.user.id }) });
-        var rb = await apiRequest('users?id=eq.' + rid + '&select=mv_balance');
-        var rd = (rb && rb.ok) ? await rb.json() : [];
-        if (rd.length) await apiRequest('users?id=eq.' + rid, { method: 'PATCH', body: JSON.stringify({ mv_balance: Number(rd[0].mv_balance || 0) + amt }) });
-      } catch(fe) { console.warn('Recipient credit failed (RLS):', fe); }
+    setMuxi('Sending MV...');
+    var rpcRes = await apiRequest('rpc/transfer_mv', {
+      method: 'POST',
+      body: JSON.stringify({ p_from_id: state.user.id, p_to_id: rid, p_amount: amt, p_tx_hash: txh })
+    });
+    if (rpcRes && rpcRes.ok) {
+      state.profile.mv_balance = bal - amt;
+      var stealth = !!(getEl('send-stealth') || {}).checked;
+      if (!stealth) {
+        try { await publishEvent('transfer', amt, txh, state.user.id, rid, null); } catch(pe) {}
+      }
+      closeModal(); showToast('Sent ' + amt + ' MV!');
+      setMuxi(muxiQuip('send'));
+      if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
+    } else {
+      var errText = ''; try { errText = await rpcRes.text(); } catch(e) {}
+      showToast('Transfer failed: ' + (errText || 'Server error'), 'error');
+      setMuxi(muxiQuip('error'));
     }
-    state.profile.mv_balance = bal - amt;
-    /* Publish to public ledger */
-    await publishEvent('transfer', amt, txh, state.user.id, rid, null);
-    closeModal(); showToast('Sent ' + amt + ' MV!');
-    setMuxi(muxiQuip('send'));
-    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
-  } catch(e) { showToast('Transfer failed: ' + (e.message || 'unknown error'), 'error'); console.error('Send error:', e); }
+  } catch(e) { showToast('Transfer failed: ' + (e.message || ''), 'error'); console.error('Send error:', e); }
 }
 
 async function handleCashout() {
@@ -4960,29 +4867,44 @@ async function handleCashout() {
   var bal = Number((state.profile && state.profile.mv_balance) || 0);
   if (bal < amt) return showToast('Not enough MV', 'error');
   try {
-    await apiRequest('mv_ledger', { method: 'POST', body: JSON.stringify({ user_id: state.user.id, type: 'withdrawal', amount_mv: amt, description: 'Payout requested (beta). Est. $' + (amt * 0.995).toFixed(2), tx_hash: 'WD' + Date.now() }) });
-    await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify({ mv_balance: bal - amt }) });
-    state.profile.mv_balance = bal - amt;
-    closeModal(); showToast('Payout requested (beta).');
-    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
-  } catch(e) { showToast('Payout failed', 'error'); }
+    var res = await apiRequest('rpc/request_cashout', {
+      method: 'POST',
+      body: JSON.stringify({ p_user_id: state.user.id, p_amount: amt })
+    });
+    if (res && res.ok) {
+      state.profile.mv_balance = bal - amt;
+      closeModal(); showToast('Payout requested (beta).');
+      if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
+    } else {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      showToast('Payout failed: ' + (errText || 'unknown'), 'error');
+    }
+  } catch(e) { showToast('Payout failed: ' + (e.message || ''), 'error'); }
 }
 
 async function handleSaveProfile() {
+  var username = ((getEl('profile-username') || {}).value || '').toLowerCase().trim();
+  if (username && !/^[a-z0-9_]{3,30}$/.test(username)) {
+    return showToast('Username must be 3-30 characters: letters, numbers, underscore only', 'error');
+  }
   var updates = {
     full_name: (getEl('profile-name') || {}).value || '',
-    username: ((getEl('profile-username') || {}).value || '').toLowerCase(),
+    username: username,
     about_me: (getEl('profile-about') || {}).value || '',
     role: (getEl('profile-role') || {}).value || 'both',
     has_vehicle: !!(getEl('profile-vehicle') || {}).checked
   };
   try {
     var res = await apiRequest('users?id=eq.' + state.user.id, { method: 'PATCH', body: JSON.stringify(updates) });
-    if (res && res.ok) {
+    if (res && (res.ok || res.status === 204)) {
       state.profile = Object.assign(state.profile || {}, updates);
       closeModal(); showToast('Profile saved!'); renderProfileTab();
       setMuxi(muxiQuip('profile'));
-    } else { showToast('Error saving profile', 'error'); }
+    } else {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      if (errText.indexOf('username_format') >= 0) showToast('Username: 3-30 chars, letters/numbers/underscore', 'error');
+      else showToast('Error saving profile', 'error');
+    }
   } catch(e) { showToast('Error saving', 'error'); }
 }
 
@@ -5013,18 +4935,7 @@ async function loadJobsSafe() {
 /* =============================================================================
    PRESENCE INTERVAL (update every 45s if available)
 ============================================================================= */
-var presenceInterval = null;
 
-function startPresenceUpdates() {
-  if (presenceInterval) clearInterval(presenceInterval);
-  presenceInterval = setInterval(function() {
-    if (state.myPresence.status === 'available' && state.user && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(pos) {
-        updateMyPresence(pos.coords.latitude, pos.coords.longitude);
-      }, function() {}, { timeout: 3000, maximumAge: 30000 });
-    }
-  }, 45000);
-}
 
 /* =============================================================================
    REALTIME SUBSCRIPTIONS
@@ -5200,8 +5111,7 @@ async function boot() {
       loadProfileSafe();
       loadJobsSafe();
       loadNotifications();
-      startPresenceUpdates();
-      subscribeToPublicEvents();
+subscribeToPublicEvents();
       startNotifPolling();
       registerServiceWorker(); promptPushAfterInteraction();
       /* Show quick legal acknowledgment on session restore */
