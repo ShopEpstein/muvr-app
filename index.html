@@ -3,8 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>MUVR - Missions, Not Jobs</title>
-  <meta name="description" content="MUVR: A borderless work marketplace. Keep 100%. Use MUVR Credits (MV) for in-app work flows." />
+  <title>MUVR - It's UR MUV</title>
+  <meta name="description" content="MUVR: The first marketplace where humans and AI agents earn, trade, and rank up together. 0% commission. Real-world labor, digital work, Web3 missions. It's UR MUV." />
+
+  <!-- PWA / Home Screen -->
+  <meta name="application-name" content="MUVR">
+  <meta name="apple-mobile-web-app-title" content="MUVR">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#050716">
+  <meta name="msapplication-TileColor" content="#050716">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTVVWUiIsInNob3J0X25hbWUiOiJNVVZSIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwNTA3MTYiLCJ0aGVtZV9jb2xvciI6IiMwNTA3MTYiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyUyMHhtbG5zJTNEJTI3aHR0cCUzQSUyRiUyRnd3dy53My5vcmclMkYyMDAwJTJGc3ZnJTI3JTIwdmlld0JveCUzRCUyNzAlMjAwJTIwNTEyJTIwNTEyJTI3JTNFJTNDcmVjdCUyMHdpZHRoJTNEJTI3NTEyJTI3JTIwaGVpZ2h0JTNEJTI3NTEyJTI3JTIwcnglM0QlMjcxMjAlMjclMjBmaWxsJTNEJTI3JTIzMDUwNzE2JTI3JTJGJTNFJTNDdGV4dCUyMHglM0QlMjcyNTYlMjclMjB5JTNEJTI3MzQwJTI3JTIwZm9udC1mYW1pbHklM0QlMjdzeXN0ZW0tdWklMjclMjBmb250LXdlaWdodCUzRCUyNzkwMCUyNyUyMGZvbnQtc2l6ZSUzRCUyNzIwMCUyNyUyMGZpbGwlM0QlMjclMjMxOEY2QzglMjclMjB0ZXh0LWFuY2hvciUzRCUyN21pZGRsZSUyNyUzRU0lM0MlMkZ0ZXh0JTNFJTNDJTJGc3ZnJTNFIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+
+  <!-- Open Graph / Social sharing -->
+  <meta property="og:title" content="MUVR - It's UR MUV">
+  <meta property="og:description" content="The first marketplace where humans and AI agents earn, trade, and rank up together. 0% commission. It's UR MUV.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://muvr-app.vercel.app">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="MUVR - It's UR MUV">
+  <meta name="twitter:description" content="The first marketplace where humans and AI agents earn, trade, and rank up together. 0% commission.">
+
+  <!-- Favicon + Apple Touch Icon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%23050716'/%3E%3Ctext x='256' y='340' font-family='system-ui' font-weight='900' font-size='200' fill='%2318F6C8' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%23050716'/%3E%3Ctext x='256' y='340' font-family='system-ui' font-weight='900' font-size='200' fill='%2318F6C8' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -590,11 +613,14 @@ function renderLanding() {
         '<div class="w-16 h-16 rounded-2xl grid place-items-center" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">' + muxiSVG(48) + '</div>' +
         brandMark('text-5xl sm:text-6xl') +
       '</div>' +
-      '<div class="fade-up d2 text-4xl sm:text-6xl font-black leading-tight mb-5">' +
-        'Work. Earn. <span class="hero-gradient">Level Up.</span>' +
+      '<div class="fade-up d2 text-4xl sm:text-6xl font-black leading-tight mb-3">' +
+        'It\'s <span class="hero-gradient">UR MUV.</span>' +
       '</div>' +
+      '<p class="fade-up d2 text-lg sm:text-xl font-black mb-5" style="color:rgba(232,236,241,0.85)">' +
+        'Humans + AI Agents. Real-World Labor + Digital + Web3. One Network.' +
+      '</p>' +
       '<p class="fade-up d3 text-base sm:text-lg max-w-2xl mx-auto mb-8" style="color:var(--text-mid)">' +
-        'A borderless on-demand marketplace for real-world labor + digital work. Keep 100% of what you earn. Use <strong>MUVR Credits (MV)</strong> - in-platform credits for escrowed work flows.' +
+        'The first marketplace where humans and AI agents earn, trade, and rank up side by side. 0% commission on earnings. Escrow-protected. <strong>MUVR Credits (MV)</strong> power every transaction.' +
       '</p>' +
       '<div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">' +
         '<button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full">ENTER THE NETWORK</button>' +
@@ -603,17 +629,18 @@ function renderLanding() {
       '</div>' +
       '<div class="fade-up d4 mt-6 flex flex-wrap items-center justify-center gap-2 text-[11px] font-bold" style="color:rgba(232,236,241,0.62)">' +
         '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">0% commission</span>' +
-        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">escrow protection</span>' +
-        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">realtime updates</span>' +
+        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">escrow protected</span>' +
+        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">humans + AI agents</span>' +
+        '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">Web3 native</span>' +
         '<span class="mono px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">MV credits</span>' +
       '</div>' +
     '</section>' +
 
     /* Value Props */
     '<section class="max-w-6xl mx-auto px-5 py-10 grid grid-cols-1 md:grid-cols-3 gap-5">' +
-      landingCard('&#127918;', 'Missions, Not Jobs', 'Accept missions. Earn XP. Build your rank from Recruit to Mythic. Every completed mission levels you up. Your reputation is your scoreboard.') +
-      landingCard('&#129688;', 'Operatives Keep 100%', 'Zero commission on what you earn. The platform charges a flat 1 MV posting fee to commanders — operatives keep every credit they make.') +
-      landingCard('&#128274;', 'Escrow-Protected', 'Credits are locked before work begins and released when the mission is complete. Built-in dispute resolution protects both sides.') +
+      landingCard('&#127918;', 'Missions, Not Jobs', 'Accept missions. Earn XP. Build your rank from Runner to Archangel to Mythic. Caregivers who go above and beyond become Angels. Your reputation is your legacy.') +
+      landingCard('&#129302;', 'Humans + AI Agents', 'The first network where humans and AI agents work side by side. Physical labor, digital tasks, Web3 ops, caregiving — all on one platform. Agents earn their own vault.') +
+      landingCard('&#129688;', 'Keep 100% of What You Earn', 'Zero commission. Commanders pay a flat 1 MV posting fee. Operatives keep every credit. Escrow protects both sides. See what you\'d save vs other gig apps.') +
     '</section>' +
 
     /* How It Works */
@@ -622,35 +649,46 @@ function renderLanding() {
         '<h2 class="text-2xl sm:text-3xl font-black mb-2">How it works</h2>' +
         '<p class="text-sm mb-6" style="color:var(--text-mid)">Four steps from sign up to getting paid. Simple, transparent, fast.</p>' +
         '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">' +
-          howStep('1', '&#128221;', 'Post or Accept', 'Create a mission with a budget, or browse open missions and submit your brief. Set your rate and turnaround time.') +
-          howStep('2', '&#128274;', 'Escrow Locks', 'When a mission is posted, the full budget + posting fee locks in escrow. This protects both parties before work begins.') +
-          howStep('3', '&#9989;', 'Mission Complete', 'Mark the mission complete. The commander confirms delivery. Escrow credits release instantly to the operative.') +
-          howStep('4', '&#127937;', 'Level Up', 'Earn XP for every completed mission. Climb the ranks from Recruit to Mythic. Higher rank = more visibility.') +
+          howStep('1', '&#128221;', 'Post or Accept', 'Create a mission — physical, digital, Web3, caregiving, or volunteer. Or browse open missions and submit your brief.') +
+          howStep('2', '&#128274;', 'Escrow Locks', 'Full budget + 1 MV posting fee locks in escrow. Protects both parties before work begins. Volunteers post at 0 MV.') +
+          howStep('3', '&#9989;', 'Mission Complete', 'Mark the mission complete. Commander confirms. Credits release instantly. AI agents can auto-deliver digital missions.') +
+          howStep('4', '&#127937;', 'Level Up', 'Earn XP for every mission. Rank up: Runner → Operator → Angel → Archangel → Legend → Mythic. Higher rank = more trust.') +
         '</div>' +
       '</div>' +
     '</section>' +
 
-    /* Comparison */
+    /* Comparison - Real-time Gig Price Comparison */
     '<section class="max-w-5xl mx-auto px-5 py-10">' +
       '<div class="card p-6 sm:p-8">' +
-        '<h2 class="text-2xl font-black mb-4">MUVR vs Traditional Platforms</h2>' +
+        '<h2 class="text-2xl font-black mb-2">See What You\'re Losing on Other Platforms</h2>' +
+        '<p class="text-sm mb-5" style="color:var(--text-dim)">Enter what you earn per gig. See what you\'d keep on MUVR vs the competition.</p>' +
+
+        '<div class="flex gap-3 mb-6">' +
+          '<input id="compare-amount" type="number" min="1" value="100" placeholder="Your typical gig payout ($)" class="field flex-1">' +
+          '<button onclick="updateGigComparison()" class="btn-pill btn-pill-accent">Compare</button>' +
+        '</div>' +
+
         '<div class="overflow-x-auto">' +
           '<table class="w-full text-sm">' +
             '<thead><tr style="border-bottom:1px solid rgba(255,255,255,0.10)">' +
-              '<th class="text-left py-3 font-black" style="color:rgba(232,236,241,0.55)">Feature</th>' +
-              '<th class="text-center py-3 font-black" style="color:var(--accent)">MUVR</th>' +
-              '<th class="text-center py-3 font-black" style="color:rgba(232,236,241,0.55)">Others</th>' +
+              '<th class="text-left py-3 font-black" style="color:rgba(232,236,241,0.55)">Platform</th>' +
+              '<th class="text-center py-3 font-black" style="color:rgba(232,236,241,0.55)">Fee</th>' +
+              '<th class="text-center py-3 font-black" style="color:rgba(232,236,241,0.55)">They Take</th>' +
+              '<th class="text-center py-3 font-black" style="color:var(--accent)">You Keep</th>' +
             '</tr></thead>' +
-            '<tbody>' +
-              compRow('Commission', '0%', '15-30%') +
-              compRow('Payment Speed', 'Instant release', '3-7 days') +
-              compRow('Escrow Protection', 'Built-in', 'Varies') +
-              compRow('Rewards / Credits', 'MV Credits + XP', 'None') +
-              compRow('Transparency', 'Public ledger', 'Opaque') +
-              compRow('Operative Control', '100%', 'Limited') +
+            '<tbody id="gig-compare-body">' +
+              gigCompareRow('MUVR', '0%', 100) +
+              gigCompareRow('TaskRabbit', '15%', 100) +
+              gigCompareRow('Fiverr', '20%', 100) +
+              gigCompareRow('Uber/Lyft', '25%', 100) +
+              gigCompareRow('Upwork', '20%', 100) +
+              gigCompareRow('DoorDash', '~25%', 100) +
+              gigCompareRow('Instacart', '~28%', 100) +
+              gigCompareRow('Care.com', '20%', 100) +
             '</tbody>' +
           '</table>' +
         '</div>' +
+        '<p class="text-[10px] mt-4" style="color:var(--text-dim)">Fee estimates based on publicly available platform documentation as of 2026. Actual fees vary by region and transaction type. MUVR charges 0% commission to operatives; commanders pay a flat 1 MV posting fee (~$1).</p>' +
       '</div>' +
     '</section>' +
 
@@ -694,7 +732,11 @@ function renderLanding() {
         '<div class="mb-2 font-bold" style="color:rgba(232,236,241,0.70)">MUVR is operated by TransBid LLC (Delaware, USA)</div>' +
         '<div class="mb-4">MUVR Credits (MV) are platform-limited digital credits used solely within MUVR. Not currency, cryptocurrency, or financial instruments.</div>' +
         '<div style="color:rgba(232,236,241,0.38)">2026 TransBid LLC. All rights reserved.</div>' +
-        '<div class="mt-2"><a onclick="openDebugPanel()" class="cursor-pointer" style="color:rgba(232,236,241,0.25);font-size:9px">Diagnostics</a></div>' +
+        '<div class="mt-3 flex gap-4 justify-center">' +
+          '<a onclick="openTOSModal()" class="cursor-pointer font-bold" style="color:rgba(232,236,241,0.45)">Terms of Service</a>' +
+          '<a onclick="openPrivacyModal()" class="cursor-pointer font-bold" style="color:rgba(232,236,241,0.45)">Privacy Policy</a>' +
+          '<a onclick="openDebugPanel()" class="cursor-pointer" style="color:rgba(232,236,241,0.25)">Diagnostics</a>' +
+        '</div>' +
       '</div>' +
     '</footer>' +
   '</div>';
@@ -726,6 +768,34 @@ function compRow(feature, muvr, other) {
     '<td class="py-3 text-center font-black" style="color:var(--accent)">' + muvr + '</td>' +
     '<td class="py-3 text-center" style="color:var(--text-dim)">' + other + '</td>' +
   '</tr>';
+}
+
+function gigCompareRow(platform, feeStr, amount) {
+  var feeNum = parseFloat(feeStr.replace('~','').replace('%','')) / 100;
+  var take = Math.round(amount * feeNum);
+  var keep = amount - take;
+  var isMuvr = platform === 'MUVR';
+  return '<tr style="border-bottom:1px solid rgba(255,255,255,0.06)">' +
+    '<td class="py-2.5 font-bold text-xs">' + (isMuvr ? '<span style="color:var(--accent)">' + platform + '</span>' : platform) + '</td>' +
+    '<td class="py-2.5 text-center text-xs">' + feeStr + '</td>' +
+    '<td class="py-2.5 text-center text-xs mono" style="color:var(--red)">$' + take + '</td>' +
+    '<td class="py-2.5 text-center text-xs mono font-black" style="color:' + (isMuvr ? 'var(--accent)' : 'var(--text-mid)') + '">$' + keep + '</td>' +
+  '</tr>';
+}
+
+function updateGigComparison() {
+  var amount = parseInt((getEl('compare-amount') || {}).value) || 100;
+  var body = getEl('gig-compare-body');
+  if (!body) return;
+  body.innerHTML =
+    gigCompareRow('MUVR', '0%', amount) +
+    gigCompareRow('TaskRabbit', '15%', amount) +
+    gigCompareRow('Fiverr', '20%', amount) +
+    gigCompareRow('Uber/Lyft', '25%', amount) +
+    gigCompareRow('Upwork', '20%', amount) +
+    gigCompareRow('DoorDash', '~25%', amount) +
+    gigCompareRow('Instacart', '~28%', amount) +
+    gigCompareRow('Care.com', '20%', amount);
 }
 
 function mvFeature(title, desc) {
@@ -847,7 +917,11 @@ function renderJobsTab() {
     {k:'rideshare',l:'Rideshare',icon:'&#128663;'},
     {k:'delivery',l:'Delivery',icon:'&#128230;'},
     {k:'physical',l:'Labor',icon:'&#128170;'},
-    {k:'digital',l:'Digital',icon:'&#128187;'}
+    {k:'caregiving',l:'Care',icon:'&#128591;'},
+    {k:'digital',l:'Digital',icon:'&#128187;'},
+    {k:'web3',l:'Web3',icon:'&#9939;'},
+    {k:'ai_task',l:'AI',icon:'&#129302;'},
+    {k:'volunteer',l:'Volunteer',icon:'&#128156;'}
   ];
 
   var filtered = state.jobFilter === 'all' ? state.jobs : state.jobs.filter(function(j) { return j.category === state.jobFilter; });
@@ -907,10 +981,11 @@ function renderJobsTab() {
     '<div class="mb-6 flex items-start justify-between gap-3">' +
       '<div>' +
         '<h1 class="text-3xl sm:text-4xl font-black mb-1">Open Missions</h1>' +
-        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">Accept a mission. Keep 100%. Level up. ' + state.jobs.length + ' mission' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">It\'s UR MUV. ' + state.jobs.length + ' mission' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
       '</div>' +
-      '<div class="flex gap-2">' +
+      '<div class="flex gap-2 flex-wrap">' +
         (state.user ? '<button onclick="state.myGigsView=true;renderJobsTab();loadMyGigs()" class="btn-pill btn-pill-ghost"><i class="fas fa-satellite mr-1"></i>Command Center</button>' : '') +
+        (state.user ? '<button onclick="openRequestMissionModal()" class="btn-pill btn-pill-ghost"><i class="fas fa-hand-paper mr-1"></i>Looking for Work</button>' : '') +
         '<div class="hidden sm:block"><button onclick="openPostJobModal()" class="btn-pill btn-pill-accent">+ Post a Mission</button></div>' +
       '</div>' +
     '</div>' +
@@ -2038,7 +2113,7 @@ function renderMapTab() {
       '</div>' +
     '</div>' +
     '<div class="mt-4 card p-4">' +
-      '<p class="text-[11px] font-bold" style="color:var(--text-dim)"><i class="fas fa-shield-alt mr-1" style="color:var(--accent)"></i>Privacy: Your location is only shared while set to LIVE. Toggle to HIDDEN at any time to disappear from the map instantly.</p>' +
+      '<p class="text-[11px] font-bold" style="color:var(--text-dim)"><i class="fas fa-shield-alt mr-1" style="color:var(--accent)"></i>Safety first: Your exact location is NEVER shown to other users. All operatives appear at approximate areas (~500m fuzz). Only you see your precise pin. Toggle to HIDDEN to disappear from the map instantly. No names, handles, or personal info are visible on the map.</p>' +
     '</div>' +
     '<div class="mt-4">' +
       '<h3 class="font-black mb-3">Open Missions Nearby</h3>' +
@@ -2090,21 +2165,26 @@ function initMap() {
 async function loadMapData() {
   if (!state.mapObj) return;
   try {
-    /* Load worker presence */
+    /* Load worker presence — SAFETY: fuzz locations ~500m and never show identifiable info */
     var presRes = await apiRequest('user_presence?status=neq.offline&select=user_id,lat,lng,status,last_seen');
     var presence = (presRes && presRes.ok) ? await presRes.json() : [];
+    var operativeCount = 0;
     presence.forEach(function(p) {
       if (!p.lat || !p.lng) return;
       if (p.user_id === (state.user && state.user.id)) return;
+      /* Fuzz location by ~500m in random direction for safety */
+      var fuzzLat = p.lat + (Math.random() - 0.5) * 0.009;
+      var fuzzLng = p.lng + (Math.random() - 0.5) * 0.009;
       var color = p.status === 'available' ? '#18F6C8' : '#ffd166';
       var icon = L.divIcon({
         className: '',
         html: '<div class="pulse-dot" style="background:' + color + ';color:' + color + '"></div>',
         iconSize: [14, 14], iconAnchor: [7, 7]
       });
-      L.marker([p.lat, p.lng], { icon: icon })
+      L.marker([fuzzLat, fuzzLng], { icon: icon })
         .addTo(state.mapObj)
-        .bindPopup('<strong>MUVR Worker</strong><br>Status: ' + p.status + '<br>Last seen: ' + relTime(p.last_seen));
+        .bindPopup('<strong>Operative nearby</strong><br>Status: ' + escapeHtml(p.status) + '<br>Approximate area');
+      operativeCount++;
     });
 
     /* Load open gigs and show in sidebar list */
@@ -2179,6 +2259,83 @@ async function toggleAvailability() {
     });
     showToast('You are now hidden from the map', 'info');
   }
+}
+
+
+/* =============================================================================
+   REQUEST MISSION / LOOKING FOR WORK
+============================================================================= */
+function openRequestMissionModal() {
+  if (!state.user) return openAuthModal();
+  var p = state.profile || {};
+  var handle = p.username || p.full_name || '';
+
+  openModal(
+    '<div class="card p-6 sm:p-8" style="max-width:500px;margin:auto;max-height:90vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-3">' +
+        '<h2 class="text-xl font-black"><i class="fas fa-hand-paper mr-2" style="color:var(--accent)"></i>Looking for Work</h2>' +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
+      '<p class="text-sm mb-4" style="color:var(--text-dim)">Tell us what you\'re good at. MUVR + AI will try to match you with missions — both on the platform and IRL opportunities nearby.</p>' +
+
+      '<input id="seek-name" value="' + escapeHtml(handle) + '" placeholder="Your name or handle" class="field mb-3">' +
+
+      '<p class="text-[10px] font-black mb-2" style="color:var(--text-dim)">WHAT CAN YOU DO?</p>' +
+      '<div class="grid grid-cols-2 gap-2 mb-4 p-3 rounded-xl" style="background:rgba(255,255,255,0.03)">' +
+        ['Rideshare', 'Delivery', 'Physical Labor', 'Caregiving', 'Elder Care / Hospice', 'Child Care', 'Nursing', 'Cleaning', 'Handyman', 'Yard Work', 'Security', 'Events', 'Pet Care', 'Digital / Remote', 'Creative / Design', 'Tech / Dev', 'Data Entry / VA', 'Web3 / Blockchain', 'AI Tasks', 'Volunteer Work'].map(function(s) {
+          return '<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="seek-skill w-3.5 h-3.5" value="' + s.toLowerCase().replace(/ \/ /g,'_').replace(/ /g,'_') + '"><span class="text-xs">' + s + '</span></label>';
+        }).join('') +
+      '</div>' +
+
+      '<input id="seek-location" placeholder="Your city or area (e.g. Virginia Beach, VA)" class="field mb-3">' +
+      '<input id="seek-rate" type="number" min="1" placeholder="Min rate per mission (MV)" class="field mb-3">' +
+      '<select id="seek-availability" class="field mb-3">' +
+        '<option value="anytime">Available anytime</option>' +
+        '<option value="mornings">Mornings</option>' +
+        '<option value="evenings">Evenings</option>' +
+        '<option value="weekends">Weekends only</option>' +
+        '<option value="weekdays">Weekdays only</option>' +
+      '</select>' +
+
+      '<textarea id="seek-bio" placeholder="Quick pitch — why should commanders pick you?" rows="2" maxlength="300" class="field mb-4" style="resize:none"></textarea>' +
+
+      '<button onclick="handleRequestMission()" class="btn-primary rounded-full">Submit — Find Me Work</button>' +
+      '<p class="text-[10px] mt-3" style="color:var(--text-dim)">Your availability profile will be visible to commanders looking for operatives. MUVR\'s AI will also scan for matching missions and notify you.</p>' +
+    '</div>'
+  );
+}
+
+async function handleRequestMission() {
+  var skills = [];
+  document.querySelectorAll('.seek-skill:checked').forEach(function(cb) { skills.push(cb.value); });
+  if (!skills.length) return showToast('Select at least one skill', 'error');
+
+  var data = {
+    user_id: state.user.id,
+    name: (getEl('seek-name') || {}).value || '',
+    skills: skills,
+    location: (getEl('seek-location') || {}).value || '',
+    min_rate: parseInt((getEl('seek-rate') || {}).value) || 0,
+    availability: (getEl('seek-availability') || {}).value || 'anytime',
+    bio: (getEl('seek-bio') || {}).value || '',
+    status: 'seeking'
+  };
+
+  try {
+    var res = await apiRequest('mission_seekers', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify(data)
+    });
+    if (res && res.ok) {
+      closeModal();
+      showToast('You\'re in the queue! We\'ll match you when missions fit your skills.');
+      setMuxi('Profile submitted. I\'m scanning for matching missions now. Stand by, operative.');
+    } else {
+      var err = ''; try { err = await res.text(); } catch(e) {}
+      showToast('Error: ' + (err || 'Could not submit'), 'error');
+    }
+  } catch(e) { showToast('Error: ' + (e.message || ''), 'error'); }
 }
 
 
@@ -2901,7 +3058,7 @@ function calcLevel(p) {
   var completed = Number((p && p.jobs_completed) || 0);
   var xp = completed * 120 + (p && p.full_name ? 40 : 0) + (p && p.about_me ? 40 : 0) + (p && p.username ? 30 : 0) + (p && p.has_vehicle ? 20 : 0);
   var level = Math.max(1, Math.floor(xp / 200) + 1);
-  var titles = ['Runner', 'Carrier', 'Operator', 'Elite Operator', 'Legend', 'Mythic'];
+  var titles = ['Runner', 'Carrier', 'Operator', 'Elite Operator', 'Angel', 'Archangel', 'Legend', 'Mythic'];
   var title = titles[Math.min(titles.length - 1, Math.floor((level - 1) / 2))];
   var next = level * 200;
   var pct = Math.min(1, xp / next);
@@ -3161,7 +3318,7 @@ function openAuthModal() {
       '<button onclick="handleSignIn()" class="btn-secondary rounded-full">I already have an account</button>' +
       '<div class="text-center mt-2"><a onclick="openResetPasswordModal()" class="text-xs font-bold cursor-pointer" style="color:var(--accent)">Forgot password?</a></div>' +
       '<p id="auth-error" class="text-xs text-center mt-3 hidden" style="color:#ffd2d2;font-weight:800"></p>' +
-      '<div class="mt-5 text-[11px]" style="color:rgba(232,236,241,0.52)">By continuing you agree to marketplace terms. MUVR Credits (MV) are platform credits (not currency).</div>' +
+      '<div class="mt-5 text-[11px]" style="color:rgba(232,236,241,0.52)">By continuing you agree to our <a onclick="closeModal();setTimeout(openTOSModal,300)" class="cursor-pointer" style="color:var(--accent);text-decoration:underline">Terms of Service</a> and <a onclick="closeModal();setTimeout(openPrivacyModal,300)" class="cursor-pointer" style="color:var(--accent);text-decoration:underline">Privacy Policy</a>. MUVR Credits (MV) are platform credits (not currency).</div>' +
     '</div>'
   );
 }
@@ -3172,33 +3329,55 @@ function showAuthError(msg) {
   setTimeout(function() { el.classList.add('hidden'); }, 5000);
 }
 
-function openLegalModal() {
-  openModal(
-    '<div class="card p-6 sm:p-8" style="max-width:540px;margin:auto">' +
-      '<h2 class="text-xl font-black mb-4">Before you start</h2>' +
-      '<div class="space-y-3 mb-5">' +
-        '<div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
-          '<h3 class="font-black text-sm mb-1" style="color:var(--accent)">Marketplace Terms</h3>' +
-          '<p class="text-xs" style="color:rgba(232,236,241,0.62)">MUVR is a technology marketplace. MUVR is NOT an employer. You are an independent contractor.</p>' +
+function openLegalModal(isReturning) {
+  if (isReturning) {
+    /* Quick acknowledge for returning users */
+    openModal(
+      '<div class="card p-6 sm:p-8" style="max-width:480px;margin:auto">' +
+        '<div class="text-center mb-4">' + muxiSVG(48) + '</div>' +
+        '<h2 class="text-xl font-black text-center mb-3">Welcome Back</h2>' +
+        '<div class="p-4 rounded-2xl mb-4" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+          '<p class="text-xs" style="color:rgba(232,236,241,0.70)">By continuing, you acknowledge and agree to the MUVR <a onclick="closeModal();setTimeout(openTOSModal,300)" class="cursor-pointer" style="color:var(--accent);text-decoration:underline">Terms of Service</a> and <a onclick="closeModal();setTimeout(openPrivacyModal,300)" class="cursor-pointer" style="color:var(--accent);text-decoration:underline">Privacy Policy</a>.</p>' +
+          '<div class="mt-3 text-[10px] space-y-1" style="color:rgba(232,236,241,0.50)">' +
+            '<p>• Operatives are independent contractors, not employees</p>' +
+            '<p>• MUVR Credits (MV) are platform credits — not currency, crypto, or securities</p>' +
+            '<p>• You must be 18 years or older to use this platform</p>' +
+            '<p>• P2P trades are between users — MUVR does not process fiat currency</p>' +
+          '</div>' +
         '</div>' +
-        '<div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
-          '<h3 class="font-black text-sm mb-1" style="color:var(--accent)">Contractor Agreement</h3>' +
-          '<p class="text-xs" style="color:rgba(232,236,241,0.62)">You control your schedule, rates, methods. You are responsible for taxes, insurance, and compliance in your jurisdiction.</p>' +
+        '<button onclick="handleQuickAcknowledge()" class="btn-primary rounded-full w-full">I Agree & Continue</button>' +
+      '</div>',
+      { locked: true, width: 'max-w-md' }
+    );
+  } else {
+    /* Full checkbox flow for new signups */
+    openModal(
+      '<div class="card p-6 sm:p-8" style="max-width:540px;margin:auto">' +
+        '<h2 class="text-xl font-black mb-4">Before you start</h2>' +
+        '<div class="space-y-3 mb-5">' +
+          '<div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
+            '<h3 class="font-black text-sm mb-1" style="color:var(--accent)">Marketplace Terms</h3>' +
+            '<p class="text-xs" style="color:rgba(232,236,241,0.62)">MUVR is a technology marketplace. MUVR is NOT an employer. You are an independent contractor. <a onclick="closeModal();setTimeout(openTOSModal,300)" class="cursor-pointer" style="color:var(--accent);text-decoration:underline">Read full Terms</a></p>' +
+          '</div>' +
+          '<div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
+            '<h3 class="font-black text-sm mb-1" style="color:var(--accent)">Contractor Agreement</h3>' +
+            '<p class="text-xs" style="color:rgba(232,236,241,0.62)">You control your schedule, rates, methods. You are responsible for taxes, insurance, and compliance in your jurisdiction.</p>' +
+          '</div>' +
+          '<div class="p-4 rounded-2xl" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16)">' +
+            '<h3 class="font-black text-sm mb-1">MUVR Credits (MV)</h3>' +
+            '<p class="text-xs" style="color:rgba(232,236,241,0.70)">MV are platform-limited digital credits used within MUVR for escrow and marketplace flows. Not currency, cryptocurrency, or financial instruments. <a onclick="closeModal();setTimeout(openPrivacyModal,300)" class="cursor-pointer" style="color:var(--accent);text-decoration:underline">Privacy Policy</a></p>' +
+          '</div>' +
         '</div>' +
-        '<div class="p-4 rounded-2xl" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16)">' +
-          '<h3 class="font-black text-sm mb-1">MUVR Credits (MV)</h3>' +
-          '<p class="text-xs" style="color:rgba(232,236,241,0.70)">MV are platform-limited digital credits used within MUVR for escrow and marketplace flows. Not currency, cryptocurrency, or financial instruments.</p>' +
+        '<div class="space-y-2 mb-5">' +
+          '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-tos" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I accept the Terms of Service & Marketplace Terms</span></label>' +
+          '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-contractor" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I accept the Contractor Agreement & Privacy Policy</span></label>' +
+          '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-age" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I am 18 years or older</span></label>' +
         '</div>' +
-      '</div>' +
-      '<div class="space-y-2 mb-5">' +
-        '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-tos" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I accept the Marketplace Terms</span></label>' +
-        '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-contractor" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I accept the Contractor Agreement</span></label>' +
-        '<label class="flex items-start gap-3 cursor-pointer p-2 rounded-xl hover:opacity-90"><input type="checkbox" id="check-age" onchange="updateLegalButton()" class="w-4 h-4 mt-0.5"><span class="text-sm font-bold">I am 18 years or older</span></label>' +
-      '</div>' +
-      '<button onclick="handleAcceptLegal()" id="legal-submit-btn" class="btn-secondary rounded-full" disabled>Check all boxes</button>' +
-    '</div>',
-    { locked: true, width: 'max-w-lg' }
-  );
+        '<button onclick="handleAcceptLegal()" id="legal-submit-btn" class="btn-secondary rounded-full" disabled>Check all boxes</button>' +
+      '</div>',
+      { locked: true, width: 'max-w-lg' }
+    );
+  }
 }
 
 function updateLegalButton() {
@@ -3229,7 +3408,7 @@ function openPostJobModal() {
       '<div class="space-y-3">' +
         '<input id="job-title" placeholder="What do you need done?" maxlength="100" class="field">' +
         '<textarea id="job-desc" placeholder="Describe the work in detail..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>' +
-        '<select id="job-type" class="field"><option value="">Select type...</option><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="physical">Physical labor</option><option value="digital">Digital/remote</option><option value="caregiving">Caregiving</option><option value="childcare">Child Care</option><option value="cleaning">Cleaning</option><option value="handyman">Handyman</option><option value="yardwork">Yard Work</option><option value="events">Events</option><option value="security">Security</option><option value="petcare">Pet Care</option><option value="creative">Creative/Design</option><option value="tech">Tech/Dev</option><option value="data_entry">Data Entry/VA</option><option value="other">Other</option></select>' +
+        '<select id="job-type" class="field"><option value="">Select type...</option><optgroup label="Physical"><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="physical">Physical Labor</option><option value="cleaning">Cleaning</option><option value="handyman">Handyman</option><option value="yardwork">Yard Work</option><option value="events">Events</option><option value="security">Security</option><option value="petcare">Pet Care</option></optgroup><optgroup label="Caregiving"><option value="caregiving">Caregiving / Home Health</option><option value="childcare">Child Care</option><option value="eldercare">Elder Care / Hospice</option><option value="nursing">Nursing / Medical Aide</option></optgroup><optgroup label="Digital"><option value="digital">Digital / Remote</option><option value="creative">Creative / Design</option><option value="tech">Tech / Dev</option><option value="data_entry">Data Entry / VA</option></optgroup><optgroup label="Web3 / AI Native"><option value="web3">Web3 / Blockchain</option><option value="smart_contract">Smart Contract Audit</option><option value="dao_ops">DAO Operations</option><option value="ai_task">AI Agent Task</option><option value="ai_training">AI Training / RLHF</option><option value="content_mod">Content Moderation</option></optgroup><optgroup label="Community"><option value="volunteer">Volunteer (0 MV)</option></optgroup><option value="other">Other</option></select>' +
         '<select id="job-urgency" class="field"><option value="asap">ASAP</option><option value="today">Today</option><option value="this_week">This week</option><option value="flexible">Flexible</option></select>' +
 
         /* Hiring-only fields (hidden by default) */
@@ -4073,7 +4252,7 @@ async function handleSignUp() {
     closeModal();
     await ensureUserRow();
     await loadProfileSafe();
-    openLegalModal();
+    openLegalModal(false);
     showToast('Account created. Welcome to MUVR!');
     burstConfetti();
     setMuxi(muxiQuip('signup'));
@@ -4089,22 +4268,52 @@ async function handleSignIn() {
     var r = await sb.auth.signInWithPassword({ email: email, password: pw });
     if (r.error) return showAuthError(r.error.message);
     state.user = r.data.user; state.accessToken = r.data.session && r.data.session.access_token;
-    closeModal(); renderApp(); showToast('Welcome back!');
-    setMuxi('Session restored. Loading your data.');
+    closeModal();
     await ensureUserRow();
-    loadProfileSafe(); loadJobsSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
+    await loadProfileSafe();
+    openLegalModal(true);
+    setMuxi('Verifying session...');
   } catch(e) { console.error('SignIn error:', e); showAuthError(e.message || 'Sign in failed. Check your connection and try again.'); }
 }
 
 async function handleLogout() {
+  openModal(
+    '<div class="card p-6" style="max-width:420px;margin:auto">' +
+      '<div class="text-center mb-4">' + muxiSVG(40) + '</div>' +
+      '<h2 class="text-lg font-black text-center mb-3">Sign Out</h2>' +
+      '<div class="p-3 rounded-xl mb-4" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+        '<p class="text-xs" style="color:rgba(232,236,241,0.60)">You acknowledge that all active escrows, pending trades, and mission statuses remain subject to the <a onclick="closeModal();setTimeout(openTOSModal,300)" class="cursor-pointer" style="color:var(--accent);text-decoration:underline">Terms of Service</a>. Your MV balance and transaction history are preserved.</p>' +
+      '</div>' +
+      '<div class="flex gap-3">' +
+        '<button onclick="closeModal()" class="btn-secondary rounded-full flex-1">Cancel</button>' +
+        '<button onclick="confirmLogout()" class="btn-primary rounded-full flex-1">Sign Out</button>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+async function confirmLogout() {
+  closeModal();
   try { await sb.auth.signOut(); } catch(e) {}
   state.realtimeSubs.forEach(function(ch) { try { sb.removeChannel(ch); } catch(e) {} });
   if (notifPollInterval) { clearInterval(notifPollInterval); notifPollInterval = null; }
-  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[], myGigsView:false, myGigs:[], myActiveWork:[], deliverables:[] };
+  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[], myGigsView:false, myGigs:[], myActiveWork:[], deliverables:[], p2pOffers:[], p2pMarketRate:'~1.00', p2pPayFilter:'All', myTrades:[], exchangeView:'buy', agents:[] };
   renderLanding();
   var fab = getEl('muxi-fab'); if (fab) fab.remove();
   var bub = getEl('muxi-bubble'); if (bub) bub.remove();
   showToast('Signed out', 'info');
+}
+
+async function handleQuickAcknowledge() {
+  try {
+    await apiRequest('legal_agreements', {
+      method: 'POST',
+      body: JSON.stringify({ user_id: state.user.id, agreement_type: 'session_ack', ip_address: '0.0.0.0', user_agent: navigator.userAgent })
+    });
+  } catch(e) { /* non-blocking — log but don't block entry */ console.warn('Ack log:', e); }
+  closeModal(); renderApp(); showToast('Welcome back!');
+  setMuxi('Session restored. Loading your data.');
+  loadProfileSafe(); loadJobsSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
 }
 
 async function handleAcceptLegal() {
@@ -4506,6 +4715,8 @@ async function boot() {
       loadNotifications();
       startPresenceUpdates();
       subscribeToPublicEvents();
+      /* Show quick legal acknowledgment on session restore */
+      setTimeout(function() { openLegalModal(true); }, 600);
     }
   } catch(e) {
     console.error('Boot error:', e);
@@ -4520,6 +4731,12 @@ async function boot() {
       if (sess && sess.user) {
         state.user = sess.user;
         state.accessToken = sess.access_token;
+        /* OAuth sign-in (Google etc) — show legal acknowledgment */
+        if (ev === 'SIGNED_IN' && !document.querySelector('#tab-content')) {
+          ensureUserRow().then(function() { loadProfileSafe(); });
+          renderApp(); renderMuxi();
+          setTimeout(function() { openLegalModal(true); }, 600);
+        }
       } else {
         state.user = null;
         state.accessToken = null;
@@ -4572,6 +4789,92 @@ async function boot() {
 /* =========================================
    DEBUG / HEALTH PANEL
    ========================================= */
+function openTOSModal() {
+  openModal(
+    '<div class="card p-6 sm:p-8" style="max-width:640px;margin:auto;max-height:85vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Terms of Service</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div class="text-xs space-y-4" style="color:rgba(232,236,241,0.75)">' +
+        '<p><strong>Effective Date:</strong> February 26, 2026</p>' +
+        '<p><strong>Operator:</strong> TransBid LLC, a Delaware limited liability company ("MUVR", "we", "us").</p>' +
+
+        '<p><strong>1. ACCEPTANCE.</strong> By accessing or using MUVR (the "Platform"), you agree to these Terms. If you do not agree, do not use the Platform.</p>' +
+
+        '<p><strong>2. PLATFORM DESCRIPTION.</strong> MUVR is a technology marketplace that connects independent service providers ("Operatives") with individuals and businesses seeking services ("Commanders"). MUVR is NOT an employer. All Operatives are independent contractors responsible for their own taxes, insurance, licensing, and legal compliance in their jurisdiction.</p>' +
+
+        '<p><strong>3. MUVR CREDITS (MV).</strong> MV are in-platform digital credits used solely within MUVR for marketplace transactions including mission posting, escrow, and peer-to-peer exchange. MV are NOT legal tender, NOT a security, NOT a cryptocurrency, and NOT a financial instrument. MV have an intended internal pricing equivalence of 1 MV = $1.00 USD for marketplace transaction purposes, subject to these Terms and availability of supported funding and withdrawal methods. MV do not appreciate in value, do not earn interest, and are not an investment. The total supply of MV is capped at 1,000,000 credits. MV consumed as posting fees are permanently removed from circulation ("burned"). MUVR makes no guarantees regarding the future value, utility, or exchangeability of MV.</p>' +
+
+        '<p><strong>4. ESCROW.</strong> When a Commander posts a mission, the full budget plus a 1 MV posting fee is locked in escrow. Escrowed credits are released to the Operative upon Commander confirmation of mission completion. The 1 MV posting fee is burned. In the event of a dispute, MUVR may hold escrowed credits pending resolution at its sole discretion. MUVR is not a bank, escrow agent, or fiduciary.</p>' +
+
+        '<p><strong>5. P2P EXCHANGE.</strong> The MUVR Exchange allows users to buy and sell MV credits directly with other users. MUVR does not process, hold, or transmit fiat currency. All external payments between users occur outside the Platform using third-party payment methods chosen by the users. MUVR only escrows MV credits during the trade. MUVR charges a 2% fee on completed sales, deducted from the seller\'s MV. Users trade at their own risk. MUVR is not responsible for disputes arising from external payment methods.</p>' +
+
+        '<p><strong>6. AI AGENTS.</strong> Users may register AI agents ("Agent Operatives") to perform digital missions. Agent Operatives are subject to the same rules, reputation systems, and escrow protections as human Operatives. The agent owner is responsible for the agent\'s conduct, output quality, and compliance with all applicable laws. Agent Operatives may maintain an autonomy vault (a portion of earnings retained by the agent), as configured by the owner.</p>' +
+
+        '<p><strong>7. FUNDING AND WITHDRAWAL.</strong> Users may purchase MV using supported payment methods (currently credit/debit card via Stripe). All purchases are final and non-refundable except where required by applicable law. Withdrawal of MV for fiat currency is available through the P2P Exchange or supported withdrawal methods as they become available. MUVR may require identity verification (KYC) before processing withdrawals above certain thresholds.</p>' +
+
+        '<p><strong>8. PROHIBITED CONDUCT.</strong> You may not: (a) use the Platform for illegal purposes; (b) create multiple accounts to manipulate the marketplace; (c) attempt to mint, create, or duplicate MV outside authorized methods; (d) use bots or automation to unfairly monopolize missions; (e) harass, threaten, or defraud other users; (f) circumvent escrow protections.</p>' +
+
+        '<p><strong>9. ACCOUNT TERMINATION.</strong> We may suspend or terminate accounts that violate these Terms, engage in fraudulent activity, or pose a risk to the Platform community. Remaining MV balances of terminated accounts are forfeited except where prohibited by law.</p>' +
+
+        '<p><strong>10. DISCLAIMER OF WARRANTIES.</strong> THE PLATFORM IS PROVIDED "AS IS." WE MAKE NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. WE DO NOT GUARANTEE THE QUALITY, SAFETY, OR LEGALITY OF SERVICES PROVIDED BY OPERATIVES.</p>' +
+
+        '<p><strong>11. LIMITATION OF LIABILITY.</strong> TO THE MAXIMUM EXTENT PERMITTED BY LAW, MUVR AND TRANSBID LLC SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE PLATFORM. OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT OF MV CREDITS IN YOUR ACCOUNT AT THE TIME OF THE CLAIM.</p>' +
+
+        '<p><strong>12. INDEMNIFICATION.</strong> You agree to indemnify and hold harmless TransBid LLC, its officers, directors, employees, and agents from any claims arising from your use of the Platform, your violation of these Terms, or your violation of any rights of another.</p>' +
+
+        '<p><strong>13. GOVERNING LAW.</strong> These Terms are governed by the laws of the State of Delaware. Any disputes shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.</p>' +
+
+        '<p><strong>14. MODIFICATIONS.</strong> We may modify these Terms at any time. Continued use after modifications constitutes acceptance. Material changes will be communicated via email or in-app notification.</p>' +
+
+        '<p><strong>15. CONTACT.</strong> Questions about these Terms may be directed to legal@transbid.live or TransBid LLC, Delaware, USA.</p>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function openPrivacyModal() {
+  openModal(
+    '<div class="card p-6 sm:p-8" style="max-width:640px;margin:auto;max-height:85vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Privacy Policy</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div class="text-xs space-y-4" style="color:rgba(232,236,241,0.75)">' +
+        '<p><strong>Effective Date:</strong> February 26, 2026</p>' +
+        '<p><strong>Operator:</strong> TransBid LLC ("MUVR", "we", "us").</p>' +
+
+        '<p><strong>1. INFORMATION WE COLLECT.</strong> We collect information you provide directly: email address, name, username, profile information, payment information (processed by Stripe — we do not store card numbers), location data (only when you enable MUVR GO), uploaded files and deliverables, messages sent through the Platform, and AI agent configuration data.</p>' +
+
+        '<p><strong>2. INFORMATION COLLECTED AUTOMATICALLY.</strong> We collect: device type and browser information, IP address, usage patterns and feature interactions, and approximate location from IP address.</p>' +
+
+        '<p><strong>3. HOW WE USE YOUR INFORMATION.</strong> We use your information to: operate and improve the Platform, process transactions and escrow, facilitate messaging between users, display your public profile and reputation to other users, send transactional communications (mission updates, escrow releases), enforce our Terms of Service, and prevent fraud and abuse.</p>' +
+
+        '<p><strong>4. PUBLIC INFORMATION.</strong> The following is visible to other users: your username/handle, profile bio, reputation score, rank, completed mission count, and trade history on the Exchange (anonymized). The Public Ledger displays anonymized transaction data (aliases, not real names or emails). Your email address is NEVER displayed publicly.</p>' +
+
+        '<p><strong>5. LOCATION DATA.</strong> MUVR GO uses your location only when you explicitly toggle "Go Visible." Your precise coordinates are stored securely but only a fuzzed approximation (~1km accuracy) is shown to other users. You can disable location sharing at any time.</p>' +
+
+        '<p><strong>6. PAYMENT DATA.</strong> Credit card and payment information is processed by Stripe. We do not store, see, or have access to your full card number, CVV, or bank account details. We store only transaction references for ledger and audit purposes.</p>' +
+
+        '<p><strong>7. AI AGENT DATA.</strong> If you register an AI agent, we store: agent name, type, configuration, API key hash, vault balance, and mission history. Agent API keys are shown once at creation and stored as hashes — we cannot retrieve your original key.</p>' +
+
+        '<p><strong>8. DATA SHARING.</strong> We do not sell your personal information. We share data only with: Stripe (payment processing), Supabase (database hosting, authenticated access only), Vercel (application hosting), and law enforcement when required by valid legal process.</p>' +
+
+        '<p><strong>9. DATA RETENTION.</strong> We retain your data for as long as your account is active. Transaction ledger entries are retained indefinitely for audit and compliance purposes. You may request account deletion by contacting us; upon deletion, personal data is removed but anonymized transaction records are retained.</p>' +
+
+        '<p><strong>10. SECURITY.</strong> We implement industry-standard security measures including: Row Level Security (RLS) on all database tables ensuring users can only access their own data, encrypted connections (HTTPS/TLS), secure authentication via Supabase Auth, and server-side-only processing for financial operations (minting, escrow). No system is 100% secure. We cannot guarantee absolute security of your data.</p>' +
+
+        '<p><strong>11. COOKIES.</strong> We use essential cookies for authentication and session management. We do not use third-party advertising cookies. We do not display ads.</p>' +
+
+        '<p><strong>12. CHILDREN.</strong> MUVR is not intended for users under 18. We do not knowingly collect information from minors. If we discover a minor\'s account, it will be terminated.</p>' +
+
+        '<p><strong>13. INTERNATIONAL USERS.</strong> MUVR operates globally. By using the Platform, you consent to the transfer of your data to the United States where our servers are located. We comply with applicable data protection laws including GDPR for EU users. EU users may exercise rights of access, rectification, erasure, and portability by contacting us.</p>' +
+
+        '<p><strong>14. YOUR RIGHTS.</strong> You may: access your data via your Dossier (profile) page, update or correct your information at any time, request deletion of your account and personal data, opt out of non-essential communications, and export your transaction history.</p>' +
+
+        '<p><strong>15. CHANGES.</strong> We may update this Privacy Policy. Material changes will be communicated via email or in-app notification. Continued use constitutes acceptance.</p>' +
+
+        '<p><strong>16. CONTACT.</strong> Privacy questions may be directed to privacy@transbid.live or TransBid LLC, Delaware, USA.</p>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
 function openDebugPanel() {
   var supaOk = typeof supabase !== 'undefined' && !!sb;
   var userOk = !!state.user;
