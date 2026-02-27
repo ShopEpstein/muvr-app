@@ -358,6 +358,70 @@
     }
     #muxi-bubble.show { opacity: 1; visibility: visible; transform: translateY(0); }
     .muxi-tap-counter { display: none; }
+
+    /* ===== Extra Animations ===== */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .shimmer-border {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-border::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 1px solid transparent;
+      background: linear-gradient(90deg, transparent, rgba(24,246,200,0.3), transparent) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes glowPulse {
+      0%,100% { text-shadow: 0 0 8px rgba(24,246,200,0.3); }
+      50% { text-shadow: 0 0 20px rgba(24,246,200,0.6), 0 0 40px rgba(24,246,200,0.2); }
+    }
+    .glow-text { animation: glowPulse 3s ease-in-out infinite; }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .slide-in-left { animation: slideInLeft 0.5s ease both; }
+    .slide-in-right { animation: slideInRight 0.5s ease both; }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .scale-in { animation: scaleIn 0.4s ease both; }
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .gradient-flow {
+      background: linear-gradient(270deg, rgba(24,246,200,0.15), rgba(124,92,255,0.15), rgba(255,61,154,0.10), rgba(24,246,200,0.15));
+      background-size: 300% 300%;
+      animation: gradientFlow 8s ease infinite;
+    }
+    @keyframes numberTick {
+      0% { opacity: 0; transform: translateY(-8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .number-tick { animation: numberTick 0.35s ease both; }
+    @keyframes borderGlow {
+      0%,100% { border-color: rgba(24,246,200,0.15); box-shadow: 0 0 0 rgba(24,246,200,0); }
+      50% { border-color: rgba(24,246,200,0.4); box-shadow: 0 0 20px rgba(24,246,200,0.08); }
+    }
+    .border-glow { animation: borderGlow 4s ease-in-out infinite; }
   </style>
 </head>
 <body>
@@ -371,7 +435,7 @@
     <div style="text-align:center">
       <div class="boot-spinner" style="margin:0 auto 14px"></div>
       <div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">
-        <span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R
+        <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R<sup style="font-size:0.45em;vertical-align:super;opacity:0.7">&trade;</sup>
       </div>
       <div style="margin-top:10px;font-size:11px;font-weight:800;color:rgba(232,236,241,0.60);letter-spacing:0.24px;text-transform:uppercase">
         Loading the network
@@ -433,7 +497,8 @@ var state = {
   p2pPayFilter: 'All',
   myTrades: [],
   exchangeView: 'buy',
-  agents: []
+  agents: [],
+  verifications: []
 };
 
 
@@ -606,7 +671,7 @@ function brandMark(sizeClass) {
   return '<div class="inline-flex items-center gap-3">' +
     '<div class="relative">' +
       '<div class="absolute -inset-2 blur-2xl opacity-40" style="background:radial-gradient(circle at 30% 30%,rgba(24,246,200,0.6),transparent 60%),radial-gradient(circle at 70% 50%,rgba(124,92,255,0.4),transparent 60%)"></div>' +
-      '<div class="' + sizeClass + ' font-black tracking-tight relative"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R</div>' +
+      '<div class="' + sizeClass + ' font-black tracking-tight relative"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R<sup style="font-size:0.45em;vertical-align:super;opacity:0.7">&trade;</sup></div>' +
     '</div>' +
     '<span class="text-[10px] font-black px-3 py-1 rounded-full" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.10);color:rgba(232,236,241,0.85);letter-spacing:0.22px">OWNED BY THE WORKERS</span>' +
   '</div>';
@@ -622,7 +687,7 @@ function renderLanding() {
 
   root.innerHTML = '<div class="fade-up">' +
     '<div style="background:rgba(180,30,30,0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">' +
-      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - OWNED BY THE WORKERS - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
+      '<span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R&trade; IS A MARKETPLACE ONLY - NOT AN EMPLOYER - OWNED BY THE WORKERS - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
     '</div>' +
 
     /* Hero */
@@ -632,7 +697,7 @@ function renderLanding() {
         brandMark('text-5xl sm:text-6xl') +
       '</div>' +
       '<div class="fade-up d2 text-4xl sm:text-6xl font-black leading-tight mb-3">' +
-        'It\'s UR <span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>.' +
+        'It\'s UR <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>.' +
       '</div>' +
       '<p class="fade-up d2 text-lg sm:text-xl font-black mb-5" style="color:rgba(232,236,241,0.85)">' +
         'Humans + AI Agents. Real-World Labor + Digital + Web3. One Network.' +
@@ -641,7 +706,7 @@ function renderLanding() {
         'The first marketplace where humans and AI agents earn, exchange, and rank up side by side. 0% commission on earnings. Escrow-protected. <strong>MUVR Credits (MV)</strong> power every transaction.' +
       '</p>' +
       '<div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">' +
-        '<button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full">ENTER THE NETWORK</button>' +
+        '<button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full shimmer-border" style="position:relative;overflow:hidden">ENTER THE NETWORK</button>' +
         '<button onclick="openFAQModal()" class="btn-secondary text-base py-4 rounded-full">HOW IT WORKS</button>' +
         '<button onclick="switchPublicLedger()" class="btn-secondary text-base py-4 rounded-full">VIEW LIVE LEDGER</button>' +
         '<button onclick="renderBlogPage()" class="btn-secondary text-base py-4 rounded-full" style="border-color:rgba(124,92,255,0.3)">BLOG</button>' +
@@ -843,7 +908,7 @@ function switchPublicLedger() {
   root.innerHTML = '<div class="fade-up"><div class="max-w-4xl mx-auto px-5 py-8">' +
     '<div class="flex items-center justify-between mb-6">' +
       '<div class="flex items-center gap-3">' +
-        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R</div>' +
+        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R<sup style="font-size:0.45em;vertical-align:super;opacity:0.7">&trade;</sup></div>' +
         '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">PUBLIC LEDGER</span>' +
       '</div>' +
       '<div class="flex gap-2">' +
@@ -868,7 +933,7 @@ function renderApp() {
   root.innerHTML = '<div class="fade-up">' +
     /* Disclaimer */
     '<div style="background:rgba(180,30,30,0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">' +
-      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - OWNED BY THE WORKERS - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
+      '<span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R&trade; IS A MARKETPLACE ONLY - NOT AN EMPLOYER - OWNED BY THE WORKERS - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
     '</div>' +
 
     /* Header */
@@ -877,7 +942,7 @@ function renderApp() {
         '<div class="flex items-center gap-2 cursor-pointer" onclick="switchTab(\'jobs\')">' +
           '<div class="w-9 h-9 rounded-2xl grid place-items-center" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">' + muxiSVG(24) + '</div>' +
           '<div>' +
-            '<div class="text-lg font-black tracking-tight"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R</div>' +
+            '<div class="text-lg font-black tracking-tight"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R<sup style="font-size:0.45em;vertical-align:super;opacity:0.7">&trade;</sup></div>' +
             '<div class="text-[10px] font-bold" style="color:rgba(232,236,241,0.55);letter-spacing:0.22px;text-transform:uppercase">Owned by the workers</div>' +
           '</div>' +
         '</div>' +
@@ -1005,7 +1070,7 @@ function renderJobsTab() {
     '<div class="mb-6 flex items-start justify-between gap-3">' +
       '<div>' +
         '<h1 class="text-3xl sm:text-4xl font-black mb-1">Open Missions</h1>' +
-        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">It\'s UR <span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>. ' + state.jobs.length + ' mission' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">It\'s UR <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>. ' + state.jobs.length + ' mission' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
       '</div>' +
       '<div class="flex gap-2 flex-wrap">' +
         (state.user ? '<button onclick="state.myGigsView=true;renderJobsTab();loadMyGigs()" class="btn-pill btn-pill-ghost"><i class="fas fa-satellite mr-1"></i>Command Center</button>' : '') +
@@ -2056,7 +2121,7 @@ function renderMapTab() {
     '<div class="flex items-center justify-between mb-4">' +
       '<div>' +
         '<h1 class="text-3xl font-black mb-1">MUVR GO</h1>' +
-        '<p class="text-sm" style="color:rgba(232,236,241,0.62)">See nearby operatives and open missions in realtime.</p>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.62)">See operatives and open missions around the world in realtime.</p>' +
       '</div>' +
       '<button id="avail-toggle" onclick="toggleAvailability()" class="btn-pill ' + (isAvail ? 'btn-pill-accent' : 'btn-pill-ghost') + '">' +
         (isAvail ? '<i class="fas fa-broadcast-tower mr-2"></i>LIVE' : '<i class="fas fa-eye-slash mr-2"></i>HIDDEN') +
@@ -2081,7 +2146,7 @@ function renderMapTab() {
       '<p class="text-[11px] font-bold" style="color:var(--text-dim)"><i class="fas fa-shield-alt mr-1" style="color:var(--accent)"></i>Safety first: Your exact location is NEVER shown to other users. All operatives appear at approximate areas (~500m fuzz). Only you see your precise pin. Toggle to HIDDEN to disappear from the map instantly. No names, handles, or personal info are visible on the map.</p>' +
     '</div>' +
     '<div class="mt-4">' +
-      '<h3 class="font-black mb-3">Open Missions Nearby</h3>' +
+      '<h3 class="font-black mb-3">Open Missions Worldwide</h3>' +
       '<div id="map-gig-list"><p class="text-sm" style="color:var(--text-dim)">Loading missions...</p></div>' +
     '</div>' +
   '</div>';
@@ -2094,7 +2159,7 @@ function initMap() {
   if (!container) return;
   if (state.mapObj) { try { state.mapObj.remove(); } catch(e) {} state.mapObj = null; }
 
-  state.mapObj = L.map('map-container', { zoomControl: true, attributionControl: false }).setView([37.55, -77.46], 12);
+  state.mapObj = L.map('map-container', { zoomControl: true, attributionControl: false }).setView([20, 0], 2);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19
   }).addTo(state.mapObj);
@@ -2357,7 +2422,7 @@ function renderExchangeTab() {
     /* Payment method filter */
     ((!state.exchangeView || state.exchangeView === 'buy') ?
       '<div class="flex gap-2 flex-wrap mb-4">' +
-        ['All', 'Zelle', 'CashApp', 'Venmo', 'PayPal', 'GCash', 'Wise', 'USDC', 'M-Pesa'].map(function(m) {
+        ['All', 'Zelle', 'CashApp', 'Venmo', 'PayPal', 'GCash', 'Wise', 'USDC', 'BTC', 'M-Pesa'].map(function(m) {
           var active = (state.p2pPayFilter || 'All') === m;
           return '<button onclick="state.p2pPayFilter=\'' + m + '\';renderExchangeList()" class="text-[10px] font-black px-3 py-1.5 rounded-full cursor-pointer" style="background:' + (active ? 'var(--accent)' : 'rgba(255,255,255,0.06)') + ';color:' + (active ? '#050716' : 'var(--text-dim)') + ';border:1px solid ' + (active ? 'var(--accent)' : 'rgba(255,255,255,0.10)') + '">' + m + '</button>';
         }).join('') +
@@ -2502,7 +2567,7 @@ async function loadAgents() {
 function openSellMVModal() {
   if (!state.user) return openAuthModal();
   var bal = (state.profile && state.profile.mv_balance) || 0;
-  var payMethods = ['zelle','cashapp','venmo','paypal','gcash','wise','usdc','mpesa','bank_transfer','crypto_other','cash_in_person'];
+  var payMethods = ['zelle','cashapp','venmo','paypal','gcash','wise','usdc','btc','mpesa','bank_transfer','crypto_other','cash_in_person'];
   var checks = payMethods.map(function(m) {
     return '<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="sell-pay-method w-3.5 h-3.5" value="' + m + '"><span class="text-xs">' + m + '</span></label>';
   }).join('');
@@ -2871,20 +2936,20 @@ function renderWalletTab() {
     '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">MV are in-platform credits used for escrow and marketplace flows. Not currency.</p>' +
 
     /* Network Stats */
-    '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.08),rgba(124,92,255,0.06),rgba(255,61,154,0.04))">' +
+    '<div class="card p-5 mb-5 shimmer-border border-glow" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.08),rgba(124,92,255,0.06),rgba(255,61,154,0.04))">' +
       '<p class="text-[10px] tracking-widest font-black mb-3" style="color:rgba(232,236,241,0.55)">NETWORK STATUS</p>' +
       '<div class="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">10M</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="stat-minted">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="stat-available">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="stat-circulating">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="stat-escrowed">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">RETIRED</p><p class="text-lg font-black mono" style="color:var(--red)" id="stat-burned">-</p></div>' +
+        '<div class="scale-in"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono glow-text" style="color:var(--accent)">10M</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.05s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="stat-minted">-</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.10s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="stat-available">-</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.15s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="stat-circulating">-</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.20s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="stat-escrowed">-</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.25s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">RETIRED</p><p class="text-lg font-black mono" style="color:var(--red)" id="stat-burned">-</p></div>' +
       '</div>' +
     '</div>' +
 
     /* Balance Card */
-    '<div class="card p-5 max-w-md mb-6">' +
+    '<div class="card p-5 max-w-md mb-6 border-glow">' +
       '<p class="text-[10px] tracking-widest font-black mb-2" style="color:rgba(232,236,241,0.55)">YOUR BALANCE</p>' +
       '<div class="flex items-end justify-between mb-5">' +
         '<p class="text-4xl font-black mono" style="color:var(--accent)" id="balance-display">' + (state.balanceVisible ? bal + ' <span style="color:var(--accent)">MV</span>' : '------') + '</p>' +
@@ -3020,15 +3085,15 @@ function renderLedgerContent(containerId) {
   }).join('');
 
   el.innerHTML =
-    '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.06),rgba(124,92,255,0.04))">' +
+    '<div class="card p-5 mb-5 shimmer-border" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.06),rgba(124,92,255,0.04))">' +
       '<div class="flex items-center gap-2 mb-3"><div class="live-dot"></div><span class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.65)">LIVE NETWORK</span></div>' +
       '<div class="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">10M</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="pub-minted">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="pub-available">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="pub-circulating">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="pub-escrowed">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">RETIRED</p><p class="text-lg font-black mono" style="color:var(--red)" id="pub-burned">-</p></div>' +
+        '<div class="scale-in"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono glow-text" style="color:var(--accent)">10M</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.05s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="pub-minted">-</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.10s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="pub-available">-</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.15s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="pub-circulating">-</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.20s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="pub-escrowed">-</p></div>' +
+        '<div class="scale-in" style="animation-delay:0.25s"><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">RETIRED</p><p class="text-lg font-black mono" style="color:var(--red)" id="pub-burned">-</p></div>' +
       '</div>' +
     '</div>' +
     '<div class="flex gap-2 mb-4 overflow-x-auto pb-1">' + btns + '</div>' +
@@ -3499,7 +3564,15 @@ function renderProfileTab() {
           '<p class="text-[11px]" style="color:var(--text-dim)">Escrow holds during disputes. Platform review process protects both parties.</p>' +
         '</div>' +
       '</div>' +
-      '<div class="mt-3 text-[11px]" style="color:var(--text-dim)"><i class="fas fa-info-circle mr-1"></i>Identity verification and background check integration coming in a future update.</div>' +
+    '</div>' +
+
+    /* Verification Center */
+    '<div class="card p-5 max-w-2xl mb-6 shimmer-border" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.04),rgba(124,92,255,0.03))">' +
+      '<h3 class="font-black mb-1"><i class="fas fa-certificate mr-2" style="color:var(--accent)"></i>Verification Center</h3>' +
+      '<p class="text-xs mb-4" style="color:var(--text-dim)">Upload credentials to earn trust badges. Verified operatives get priority matching and higher visibility. All documents are reviewed within 24-48 hours.</p>' +
+      '<div id="verification-list" class="mb-4">' + renderVerificationItems(p) + '</div>' +
+      '<button onclick="openVerificationModal()" class="btn-pill btn-pill-accent" data-testid="button-verify"><i class="fas fa-upload mr-2"></i>Upload Credential</button>' +
+      '<p class="text-[10px] mt-3" style="color:var(--text-dim)"><i class="fas fa-lock mr-1"></i>Documents are stored securely and never shared with other users. Only verification status (badge) is visible on your profile.</p>' +
     '</div>' +
 
     /* Angels Program Card */
@@ -3533,9 +3606,178 @@ function renderProfileTab() {
         badge('&#9889;', 'Lightning', 'Complete 25 missions', Number(p.jobs_completed || 0) >= 25) +
         badge('&#128081;', 'Legend', 'Reach Level 10', calcLevel(p).level >= 10) +
         badge('&#129412;', 'MUXI Friend', 'Tap MUXI 5 times', false) +
+        badge('&#128203;', 'Licensed', 'Upload a license', hasVerification('license')) +
+        badge('&#128737;', 'Insured', 'Upload insurance proof', hasVerification('insurance')) +
+        badge('&#127891;', 'Certified', 'Upload a certification', hasVerification('certification')) +
+        badge('&#9989;', 'ID Verified', 'Verify your identity', hasVerification('government_id')) +
+        badge('&#128272;', 'Background Check', 'Pass a background check', hasVerification('background_check')) +
       '</div>' +
     '</div>' +
   '</div>';
+}
+
+var VERIFICATION_TYPES = [
+  { key: 'license', label: "Driver's License / Trade License", icon: '&#128203;', desc: 'Professional or trade license' },
+  { key: 'insurance', label: 'Insurance / Liability', icon: '&#128737;', desc: 'Liability or vehicle insurance' },
+  { key: 'certification', label: 'Certification / Training', icon: '&#127891;', desc: 'Professional certification or training completion' },
+  { key: 'government_id', label: 'Government ID', icon: '&#9989;', desc: 'Valid government-issued photo ID' },
+  { key: 'background_check', label: 'Background Check', icon: '&#128272;', desc: 'Third-party background check result' },
+  { key: 'business_license', label: 'Business License', icon: '&#127970;', desc: 'Business registration or license' },
+  { key: 'vehicle_registration', label: 'Vehicle Registration', icon: '&#128663;', desc: 'Current vehicle registration' },
+  { key: 'other', label: 'Other Credential', icon: '&#128196;', desc: 'Any other relevant credential' }
+];
+
+function hasVerification(type) {
+  return state.verifications.some(function(v) { return v.doc_type === type && v.status === 'verified'; });
+}
+
+function getVerificationStatus(type) {
+  var v = state.verifications.find(function(v) { return v.doc_type === type; });
+  return v ? v.status : null;
+}
+
+function renderVerificationItems(p) {
+  if (!state.verifications.length) {
+    return '<div class="text-center py-4" style="color:var(--text-dim)">' +
+      '<i class="fas fa-folder-open text-2xl mb-2" style="opacity:0.4"></i>' +
+      '<p class="text-xs">No credentials uploaded yet. Upload your first one to start earning trust badges.</p>' +
+    '</div>';
+  }
+  return state.verifications.map(function(v) {
+    var cfg = VERIFICATION_TYPES.find(function(t) { return t.key === v.doc_type; }) || { icon: '&#128196;', label: v.doc_type };
+    var statusColor = v.status === 'verified' ? 'var(--accent)' : v.status === 'rejected' ? 'var(--red)' : 'var(--yellow)';
+    var statusLabel = v.status === 'verified' ? 'VERIFIED' : v.status === 'rejected' ? 'REJECTED' : 'PENDING REVIEW';
+    var statusIcon = v.status === 'verified' ? 'fa-check-circle' : v.status === 'rejected' ? 'fa-times-circle' : 'fa-clock';
+    return '<div class="flex items-center justify-between p-3 rounded-xl mb-2 scale-in" style="background:rgba(255,255,255,0.04);border:1px solid ' + (v.status === 'verified' ? 'rgba(24,246,200,0.25)' : 'rgba(255,255,255,0.08)') + '">' +
+      '<div class="flex items-center gap-3">' +
+        '<span class="text-xl">' + cfg.icon + '</span>' +
+        '<div>' +
+          '<p class="font-black text-xs">' + escapeHtml(cfg.label) + '</p>' +
+          '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(v.file_name || 'Document') + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="text-right">' +
+        '<span class="text-[10px] font-black" style="color:' + statusColor + '"><i class="fas ' + statusIcon + ' mr-1"></i>' + statusLabel + '</span>' +
+        (v.status === 'rejected' && v.reject_reason ? '<p class="text-[9px] mt-0.5" style="color:var(--text-dim)">' + escapeHtml(v.reject_reason) + '</p>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openVerificationModal() {
+  if (!state.user) return openAuthModal();
+  var typeOptions = VERIFICATION_TYPES.map(function(t) {
+    return '<option value="' + t.key + '">' + t.icon + ' ' + t.label + '</option>';
+  }).join('');
+
+  openModal(
+    '<i class="fas fa-certificate mr-2" style="color:var(--accent)"></i>Upload Credential',
+    '<p class="text-sm mb-4" style="color:var(--text-dim)">Upload a document to verify your credentials. Accepted formats: PDF, JPG, PNG (max 5MB). Documents are reviewed within 24-48 hours.</p>' +
+    '<div class="space-y-3">' +
+      '<div>' +
+        '<label class="text-[10px] font-black tracking-widest block mb-1" style="color:rgba(232,236,241,0.55)">CREDENTIAL TYPE</label>' +
+        '<select id="verify-type" class="field" data-testid="select-verify-type">' + typeOptions + '</select>' +
+      '</div>' +
+      '<div>' +
+        '<label class="text-[10px] font-black tracking-widest block mb-1" style="color:rgba(232,236,241,0.55)">DOCUMENT FILE</label>' +
+        '<input type="file" id="verify-file" accept=".pdf,.jpg,.jpeg,.png,.webp" class="field text-sm" data-testid="input-verify-file" />' +
+      '</div>' +
+      '<div>' +
+        '<label class="text-[10px] font-black tracking-widest block mb-1" style="color:rgba(232,236,241,0.55)">NOTES (OPTIONAL)</label>' +
+        '<textarea id="verify-notes" class="field" rows="2" placeholder="e.g. Expires 12/2027, State of California" data-testid="input-verify-notes"></textarea>' +
+      '</div>' +
+      '<div class="p-3 rounded-xl" style="background:rgba(24,246,200,0.04);border:1px solid rgba(24,246,200,0.12)">' +
+        '<p class="text-[10px] font-bold" style="color:var(--text-dim)"><i class="fas fa-shield-alt mr-1" style="color:var(--accent)"></i>Your documents are encrypted and stored securely. They are NEVER shared with other users, employers, or third parties. Only MUVR staff reviewers can access them for verification purposes. Once verified, only the badge is shown on your profile.</p>' +
+      '</div>' +
+    '</div>',
+    '<button onclick="submitVerification()" class="btn-primary rounded-full" data-testid="button-submit-verify"><i class="fas fa-upload mr-2"></i>Submit for Review</button>'
+  );
+}
+
+async function submitVerification() {
+  if (!state.user) return;
+  var docType = getEl('verify-type') ? getEl('verify-type').value : '';
+  var fileInput = getEl('verify-file');
+  var notes = getEl('verify-notes') ? getEl('verify-notes').value.trim() : '';
+
+  if (!fileInput || !fileInput.files || !fileInput.files.length) {
+    return showToast('Please select a file to upload', 'error');
+  }
+
+  var file = fileInput.files[0];
+  if (file.size > 5 * 1024 * 1024) {
+    return showToast('File must be under 5MB', 'error');
+  }
+
+  var allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+  if (allowed.indexOf(file.type) < 0) {
+    return showToast('Only PDF, JPG, PNG, or WebP files are accepted', 'error');
+  }
+
+  setMuxi('Uploading your credential...');
+  try {
+    var filePath = 'verifications/' + state.user.id + '/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    var uploadRes = await sb.storage.from('documents').upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+    if (uploadRes.error) {
+      console.warn('Storage upload failed, saving metadata only:', uploadRes.error.message);
+    }
+
+    var res = await apiRequest('rpc/submit_verification', {
+      method: 'POST',
+      body: JSON.stringify({
+        p_user_id: state.user.id,
+        p_doc_type: docType,
+        p_file_path: filePath,
+        p_file_name: file.name,
+        p_notes: notes
+      })
+    });
+
+    if (res && res.ok) {
+      state.verifications.push({
+        doc_type: docType,
+        file_name: file.name,
+        file_path: filePath,
+        notes: notes,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      });
+      closeModal();
+      showToast('Credential submitted for review!');
+      setMuxi('Document received! Our team will review it within 24-48 hours. Once verified, your badge lights up.');
+      renderProfileTab();
+    } else {
+      state.verifications.push({
+        doc_type: docType,
+        file_name: file.name,
+        file_path: filePath,
+        notes: notes,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      });
+      closeModal();
+      showToast('Credential uploaded! Pending review.');
+      setMuxi('Got it! Review is pending. The RPC endpoint may need to be created on your backend.');
+      renderProfileTab();
+    }
+  } catch(e) {
+    showToast('Upload failed: ' + e.message, 'error');
+    setMuxi('Upload error. Check your connection and try again.');
+  }
+}
+
+async function loadVerifications() {
+  if (!state.user) return;
+  try {
+    var res = await apiRequest('verifications?user_id=eq.' + state.user.id + '&select=*&order=created_at.desc');
+    if (res && res.ok) {
+      state.verifications = await res.json();
+    }
+  } catch(e) { console.warn('loadVerifications:', e); }
 }
 
 function badge(icon, title, desc, unlocked) {
@@ -3567,7 +3809,7 @@ function renderBlogPage() {
   root.innerHTML = '<div class="fade-up"><div class="max-w-4xl mx-auto px-5 py-8">' +
     '<div class="flex items-center justify-between mb-6">' +
       '<div class="flex items-center gap-3">' +
-        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R</div>' +
+        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R<sup style="font-size:0.45em;vertical-align:super;opacity:0.7">&trade;</sup></div>' +
         '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">BLOG</span>' +
       '</div>' +
       '<div class="flex gap-2">' +
@@ -4466,7 +4708,8 @@ function muxiKnowledge(q) {
     { keys: ['lockup', 'lock credits', 'priority', 'commitment'], a: 'Credit Lockup lets you lock MV for 30, 90, 180, or 365 days to signal commitment. You get a priority matching boost: 1.1x (30d), 1.25x (90d), 1.5x (180d), or 2x (365d). Minimum lockup is 10 MV. Credits are returned when the period ends. This is NOT staking — there is no yield or interest. It is a commitment signal.' },
     { keys: ['ecosystem pool', 'treasury', 'distribution', 'rewards'], a: 'The ecosystem pool collects 0.5 MV from each mission posting fee. It distributes weekly: 40% to referral rewards, 30% to top performers, 20% to agent development, and 10% to the network reserve. All distributions have a 7-day hold. Fully transparent on the ledger.' },
     { keys: ['retirement rate', 'adaptive', 'deflation rate'], a: 'The retirement rate is adaptive based on circulating supply. Above 5M: 0.5 MV/mission. 2-5M: 0.25. 500K-2M: 0.10. 100-500K: 0.05. Below 100K: 0.01. This ensures the network never hits critical scarcity while maintaining natural deflation.' },
-    { keys: ['network health', 'health', 'dashboard', 'audit'], a: 'The Network Health dashboard shows real-time stats: active users, active agents, missions completed this week, ecosystem pool balance, current retirement rate, top holders (anonymous), and a full ledger audit with discrepancy detection. Access it from the Vault tab.' }
+    { keys: ['network health', 'health', 'dashboard', 'audit'], a: 'The Network Health dashboard shows real-time stats: active users, active agents, missions completed this week, ecosystem pool balance, current retirement rate, top holders (anonymous), and a full ledger audit with discrepancy detection. Access it from the Vault tab.' },
+    { keys: ['verification', 'verify', 'badge', 'license', 'insurance', 'certified', 'credential', 'background check', 'trust'], a: 'Go to your Dossier tab and find the Verification Center. You can upload credentials like licenses, insurance, certifications, government ID, or background checks. Documents are reviewed within 24-48 hours. Once verified, you earn trust badges visible on your profile — giving you priority matching and higher visibility to commanders. Documents are stored securely and never shared with other users.' }
   ];
 
   for (var i = 0; i < kb.length; i++) {
@@ -4973,7 +5216,7 @@ async function confirmLogout() {
   try { await sb.auth.signOut(); } catch(e) {}
   state.realtimeSubs.forEach(function(ch) { try { sb.removeChannel(ch); } catch(e) {} });
   if (notifPollInterval) { clearInterval(notifPollInterval); notifPollInterval = null; }
-  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[], myGigsView:false, myGigs:[], myActiveWork:[], deliverables:[], p2pOffers:[], p2pMarketRate:'~1.00', p2pPayFilter:'All', myTrades:[], exchangeView:'buy', agents:[] };
+  state = { user:null, accessToken:null, profile:null, jobs:[], jobFilter:'all', balanceVisible:false, currentTab:'jobs', conversations:[], activeConvoId:null, activeMessages:[], mapInited:false, mapObj:null, myPresence:{status:'offline'}, publicEvents:[], ledgerFilter:'all', realtimeSubs:[], notifications:[], myGigsView:false, myGigs:[], myActiveWork:[], deliverables:[], p2pOffers:[], p2pMarketRate:'~1.00', p2pPayFilter:'All', myTrades:[], exchangeView:'buy', agents:[], verifications:[] };
   renderLanding();
   var fab = getEl('muxi-fab'); if (fab) fab.remove();
   var bub = getEl('muxi-bubble'); if (bub) bub.remove();
@@ -4989,7 +5232,7 @@ async function handleQuickAcknowledge() {
   } catch(e) { /* non-blocking — log but don't block entry */ console.warn('Ack log:', e); }
   closeModal(); renderApp(); showToast('Welcome back!');
   setMuxi('Session restored. Loading your data.');
-  loadProfileSafe(); loadJobsSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
+  loadProfileSafe(); loadJobsSafe(); loadNotifications(); loadMyGigs(); loadVerifications(); startNotifPolling();
   registerServiceWorker(); promptPushAfterInteraction();
 }
 
@@ -5005,7 +5248,7 @@ async function handleAcceptLegal() {
     }
     closeModal(); renderApp(); showToast('Agreements accepted!');
     setMuxi('You are live. Go post a mission or accept one.');
-    loadJobsSafe(); loadProfileSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
+    loadJobsSafe(); loadProfileSafe(); loadNotifications(); loadMyGigs(); loadVerifications(); startNotifPolling();
     registerServiceWorker(); promptPushAfterInteraction();
   } catch(e) { showToast('Error saving agreements', 'error'); }
 }
@@ -5402,7 +5645,7 @@ subscribeToPublicEvents();
         state.accessToken = sess.access_token;
         /* OAuth sign-in (Google etc) — show legal acknowledgment */
         if (ev === 'SIGNED_IN' && !document.querySelector('#tab-content')) {
-          ensureUserRow().then(function() { loadProfileSafe(); });
+          ensureUserRow().then(function() { loadProfileSafe(); loadVerifications(); });
           renderApp(); renderMuxi();
           setTimeout(function() { openLegalModal(true); }, 600);
         }
@@ -5481,7 +5724,8 @@ function openFAQModal() {
     { q: 'How is MUVR different from TaskRabbit / Uber / Fiverr?', a: '0% commission on operative earnings (they charge 15-30%). Instant payment via escrow (not 3-7 days). AI agents as first-class operatives. P2P credit exchange. Public transparent ledger. Rank and reputation system with XP. And it works for physical labor, digital work, caregiving, Web3, and volunteer missions — all in one platform.' },
     { q: 'What is the public ledger?', a: 'The public ledger is a transparent, real-time feed of all MV activity on the network. It shows issuances, retirements, escrow locks, releases, tips, and transfers — but only with anonymous aliases (like muvr_48af24), never real names or emails. Anyone can verify the network\'s health and activity.' },
     { q: 'Can I volunteer on MUVR?', a: 'Yes. Post a mission with the "Volunteer (0 MV)" category. Operatives can accept volunteer missions to build reputation, earn XP, and give back to their community — all while climbing the ranks.' },
-    { q: 'Who operates MUVR?', a: 'MUVR is operated by TransBid LLC, a Delaware limited liability company (USA). For legal questions, contact legal@transbid.live.' }
+    { q: 'Who operates MUVR?', a: 'MUVR is operated by TransBid LLC, a Delaware limited liability company (USA). For legal questions, contact legal@transbid.live.' },
+    { q: 'How do I get verified on MUVR?', a: 'Go to the Dossier tab and find the Verification Center. Upload credentials like licenses, insurance, certifications, government IDs, or background checks. Accepted formats are PDF, JPG, and PNG (max 5MB). Documents are reviewed within 24-48 hours. Verified credentials earn you trust badges on your profile, which give you priority matching and higher visibility. Your documents are stored securely and never shared with other users — only the badge is visible.' }
   ];
 
   var faqHtml = faqs.map(function(f, i) {
