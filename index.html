@@ -2962,7 +2962,7 @@ function renderWalletTab() {
 
 function toggleBalance() {
   state.balanceVisible = !state.balanceVisible;
-  if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); }
+  if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
 }
 
 async function loadWalletData() {
