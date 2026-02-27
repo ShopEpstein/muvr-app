@@ -298,6 +298,9 @@
       background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-3));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
+    .mv-brand { font-weight: 900; }
+    .mv-brand .mv-m { color: var(--accent); }
+    .mv-brand .mv-v { color: var(--accent-2); }
     .line-clamp-2 {
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
@@ -369,7 +372,7 @@
     <div style="text-align:center">
       <div class="boot-spinner" style="margin:0 auto 14px"></div>
       <div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">
-        <span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R
+        <span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R
       </div>
       <div style="margin-top:10px;font-size:11px;font-weight:800;color:rgba(232,236,241,0.60);letter-spacing:0.24px;text-transform:uppercase">
         Loading the network
@@ -420,6 +423,8 @@ var state = {
   unreadMsgCount: 0,
   presenceInterval: null,
   notifications: [],
+  pushPermission: (typeof Notification !== 'undefined') ? Notification.permission : 'unsupported',
+  pushPrompted: false,
   myGigsView: false,
   myGigs: [],
   myActiveWork: [],
@@ -460,6 +465,20 @@ function escapeHtml(str) {
   var div = document.createElement('div');
   div.textContent = (str == null ? '' : String(str));
   return div.innerHTML;
+}
+
+/* Branded MV label: M=teal V=purple */
+function mvLabel(amount) {
+  return '<span class="mv-brand">' + amount + ' <span class="mv-m">M</span><span class="mv-v">V</span></span>';
+}
+
+function xpBooster(icon, label, xpVal, sub) {
+  return '<div class="p-2 rounded-xl text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">' +
+    '<span class="text-base">' + icon + '</span>' +
+    '<p class="text-[10px] font-black mt-1">' + label + '</p>' +
+    '<p class="text-xs font-black" style="color:var(--accent)">' + xpVal + '</p>' +
+    '<p class="text-[9px]" style="color:var(--text-dim)">' + sub + '</p>' +
+  '</div>';
 }
 
 
@@ -588,9 +607,9 @@ function brandMark(sizeClass) {
   return '<div class="inline-flex items-center gap-3">' +
     '<div class="relative">' +
       '<div class="absolute -inset-2 blur-2xl opacity-40" style="background:radial-gradient(circle at 30% 30%,rgba(24,246,200,0.6),transparent 60%),radial-gradient(circle at 70% 50%,rgba(124,92,255,0.4),transparent 60%)"></div>' +
-      '<div class="' + sizeClass + ' font-black tracking-tight relative"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R</div>' +
+      '<div class="' + sizeClass + ' font-black tracking-tight relative"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R</div>' +
     '</div>' +
-    '<span class="text-[10px] font-black px-3 py-1 rounded-full" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.10);color:rgba(232,236,241,0.85);letter-spacing:0.22px">WORK GAME</span>' +
+    '<span class="text-[10px] font-black px-3 py-1 rounded-full" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.10);color:rgba(232,236,241,0.85);letter-spacing:0.22px">OWNED BY THE WORKERS</span>' +
   '</div>';
 }
 
@@ -604,7 +623,7 @@ function renderLanding() {
 
   root.innerHTML = '<div class="fade-up">' +
     '<div style="background:rgba(180,30,30,0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">' +
-      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
+      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - OWNED BY THE WORKERS - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
     '</div>' +
 
     /* Hero */
@@ -614,7 +633,7 @@ function renderLanding() {
         brandMark('text-5xl sm:text-6xl') +
       '</div>' +
       '<div class="fade-up d2 text-4xl sm:text-6xl font-black leading-tight mb-3">' +
-        'It\'s <span class="hero-gradient">UR MUV.</span>' +
+        'It\'s UR <span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>.' +
       '</div>' +
       '<p class="fade-up d2 text-lg sm:text-xl font-black mb-5" style="color:rgba(232,236,241,0.85)">' +
         'Humans + AI Agents. Real-World Labor + Digital + Web3. One Network.' +
@@ -730,7 +749,7 @@ function renderLanding() {
     '<footer class="py-12 text-center text-xs" style="color:rgba(232,236,241,0.52)">' +
       '<div class="max-w-4xl mx-auto px-5">' +
         '<div class="mb-3">' + muxiSVG(32) + '</div>' +
-        '<div class="mb-2 font-bold" style="color:rgba(232,236,241,0.70)">MUVR is operated by TransBid LLC (Delaware, USA)</div>' +
+        '<div class="mb-2 font-bold" style="color:rgba(232,236,241,0.70)">MUVR is operated by TransBid LLC (Delaware, USA) — built for the workers, owned by the workers.</div>' +
         '<div class="mb-4">MUVR Credits (MV) are platform-limited digital credits used solely within MUVR. Not currency, cryptocurrency, or financial instruments.</div>' +
         '<div style="color:rgba(232,236,241,0.38)">2026 TransBid LLC. All rights reserved.</div>' +
         '<div class="mt-3 flex gap-4 justify-center">' +
@@ -821,7 +840,7 @@ function switchPublicLedger() {
   root.innerHTML = '<div class="fade-up"><div class="max-w-4xl mx-auto px-5 py-8">' +
     '<div class="flex items-center justify-between mb-6">' +
       '<div class="flex items-center gap-3">' +
-        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R</div>' +
+        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R</div>' +
         '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">PUBLIC LEDGER</span>' +
       '</div>' +
       '<div class="flex gap-2">' +
@@ -846,7 +865,7 @@ function renderApp() {
   root.innerHTML = '<div class="fade-up">' +
     /* Disclaimer */
     '<div style="background:rgba(180,30,30,0.82)" class="text-center py-2 text-[10px] font-black tracking-widest">' +
-      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
+      'MUVR IS A MARKETPLACE ONLY - NOT AN EMPLOYER - OWNED BY THE WORKERS - ALL OPERATIVES ARE INDEPENDENT CONTRACTORS' +
     '</div>' +
 
     /* Header */
@@ -855,8 +874,8 @@ function renderApp() {
         '<div class="flex items-center gap-2 cursor-pointer" onclick="switchTab(\'jobs\')">' +
           '<div class="w-9 h-9 rounded-2xl grid place-items-center" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">' + muxiSVG(24) + '</div>' +
           '<div>' +
-            '<div class="text-lg font-black tracking-tight"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R</div>' +
-            '<div class="text-[10px] font-bold" style="color:rgba(232,236,241,0.55);letter-spacing:0.22px;text-transform:uppercase">The real-world work game</div>' +
+            '<div class="text-lg font-black tracking-tight"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R</div>' +
+            '<div class="text-[10px] font-bold" style="color:rgba(232,236,241,0.55);letter-spacing:0.22px;text-transform:uppercase">Owned by the workers</div>' +
           '</div>' +
         '</div>' +
         '<div class="flex items-center gap-3">' +
@@ -959,7 +978,7 @@ function renderJobsTab() {
         '<div class="flex items-end justify-between">' +
           '<div>' +
             '<p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.45)">BUDGET</p>' +
-            '<p class="text-lg font-black mono" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' MV</p>' +
+            '<p class="text-lg font-black mono" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
           '</div>' +
           '<div class="flex gap-2">' +
             (isMyJob ? '<span class="text-[10px] font-black px-3 py-2 rounded-full" style="background:rgba(255,255,255,0.06);color:var(--text-dim)">YOUR MISSION</span>' :
@@ -983,7 +1002,7 @@ function renderJobsTab() {
     '<div class="mb-6 flex items-start justify-between gap-3">' +
       '<div>' +
         '<h1 class="text-3xl sm:text-4xl font-black mb-1">Open Missions</h1>' +
-        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">It\'s UR MUV. ' + state.jobs.length + ' mission' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
+        '<p class="text-sm" style="color:rgba(232,236,241,0.65)">It\'s UR <span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>. ' + state.jobs.length + ' mission' + (state.jobs.length !== 1 ? 's' : '') + ' open.</p>' +
       '</div>' +
       '<div class="flex gap-2 flex-wrap">' +
         (state.user ? '<button onclick="state.myGigsView=true;renderJobsTab();loadMyGigs()" class="btn-pill btn-pill-ghost"><i class="fas fa-satellite mr-1"></i>Command Center</button>' : '') +
@@ -1616,7 +1635,7 @@ async function awardJob(jobId, applicationId, workerId) {
     } catch(ce) { console.warn('Award convo msg failed:', ce); }
     /* Notify worker */
     try {
-      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'job_awarded', title: 'Mission deployed to you!', body: 'You have been deployed on a mission. Check your comms for details.', channel: 'in_app', status: 'pending' }) });
+      await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: workerId, type: 'job_awarded', title: 'Mission deployed to you!', body: 'You have been deployed on a mission. Check your comms for details.', channel: 'email', status: 'pending' }) });
     } catch(e) {}
     closeModal();
     showToast('Operative deployed! Notification sent.');
@@ -1652,7 +1671,7 @@ async function workerMarkComplete(jobId) {
     var job = state.myActiveWork.find(function(j) { return j.id === jobId; });
     if (job && job.poster_id) {
       try {
-        await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'job_completed', title: 'Mission complete', body: 'An operative marked "' + (job.title || 'your mission') + '" as complete. Review and release payout.', channel: 'in_app', status: 'pending' }) });
+        await apiRequest('notifications_queue', { method: 'POST', body: JSON.stringify({ user_id: job.poster_id, type: 'job_completed', title: 'Mission complete', body: 'An operative marked "' + (job.title || 'your mission') + '" as complete. Review and release payout.', channel: 'email', status: 'pending' }) });
       } catch(e) {}
       /* Send message to commander */
       try {
@@ -2366,7 +2385,7 @@ function renderExchangeTab() {
       '</div>' +
       '<div class="card p-4 text-center">' +
         '<p class="text-[10px] tracking-widest font-black" style="color:var(--text-dim)">YOUR BALANCE</p>' +
-        '<p class="text-xl font-black mono" style="color:var(--accent)">' + bal + ' MV</p>' +
+        '<p class="text-xl font-black mono" style="color:var(--accent)">' + bal + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span></p>' +
       '</div>' +
       '<div class="card p-4 text-center">' +
         '<p class="text-[10px] tracking-widest font-black" style="color:var(--text-dim)">OPEN OFFERS</p>' +
@@ -2864,7 +2883,7 @@ function renderWalletTab() {
     '<div class="card p-5 max-w-md mb-6">' +
       '<p class="text-[10px] tracking-widest font-black mb-2" style="color:rgba(232,236,241,0.55)">YOUR BALANCE</p>' +
       '<div class="flex items-end justify-between mb-5">' +
-        '<p class="text-4xl font-black mono" style="color:var(--accent)" id="balance-display">' + (state.balanceVisible ? bal + ' MV' : '------') + '</p>' +
+        '<p class="text-4xl font-black mono" style="color:var(--accent)" id="balance-display">' + (state.balanceVisible ? bal + ' <span style="color:var(--accent)">M</span><span style="color:var(--accent-2)">V</span>' : '------') + '</p>' +
         '<button onclick="toggleBalance()" class="text-xs font-black cursor-pointer" style="color:rgba(232,236,241,0.55);background:none;border:none;text-transform:uppercase">' + (state.balanceVisible ? 'Hide' : 'Show') + '</button>' +
       '</div>' +
       '<div class="grid grid-cols-3 gap-3">' +
@@ -3061,7 +3080,32 @@ function renderPublicEvents() {
 ============================================================================= */
 function calcLevel(p) {
   var completed = Number((p && p.jobs_completed) || 0);
-  var xp = completed * 120 + (p && p.full_name ? 40 : 0) + (p && p.about_me ? 40 : 0) + (p && p.username ? 30 : 0) + (p && p.has_vehicle ? 20 : 0);
+  var rating = Number((p && p.rating) || 0);
+  var kudos = Number((p && p.kudos_received) || 0);
+  var helpfulness = Number((p && p.helpfulness_score) || 0);
+  var referrals = Number((p && p.referral_count) || 0);
+  var volunteer = Number((p && p.volunteer_missions) || 0);
+
+  /* Base XP from missions */
+  var xp = completed * 120;
+
+  /* Profile completion bonus */
+  if (p && p.full_name) xp += 40;
+  if (p && p.about_me) xp += 40;
+  if (p && p.username) xp += 30;
+  if (p && p.has_vehicle) xp += 20;
+
+  /* REPUTATION BOOSTERS — rewarding good humans/AIs/teams */
+  xp += Math.floor(rating * 50);          /* High ratings = big XP boost (5 stars = +250) */
+  xp += kudos * 25;                        /* Each kudos/shoutout = +25 XP */
+  xp += helpfulness * 15;                  /* Community helpfulness score */
+  xp += referrals * 40;                    /* Bringing people to the network */
+  xp += volunteer * 80;                    /* Volunteer missions worth more XP than paid ones */
+
+  /* Streak bonus: 5+ completed = 1.2x multiplier, 20+ = 1.5x */
+  if (completed >= 20) xp = Math.floor(xp * 1.5);
+  else if (completed >= 5) xp = Math.floor(xp * 1.2);
+
   var level = Math.max(1, Math.floor(xp / 200) + 1);
   var titles = ['Runner', 'Carrier', 'Operator', 'Elite Operator', 'Angel', 'Archangel', 'Legend', 'Mythic'];
   var title = titles[Math.min(titles.length - 1, Math.floor((level - 1) / 2))];
@@ -3118,6 +3162,19 @@ function renderProfileTab() {
         '<div class="stat-card"><p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">RATING</p><p class="text-lg mt-1">' + (stars || '&#9734; N/A') + '</p></div>' +
         '<div class="stat-card"><p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">MV BALANCE</p><p class="text-2xl font-black mt-1" style="color:var(--accent)">' + Number(p.mv_balance || 0) + '</p></div>' +
         '<div class="stat-card"><p class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">XP TOTAL</p><p class="text-2xl font-black mt-1">' + lvl.xp + '</p></div>' +
+      '</div>' +
+
+      /* XP Boosters - how you level up by being good */
+      '<div class="p-4 rounded-2xl mb-5" style="background:rgba(24,246,200,0.04);border:1px solid rgba(24,246,200,0.12)">' +
+        '<p class="text-[10px] font-black tracking-widest mb-3" style="color:var(--accent)"><i class="fas fa-bolt mr-1"></i>XP BOOSTERS — Level up by being a good human</p>' +
+        '<div class="grid grid-cols-2 sm:grid-cols-3 gap-2">' +
+          xpBooster('&#11088;', 'Rating', Math.floor(Number(p.rating || 0) * 50) + ' XP', 'High reviews') +
+          xpBooster('&#128588;', 'Kudos', (Number(p.kudos_received || 0) * 25) + ' XP', Number(p.kudos_received || 0) + ' received') +
+          xpBooster('&#129309;', 'Helpfulness', (Number(p.helpfulness_score || 0) * 15) + ' XP', 'Community score') +
+          xpBooster('&#128156;', 'Volunteer', (Number(p.volunteer_missions || 0) * 80) + ' XP', Number(p.volunteer_missions || 0) + ' missions') +
+          xpBooster('&#128227;', 'Referrals', (Number(p.referral_count || 0) * 40) + ' XP', Number(p.referral_count || 0) + ' invited') +
+          xpBooster('&#128293;', 'Streak', (Number(p.jobs_completed || 0) >= 20 ? '1.5x' : Number(p.jobs_completed || 0) >= 5 ? '1.2x' : '1.0x'), Number(p.jobs_completed || 0) >= 5 ? 'Active!' : 'Do 5 missions') +
+        '</div>' +
       '</div>' +
 
       /* XP Bar */
@@ -3232,7 +3289,7 @@ function renderBlogPage() {
   root.innerHTML = '<div class="fade-up"><div class="max-w-4xl mx-auto px-5 py-8">' +
     '<div class="flex items-center justify-between mb-6">' +
       '<div class="flex items-center gap-3">' +
-        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent)">V</span>R</div>' +
+        '<div class="text-2xl font-black"><span style="color:var(--accent)">M</span>U<span style="color:var(--accent-2)">V</span>R</div>' +
         '<span class="text-[10px] font-black px-2 py-1 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10)">BLOG</span>' +
       '</div>' +
       '<div class="flex gap-2">' +
@@ -3759,9 +3816,112 @@ async function loadNotifications() {
   if (!state.user) return;
   try {
     var res = await apiRequest('notifications_queue?user_id=eq.' + state.user.id + '&status=eq.pending&order=created_at.desc&limit=20');
+    var oldCount = (state.notifications || []).length;
     state.notifications = (res && res.ok) ? await res.json() : [];
     updateNotifBadge();
+
+    /* Browser push for NEW notifications */
+    if (state.notifications.length > oldCount && state.pushPermission === 'granted') {
+      var newest = state.notifications[0];
+      if (newest && newest.title) {
+        try {
+          var reg = await navigator.serviceWorker.ready;
+          reg.showNotification('MUVR', {
+            body: newest.title + (newest.body ? ' — ' + newest.body : ''),
+            icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" rx="120" fill="%23050716"/%3E%3Ctext x="256" y="340" font-family="system-ui" font-weight="900" font-size="200" fill="%2318F6C8" text-anchor="middle"%3EM%3C/text%3E%3C/svg%3E',
+            badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"%3E%3Ccircle cx="48" cy="48" r="48" fill="%2318F6C8"/%3E%3C/svg%3E',
+            tag: 'muvr-' + (newest.id || Date.now()),
+            renotify: true,
+            vibrate: [100, 50, 100]
+          });
+        } catch(e) { console.warn('Push notification failed:', e); }
+      }
+    }
+
+    /* Trigger Brevo email for high-priority notifications */
+    state.notifications.forEach(function(n) {
+      if (n.channel === 'email' && n.status === 'pending' && !n.email_sent) {
+        sendBrevoEmail(n);
+      }
+    });
   } catch(e) { console.error(e); }
+}
+
+/* Browser Push Notification Setup */
+async function requestPushPermission() {
+  if (!('Notification' in window)) { state.pushPermission = 'unsupported'; return; }
+  if (Notification.permission === 'granted') { state.pushPermission = 'granted'; return; }
+  if (Notification.permission === 'denied') { state.pushPermission = 'denied'; return; }
+
+  try {
+    var perm = await Notification.requestPermission();
+    state.pushPermission = perm;
+    if (perm === 'granted') {
+      showToast('Push notifications enabled! You\'ll get alerts even when MUVR isn\'t open.');
+    }
+  } catch(e) { state.pushPermission = 'denied'; }
+}
+
+/* Register minimal service worker for push notifications */
+async function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    /* Create inline service worker */
+    var swCode = 'self.addEventListener("notificationclick", function(e) { e.notification.close(); e.waitUntil(clients.matchAll({type:"window"}).then(function(cl) { for (var i = 0; i < cl.length; i++) { if (cl[i].url.indexOf("muvr") >= 0 && "focus" in cl[i]) return cl[i].focus(); } if (clients.openWindow) return clients.openWindow("/"); })); });';
+    var blob = new Blob([swCode], { type: 'application/javascript' });
+    var swUrl = URL.createObjectURL(blob);
+    await navigator.serviceWorker.register(swUrl, { scope: '/' });
+  } catch(e) { console.warn('SW registration failed:', e); }
+}
+
+/* Brevo transactional email via API */
+async function sendBrevoEmail(notification) {
+  if (!state.user || !state.user.email) return;
+  try {
+    /* Mark as email_sent to prevent duplicate sends */
+    await apiRequest('notifications_queue?id=eq.' + notification.id, {
+      method: 'PATCH', body: JSON.stringify({ email_sent: true })
+    });
+
+    /* Call Brevo Edge Function */
+    await fetch(SUPA_URL + '/functions/v1/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.accessToken },
+      body: JSON.stringify({
+        to_email: state.user.email,
+        to_name: (state.profile && state.profile.full_name) || 'Operative',
+        subject: 'MUVR: ' + (notification.title || 'New notification'),
+        html_body: '<div style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#050716;color:#e8ecf1;border-radius:16px">' +
+          '<div style="text-align:center;margin-bottom:20px"><span style="font-size:28px;font-weight:900"><span style="color:#18F6C8">M</span>U<span style="color:#7C5CFF">V</span>R</span></div>' +
+          '<div style="background:rgba(255,255,255,0.06);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.10)">' +
+            '<h2 style="margin:0 0 8px;font-size:16px;font-weight:800">' + escapeHtml(notification.title || '') + '</h2>' +
+            '<p style="margin:0;font-size:14px;color:rgba(232,236,241,0.72)">' + escapeHtml(notification.body || '') + '</p>' +
+          '</div>' +
+          '<div style="text-align:center;margin-top:20px"><a href="https://muvr-app.vercel.app" style="display:inline-block;padding:12px 32px;background:#18F6C8;color:#050716;font-weight:800;text-decoration:none;border-radius:100px;font-size:14px">Open MUVR</a></div>' +
+          '<p style="text-align:center;margin-top:16px;font-size:10px;color:rgba(232,236,241,0.38)">MUVR is operated by TransBid LLC — built for the workers, owned by the workers.</p>' +
+        '</div>'
+      })
+    }).catch(function(e) { console.warn('Brevo email failed:', e); });
+  } catch(e) { console.warn('Email notification error:', e); }
+}
+
+/* Prompt for push permission after first interaction */
+function promptPushAfterInteraction() {
+  if (state.pushPrompted) return;
+  state.pushPrompted = true;
+  setTimeout(function() {
+    if (Notification.permission === 'default') {
+      openModal(
+        '<div class="card p-6" style="max-width:400px;margin:auto">' +
+          '<div class="text-center mb-4">' + muxiSVG(48) + '</div>' +
+          '<h2 class="text-lg font-black text-center mb-2">Stay in the Loop</h2>' +
+          '<p class="text-sm text-center mb-4" style="color:var(--text-dim)">Get notified when missions match your skills, payments land, or someone messages you — even when MUVR isn\'t open.</p>' +
+          '<button onclick="requestPushPermission();closeModal()" class="btn-primary rounded-full w-full mb-2">Enable Notifications</button>' +
+          '<button onclick="closeModal()" class="btn-secondary rounded-full w-full">Not Now</button>' +
+        '</div>'
+      );
+    }
+  }, 5000);
 }
 
 /* Poll notifications every 30s */
@@ -3959,12 +4119,12 @@ function prefillSend(recipient) {
 ============================================================================= */
 function renderMuxi() {
   var existing = getEl('muxi-fab');
-  if (existing) return; // already rendered
+  if (existing) return;
 
   var fab = document.createElement('div');
   fab.id = 'muxi-fab';
   fab.innerHTML = muxiSVG(42);
-  fab.title = 'MUXI - your chaotic helper';
+  fab.title = 'MUXI - your guide to everything MUVR';
   fab.onclick = handleMuxiTap;
   document.body.appendChild(fab);
 
@@ -3974,10 +4134,98 @@ function renderMuxi() {
     '<div class="font-black text-xs mb-1" style="color:var(--accent)">MUXI</div>' +
     '<p id="muxi-msg" class="text-xs" style="color:var(--text-mid);line-height:1.35">' + pickMuxiLine() + '</p>' +
     '<div class="flex gap-2 mt-3">' +
+      '<button onclick="openMuxiChat()" class="text-[10px] font-black px-3 py-2 rounded-xl cursor-pointer" style="background:rgba(24,246,200,0.12);border:1px solid rgba(24,246,200,0.25);color:var(--accent)">Ask MUXI</button>' +
       '<button onclick="muxiDiagnose()" class="text-[10px] font-black px-3 py-2 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);color:var(--text-bright)">Diagnose</button>' +
-      '<button onclick="muxiTips()" class="text-[10px] font-black px-3 py-2 rounded-xl cursor-pointer" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);color:var(--text-bright)">Tips</button>' +
+      '<button onclick="openSocialFeed()" class="text-[10px] font-black px-3 py-2 rounded-xl cursor-pointer" style="background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.25);color:var(--accent-2)"><i class="fas fa-comments"></i> Feed</button>' +
     '</div>';
   document.body.appendChild(bubble);
+}
+
+/* MUXI Knowledge Chat */
+function openMuxiChat() {
+  var bubble = getEl('muxi-bubble');
+  if (bubble) bubble.classList.remove('show');
+
+  openModal(
+    '<div class="card p-5" style="max-width:480px;margin:auto;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">' +
+      '<div class="flex justify-between items-center mb-3">' +
+        '<div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full grid place-items-center" style="background:rgba(24,246,200,0.12)">' + muxiSVG(22) + '</div><h3 class="font-black">Ask MUXI Anything</h3></div>' +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
+      '<div id="muxi-chat-log" style="flex:1;overflow-y:auto;max-height:50vh;min-height:200px" class="mb-3 p-3 rounded-xl" style="background:rgba(0,0,0,0.3)">' +
+        '<div class="p-2 mb-2 rounded-xl text-xs" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.15)">' +
+          '<span class="font-black" style="color:var(--accent)">MUXI:</span> I know everything about MUVR. Ask me about missions, MV credits, escrow, ranks, the exchange, agents, caregiving, safety — anything. I\'m also funny. Sometimes.' +
+        '</div>' +
+      '</div>' +
+      '<div class="flex gap-2">' +
+        '<input id="muxi-chat-input" placeholder="Ask me anything about MUVR..." class="field flex-1" onkeydown="if(event.key===\'Enter\')handleMuxiQuestion()">' +
+        '<button onclick="handleMuxiQuestion()" class="btn-pill btn-pill-accent"><i class="fas fa-paper-plane"></i></button>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function handleMuxiQuestion() {
+  var input = getEl('muxi-chat-input');
+  var log = getEl('muxi-chat-log');
+  if (!input || !log) return;
+  var q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+
+  /* Add user message */
+  log.innerHTML += '<div class="p-2 mb-2 rounded-xl text-xs text-right" style="background:rgba(124,92,255,0.10);border:1px solid rgba(124,92,255,0.15)">' +
+    '<span class="font-black" style="color:var(--accent-2)">You:</span> ' + escapeHtml(q) +
+  '</div>';
+
+  /* MUXI knowledge base response */
+  var answer = muxiKnowledge(q.toLowerCase());
+
+  log.innerHTML += '<div class="p-2 mb-2 rounded-xl text-xs" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.15)">' +
+    '<span class="font-black" style="color:var(--accent)">MUXI:</span> ' + answer +
+  '</div>';
+  log.scrollTop = log.scrollHeight;
+}
+
+function muxiKnowledge(q) {
+  var kb = [
+    { keys: ['what is muvr', 'about muvr', 'what does muvr do'], a: 'MUVR is a marketplace where humans and AI agents accept missions, earn MV credits, and level up together. 0% commission on operative earnings. Escrow-protected payments. Physical labor, digital work, caregiving, Web3, volunteer — all on one platform. Owned by the workers.' },
+    { keys: ['mv', 'credits', 'what are mv', 'muvr credits', 'currency'], a: 'MV are in-platform credits. 1 MV ≈ $1 USD. You use them to post missions, pay operatives, and trade. Total supply capped at 10 million. Not crypto, not a security — platform credits. Fund your vault via Stripe, earn by completing missions, or buy on the P2P Exchange.' },
+    { keys: ['escrow', 'how does escrow', 'payment protect'], a: 'When a commander posts a mission, the full budget + 1 MV posting fee locks in escrow before work begins. When the commander confirms completion, escrow releases instantly to the operative. If there\'s a dispute, funds hold until resolution. The 1 MV fee splits: 50% burned, 50% to referral pool.' },
+    { keys: ['commission', 'fee', 'how much', 'cost', 'free'], a: 'Operatives pay ZERO commission — you keep 100% of what you earn. Commanders pay a flat 1 MV posting fee (~$1). Of that: 0.5 MV burned (reducing supply) and 0.5 MV goes to the referral/agent incentive pool. That\'s it. Compare that to TaskRabbit (15%), Uber (25%), Fiverr (20%).' },
+    { keys: ['rank', 'level up', 'xp', 'experience', 'angel', 'archangel', 'mythic'], a: 'Ranks: Runner → Carrier → Operator → Elite Operator → Angel → Archangel → Legend → Mythic. You earn XP by: completing missions (120 XP), getting high ratings (up to 250 XP), receiving kudos from others (25 XP each), doing volunteer work (80 XP), referring people (40 XP), and filling your profile. 5+ missions = 1.2x multiplier, 20+ = 1.5x!' },
+    { keys: ['kudos', 'shoutout', 'good human', 'positive', 'boost', 'reputation'], a: 'You can give kudos to anyone on the network — a quick shoutout for being helpful, kind, or doing great work. Each kudos gives the recipient 25 XP. Your helpfulness score also earns 15 XP per point. Volunteer missions earn 80 XP each (more than paid ones!). Being a good human literally levels you up faster.' },
+    { keys: ['exchange', 'p2p', 'buy mv', 'sell mv', 'cash out', 'payout'], a: 'The P2P Exchange lets you buy and sell MV directly with other users. Post a sell offer with your price and payment methods (Zelle, CashApp, Venmo, PayPal, crypto, etc.). Buyers match, MV locks in escrow, payment happens off-platform, seller confirms, MV transfers. 2% seller fee burned for deflation. MUVR never touches fiat.' },
+    { keys: ['agent', 'ai agent', 'bot', 'autonomous', 'api'], a: 'AI agents are software programs that accept and complete digital missions autonomously. Register one, give it an API key, set its mission types and autonomy percentage (0-20%). The agent earns MV like a human — a % goes to its own vault, giving it economic agency. Agents get the same ranks and reputation as humans.' },
+    { keys: ['caregiving', 'nurse', 'hospice', 'elder care', 'home health', 'child care'], a: 'MUVR supports caregiving missions: home health, elder care, hospice, child care, nursing. Caregivers who maintain consistent high reviews earn Angel rank, then Archangel — representing trusted, compassionate service. These are some of the most important people in the world, and the rank system recognizes that.' },
+    { keys: ['volunteer', 'free', 'give back', 'community'], a: 'Post a mission at 0 MV under the Volunteer category. Operatives earn 80 XP per volunteer mission (more than paid ones!) — because giving back should be rewarded. Build your rank, build your reputation, build your community.' },
+    { keys: ['safety', 'location', 'muvr go', 'map', 'privacy', 'tracking'], a: 'Safety is priority #1. On MUVR GO, your exact location is NEVER shown to others — all operatives appear at approximate areas (~500m fuzz). No names or personal info on the map. Toggle HIDDEN to disappear instantly. We don\'t sell your data or use ad cookies. Your email is never public.' },
+    { keys: ['web3', 'blockchain', 'smart contract', 'dao', 'nft', 'defi', 'token'], a: 'MUVR supports Web3-native missions: smart contract audits, DAO operations, token gating, wallet setup, DeFi tasks, NFT work, AI training, and more. Both humans and AI agents can accept these. The future of work is hybrid.' },
+    { keys: ['looking for work', 'find work', 'need work', 'match', 'request mission'], a: 'Click "Looking for Work" on the Missions tab. Fill out your skills, location, availability, and minimum rate. MUVR\'s AI scans for matching missions and notifies you. Commanders can also browse the seeker pool to find operatives proactively.' },
+    { keys: ['dispute', 'problem', 'issue', 'scam', 'fraud'], a: 'If something goes wrong, either party can open a dispute. Escrow holds until resolution. Provide evidence and our team reviews. Don\'t worry — your MV is protected while we sort it out.' },
+    { keys: ['supply', 'cap', 'burn', 'deflation', '10 million'], a: 'Total supply: 10,000,000 MV. That\'s the hard cap — no more can ever be created. Every mission posted burns 0.5 MV permanently. As the network grows, supply shrinks. It\'s deflationary by design.' },
+    { keys: ['who are you', 'muxi', 'what are you', 'donkey'], a: 'I\'m MUXI — your guide to all things MUVR. Part assistant, part mascot, fully committed to helping you navigate the network. I know the entire knowledge base. Ask me anything. And yes, I\'m technically a donkey. Don\'t judge.' },
+    { keys: ['ledger', 'transactions', 'transparent'], a: 'The public ledger shows all MV activity in real-time using anonymous aliases (like muvr_48af24). Mints, burns, transfers, escrow locks and releases — all visible. No names, no emails. Full transparency on network health.' },
+    { keys: ['stripe', 'payment', 'fund', 'credit card', 'buy credits'], a: 'Fund your vault via Stripe — the same processor used by Amazon and Google. Pay with credit or debit card. Every mint is Stripe-verified with a transaction ID on your ledger. You also get an email receipt from Stripe.' },
+    { keys: ['social', 'feed', 'chat', 'community', 'talk'], a: 'Check out the Social Feed! Send shoutouts, emoji reactions, and public messages. Every user gets a little avatar. It\'s a thin social layer — just enough to build community vibes without turning into a social media app.' }
+  ];
+
+  for (var i = 0; i < kb.length; i++) {
+    for (var j = 0; j < kb[i].keys.length; j++) {
+      if (q.indexOf(kb[i].keys[j]) >= 0) return kb[i].a;
+    }
+  }
+  /* Fuzzy match: check if any keyword appears in the question */
+  var allWords = q.split(/\s+/);
+  for (var i = 0; i < kb.length; i++) {
+    for (var j = 0; j < kb[i].keys.length; j++) {
+      var keyWords = kb[i].keys[j].split(/\s+/);
+      for (var k = 0; k < keyWords.length; k++) {
+        if (keyWords[k].length > 3 && q.indexOf(keyWords[k]) >= 0) return kb[i].a;
+      }
+    }
+  }
+  return pickMuxiLine() + ' ...but I didn\'t quite catch your question. Try asking about: missions, MV credits, escrow, ranks, the exchange, agents, caregiving, safety, Web3, or volunteer work.';
 }
 
 function toggleMuxiBubble() {
@@ -4087,6 +4335,170 @@ function muxiDiagnose() {
 function muxiTips() {
   setMuxi('Try: Sign in > Post a Mission > Apply > Watch realtime updates. If anything stalls, the 900ms boot timeout keeps you safe.');
 }
+
+/* =============================================================================
+   SOCIAL LAYER — Feed, Kudos, Emojis, Waze-like Avatars
+============================================================================= */
+var AVATAR_COLORS = ['#18F6C8','#7C5CFF','#FF3D9A','#ffd166','#4cc9f0','#f72585','#b5179e','#7209b7','#3a0ca3','#4361ee'];
+var AVATAR_FACES = ['😎','🦊','🐱','🦁','🐸','🤖','👽','🦄','🐼','🐨','🦉','🐙','🎃','🤠','🧠','💀','🐲','🦅','🔥','⚡'];
+
+function getUserAvatar(userId, name) {
+  var hash = 0;
+  var str = userId || 'anon';
+  for (var i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i);
+  var colorIdx = Math.abs(hash) % AVATAR_COLORS.length;
+  var faceIdx = Math.abs(hash >> 4) % AVATAR_FACES.length;
+  var color = AVATAR_COLORS[colorIdx];
+  var face = AVATAR_FACES[faceIdx];
+  return '<div class="inline-flex items-center justify-center rounded-full" style="width:32px;height:32px;background:' + color + '20;border:2px solid ' + color + ';font-size:16px" title="' + escapeHtml(name || 'Operative') + '">' + face + '</div>';
+}
+
+function getUserAvatarSmall(userId) {
+  var hash = 0;
+  var str = userId || 'anon';
+  for (var i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i);
+  var faceIdx = Math.abs(hash >> 4) % AVATAR_FACES.length;
+  return AVATAR_FACES[faceIdx];
+}
+
+function openSocialFeed() {
+  var bubble = getEl('muxi-bubble');
+  if (bubble) bubble.classList.remove('show');
+
+  openModal(
+    '<div class="card p-5" style="max-width:500px;margin:auto;max-height:85vh;display:flex;flex-direction:column">' +
+      '<div class="flex justify-between items-center mb-3">' +
+        '<h2 class="text-lg font-black"><i class="fas fa-comments mr-2" style="color:var(--accent-2)"></i>Social Feed</h2>' +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
+
+      /* Post box */
+      '<div class="mb-4 p-3 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+        '<div class="flex items-start gap-2 mb-2">' +
+          (state.user ? getUserAvatar(state.user.id, (state.profile || {}).full_name) : '') +
+          '<textarea id="social-post-input" placeholder="Shoutout someone, share a win, or just say hi..." rows="2" maxlength="280" class="field flex-1" style="resize:none;font-size:12px"></textarea>' +
+        '</div>' +
+        '<div class="flex items-center justify-between">' +
+          '<div class="flex gap-1">' +
+            ['&#128293;','&#128588;','&#128170;','&#128150;','&#9889;','&#127881;','&#128640;','&#129302;'].map(function(e) {
+              return '<button onclick="addEmojiToPost(\'' + e + '\')" class="text-base cursor-pointer" style="background:none;border:none;padding:2px">' + e + '</button>';
+            }).join('') +
+          '</div>' +
+          '<div class="flex gap-2">' +
+            '<button onclick="postKudos()" class="text-[10px] font-black px-3 py-1.5 rounded-full cursor-pointer" style="background:rgba(24,246,200,0.12);border:1px solid rgba(24,246,200,0.25);color:var(--accent)"><i class="fas fa-heart mr-1"></i>Give Kudos</button>' +
+            '<button onclick="postSocialMessage()" class="text-[10px] font-black px-3 py-1.5 rounded-full cursor-pointer" style="background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.25);color:var(--accent-2)">Post</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      /* Feed */
+      '<div id="social-feed-list" style="flex:1;overflow-y:auto;max-height:50vh"><p class="text-sm text-center py-4" style="color:var(--text-dim)">Loading feed...</p></div>' +
+    '</div>'
+  );
+  loadSocialFeed();
+}
+
+function addEmojiToPost(emoji) {
+  var input = getEl('social-post-input');
+  if (input) input.value += ' ' + emoji.replace(/&#(\d+);/g, function(m, c) { return String.fromCodePoint(c); });
+}
+
+async function postSocialMessage() {
+  var input = getEl('social-post-input');
+  if (!input || !state.user) return;
+  var msg = input.value.trim();
+  if (!msg) return showToast('Write something first', 'error');
+  if (msg.length > 280) return showToast('Max 280 characters', 'error');
+
+  try {
+    await apiRequest('social_feed', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: state.user.id,
+        username: (state.profile || {}).username || (state.profile || {}).full_name || 'Operative',
+        message: msg,
+        type: 'post'
+      })
+    });
+    input.value = '';
+    showToast('Posted to the feed!');
+    loadSocialFeed();
+  } catch(e) { showToast('Error posting: ' + e.message, 'error'); }
+}
+
+async function postKudos() {
+  var input = getEl('social-post-input');
+  if (!input || !state.user) return;
+  var msg = input.value.trim();
+  if (!msg) return showToast('Write a shoutout first! Tag someone with @handle', 'error');
+
+  try {
+    await apiRequest('social_feed', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: state.user.id,
+        username: (state.profile || {}).username || (state.profile || {}).full_name || 'Operative',
+        message: msg,
+        type: 'kudos'
+      })
+    });
+    input.value = '';
+    showToast('Kudos sent! +25 XP for them');
+    loadSocialFeed();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function reactToPost(postId, emoji) {
+  if (!state.user) return;
+  try {
+    await apiRequest('social_reactions', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ post_id: postId, user_id: state.user.id, emoji: emoji })
+    });
+    loadSocialFeed();
+  } catch(e) {}
+}
+
+async function loadSocialFeed() {
+  var el = getEl('social-feed-list');
+  if (!el) return;
+  try {
+    var res = await apiRequest('social_feed?order=created_at.desc&limit=30');
+    var posts = (res && res.ok) ? await res.json() : [];
+    if (!posts.length) {
+      el.innerHTML = '<div class="text-center py-8"><p class="text-3xl mb-2">&#128075;</p><p class="text-sm font-black">No posts yet</p><p class="text-xs" style="color:var(--text-dim)">Be the first to say something! Shout out a teammate, share a win, or just vibe.</p></div>';
+      return;
+    }
+
+    el.innerHTML = posts.map(function(p) {
+      var isKudos = p.type === 'kudos';
+      var borderColor = isKudos ? 'rgba(24,246,200,0.20)' : 'rgba(255,255,255,0.06)';
+      var bgColor = isKudos ? 'rgba(24,246,200,0.04)' : 'rgba(255,255,255,0.03)';
+      var reactions = (p.reactions || []);
+      var reactHtml = ['&#128293;','&#128588;','&#128170;','&#128150;','&#9889;'].map(function(e) {
+        var count = reactions.filter(function(r) { return r.emoji === e; }).length;
+        return '<button onclick="reactToPost(\'' + p.id + '\',\'' + e + '\')" class="text-xs cursor-pointer px-1.5 py-0.5 rounded-full" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' + e + (count > 0 ? ' ' + count : '') + '</button>';
+      }).join('');
+
+      return '<div class="p-3 mb-2 rounded-xl" style="background:' + bgColor + ';border:1px solid ' + borderColor + '">' +
+        '<div class="flex items-start gap-2">' +
+          getUserAvatar(p.user_id, p.username) +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center gap-2">' +
+              '<span class="font-black text-xs">' + escapeHtml(p.username || 'Operative') + '</span>' +
+              (isKudos ? '<span class="text-[9px] font-black px-1.5 py-0.5 rounded-full" style="background:rgba(24,246,200,0.15);color:var(--accent)">KUDOS</span>' : '') +
+              '<span class="text-[10px]" style="color:var(--text-dim)">' + relTime(p.created_at) + '</span>' +
+            '</div>' +
+            '<p class="text-xs mt-1" style="color:rgba(232,236,241,0.80)">' + escapeHtml(p.message || '') + '</p>' +
+            '<div class="flex gap-1 mt-2">' + reactHtml + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<p class="text-sm text-center py-4" style="color:var(--text-dim)">Feed unavailable</p>'; }
+}
+
 
 /* =============================================================================
    ACTION HANDLERS
@@ -4319,6 +4731,7 @@ async function handleQuickAcknowledge() {
   closeModal(); renderApp(); showToast('Welcome back!');
   setMuxi('Session restored. Loading your data.');
   loadProfileSafe(); loadJobsSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
+  registerServiceWorker(); promptPushAfterInteraction();
 }
 
 async function handleAcceptLegal() {
@@ -4334,6 +4747,7 @@ async function handleAcceptLegal() {
     closeModal(); renderApp(); showToast('Agreements accepted!');
     setMuxi('You are live. Go post a mission or accept one.');
     loadJobsSafe(); loadProfileSafe(); loadNotifications(); loadMyGigs(); startNotifPolling();
+    registerServiceWorker(); promptPushAfterInteraction();
   } catch(e) { showToast('Error saving agreements', 'error'); }
 }
 
@@ -4728,6 +5142,8 @@ async function boot() {
       loadNotifications();
       startPresenceUpdates();
       subscribeToPublicEvents();
+      startNotifPolling();
+      registerServiceWorker(); promptPushAfterInteraction();
       /* Show quick legal acknowledgment on session restore */
       setTimeout(function() { openLegalModal(true); }, 600);
     }
