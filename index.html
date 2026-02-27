@@ -365,6 +365,9 @@
 var SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co';
 var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o';
 
+/* Stripe publishable key — set this when you have it. null = beta mode (direct mint) */
+window.STRIPE_PK = null; /* Replace with 'pk_live_...' or 'pk_test_...' when ready */
+
 var sb = null;
 try {
   sb = supabase.createClient(SUPA_URL, SUPA_KEY, {
@@ -685,6 +688,7 @@ function renderLanding() {
         '<div class="mb-2 font-bold" style="color:rgba(232,236,241,0.70)">MUVR is operated by TransBid LLC (Delaware, USA)</div>' +
         '<div class="mb-4">MUVR Credits (MV) are platform-limited digital credits used solely within MUVR. Not currency, cryptocurrency, or financial instruments.</div>' +
         '<div style="color:rgba(232,236,241,0.38)">2026 TransBid LLC. All rights reserved.</div>' +
+        '<div class="mt-2"><a onclick="openDebugPanel()" class="cursor-pointer" style="color:rgba(232,236,241,0.25);font-size:9px">Diagnostics</a></div>' +
       '</div>' +
     '</footer>' +
   '</div>';
@@ -2203,8 +2207,8 @@ function renderWalletTab() {
         '<button onclick="toggleBalance()" class="text-xs font-black cursor-pointer" style="color:rgba(232,236,241,0.55);background:none;border:none;text-transform:uppercase">' + (state.balanceVisible ? 'Hide' : 'Show') + '</button>' +
       '</div>' +
       '<div class="grid grid-cols-3 gap-3">' +
-        '<button onclick="openSendModal()" class="btn-pill btn-pill-ghost w-full justify-center">Send</button>' +
-        '<button onclick="openLoadModal()" class="btn-pill btn-pill-accent w-full justify-center">Load</button>' +
+        '<button onclick="openSendModal()" class="btn-pill btn-pill-ghost w-full justify-center">MUVE</button>' +
+        '<button onclick="openLoadModal()" class="btn-pill btn-pill-accent w-full justify-center">Fund</button>' +
         '<button onclick="openCashoutModal()" class="btn-pill btn-pill-ghost w-full justify-center">Payout</button>' +
       '</div>' +
       '<div class="mt-4 text-[11px]" style="color:rgba(232,236,241,0.50)">Note: Load and Payout are partner-integrated features (beta). If not enabled, safe stubs are used.</div>' +
@@ -2499,6 +2503,9 @@ function renderProfileTab() {
       '<div class="mt-3 text-[11px]" style="color:var(--text-dim)"><i class="fas fa-info-circle mr-1"></i>Identity verification and background check integration coming in a future update.</div>' +
     '</div>' +
 
+    /* Angels Program Card */
+    renderAngelsSection() +
+
     /* Recruit / Invite Card */
     '<div class="card p-5 max-w-2xl mb-6" style="border-color:rgba(24,246,200,0.18);background:linear-gradient(135deg,rgba(24,246,200,0.06),rgba(124,92,255,0.04))">' +
       '<h3 class="font-black mb-2"><i class="fas fa-user-plus mr-2" style="color:var(--accent)"></i>Recruit Operatives</h3>' +
@@ -2620,6 +2627,32 @@ function openAuthModal() {
         '<button onclick="closeModal()" class="close-btn">&times;</button>' +
       '</div>' +
       '<p class="text-sm mb-5" style="color:rgba(232,236,241,0.65)">Zero commission. Escrow-first. Level up with every mission.</p>' +
+
+      /* Social sign-in buttons */
+      '<div class="space-y-2 mb-4">' +
+        '<button onclick="socialSignIn(\'google\')" class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-full font-black text-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:var(--text-bright)">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>' +
+          'Continue with Google' +
+        '</button>' +
+        '<button onclick="socialSignIn(\'apple\')" class="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-full font-black text-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:var(--text-bright)">' +
+          '<i class="fab fa-apple text-lg"></i>Continue with Apple' +
+        '</button>' +
+        '<div class="flex gap-2">' +
+          '<button onclick="socialSignIn(\'facebook\')" class="flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-full font-black text-xs" style="background:rgba(66,103,178,0.15);border:1px solid rgba(66,103,178,0.25);color:#8b9dc3">' +
+            '<i class="fab fa-facebook"></i>Facebook' +
+          '</button>' +
+          '<button onclick="socialSignIn(\'twitter\')" class="flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-full font-black text-xs" style="background:rgba(29,161,242,0.15);border:1px solid rgba(29,161,242,0.25);color:#6bbaed">' +
+            '<i class="fab fa-x-twitter"></i>X / Twitter' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="flex items-center gap-3 mb-4">' +
+        '<div class="flex-1 h-px" style="background:rgba(255,255,255,0.10)"></div>' +
+        '<span class="text-[10px] font-black" style="color:var(--text-dim)">OR EMAIL</span>' +
+        '<div class="flex-1 h-px" style="background:rgba(255,255,255,0.10)"></div>' +
+      '</div>' +
+
       '<input id="auth-email" type="email" placeholder="you@email.com" class="field mb-3" autocomplete="email">' +
       '<input id="auth-password" type="password" placeholder="Password (6+ chars)" class="field mb-4" autocomplete="current-password">' +
       '<button onclick="handleSignUp()" class="btn-primary mb-2 rounded-full">Create account</button>' +
@@ -2682,11 +2715,28 @@ function openPostJobModal() {
   openModal(
     '<div class="card p-6" style="max-width:460px;margin:auto;max-height:90vh;overflow:auto">' +
       '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Post a Mission</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+
+      /* Mission type toggle: Gig vs Hiring */
+      '<div class="flex gap-2 mb-4">' +
+        '<button id="mode-gig" onclick="setPostMode(\'gig\')" class="flex-1 py-2 rounded-full text-xs font-black text-center" style="background:var(--accent);color:#0A0C1A">Mission</button>' +
+        '<button id="mode-hire" onclick="setPostMode(\'hire\')" class="flex-1 py-2 rounded-full text-xs font-black text-center" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:var(--text-mid)">Hiring</button>' +
+      '</div>' +
+      '<input type="hidden" id="post-mode" value="gig">' +
+
       '<div class="space-y-3">' +
         '<input id="job-title" placeholder="What do you need done?" maxlength="100" class="field">' +
         '<textarea id="job-desc" placeholder="Describe the work in detail..." rows="3" maxlength="500" class="field" style="resize:none"></textarea>' +
-        '<select id="job-type" class="field"><option value="">Select type...</option><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="physical">Physical labor</option><option value="digital">Digital/remote</option></select>' +
+        '<select id="job-type" class="field"><option value="">Select type...</option><option value="rideshare">Rideshare</option><option value="delivery">Delivery</option><option value="physical">Physical labor</option><option value="digital">Digital/remote</option><option value="caregiving">Caregiving</option><option value="childcare">Child Care</option><option value="cleaning">Cleaning</option><option value="handyman">Handyman</option><option value="yardwork">Yard Work</option><option value="events">Events</option><option value="security">Security</option><option value="petcare">Pet Care</option><option value="creative">Creative/Design</option><option value="tech">Tech/Dev</option><option value="data_entry">Data Entry/VA</option><option value="other">Other</option></select>' +
         '<select id="job-urgency" class="field"><option value="asap">ASAP</option><option value="today">Today</option><option value="this_week">This week</option><option value="flexible">Flexible</option></select>' +
+
+        /* Hiring-only fields (hidden by default) */
+        '<div id="hiring-fields" style="display:none" class="space-y-3">' +
+          '<input id="hire-compensation" placeholder="Compensation range (e.g. $15-20/hr)" maxlength="100" class="field">' +
+          '<select id="hire-schedule" class="field"><option value="full_time">Full-time</option><option value="part_time">Part-time</option><option value="contract">Contract</option><option value="flexible">Flexible schedule</option></select>' +
+          '<select id="hire-location" class="field"><option value="on_site">On-site</option><option value="remote">Remote</option><option value="hybrid">Hybrid</option></select>' +
+          '<input id="hire-start" type="date" class="field" placeholder="Start date">' +
+        '</div>' +
+
         '<div><label class="text-[11px] font-black mb-1 block" style="color:rgba(232,236,241,0.55)">Budget (MV Credits)</label><input id="job-budget" type="number" min="1" max="10000" placeholder="50" class="field" oninput="updateJobFee()"></div>' +
         '<input id="job-address" placeholder="Location / Address (optional)" maxlength="200" class="field">' +
         '<div class="p-4 rounded-2xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
@@ -2695,11 +2745,27 @@ function openPostJobModal() {
           '<div class="flex justify-between font-black pt-2" style="border-top:1px solid rgba(255,255,255,0.10)"><span>Total locked</span><span id="fee-total" style="color:var(--accent)">1 MV</span></div>' +
         '</div>' +
         '<button onclick="handlePostJob()" class="btn-primary rounded-full">Post Mission & Lock Escrow</button>' +
-        '<div class="text-[11px]" style="color:var(--text-dim)">If you do not have enough MV, load credits first (beta).</div>' +
+        '<div class="text-[11px]" style="color:var(--text-dim)">If you do not have enough MV, fund your vault first.</div>' +
       '</div>' +
     '</div>',
     { width: 'max-w-md' }
   );
+}
+
+function setPostMode(mode) {
+  var gig = getEl('mode-gig'); var hire = getEl('mode-hire');
+  var hiringFields = getEl('hiring-fields');
+  var modeInput = getEl('post-mode');
+  if (modeInput) modeInput.value = mode;
+  if (mode === 'hire') {
+    if (hire) { hire.style.background = 'var(--accent-2)'; hire.style.color = '#fff'; hire.style.border = 'none'; }
+    if (gig) { gig.style.background = 'rgba(255,255,255,0.08)'; gig.style.color = 'var(--text-mid)'; gig.style.border = '1px solid rgba(255,255,255,0.12)'; }
+    if (hiringFields) hiringFields.style.display = 'block';
+  } else {
+    if (gig) { gig.style.background = 'var(--accent)'; gig.style.color = '#0A0C1A'; gig.style.border = 'none'; }
+    if (hire) { hire.style.background = 'rgba(255,255,255,0.08)'; hire.style.color = 'var(--text-mid)'; hire.style.border = '1px solid rgba(255,255,255,0.12)'; }
+    if (hiringFields) hiringFields.style.display = 'none';
+  }
 }
 
 function updateJobFee() {
@@ -2727,35 +2793,133 @@ function openApplyModal(jobId) {
 function openSendModal() {
   openModal(
     '<div class="card p-6" style="max-width:420px;margin:auto">' +
-      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">Send MV Credits</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black"><i class="fas fa-paper-plane mr-2" style="color:var(--accent)"></i>MUVE Credits</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
       '<div style="position:relative"><input id="send-to" type="text" placeholder="@handle, email, or muvr_alias" class="field" autocomplete="off"></div>' +
       '<div class="text-[10px] mb-3 mt-1" style="color:var(--text-dim)">Start typing to see suggestions</div>' +
-      '<input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-4">' +
+      '<input id="send-amount" type="number" min="1" placeholder="Amount (MV)" class="field mb-3">' +
+      '<label class="flex items-center gap-3 cursor-pointer p-3 rounded-2xl mb-4" style="background:rgba(124,92,255,0.08);border:1px solid rgba(124,92,255,0.18)">' +
+        '<input type="checkbox" id="send-stealth" class="w-4 h-4">' +
+        '<div>' +
+          '<span class="text-sm font-black" style="color:var(--accent-2)"><i class="fas fa-ghost mr-1"></i>Stealth Mode</span>' +
+          '<p class="text-[10px] mt-0.5" style="color:var(--text-dim)">Transfer won\'t appear on the public Network Feed. Still recorded in your private ledger for audit.</p>' +
+        '</div>' +
+      '</label>' +
       '<button onclick="handleSend()" class="btn-primary rounded-full">Send</button>' +
-      '<div class="mt-3 text-[11px]" style="color:var(--text-dim)">MV are platform credits. Transfers are recorded in the platform ledger. Public feed shows aliases only.</div>' +
+      '<div class="mt-3 text-[11px]" style="color:var(--text-dim)">MV are platform credits. All transfers are logged internally. Public feed shows aliases only (unless stealth).</div>' +
     '</div>'
   );
   setTimeout(function() { setupUserAutocomplete('send-to'); }, 100);
 }
 
 function openLoadModal() {
+  var stripeKey = window.STRIPE_PK || null;
+  var hasStripe = !!stripeKey;
+
   var tiles = [5, 10, 25, 50, 100, 250].map(function(n) {
-    return '<button onclick="showToast(\'Loading MV is in beta. Payment partner not enabled yet.\', \'info\')" class="btn-secondary py-4 text-center rounded-2xl hover:border-[rgba(24,246,200,0.35)]">' +
+    var onclick = hasStripe ?
+      'initStripeMint(' + n + ')' :
+      'betaMint(' + n + ')';
+    return '<button onclick="' + onclick + '" class="btn-secondary py-4 text-center rounded-2xl hover:border-[rgba(24,246,200,0.35)] transition-all" style="position:relative;overflow:hidden">' +
       '<div class="text-lg font-black">$' + n + '</div>' +
       '<div class="text-xs font-black mt-1" style="color:var(--accent)">' + n + ' MV</div>' +
+      (hasStripe ? '<div class="text-[9px] mt-1" style="color:var(--text-dim)">Stripe</div>' : '') +
     '</button>';
   }).join('');
 
   openModal(
     '<div class="card p-6" style="max-width:440px;margin:auto">' +
-      '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black">Load MV Credits (beta)</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
-      '<p class="text-sm mb-4" style="color:var(--text-dim)">Select a package. Payment rails integration is staged.</p>' +
-      '<div class="grid grid-cols-3 gap-3">' + tiles + '</div>' +
-      '<div class="mt-5 p-3 rounded-2xl text-[11px]" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16);color:rgba(232,236,241,0.65)">' +
-        '<strong>Legal:</strong> MV are platform credits denominated as 1 credit = 1 USD-equivalent unit INSIDE the app for pricing. Loading handled by compliant payment partners when enabled.' +
+      '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black"><i class="fas fa-vault mr-2" style="color:var(--accent)"></i>Fund Vault</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<p class="text-sm mb-4" style="color:var(--text-dim)">Select an amount to add to your vault. 1 MV = $1 USD reference value.</p>' +
+      '<div class="grid grid-cols-3 gap-3 mb-4">' + tiles + '</div>' +
+
+      /* Custom amount */
+      '<div class="flex gap-2 mb-4">' +
+        '<input id="custom-mint-amount" type="number" min="1" max="10000" placeholder="Custom amount" class="field flex-1">' +
+        '<button onclick="' + (hasStripe ? 'initStripeMint(parseInt(getEl(\'custom-mint-amount\').value))' : 'betaMint(parseInt(getEl(\'custom-mint-amount\').value))') + '" class="btn-pill btn-pill-accent">Fund</button>' +
+      '</div>' +
+
+      (hasStripe ?
+        '<div class="flex items-center gap-2 p-3 rounded-xl mb-3" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16)">' +
+          '<i class="fas fa-lock text-xs" style="color:var(--accent)"></i>' +
+          '<span class="text-[11px] font-bold" style="color:var(--accent)">Payments secured by Stripe</span>' +
+        '</div>' :
+        '<div class="flex items-center gap-2 p-3 rounded-xl mb-3" style="background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.16)">' +
+          '<i class="fas fa-flask text-xs" style="color:var(--yellow)"></i>' +
+          '<span class="text-[11px] font-bold" style="color:var(--yellow)">Beta mode — payment rails staged. Credits added directly for testing.</span>' +
+        '</div>'
+      ) +
+
+      '<div class="text-[10px]" style="color:var(--text-dim)">' +
+        '<strong>Legal:</strong> MUVR Credits (MV) are in-platform credits for marketplace use only. Not legal tender, not a security, not a cryptocurrency. 1 MV = $1 USD intended internal pricing equivalence, subject to Terms.' +
       '</div>' +
     '</div>'
   );
+}
+
+/* Stripe Checkout integration - requires STRIPE_PK env var and Supabase Edge Function */
+async function initStripeMint(amount) {
+  amount = parseInt(amount);
+  if (!amount || amount < 1 || amount > 10000) { showToast('Enter an amount between 1 and 10,000', 'error'); return; }
+  if (!window.STRIPE_PK) { betaMint(amount); return; }
+
+  try {
+    setMuxi('Opening secure checkout for ' + amount + ' MV...');
+    /* Call Supabase Edge Function to create Stripe Checkout session */
+    var res = await fetch(SUPA_URL + '/functions/v1/create-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + state.accessToken
+      },
+      body: JSON.stringify({
+        amount_mv: amount,
+        success_url: window.location.origin + window.location.pathname + '?mint_success=1',
+        cancel_url: window.location.origin + window.location.pathname + '?mint_cancel=1'
+      })
+    });
+
+    if (!res.ok) {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      throw new Error('Checkout failed: ' + (errText || res.status));
+    }
+
+    var data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error('No checkout URL returned');
+    }
+  } catch(e) {
+    console.error('Stripe mint error:', e);
+    showToast('Payment setup failed: ' + (e.message || 'unknown error'), 'error');
+    setMuxi('Payment hiccup. Try again or contact support.');
+  }
+}
+
+/* Beta mint - direct credit for testing (will be removed in production) */
+async function betaMint(amount) {
+  amount = parseInt(amount);
+  if (!amount || amount < 1) { showToast('Enter a valid amount', 'error'); return; }
+  if (!confirm('Beta mode: This will add ' + amount + ' MV directly to your vault for testing. In production, this will require real payment via Stripe.')) return;
+
+  try {
+    setMuxi('Minting ' + amount + ' MV...');
+    var res = await apiRequest('rpc/mint_mv', {
+      method: 'POST',
+      body: JSON.stringify({ p_user_id: state.user.id, p_amount: amount })
+    });
+    if (res && res.ok) {
+      closeModal();
+      showToast(amount + ' MV added to your vault!');
+      setMuxi('Ka-ching! ' + amount + ' MV in the vault. Spend wisely... or not.');
+      loadWallet();
+    } else {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      showToast('Mint failed: ' + (errText || 'unknown'), 'error');
+    }
+  } catch(e) {
+    showToast('Mint error: ' + (e.message || ''), 'error');
+  }
 }
 
 function openCashoutModal() {
@@ -3302,6 +3466,25 @@ async function publishEvent(type, amount, txHash, fromUserId, toUserId, jobId) {
   } catch(e) { console.error('Direct event insert also failed:', e); }
 }
 
+async function socialSignIn(provider) {
+  try {
+    closeModal();
+    setMuxi('Connecting to ' + provider + '...');
+    var redirectUrl = window.location.origin + window.location.pathname;
+    var r = await sb.auth.signInWithOAuth({
+      provider: provider,
+      options: { redirectTo: redirectUrl }
+    });
+    if (r.error) {
+      showToast('Sign in with ' + provider + ' failed: ' + r.error.message, 'error');
+      setMuxi('Hmm, ' + provider + ' did not cooperate. Try another method?');
+    }
+  } catch(e) {
+    showToast('Sign in error: ' + (e.message || ''), 'error');
+    console.error('socialSignIn error:', e);
+  }
+}
+
 async function handleSignUp() {
   var email = ((getEl('auth-email') || {}).value || '').trim();
   var pw = (getEl('auth-password') || {}).value || '';
@@ -3620,9 +3803,105 @@ function burstConfetti() {
 /* =============================================================================
    BOOT SEQUENCE (NEVER HANG)
 ============================================================================= */
+/* =============================================================================
+   ANGELS PROGRAM — Caregiver tier system
+============================================================================= */
+var angelTiers = [
+  { name: 'Initiate', min: 0, color: 'var(--text-dim)', icon: '&#128588;' },
+  { name: 'Guardian', min: 100, color: 'var(--accent)', icon: '&#128737;' },
+  { name: 'Beacon', min: 500, color: 'var(--accent-2)', icon: '&#128161;' },
+  { name: 'Seraph', min: 2000, color: 'var(--accent-3)', icon: '&#128293;' }
+];
+
+function getAngelTier(xp) {
+  xp = Number(xp) || 0;
+  for (var i = angelTiers.length - 1; i >= 0; i--) {
+    if (xp >= angelTiers[i].min) return angelTiers[i];
+  }
+  return angelTiers[0];
+}
+
+function renderAngelsSection() {
+  var p = state.profile || {};
+  var xp = Number(p.angel_xp || 0);
+  var streak = Number(p.angel_streak || 0);
+  var tier = getAngelTier(xp);
+  var nextTier = angelTiers[angelTiers.indexOf(tier) + 1] || null;
+  var pct = nextTier ? Math.min(100, ((xp - tier.min) / (nextTier.min - tier.min)) * 100) : 100;
+
+  return '<div class="card p-5 mb-6" style="background:linear-gradient(135deg, rgba(124,92,255,0.08), rgba(255,61,154,0.06));border:1px solid rgba(124,92,255,0.18)">' +
+    '<div class="flex items-center gap-3 mb-4">' +
+      '<div class="text-3xl">' + tier.icon + '</div>' +
+      '<div>' +
+        '<h3 class="font-black text-sm" style="color:var(--accent-2)">MUVR ANGELS</h3>' +
+        '<p class="text-[10px]" style="color:var(--text-dim)">Caregiving missions. Consistency. Quality. Heart.</p>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="flex items-center justify-between mb-2">' +
+      '<span class="text-xs font-black" style="color:' + tier.color + '">' + tier.icon + ' ' + tier.name + '</span>' +
+      '<span class="text-[10px] font-black" style="color:var(--text-dim)">' + xp + ' XP' + (streak > 0 ? ' | ' + streak + ' day streak &#128293;' : '') + '</span>' +
+    '</div>' +
+
+    (nextTier ?
+      '<div class="w-full h-2 rounded-full mb-3 overflow-hidden" style="background:rgba(255,255,255,0.08)">' +
+        '<div class="h-full rounded-full transition-all" style="width:' + pct + '%;background:' + tier.color + '"></div>' +
+      '</div>' +
+      '<p class="text-[10px] mb-3" style="color:var(--text-dim)">' + (nextTier.min - xp) + ' XP to ' + nextTier.name + '</p>'
+      : '<p class="text-[10px] mb-3" style="color:var(--accent-3)">Max tier reached! You are a Seraph.</p>'
+    ) +
+
+    '<div class="grid grid-cols-4 gap-2 mb-3">' +
+      angelTiers.map(function(t) {
+        var active = xp >= t.min;
+        return '<div class="text-center p-2 rounded-xl" style="background:rgba(255,255,255,' + (active ? '0.06' : '0.02') + ');border:1px solid ' + (active ? t.color + '40' : 'rgba(255,255,255,0.06)') + ';opacity:' + (active ? '1' : '0.4') + '">' +
+          '<div class="text-lg">' + t.icon + '</div>' +
+          '<p class="text-[9px] font-black" style="color:' + t.color + '">' + t.name + '</p>' +
+          '<p class="text-[8px]" style="color:var(--text-dim)">' + t.min + '+ XP</p>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+
+    '<div class="text-[10px]" style="color:var(--text-dim)">' +
+      'Angels earn XP from caregiving, child care, and elder care missions. Streak bonuses for consecutive days of completed missions. Higher tiers get priority matching and spotlight visibility.' +
+    '</div>' +
+  '</div>';
+}
+
+/* =============================================================================
+   DEBUG / HEALTH PANEL — see openDebugPanel() below, activated via ?debug=1
+============================================================================= */
+
+/* =============================================================================
+   MINT CALLBACK HANDLER — handles return from Stripe Checkout
+============================================================================= */
+function handleMintCallback() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('mint_success') === '1') {
+    showToast('Payment successful! MV credits are being added to your vault.', 'success');
+    setMuxi('Ka-ching! Stripe confirmed. Your vault is filling up.');
+    /* Clean URL */
+    window.history.replaceState({}, '', window.location.pathname);
+    /* Reload wallet after short delay to allow webhook to process */
+    setTimeout(function() { if (state.user) loadWallet(); }, 2000);
+  }
+  if (params.get('mint_cancel') === '1') {
+    showToast('Payment cancelled. No credits were charged.', 'info');
+    setMuxi('No worries. The vault is patient.');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+  /* Debug mode */
+  if (params.get('debug') === '1') {
+    setTimeout(openDebugPanel, 1500);
+  }
+}
+
 async function boot() {
   var dismiss = function() { var bs = getEl('boot-screen'); if (bs) bs.classList.add('done'); };
   var hard = setTimeout(dismiss, 900);
+
+  /* Handle return from Stripe or debug mode */
+  handleMintCallback();
 
   // Always render landing immediately so UI never blocks
   renderLanding();
@@ -3678,6 +3957,85 @@ async function boot() {
       }
     });
   } catch(e) { console.error('Auth listener error:', e); }
+
+  /* Handle Stripe mint callback */
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('mint_success') === '1') {
+    history.replaceState({}, '', window.location.pathname);
+    setTimeout(function() {
+      showToast('Payment received! MV will appear in your vault shortly.');
+      setMuxi('Vault incoming! Your credits are being minted now.');
+      if (state.user) { loadWallet(); switchTab('wallet'); }
+    }, 500);
+  }
+  if (params.get('mint_cancel') === '1') {
+    history.replaceState({}, '', window.location.pathname);
+    setTimeout(function() {
+      showToast('Payment cancelled. No credits were charged.', 'info');
+      setMuxi('No worries — vault is still here when you are ready.');
+    }, 500);
+  }
+
+  /* Debug panel: append ?debug=1 to URL */
+  if (params.get('debug') === '1') {
+    setTimeout(openDebugPanel, 1000);
+  }
+}
+
+/* =========================================
+   DEBUG / HEALTH PANEL
+   ========================================= */
+function openDebugPanel() {
+  var supaOk = typeof supabase !== 'undefined' && !!sb;
+  var userOk = !!state.user;
+  var tokenLen = state.accessToken ? state.accessToken.length : 0;
+
+  var info = [
+    { k: 'Supabase SDK', v: supaOk ? 'Loaded' : 'MISSING', ok: supaOk },
+    { k: 'Supabase URL', v: SUPA_URL.replace('https://', '').slice(0, 20) + '...', ok: true },
+    { k: 'Auth state', v: userOk ? 'Signed in' : 'Not signed in', ok: userOk },
+    { k: 'User ID', v: state.user ? state.user.id.slice(0, 12) + '...' : 'none', ok: userOk },
+    { k: 'Token length', v: tokenLen + ' chars', ok: tokenLen > 0 },
+    { k: 'Stripe PK', v: window.STRIPE_PK ? 'Set (' + window.STRIPE_PK.slice(0, 12) + '...)' : 'Not set (beta mode)', ok: !!window.STRIPE_PK },
+    { k: 'Balance', v: (state.mvBalance || 0) + ' MV', ok: true },
+    { k: 'Profile loaded', v: state.profile ? 'Yes' : 'No', ok: !!state.profile },
+    { k: 'Missions loaded', v: (state.jobs || []).length + ' missions', ok: true },
+    { k: 'Browser', v: navigator.userAgent.slice(0, 50), ok: true }
+  ];
+
+  var rows = info.map(function(r) {
+    var color = r.ok ? 'var(--accent)' : 'var(--red)';
+    return '<div class="flex justify-between py-2" style="border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<span class="text-xs font-black">' + r.k + '</span>' +
+      '<span class="text-xs mono" style="color:' + color + '">' + escapeHtml(r.v) + '</span>' +
+    '</div>';
+  }).join('');
+
+  /* Connectivity test */
+  var testBtn = '<button onclick="testSupabaseConnection()" class="btn-pill btn-pill-accent mt-4 text-xs">Test Supabase Connection</button>';
+  var testResult = '<div id="debug-test-result" class="mt-2 text-xs mono" style="color:var(--text-dim)"></div>';
+
+  openModal(
+    '<div class="card p-6" style="max-width:480px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-4"><h2 class="text-lg font-black"><i class="fas fa-bug mr-2" style="color:var(--accent)"></i>Diagnostics</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<div>' + rows + '</div>' +
+      testBtn + testResult +
+      '<div class="mt-4 text-[10px]" style="color:var(--text-dim)">Append ?debug=1 to URL to auto-open this panel.</div>' +
+    '</div>'
+  );
+}
+
+async function testSupabaseConnection() {
+  var el = getEl('debug-test-result');
+  if (el) el.textContent = 'Testing...';
+  try {
+    var start = Date.now();
+    var res = await fetch(SUPA_URL + '/rest/v1/?apikey=' + SUPA_KEY, { method: 'HEAD' });
+    var ms = Date.now() - start;
+    if (el) el.innerHTML = '<span style="color:var(--accent)">Connected in ' + ms + 'ms (HTTP ' + res.status + ')</span>';
+  } catch(e) {
+    if (el) el.innerHTML = '<span style="color:var(--red)">FAILED: ' + escapeHtml(e.message) + '</span>';
+  }
 }
 
 // Global error boundary
