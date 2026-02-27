@@ -365,7 +365,7 @@
 var SUPA_URL = 'https://cfenkstusggrcthehffn.supabase.co';
 var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmZW5rc3R1c2dncmN0aGVoZmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMTIyNTMsImV4cCI6MjA4NzU4ODI1M30.XcZKrytjAnju05w_7ly7j4bsnwLK08kBoXAhi3xYV5o';
 
-/pk_live_51T1HjHCgo0ieTaQCWsiqHk1bn7RZUye5sMb7llRYcDKVAal0UFhFtyxduQ9FwFnoW3uH1NNK2pfg1P4mrkK0oadI00nX6m29aY/
+/* Stripe publishable key — set this when you have it. null = beta mode (direct mint) */
 window.STRIPE_PK = null; /* Replace with 'pk_live_...' or 'pk_test_...' when ready */
 
 var sb = null;
@@ -2912,7 +2912,7 @@ async function betaMint(amount) {
       closeModal();
       showToast(amount + ' MV added to your vault!');
       setMuxi('Ka-ching! ' + amount + ' MV in the vault. Spend wisely... or not.');
-      loadWallet();
+      loadWalletData();
     } else {
       var errText = ''; try { errText = await res.text(); } catch(e) {}
       showToast('Mint failed: ' + (errText || 'unknown'), 'error');
@@ -3883,7 +3883,7 @@ function handleMintCallback() {
     /* Clean URL */
     window.history.replaceState({}, '', window.location.pathname);
     /* Reload wallet after short delay to allow webhook to process */
-    setTimeout(function() { if (state.user) loadWallet(); }, 2000);
+    setTimeout(function() { if (state.user) loadWalletData(); }, 2000);
   }
   if (params.get('mint_cancel') === '1') {
     showToast('Payment cancelled. No credits were charged.', 'info');
@@ -3965,7 +3965,7 @@ async function boot() {
     setTimeout(function() {
       showToast('Payment received! MV will appear in your vault shortly.');
       setMuxi('Vault incoming! Your credits are being minted now.');
-      if (state.user) { loadWallet(); switchTab('wallet'); }
+      if (state.user) { loadWalletData(); switchTab('wallet'); }
     }, 500);
   }
   if (params.get('mint_cancel') === '1') {
