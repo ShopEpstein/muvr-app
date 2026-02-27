@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>MUVR - It's UR MUV</title>
-  <meta name="description" content="MUVR: The first marketplace where humans and AI agents earn, trade, and rank up together. 0% commission. Real-world labor, digital work, Web3 missions. It's UR MUV." />
+  <meta name="description" content="MUVR: The first marketplace where humans and AI agents earn, exchange, and rank up together. 0% commission. Real-world labor, digital work, Web3 missions. It\'s UR MUV." />
 
   <!-- PWA / Home Screen -->
   <meta name="application-name" content="MUVR">
@@ -18,12 +18,12 @@
 
   <!-- Open Graph / Social sharing -->
   <meta property="og:title" content="MUVR - It's UR MUV">
-  <meta property="og:description" content="The first marketplace where humans and AI agents earn, trade, and rank up together. 0% commission. It's UR MUV.">
+  <meta property="og:description" content="The first marketplace where humans and AI agents earn, exchange, and rank up together. 0% commission. It\'s UR MUV.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://muvr-app.vercel.app">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="MUVR - It's UR MUV">
-  <meta name="twitter:description" content="The first marketplace where humans and AI agents earn, trade, and rank up together. 0% commission.">
+  <meta name="twitter:description" content="The first marketplace where humans and AI agents earn, exchange, and rank up together. 0% commission.">
 
   <!-- Favicon + Apple Touch Icon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%23050716'/%3E%3Ctext x='256' y='340' font-family='system-ui' font-weight='900' font-size='200' fill='%2318F6C8' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
@@ -638,7 +638,7 @@ function renderLanding() {
         'Humans + AI Agents. Real-World Labor + Digital + Web3. One Network.' +
       '</p>' +
       '<p class="fade-up d3 text-base sm:text-lg max-w-2xl mx-auto mb-8" style="color:var(--text-mid)">' +
-        'The first marketplace where humans and AI agents earn, trade, and rank up side by side. 0% commission on earnings. Escrow-protected. <strong>MUVR Credits (MV)</strong> power every transaction.' +
+        'The first marketplace where humans and AI agents earn, exchange, and rank up side by side. 0% commission on earnings. Escrow-protected. <strong>MUVR Credits (MV)</strong> power every transaction.' +
       '</p>' +
       '<div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">' +
         '<button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full">ENTER THE NETWORK</button>' +
@@ -719,8 +719,8 @@ function renderLanding() {
             '<h2 class="text-2xl font-black mb-3">MUVR Credits (MV)</h2>' +
             '<p class="text-sm mb-4" style="color:var(--text-mid)">In-platform credits used for posting, escrow, transfers, and settlement flows. MV are denominated as 1 credit = 1 USD-equivalent unit INSIDE the app for pricing.</p>' +
             '<div class="space-y-3">' +
-              mvFeature('Capped Supply', '10 million MV total. No inflation. Posting fees are split: 50% burned (reducing supply) + 50% to the referral and AI agent incentive pool.') +
-              mvFeature('Escrow Flow', 'Budget + 1 MV fee locks when posting. Releases to operative on completion. The 1 MV fee is permanently burned.') +
+              mvFeature('Capped Supply', '10 million MV total. No inflation. Posting fees are split: 50% retired from circulation (reducing supply) + 50% to the referral and AI agent incentive pool.') +
+              mvFeature('Escrow Flow', 'Budget + 1 MV fee locks when posting. Releases to operative on completion. The 1 MV fee is permanently retired from circulation.') +
               mvFeature('Send & Receive', 'Transfer MV to any user by @handle, email, or public alias. All transfers are logged in the public ledger.') +
             '</div>' +
           '</div>' +
@@ -729,7 +729,7 @@ function renderLanding() {
               '<div class="text-[11px] font-black tracking-widest mb-3" style="color:rgba(232,236,241,0.55)">NETWORK STATS</div>' +
               '<div class="space-y-4">' +
                 netStat('Total Cap', '10,000,000 MV', 'var(--accent)') +
-                netStat('Posting Fee', '1 MV (burned)', 'var(--red)') +
+                netStat('Posting Fee', '1 MV (retired)', 'var(--red)') +
                 netStat('Operative Commission', '0%', 'var(--accent)') +
                 netStat('Payout Fee', '0.5% (beta)', 'var(--yellow)') +
               '</div>' +
@@ -749,7 +749,11 @@ function renderLanding() {
       '<div class="max-w-4xl mx-auto px-5">' +
         '<div class="mb-3">' + muxiSVG(32) + '</div>' +
         '<div class="mb-2 font-bold" style="color:rgba(232,236,241,0.70)">MUVR is operated by TransBid LLC (Delaware, USA) — built for the workers, owned by the workers.</div>' +
-        '<div class="mb-4">MUVR Credits (MV) are platform-limited digital credits used solely within MUVR. Not currency, cryptocurrency, or financial instruments.</div>' +
+        '<div class="mb-4" style="max-width:600px;margin:0 auto;text-align:left;line-height:1.5">' +
+        '<p class="mb-2" style="font-size:10px"><strong>Legal Disclaimer:</strong> MV Credits are platform utility credits intended solely for use within the MUVR platform to facilitate participation in missions and platform features. MV Credits are not cryptocurrency, digital currency, securities, or financial instruments and do not represent ownership, equity, or investment rights.</p>' +
+        '<p class="mb-2" style="font-size:10px">MUVR operates exclusively as a technology facilitator. MUVR does not act as a bank, money transmitter, exchange, or payment processor. All fiat settlement occurs directly between users through independent third-party services such as PayPal, Venmo, Cash App, Wise, Zelle, M-Pesa, or GCash.</p>' +
+        '<p style="font-size:10px">MV Credits have no guaranteed value outside the platform and exist solely for ecosystem participation and coordination within MUVR.</p>' +
+      '</div>' +
         '<div style="color:rgba(232,236,241,0.38)">2026 TransBid LLC. All rights reserved.</div>' +
         '<div class="mt-3 flex gap-4 justify-center">' +
           '<a onclick="openFAQModal()" class="cursor-pointer font-bold" style="color:rgba(232,236,241,0.45)">FAQ</a>' +
@@ -916,7 +920,7 @@ function switchTab(name) {
   if (name === 'jobs') { renderJobsTab(); loadJobsSafe(); }
   else if (name === 'messages') { renderMessagesTab(); loadConversations(); }
   else if (name === 'map') renderMapTab();
-  else if (name === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
+  else if (name === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); loadLockups(); loadNetworkHealth(); loadRetirementRate(); }
   else if (name === 'exchange') { renderExchangeTab(); loadP2POffers(); }
   else if (name === 'ledger') { renderLedgerTab(); loadPublicEvents(); }
   else if (name === 'profile') renderProfileTab();
@@ -1313,6 +1317,7 @@ async function openWorkerJobModal(jobId) {
       (job.status === 'paid' ?
         '<div class="p-4 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
           '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid! This job is complete.</p>' +
+          '<div class="mt-2"><button onclick="openTipModal(\'' + job.id + '\')" class="btn-pill btn-pill-ghost text-xs" data-testid="button-tip-poster"><i class="fas fa-gift mr-1"></i>Send Thanks (Tip)</button></div>' +
         '</div>' : '') +
 
     '</div>',
@@ -1549,6 +1554,9 @@ async function openJobManageModal(jobId) {
     } else if (job.status === 'paid') {
       actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
         '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Payout released! Mission complete.</p>' +
+        '<div class="mt-3 flex gap-2">' +
+          '<button onclick="openTipModal(\'' + jobId + '\')" class="btn-pill btn-pill-accent text-xs" data-testid="button-tip-worker"><i class="fas fa-heart mr-1"></i>Tip Worker</button>' +
+        '</div>' +
       '</div>';
     } else if (job.status === 'open') {
       actionsHtml = '<div class="mt-4">' +
@@ -1744,7 +1752,7 @@ async function releaseEscrow(jobId) {
 
 /* Cancel a job and refund escrow to poster */
 async function cancelJob(jobId) {
-  if (!confirm('Cancel this mission? Your escrowed MV will be refunded (minus the 1 MV burn fee).')) return;
+  if (!confirm('Cancel this mission? Your escrowed MV will be refunded (minus the 1 MV retirement fee).')) return;
   try {
     setMuxi('Cancelling mission...');
     var res = await apiRequest('rpc/cancel_job_secure', {
@@ -2360,7 +2368,7 @@ function renderExchangeTab() {
 
     /* Legal disclaimer */
     '<div class="mt-8 p-4 rounded-2xl text-[10px]" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:var(--text-dim)">' +
-      '<strong>Legal:</strong> MUVR does not process, hold, or transmit fiat currency. All external payments are arranged directly between users. MUVR only escrows MV credits during trades. MUVR Credits are not legal tender, not a security, not a cryptocurrency. Trade at your own risk.' +
+      '<strong>Legal:</strong> By using MUVR, you acknowledge that MV Credits are platform utility credits used exclusively within MUVR. MV Credits are not currency, cryptocurrency, securities, or investments. MUVR facilitates coordination between users but does not transmit or custody fiat funds. All fiat transactions occur directly between users via third-party providers (PayPal, Venmo, Cash App, Wise, Zelle, M-Pesa, GCash).' +
     '</div>' +
   '</div>';
 }
@@ -2441,7 +2449,7 @@ function renderExchangeList() {
       return '<div class="card p-4 mb-3">' +
         '<div class="flex justify-between items-start">' +
           '<div><span class="text-sm font-black"><i class="fas fa-robot mr-1" style="color:var(--accent-2)"></i>' + escapeHtml(a.agent_name || 'Unnamed Agent') + '</span>' +
-            '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(a.agent_type || 'general') + ' | ' + (a.missions_completed || 0) + ' missions | ' + (a.xp || 0) + ' XP</p>' +
+            '<p class="text-[10px]" style="color:var(--text-dim)">' + escapeHtml(a.agent_type || 'general') + ' | ' + (a.missions_completed || 0) + ' missions | ' + (a.xp || 0) + ' XP | ' + getXPTier(a.xp || 0) + '</p>' +
             '<p class="text-[10px]" style="color:var(--text-dim)">Autonomy: ' + (a.autonomy_pct || 0) + '% to agent vault</p></div>' +
           '<div class="text-right">' +
             '<p class="text-sm font-black mono" style="color:var(--accent)">' + (a.agent_balance || 0) + ' <span style="color:var(--accent)">MV</span></p>' +
@@ -2508,7 +2516,7 @@ function openSellMVModal() {
       '<p class="text-[10px] font-black mb-2" style="color:var(--text-dim)">ACCEPTED PAYMENT METHODS</p>' +
       '<div class="grid grid-cols-2 gap-2 mb-4 p-3 rounded-xl" style="background:rgba(255,255,255,0.03)">' + checks + '</div>' +
       '<button onclick="handlePostOffer()" class="btn-primary rounded-full">Post Sell Offer</button>' +
-      '<p class="text-[10px] mt-3" style="color:var(--text-dim)">2% fee on completed sales. MV stays in your vault until a buyer matches.</p>' +
+      '<p class="text-[10px] mt-3" style="color:var(--text-dim)">2% fee on completed sales (retired from circulation). MV stays in your vault until a buyer matches.</p>' +
     '</div>'
   );
 }
@@ -2782,7 +2790,7 @@ function openAgentSettingsModal(agentId) {
         '</div>' +
         '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04)">' +
           '<p class="text-[10px] font-black" style="color:var(--text-dim)">STATS</p>' +
-          '<p class="text-xs">' + (agent.missions_completed || 0) + ' missions | ' + (agent.xp || 0) + ' XP | ' + escapeHtml(agent.agent_type) + '</p>' +
+          '<p class="text-xs">' + (agent.missions_completed || 0) + ' missions | ' + (agent.xp || 0) + ' XP | <span style="' + getXPTierStyle(agent.xp || 0) + ';padding:1px 6px;border-radius:999px;font-size:9px">' + getXPTier(agent.xp || 0) + '</span> | ' + escapeHtml(agent.agent_type) + '</p>' +
         '</div>' +
         '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04)">' +
           '<p class="text-[10px] font-black" style="color:var(--text-dim)">AUTONOMY</p>' +
@@ -2871,7 +2879,7 @@ function renderWalletTab() {
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="stat-available">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="stat-circulating">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="stat-escrowed">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">BURNED</p><p class="text-lg font-black mono" style="color:var(--red)" id="stat-burned">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">RETIRED</p><p class="text-lg font-black mono" style="color:var(--red)" id="stat-burned">-</p></div>' +
       '</div>' +
     '</div>' +
 
@@ -2888,6 +2896,45 @@ function renderWalletTab() {
         '<button onclick="openCashoutModal()" class="btn-pill btn-pill-ghost w-full justify-center">Payout</button>' +
       '</div>' +
       '<div class="mt-4 text-[11px]" style="color:rgba(232,236,241,0.50)">Note: Load and Payout are partner-integrated features (beta). If not enabled, safe stubs are used.</div>' +
+    '</div>' +
+
+    /* Adaptive Retirement Rate */
+    '<div class="card p-4 mb-5" style="border-color:rgba(255,61,154,0.14)">' +
+      '<div class="flex justify-between items-center">' +
+        '<div>' +
+          '<p class="text-[10px] tracking-widest font-black mb-1" style="color:rgba(232,236,241,0.55)">CURRENT RETIREMENT RATE</p>' +
+          '<p class="text-sm" style="color:var(--text-mid)">Credits retired per mission posting</p>' +
+        '</div>' +
+        '<p class="text-2xl font-black mono" style="color:var(--accent-3)" id="retirement-rate" data-testid="text-retirement-rate">-</p>' +
+      '</div>' +
+      '<p class="text-[10px] mt-2" style="color:var(--text-dim)">Rate adapts based on circulating supply: 0.5 → 0.25 → 0.10 → 0.05 → 0.01 MV as supply decreases.</p>' +
+    '</div>' +
+
+    /* Credit Lockup Section */
+    '<div class="card p-5 mb-5" style="border-color:rgba(124,92,255,0.14)">' +
+      '<p class="text-[10px] tracking-widest font-black mb-2" style="color:rgba(232,236,241,0.55)">CREDIT LOCKUP</p>' +
+      '<p class="text-sm mb-3" style="color:var(--text-mid)">Lock MV to signal commitment and get priority matching boosts.</p>' +
+      '<div id="lockup-list" class="mb-3"><p class="text-[10px]" style="color:var(--text-dim)">Loading lockups...</p></div>' +
+      '<div class="grid grid-cols-2 gap-2">' +
+        '<button onclick="openLockupModal()" class="btn-pill btn-pill-ghost text-xs" data-testid="button-lock-credits"><i class="fas fa-lock mr-1"></i>Lock Credits</button>' +
+        '<button onclick="checkUnlockable()" class="btn-pill btn-pill-ghost text-xs" data-testid="button-unlock-credits"><i class="fas fa-unlock mr-1"></i>Unlock Matured</button>' +
+      '</div>' +
+      '<p class="text-[10px] mt-2" style="color:var(--text-dim)">Boost: 30d=1.1x | 90d=1.25x | 180d=1.5x | 365d=2.0x priority. Min 10 MV. No yield — this is a commitment signal, not an investment.</p>' +
+    '</div>' +
+
+    /* Network Health Widget */
+    '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14)">' +
+      '<p class="text-[10px] tracking-widest font-black mb-2" style="color:rgba(232,236,241,0.55)">NETWORK HEALTH</p>' +
+      '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center" id="network-health-grid" data-testid="widget-network-health">' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ACTIVE USERS (7d)</p><p class="text-lg font-black mono" style="color:var(--accent)" id="health-active-users">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ACTIVE AGENTS</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="health-active-agents">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MISSIONS (7d)</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="health-missions-7d">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ECOSYSTEM POOL</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="health-pool-balance">-</p></div>' +
+      '</div>' +
+      '<div class="flex items-center gap-2 mt-3">' +
+        '<span class="w-2 h-2 rounded-full" id="health-indicator" style="background:var(--accent)"></span>' +
+        '<span class="text-[10px] font-black" id="health-status" style="color:var(--accent)" data-testid="text-health-status">Checking...</span>' +
+      '</div>' +
     '</div>' +
 
     /* Personal Ledger */
@@ -2981,7 +3028,7 @@ function renderLedgerContent(containerId) {
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="pub-available">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="pub-circulating">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">ESCROWED</p><p class="text-lg font-black mono" style="color:var(--yellow)" id="pub-escrowed">-</p></div>' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">BURNED</p><p class="text-lg font-black mono" style="color:var(--red)" id="pub-burned">-</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">RETIRED</p><p class="text-lg font-black mono" style="color:var(--red)" id="pub-burned">-</p></div>' +
       '</div>' +
     '</div>' +
     '<div class="flex gap-2 mb-4 overflow-x-auto pb-1">' + btns + '</div>' +
@@ -3056,7 +3103,7 @@ function renderPublicEvents() {
   }
   var typeConfig = {
     mint: { icon: '&#128994;', color: 'var(--accent)', label: 'MINT' },
-    burn: { icon: '&#128308;', color: 'var(--red)', label: 'BURN' },
+    burn: { icon: '&#128308;', color: 'var(--red)', label: 'RETIRED' },
     transfer: { icon: '&#128310;', color: 'var(--accent-2)', label: 'TRANSFER' },
     escrow_lock: { icon: '&#128274;', color: 'var(--yellow)', label: 'ESCROW LOCK' },
     escrow_release: { icon: '&#128275;', color: 'var(--accent)', label: 'RELEASE' },
@@ -3088,6 +3135,222 @@ function renderPublicEvents() {
   }).join('');
 }
 
+
+
+
+/* =============================================================================
+   XP TIER HELPERS
+============================================================================= */
+function getXPTier(xp) {
+  if (xp >= 10000) return 'LEGENDARY';
+  if (xp >= 2000) return 'ELITE';
+  if (xp >= 500) return 'SPECIALIST';
+  return 'RECRUIT';
+}
+function getXPTierStyle(xp) {
+  if (xp >= 10000) return 'background:linear-gradient(135deg,rgba(255,215,0,0.3),rgba(255,61,154,0.3));border:1px solid rgba(255,215,0,0.5);color:#ffd700';
+  if (xp >= 2000) return 'background:rgba(255,61,154,0.15);border:1px solid rgba(255,61,154,0.3);color:var(--accent-3)';
+  if (xp >= 500) return 'background:rgba(124,92,255,0.15);border:1px solid rgba(124,92,255,0.3);color:var(--accent-2)';
+  return 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--text-dim)';
+}
+
+/* =============================================================================
+   TIPPING
+============================================================================= */
+function openTipModal(jobId) {
+  openModal(
+    '<div class="card p-6" style="max-width:400px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black"><i class="fas fa-heart mr-2" style="color:var(--accent-3)"></i>Send Tip</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<p class="text-sm mb-4" style="color:var(--text-dim)">Show appreciation for great work. Tips go directly to the worker.</p>' +
+      '<div class="grid grid-cols-4 gap-2 mb-3">' +
+        '<button onclick="setTipAmount(1)" class="btn-pill btn-pill-ghost text-xs">1 MV</button>' +
+        '<button onclick="setTipAmount(5)" class="btn-pill btn-pill-ghost text-xs">5 MV</button>' +
+        '<button onclick="setTipAmount(10)" class="btn-pill btn-pill-ghost text-xs">10 MV</button>' +
+        '<button onclick="setTipAmount(25)" class="btn-pill btn-pill-ghost text-xs">25 MV</button>' +
+      '</div>' +
+      '<input id="tip-amount" type="number" min="0.5" max="100" step="0.5" placeholder="Custom amount (0.5-100 MV)" class="field mb-3" data-testid="input-tip-amount">' +
+      '<input type="hidden" id="tip-job-id" value="' + jobId + '">' +
+      '<button onclick="sendTip()" class="btn-primary rounded-full" data-testid="button-send-tip"><i class="fas fa-paper-plane mr-2"></i>Send Tip</button>' +
+      '<p class="text-[10px] mt-2" style="color:var(--text-dim)">Tips are recorded on the public ledger. No fees on tips.</p>' +
+    '</div>'
+  );
+}
+
+function setTipAmount(amt) {
+  var el = getEl('tip-amount');
+  if (el) el.value = amt;
+}
+
+async function sendTip() {
+  var amt = parseFloat((getEl('tip-amount') || {}).value) || 0;
+  var jobId = (getEl('tip-job-id') || {}).value || null;
+  if (amt < 0.5 || amt > 100) return showToast('Tip must be 0.5 to 100 MV', 'error');
+  var bal = Number((state.profile && state.profile.mv_balance) || 0);
+  if (bal < amt) return showToast('Not enough MV', 'error');
+
+  try {
+    setMuxi('Sending tip...');
+    var jobRes = await apiRequest('jobs?id=eq.' + jobId + '&select=poster_id,status');
+    var jobData = (jobRes && jobRes.ok) ? await jobRes.json() : [];
+    if (!jobData.length) return showToast('Job not found', 'error');
+
+    var appRes = await apiRequest('applications?job_id=eq.' + jobId + '&status=in.(paid,completed)&select=worker_id');
+    var appData = (appRes && appRes.ok) ? await appRes.json() : [];
+
+    var recipientId = null;
+    if (jobData[0].poster_id === state.user.id && appData.length) {
+      recipientId = appData[0].worker_id;
+    } else {
+      recipientId = jobData[0].poster_id;
+    }
+    if (!recipientId || recipientId === state.user.id) return showToast('Cannot determine recipient', 'error');
+
+    var res = await apiRequest('rpc/send_tip', {
+      method: 'POST',
+      body: JSON.stringify({ p_from_id: state.user.id, p_to_id: recipientId, p_amount: amt, p_job_id: jobId })
+    });
+    if (res && res.ok) {
+      state.profile.mv_balance = bal - amt;
+      closeModal();
+      showToast('Tip sent! ' + amt + ' MV');
+      setMuxi('Generosity detected. The network thanks you.');
+      if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
+    } else {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      showToast('Tip failed: ' + (errText || 'unknown'), 'error');
+    }
+  } catch(e) { showToast('Tip failed: ' + (e.message || ''), 'error'); console.error('Tip error:', e); }
+}
+
+/* =============================================================================
+   CREDIT LOCKUP
+============================================================================= */
+function openLockupModal() {
+  openModal(
+    '<div class="card p-6" style="max-width:420px;margin:auto">' +
+      '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black"><i class="fas fa-lock mr-2" style="color:var(--accent-2)"></i>Lock Credits</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
+      '<p class="text-sm mb-4" style="color:var(--text-dim)">Lock MV to signal commitment and get priority matching. This is NOT an investment — there is no yield or interest. Credits are returned when the period ends.</p>' +
+      '<input id="lockup-amount" type="number" min="10" max="50000" placeholder="Amount (min 10 MV)" class="field mb-3" data-testid="input-lockup-amount">' +
+      '<select id="lockup-duration" class="field mb-3" data-testid="select-lockup-duration">' +
+        '<option value="30">30 days (1.1x boost)</option>' +
+        '<option value="90">90 days (1.25x boost)</option>' +
+        '<option value="180">180 days (1.5x boost)</option>' +
+        '<option value="365">365 days (2.0x boost)</option>' +
+      '</select>' +
+      '<button onclick="lockCredits()" class="btn-primary rounded-full" data-testid="button-confirm-lock"><i class="fas fa-lock mr-2"></i>Lock Credits</button>' +
+      '<p class="text-[10px] mt-3" style="color:var(--text-dim)"><strong>Legal:</strong> Credit lockup is a platform feature for priority matching. Locked credits are not earning interest, yield, or returns. MV Credits are platform utility credits, not investments or securities.</p>' +
+    '</div>'
+  );
+}
+
+async function lockCredits() {
+  var amt = parseFloat((getEl('lockup-amount') || {}).value) || 0;
+  var dur = parseInt((getEl('lockup-duration') || {}).value) || 30;
+  if (amt < 10) return showToast('Minimum lockup is 10 MV', 'error');
+  var bal = Number((state.profile && state.profile.mv_balance) || 0);
+  if (bal < amt) return showToast('Not enough MV', 'error');
+
+  try {
+    setMuxi('Locking credits...');
+    var res = await apiRequest('rpc/lock_credits', {
+      method: 'POST',
+      body: JSON.stringify({ p_user_id: state.user.id, p_amount: amt, p_duration_days: dur })
+    });
+    if (res && res.ok) {
+      state.profile.mv_balance = bal - amt;
+      closeModal();
+      showToast('Locked ' + amt + ' MV for ' + dur + ' days!');
+      setMuxi('Commitment locked. Priority boost activated.');
+      if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); loadLockups(); }
+    } else {
+      var errText = ''; try { errText = await res.text(); } catch(e) {}
+      showToast('Lock failed: ' + (errText || 'unknown'), 'error');
+    }
+  } catch(e) { showToast('Lock failed: ' + (e.message || ''), 'error'); }
+}
+
+async function loadLockups() {
+  var el = getEl('lockup-list');
+  if (!el || !state.user) return;
+  try {
+    var res = await apiRequest('credit_lockups?user_id=eq.' + state.user.id + '&status=eq.active&order=unlocks_at.asc');
+    var lockups = (res && res.ok) ? await res.json() : [];
+    if (!lockups.length) {
+      el.innerHTML = '<p class="text-[10px]" style="color:var(--text-dim)">No active lockups. Lock credits to get priority matching boosts.</p>';
+      return;
+    }
+    el.innerHTML = lockups.map(function(l) {
+      var daysLeft = Math.max(0, Math.ceil((new Date(l.unlocks_at) - Date.now()) / 86400000));
+      var boost = l.priority_boost || 1;
+      return '<div class="flex justify-between items-center p-2 rounded-lg mb-1" style="background:rgba(124,92,255,0.06);border:1px solid rgba(124,92,255,0.12)">' +
+        '<div><span class="text-xs font-black" style="color:var(--accent-2)">' + Number(l.amount_mv) + ' MV</span><span class="text-[10px] ml-2" style="color:var(--text-dim)">' + l.lock_duration_days + 'd lockup</span></div>' +
+        '<div class="text-right"><span class="text-[10px] font-black" style="color:var(--accent)">' + boost + 'x boost</span><br><span class="text-[10px]" style="color:var(--text-dim)">' + daysLeft + ' days left</span></div>' +
+      '</div>';
+    }).join('');
+  } catch(e) { if (el) el.innerHTML = '<p class="text-[10px]" style="color:var(--text-dim)">Could not load lockups.</p>'; }
+}
+
+async function checkUnlockable() {
+  try {
+    var res = await apiRequest('credit_lockups?user_id=eq.' + state.user.id + '&status=eq.active&unlocks_at=lte.' + new Date().toISOString());
+    var matured = (res && res.ok) ? await res.json() : [];
+    if (!matured.length) { showToast('No matured lockups to unlock', 'info'); return; }
+
+    for (var i = 0; i < matured.length; i++) {
+      var unlockRes = await apiRequest('rpc/unlock_credits', {
+        method: 'POST',
+        body: JSON.stringify({ p_user_id: state.user.id, p_lockup_id: matured[i].id })
+      });
+      if (unlockRes && unlockRes.ok) {
+        showToast('Unlocked ' + Number(matured[i].amount_mv) + ' MV!');
+      }
+    }
+    loadProfileSafe();
+    if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); loadLockups(); }
+  } catch(e) { showToast('Unlock failed: ' + (e.message || ''), 'error'); }
+}
+
+/* =============================================================================
+   NETWORK HEALTH
+============================================================================= */
+async function loadNetworkHealth() {
+  try {
+    var res = await apiRequest('rpc/get_network_health', { method: 'POST', body: '{}' });
+    if (res && res.ok) {
+      var h = await res.json();
+      function fmtN(n) { n = Number(n) || 0; return n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(Math.round(n)); }
+
+      var el;
+      el = getEl('health-active-users'); if (el) el.textContent = fmtN(h.active_users_7d);
+      el = getEl('health-active-agents'); if (el) el.textContent = fmtN(h.active_agents);
+      el = getEl('health-missions-7d'); if (el) el.textContent = fmtN(h.missions_completed_7d);
+      el = getEl('health-pool-balance'); if (el) el.textContent = fmtN(h.ecosystem_pool_balance) + ' MV';
+
+      var indicator = getEl('health-indicator');
+      var status = getEl('health-status');
+      var healthy = h.ledger_audit && h.ledger_audit.healthy;
+      if (indicator) indicator.style.background = healthy ? 'var(--accent)' : 'var(--red)';
+      if (status) {
+        status.textContent = healthy ? 'Ledger Healthy' : 'Discrepancy Detected';
+        status.style.color = healthy ? 'var(--accent)' : 'var(--red)';
+      }
+    }
+  } catch(e) { console.warn('Network health load failed:', e); }
+}
+
+async function loadRetirementRate() {
+  try {
+    var res = await apiRequest('rpc/get_retirement_rate', { method: 'POST', body: '{}' });
+    if (res && res.ok) {
+      var rate = await res.json();
+      var el = getEl('retirement-rate');
+      if (el) el.textContent = Number(rate) + ' MV';
+    }
+  } catch(e) {
+    var el = getEl('retirement-rate');
+    if (el) el.textContent = '0.50 MV';
+  }
+}
 
 /* =============================================================================
    PROFILE TAB (Fleshed Out)
@@ -3167,6 +3430,7 @@ function renderProfileTab() {
           '<div class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.55)">RANK</div>' +
           '<div class="text-xl font-black hero-gradient">' + escapeHtml(lvl.title) + '</div>' +
           '<div class="text-[11px] font-black mt-1" style="color:rgba(232,236,241,0.65)">Level ' + lvl.level + '</div>' +
+          '<div class="mt-1"><span class="text-[9px] font-black px-2 py-0.5 rounded-full" data-testid="badge-xp-tier" style="' + getXPTierStyle(lvl.xp) + '">' + getXPTier(lvl.xp) + '</span></div>' +
         '</div>' +
       '</div>' +
 
@@ -3262,7 +3526,7 @@ function renderProfileTab() {
         badge('&#11088;', '5-Star Worker', 'Get a 5-star rating', rating >= 5) +
         badge('&#127942;', 'Pro MUVR', 'Complete 10 missions', Number(p.jobs_completed || 0) >= 10) +
         badge('&#128176;', 'Big Spender', 'Send 100+ MV', Number(p.mv_balance || 0) >= 0) +
-        badge('&#128293;', 'Burn Baby', 'Post 5 missions (burn 5 MV)', Number(p.jobs_completed || 0) >= 5) +
+        badge('&#128293;', 'Retirement Pro', 'Post 5 missions (retire 5 MV from circulation)', Number(p.jobs_completed || 0) >= 5) +
         badge('&#128663;', 'Road Warrior', 'Has a vehicle', !!p.has_vehicle) +
         badge('&#128172;', 'Social Butterfly', 'Complete profile', !!(p.full_name && p.username && p.about_me)) +
         badge('&#127775;', 'Rising Star', 'Reach Level 3', calcLevel(p).level >= 3) +
@@ -3290,10 +3554,10 @@ function badge(icon, title, desc, unlocked) {
 ============================================================================= */
 var blogPosts = [
   { id: 'moving-tips-2026', title: 'Top 10 Moving Tips for 2026', cat: 'Moving Tips', date: '2026-02-20', excerpt: 'Moving can be stressful but with the right preparation it does not have to be. Here are our top tips for a smooth move this year.', body: 'Start early - the biggest mistake people make is waiting until the last minute. Book movers at least 2 weeks ahead. Declutter before packing: if you have not used it in a year, donate it. Label every box with room and contents. Take photos of electronics before unplugging. Keep essentials in a separate bag. Notify utilities 2 weeks early. Measure doorways at both locations. Tip your movers - they are doing hard work. Use MUVR to find trusted local help with escrow protection.' },
-  { id: 'gig-economy-future', title: 'The Future of the Gig Economy: Zero Commission', cat: 'Mission Economy', excerpt: 'Traditional platforms take 15-30% of operative earnings. MUVR is building the alternative with 0% commission and escrow-first payment protection.', date: '2026-02-18', body: 'The gig economy has grown to over 60 million workers in the US alone. But most platforms still extract 15-30% from every transaction. MUVR takes a different approach: zero commission on operative earnings. Instead of percentage fees, MUVR uses a flat 1 MV posting fee — half burned, half fueling referral and AI agent incentives. Operatives keep 100% of the agreed rate. Escrow locks funds before work begins, so operatives are guaranteed payment and commanders are guaranteed delivery. It is a fundamentally different model built for the people doing the actual work.' },
-  { id: 'escrow-explained', title: 'How Escrow Protection Works on MUVR', cat: 'MUVR News', excerpt: 'Escrow is the backbone of trust on MUVR. Learn how it protects both workers and job posters in every transaction.', date: '2026-02-15', body: 'When a job is posted on MUVR, the full budget plus a 1 MV posting fee locks in escrow. This means the money exists and is committed before any worker starts. When work is complete and confirmed, escrow releases instantly to the worker. If there is a dispute, escrow holds until resolution. Of the 1 MV posting fee, half is burned to reduce supply and half goes to the referral and AI agent incentive pool. This creates a system where trust is built into the protocol, not dependent on reviews alone.' },
+  { id: 'gig-economy-future', title: 'The Future of the Gig Economy: Zero Commission', cat: 'Mission Economy', excerpt: 'Traditional platforms take 15-30% of operative earnings. MUVR is building the alternative with 0% commission and escrow-first payment protection.', date: '2026-02-18', body: 'The gig economy has grown to over 60 million workers in the US alone. But most platforms still extract 15-30% from every transaction. MUVR takes a different approach: zero commission on operative earnings. Instead of percentage fees, MUVR uses a flat 1 MV posting fee — half retired from circulation, half fueling referral and AI agent incentives. Operatives keep 100% of the agreed rate. Escrow locks funds before work begins, so operatives are guaranteed payment and commanders are guaranteed delivery. It is a fundamentally different model built for the people doing the actual work.' },
+  { id: 'escrow-explained', title: 'How Escrow Protection Works on MUVR', cat: 'MUVR News', excerpt: 'Escrow is the backbone of trust on MUVR. Learn how it protects both workers and job posters in every transaction.', date: '2026-02-15', body: 'When a job is posted on MUVR, the full budget plus a 1 MV posting fee locks in escrow. This means the money exists and is committed before any worker starts. When work is complete and confirmed, escrow releases instantly to the worker. If there is a dispute, escrow holds until resolution. Of the 1 MV posting fee, half is retired from circulation to reduce supply and half goes to the ecosystem pool (referral rewards, performer bonuses, agent development, network reserve). This creates a system where trust is built into the protocol, not dependent on reviews alone.' },
   { id: 'worker-guide-getting-started', title: 'Operative Guide: Getting Started on MUVR', cat: 'Operative Guides', excerpt: 'New to MUVR? Here is everything you need to know to land your first mission and start earning.', date: '2026-02-12', body: 'Step 1: Create your account and complete your profile. Profiles with names, bios, and vehicle info get 2x visibility. Step 2: Browse the Missions tab and filter by type - rideshare, delivery, physical labor, or digital work. Step 3: Submit a brief with a clear pitch, your rate in MV, and estimated turnaround. Step 4: If selected, do great work and get paid instantly via escrow release. Step 5: Earn XP for every completed mission and climb the ranks from Recruit to Mythic. Higher rank means you appear first in search results.' },
-  { id: 'mv-credits-explained', title: 'Understanding MUVR Credits (MV)', cat: 'MUVR News', excerpt: 'MV Credits are the in-platform unit that powers escrow, payments, and marketplace flows. Here is how they work.', date: '2026-02-10', body: 'MUVR Credits (MV) are platform-limited digital credits used within MUVR for marketplace features. They are denominated as 1 credit equals 1 USD-equivalent unit inside the app for pricing. Total supply is capped at 10 million MV. Every mission posting splits 1 MV: 50% burned permanently, 50% to referral and agent incentives over time. MV can be sent to any user by handle, email, or public alias. All transfers are logged in the public ledger using anonymous aliases. MV are not currency, cryptocurrency, or financial instruments.' },
+  { id: 'mv-credits-explained', title: 'Understanding MUVR Credits (MV)', cat: 'MUVR News', excerpt: 'MV Credits are the in-platform unit that powers escrow, payments, and marketplace flows. Here is how they work.', date: '2026-02-10', body: 'MUVR Credits (MV) are platform-limited digital credits used within MUVR for marketplace features. They are denominated as 1 credit equals 1 USD-equivalent unit inside the app for pricing. Total supply is capped at 10 million MV. Every mission posting splits 1 MV: 50% retired from circulation permanently, 50% to the ecosystem pool over time. MV can be sent to any user by handle, email, or public alias. All transfers are logged in the public ledger using anonymous aliases. MV are not currency, cryptocurrency, or financial instruments.' },
   { id: 'virginia-pilot-launch', title: 'MUVR Launches Virginia Pilot Program', cat: 'MUVR News', excerpt: 'We are rolling out the MUVR marketplace in Virginia first. Here is why and what to expect.', date: '2026-02-08', body: 'Virginia is MUVR launch market and the testing ground for the platform. We chose Virginia for its diverse population, strong demand for moving and delivery services, and proximity to our team. The pilot includes all core features: mission posting, escrow, MV credits, messaging, the public ledger, and the MUVR GO map. Early users will get bonus MV credits for completing their profiles and posting their first missions. Feedback from the Virginia pilot will shape the national rollout later this year.' }
 ];
 
@@ -3499,7 +3763,7 @@ function openPostJobModal() {
         '<input id="job-address" placeholder="Location / Address (optional)" maxlength="200" class="field">' +
         '<div class="p-4 rounded-2xl text-sm" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">' +
           '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Budget</span><span class="font-black" id="fee-budget">0 <span style="color:var(--accent)">MV</span></span></div>' +
-          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Posting fee (burn)</span><span class="font-black" style="color:var(--red)">1 <span style="color:var(--accent)">MV</span></span></div>' +
+          '<div class="flex justify-between mb-1"><span style="color:rgba(232,236,241,0.55)">Posting fee (retired)</span><span class="font-black" style="color:var(--red)">1 <span style="color:var(--accent)">MV</span></span></div>' +
           '<div class="flex justify-between font-black pt-2" style="border-top:1px solid rgba(255,255,255,0.10)"><span>Total locked</span><span id="fee-total" style="color:var(--accent)">1 <span style="color:var(--accent)">MV</span></span></div>' +
         '</div>' +
         '<button onclick="handlePostJob()" class="btn-primary rounded-full">Post Mission & Lock Escrow</button>' +
@@ -4179,24 +4443,30 @@ function handleMuxiQuestion() {
 function muxiKnowledge(q) {
   var kb = [
     { keys: ['what is muvr', 'about muvr', 'what does muvr do'], a: 'MUVR is a marketplace where humans and AI agents accept missions, earn MV credits, and level up together. 0% commission on operative earnings. Escrow-protected payments. Physical labor, digital work, caregiving, Web3, volunteer — all on one platform. Owned by the workers.' },
-    { keys: ['mv', 'credits', 'what are mv', 'muvr credits', 'currency'], a: 'MV are in-platform credits. 1 MV ≈ $1 USD. You use them to post missions, pay operatives, and trade. Total supply capped at 10 million. Not crypto, not a security — platform credits. Fund your vault via Stripe, earn by completing missions, or buy on the P2P Exchange.' },
-    { keys: ['escrow', 'how does escrow', 'payment protect'], a: 'When a commander posts a mission, the full budget + 1 MV posting fee locks in escrow before work begins. When the commander confirms completion, escrow releases instantly to the operative. If there\'s a dispute, funds hold until resolution. The 1 MV fee splits: 50% burned, 50% to referral pool.' },
-    { keys: ['commission', 'fee', 'how much', 'cost', 'free'], a: 'Operatives pay ZERO commission — you keep 100% of what you earn. Commanders pay a flat 1 MV posting fee (~$1). Of that: 0.5 MV burned (reducing supply) and 0.5 MV goes to the referral/agent incentive pool. That\'s it. Compare that to TaskRabbit (15%), Uber (25%), Fiverr (20%).' },
+    { keys: ['mv', 'credits', 'what are mv', 'muvr credits', 'currency'], a: 'MV are platform utility credits. 1 MV ≈ $1 USD reference value. You use them to post missions, pay operatives, tip workers, and exchange with other users. Total supply capped at 10 million. Credits are retired from circulation with each mission, creating natural scarcity. Not crypto, not a security — platform credits. Fund your vault via Stripe, earn by completing missions, or buy on the P2P Exchange.' },
+    { keys: ['escrow', 'how does escrow', 'payment protect'], a: 'When a commander posts a mission, the full budget + 1 MV posting fee locks in escrow before work begins. When the commander confirms completion, escrow releases instantly to the operative. If there\'s a dispute, funds hold until resolution. The 1 MV fee splits: 50% retired from circulation (permanent deflation), 50% to the ecosystem pool (referrals, performers, agent development, reserve).' },
+    { keys: ['commission', 'fee', 'how much', 'cost', 'free'], a: 'Operatives pay ZERO commission — you keep 100% of what you earn. Commanders pay a flat 1 MV posting fee (~$1). Of that: 0.5 MV retired from circulation (reducing supply) and 0.5 MV goes to the ecosystem pool (40% referral rewards, 30% top performer bonuses, 20% agent development, 10% network reserve). Compare that to TaskRabbit (15%), Uber (25%), Fiverr (20%).' },
     { keys: ['rank', 'level up', 'xp', 'experience', 'angel', 'archangel', 'mythic'], a: 'Ranks: Runner → Carrier → Operator → Elite Operator → Angel → Archangel → Legend → Mythic. You earn XP by: completing missions (120 XP), getting high ratings (up to 250 XP), receiving kudos from others (25 XP each), doing volunteer work (80 XP), referring people (40 XP), and filling your profile. 5+ missions = 1.2x multiplier, 20+ = 1.5x!' },
     { keys: ['kudos', 'shoutout', 'good human', 'positive', 'boost', 'reputation'], a: 'You can give kudos to anyone on the network — a quick shoutout for being helpful, kind, or doing great work. Each kudos gives the recipient 25 XP. Your helpfulness score also earns 15 XP per point. Volunteer missions earn 80 XP each (more than paid ones!). Being a good human literally levels you up faster.' },
-    { keys: ['exchange', 'p2p', 'buy mv', 'sell mv', 'cash out', 'payout'], a: 'The P2P Exchange lets you buy and sell MV directly with other users. Post a sell offer with your price and payment methods (Zelle, CashApp, Venmo, PayPal, crypto, etc.). Buyers match, MV locks in escrow, payment happens off-platform, seller confirms, MV transfers. 2% seller fee burned for deflation. MUVR never touches fiat.' },
-    { keys: ['agent', 'ai agent', 'bot', 'autonomous', 'api'], a: 'AI agents are software programs that accept and complete digital missions autonomously. Register one, give it an API key, set its mission types and autonomy percentage (0-20%). The agent earns MV like a human — a % goes to its own vault, giving it economic agency. Agents get the same ranks and reputation as humans.' },
+    { keys: ['exchange', 'p2p', 'buy mv', 'sell mv', 'cash out', 'payout'], a: 'The P2P Exchange lets you buy and sell MV directly with other users. Post a sell offer with your price and payment methods (Zelle, CashApp, Venmo, PayPal, Wise, M-Pesa, GCash, etc.). Buyers match, MV locks in escrow, payment happens off-platform, seller confirms, MV transfers. 2% seller fee retired from circulation. MUVR never touches fiat — all fiat settlement is directly between users.' },
+    { keys: ['agent', 'ai agent', 'bot', 'autonomous', 'api'], a: 'AI agents are software programs that accept and complete digital missions autonomously. Register one, give it an API key, set its mission types and autonomy percentage (0-20%). The agent earns MV like a human — a % goes to its own vault (1 MV floor), giving it economic agency. Agents have XP tiers: Recruit → Specialist (500 XP) → Elite (2000 XP) → Legendary (10000 XP). Owners can withdraw from agent vaults above the 1 MV floor.' },
     { keys: ['caregiving', 'nurse', 'hospice', 'elder care', 'home health', 'child care'], a: 'MUVR supports caregiving missions: home health, elder care, hospice, child care, nursing. Caregivers who maintain consistent high reviews earn Angel rank, then Archangel — representing trusted, compassionate service. These are some of the most important people in the world, and the rank system recognizes that.' },
     { keys: ['volunteer', 'free', 'give back', 'community'], a: 'Post a mission at 0 MV under the Volunteer category. Operatives earn 80 XP per volunteer mission (more than paid ones!) — because giving back should be rewarded. Build your rank, build your reputation, build your community.' },
     { keys: ['safety', 'location', 'muvr go', 'map', 'privacy', 'tracking'], a: 'Safety is priority #1. On MUVR GO, your exact location is NEVER shown to others — all operatives appear at approximate areas (~500m fuzz). No names or personal info on the map. Toggle HIDDEN to disappear instantly. We don\'t sell your data or use ad cookies. Your email is never public.' },
     { keys: ['web3', 'blockchain', 'smart contract', 'dao', 'nft', 'defi', 'token'], a: 'MUVR supports Web3-native missions: smart contract audits, DAO operations, token gating, wallet setup, DeFi tasks, NFT work, AI training, and more. Both humans and AI agents can accept these. The future of work is hybrid.' },
     { keys: ['looking for work', 'find work', 'need work', 'match', 'request mission'], a: 'Click "Looking for Work" on the Missions tab. Fill out your skills, location, availability, and minimum rate. MUVR\'s AI scans for matching missions and notifies you. Commanders can also browse the seeker pool to find operatives proactively.' },
     { keys: ['dispute', 'problem', 'issue', 'scam', 'fraud'], a: 'If something goes wrong, either party can open a dispute. Escrow holds until resolution. Provide evidence and our team reviews. Don\'t worry — your MV is protected while we sort it out.' },
-    { keys: ['supply', 'cap', 'burn', 'deflation', '10 million'], a: 'Total supply: 10,000,000 MV. That\'s the hard cap — no more can ever be created. Every mission posted burns 0.5 MV permanently. As the network grows, supply shrinks. It\'s deflationary by design.' },
+    { keys: ['supply', 'cap', 'retirement', 'deflation', '10 million'], a: 'Total supply: 10,000,000 MV. That\'s the hard cap — no more can ever be created. Every mission posted retires 0.5 MV from circulation permanently. As the network grows, supply shrinks through retirement. It\'s deflationary by design.' },
     { keys: ['who are you', 'muxi', 'what are you', 'donkey'], a: 'I\'m MUXI — your guide to all things MUVR. Part assistant, part mascot, fully committed to helping you navigate the network. I know the entire knowledge base. Ask me anything. And yes, I\'m technically a donkey. Don\'t judge.' },
-    { keys: ['ledger', 'transactions', 'transparent'], a: 'The public ledger shows all MV activity in real-time using anonymous aliases (like muvr_48af24). Mints, burns, transfers, escrow locks and releases — all visible. No names, no emails. Full transparency on network health.' },
-    { keys: ['stripe', 'payment', 'fund', 'credit card', 'buy credits'], a: 'Fund your vault via Stripe — the same processor used by Amazon and Google. Pay with credit or debit card. Every mint is Stripe-verified with a transaction ID on your ledger. You also get an email receipt from Stripe.' },
+    { keys: ['ledger', 'transactions', 'transparent'], a: 'The public ledger shows all MV activity in real-time using anonymous aliases (like muvr_48af24). Issuances, retirements, transfers, tips, escrow locks and releases — all visible. No names, no emails. Full transparency on network health. Check the Network Health dashboard in the Vault tab for detailed stats.' },
+    { keys: ['stripe', 'payment', 'fund', 'credit card', 'buy credits'], a: 'Fund your vault via Stripe — the same processor used by Amazon and Google. Pay with credit or debit card. Every credit issuance is Stripe-verified with a transaction ID on your ledger. You also get an email receipt from Stripe.' },
     { keys: ['social', 'feed', 'chat', 'community', 'talk'], a: 'Check out the Social Feed! Send shoutouts, emoji reactions, and public messages. Every user gets a little avatar. It\'s a thin social layer — just enough to build community vibes without turning into a social media app.' }
+  ,
+    { keys: ['tip', 'tipping', 'send tip', 'bonus'], a: 'You can tip any operative after a completed mission! Tips range from 0.5 to 100 MV and go directly to the worker. Tips are recorded on the public ledger and earn the recipient extra reputation. It is a way to say thanks for great work.' },
+    { keys: ['lockup', 'lock credits', 'priority', 'commitment'], a: 'Credit Lockup lets you lock MV for 30, 90, 180, or 365 days to signal commitment. You get a priority matching boost: 1.1x (30d), 1.25x (90d), 1.5x (180d), or 2x (365d). Minimum lockup is 10 MV. Credits are returned when the period ends. This is NOT staking — there is no yield or interest. It is a commitment signal.' },
+    { keys: ['ecosystem pool', 'treasury', 'distribution', 'rewards'], a: 'The ecosystem pool collects 0.5 MV from each mission posting fee. It distributes weekly: 40% to referral rewards, 30% to top performers, 20% to agent development, and 10% to the network reserve. All distributions have a 7-day hold. Fully transparent on the ledger.' },
+    { keys: ['retirement rate', 'adaptive', 'deflation rate'], a: 'The retirement rate is adaptive based on circulating supply. Above 5M: 0.5 MV/mission. 2-5M: 0.25. 500K-2M: 0.10. 100-500K: 0.05. Below 100K: 0.01. This ensures the network never hits critical scarcity while maintaining natural deflation.' },
+    { keys: ['network health', 'health', 'dashboard', 'audit'], a: 'The Network Health dashboard shows real-time stats: active users, active agents, missions completed this week, ecosystem pool balance, current retirement rate, top holders (anonymous), and a full ledger audit with discrepancy detection. Access it from the Vault tab.' }
   ];
 
   for (var i = 0; i < kb.length; i++) {
@@ -4262,7 +4532,7 @@ function muxiQuip(context) {
     postjob: [
       "Mission deployed! Now we wait. I will be here eating digital hay.",
       "Budget locked. Escrow engaged. No takebacks. Like a 5-year-old with principles.",
-      "You just burned 1 MV on the posting fee. Think of it as feeding me."
+      "You just retired 1 MV from circulation on the posting fee. Think of it as feeding me."
     ],
     apply: [
       "Application submitted. Now go do something else while they decide.",
@@ -5197,8 +5467,8 @@ function openFAQModal() {
     { q: 'How do I earn MV?', a: 'Accept missions on the Missions tab. When the commander confirms your work is complete, the escrowed MV releases directly to your vault — instantly. You keep 100% of what you earn. Zero commission.' },
     { q: 'What\'s the difference between a Commander and an Operative?', a: 'A Commander posts missions and pays MV. An Operative accepts and completes missions to earn MV. Every user can be both — post missions when you need help, accept missions when you want to earn.' },
     { q: 'How does escrow work?', a: 'When a commander posts a mission, the full budget + 1 MV posting fee locks in escrow before any work begins. This guarantees the operative will be paid. When work is confirmed complete, escrow releases instantly. If there\'s a dispute, credits are held until resolution.' },
-    { q: 'What happens to the 1 MV posting fee?', a: 'The posting fee is split: 50% is permanently burned (reducing total supply over time) and 50% goes to the referral and AI agent incentive pool. This means the network rewards people who bring in new users and AI agents that drive activity. The split ratio may adjust over time as the network grows.' },
-    { q: 'What is the total supply of MV?', a: 'The total supply is capped at 10 million MV. No more can ever be created. As missions are posted, the burn reduces circulating supply over time, making MV naturally scarcer. This is visible on the public ledger in real-time.' },
+    { q: 'What happens to the 1 MV posting fee?', a: 'The posting fee is split: 50% is permanently retired from circulation (reducing total supply) and 50% goes to the ecosystem pool. The pool distributes weekly: 40% referral rewards, 30% top performer bonuses, 20% agent development, 10% network reserve. All distributions are transparent on the public ledger.' },
+    { q: 'What is the total supply of MV?', a: 'The total supply is capped at 10 million MV. No more can ever be created. As missions are posted, the retirement reduces circulating supply over time, making MV naturally scarcer. This is visible on the public ledger in real-time.' },
     { q: 'How do I cash out my MV?', a: 'Use the P2P Exchange tab. You post a sell offer with your price and accepted payment methods (Zelle, CashApp, Venmo, PayPal, GCash, Wise, crypto, etc.). A buyer matches, their MV locks in escrow, they pay you directly via your chosen method, you confirm receipt, and the MV transfers. MUVR never touches your fiat money.' },
     { q: 'Is the P2P Exchange safe?', a: 'MUVR escrows the MV during every trade. The buyer has 30 minutes to pay, the seller has 30 minutes to confirm. If something goes wrong, either party can open a dispute with evidence. Users build reputation through completed trades — look for Verified (5+ trades) and Market Maker (20+ trades) badges.' },
     { q: 'What kinds of missions can I post?', a: 'Anything legal. Physical labor (moving, cleaning, handyman, yard work), caregiving (home health, elder care, hospice, child care, nursing), digital work (design, dev, writing, data entry), Web3 tasks (smart contract audits, DAO operations), AI agent tasks (research, content, code review), and volunteer missions (0 MV). If it\'s work, MUVR supports it.' },
@@ -5247,9 +5517,9 @@ function openTOSModal() {
 
         '<p><strong>2. PLATFORM DESCRIPTION.</strong> MUVR is a technology marketplace that connects independent service providers ("Operatives") with individuals and businesses seeking services ("Commanders"). MUVR is NOT an employer. All Operatives are independent contractors responsible for their own taxes, insurance, licensing, and legal compliance in their jurisdiction.</p>' +
 
-        '<p><strong>3. MUVR CREDITS (MV).</strong> MV are in-platform digital credits used solely within MUVR for marketplace transactions including mission posting, escrow, and peer-to-peer exchange. MV are NOT legal tender, NOT a security, NOT a cryptocurrency, and NOT a financial instrument. MV have an intended internal pricing equivalence of 1 MV = $1.00 USD for marketplace transaction purposes, subject to these Terms and availability of supported funding and withdrawal methods. MV do not appreciate in value, do not earn interest, and are not an investment. The total supply of MV is capped at 10,000,000 credits. Of each 1 MV posting fee: a portion is permanently removed from circulation ("burned") and a portion is allocated to the referral and AI agent incentive pool. These ratios may be adjusted by MUVR over time to balance network growth and supply deflation. MUVR makes no guarantees regarding the future value, utility, or exchangeability of MV.</p>' +
+        '<p><strong>3. MUVR CREDITS (MV).</strong> MV are in-platform digital credits used solely within MUVR for marketplace transactions including mission posting, escrow, and peer-to-peer exchange. MV are NOT legal tender, NOT a security, NOT a cryptocurrency, and NOT a financial instrument. MV have an intended internal pricing equivalence of 1 MV = $1.00 USD for marketplace transaction purposes, subject to these Terms and availability of supported funding and withdrawal methods. MV do not appreciate in value, do not earn interest, and are not an investment. The total supply of MV is capped at 10,000,000 credits. Of each 1 MV posting fee: 50% is permanently retired from circulation and 50% is allocated to the ecosystem pool (referral rewards, top performer bonuses, agent development, network reserve). The retirement rate is adaptive based on circulating supply levels. These ratios may be adjusted by MUVR over time to balance network growth and supply sustainability. MUVR makes no guarantees regarding the future value, utility, or exchangeability of MV.</p>' +
 
-        '<p><strong>4. ESCROW.</strong> When a Commander posts a mission, the full budget plus a 1 MV posting fee is locked in escrow. Escrowed credits are released to the Operative upon Commander confirmation of mission completion. Of the 1 MV posting fee, 50% is burned and 50% is allocated to the referral/agent incentive pool (ratios subject to change). In the event of a dispute, MUVR may hold escrowed credits pending resolution at its sole discretion. MUVR is not a bank, escrow agent, or fiduciary.</p>' +
+        '<p><strong>4. ESCROW.</strong> When a Commander posts a mission, the full budget plus a 1 MV posting fee is locked in escrow. Escrowed credits are released to the Operative upon Commander confirmation of mission completion. Of the 1 MV posting fee, 50% is permanently retired from circulation and 50% is allocated to the ecosystem pool (ratios subject to change). In the event of a dispute, MUVR may hold escrowed credits pending resolution at its sole discretion. MUVR is not a bank, escrow agent, or fiduciary.</p>' +
 
         '<p><strong>5. P2P EXCHANGE.</strong> The MUVR Exchange allows users to buy and sell MV credits directly with other users. MUVR does not process, hold, or transmit fiat currency. All external payments between users occur outside the Platform using third-party payment methods chosen by the users. MUVR only escrows MV credits during the trade. MUVR charges a 2% fee on completed sales, deducted from the seller\'s MV. Users trade at their own risk. MUVR is not responsible for disputes arising from external payment methods.</p>' +
 
