@@ -720,7 +720,7 @@ function renderLanding() {
             '<p class="text-sm mb-4" style="color:var(--text-mid)">In-platform credits used for posting, escrow, transfers, and settlement flows. MV are denominated as 1 credit = 1 USD-equivalent unit INSIDE the app for pricing.</p>' +
             '<div class="space-y-3">' +
               mvFeature('Capped Supply', '10 million MV total. No inflation. Posting fees are split: 50% retired from circulation (reducing supply) + 50% to the referral and AI agent incentive pool.') +
-              mvFeature('Escrow Flow', 'Budget + 1 MV fee locks when posting. Releases to operative on completion. The 1 MV fee is permanently retired from circulation.') +
+              mvFeature('Escrow Flow', 'Budget + 1 MV fee locks when posting. Releases to operative on completion. Of the 1 MV fee: 0.5 MV is permanently retired from circulation, 0.5 MV goes to the ecosystem pool.') +
               mvFeature('Send & Receive', 'Transfer MV to any user by @handle, email, or public alias. All transfers are logged in the public ledger.') +
             '</div>' +
           '</div>' +
@@ -729,7 +729,7 @@ function renderLanding() {
               '<div class="text-[11px] font-black tracking-widest mb-3" style="color:rgba(232,236,241,0.55)">NETWORK STATS</div>' +
               '<div class="space-y-4">' +
                 netStat('Total Cap', '10,000,000 MV', 'var(--accent)') +
-                netStat('Posting Fee', '1 MV (retired)', 'var(--red)') +
+                netStat('Posting Fee', '1 MV (50% retired, 50% ecosystem pool)', 'var(--red)') +
                 netStat('Operative Commission', '0%', 'var(--accent)') +
                 netStat('Payout Fee', '0.5% (beta)', 'var(--yellow)') +
               '</div>' +
@@ -1752,7 +1752,7 @@ async function releaseEscrow(jobId) {
 
 /* Cancel a job and refund escrow to poster */
 async function cancelJob(jobId) {
-  if (!confirm('Cancel this mission? Your escrowed MV will be refunded (minus the 1 MV retirement fee).')) return;
+  if (!confirm('Cancel this mission? Your escrowed MV will be refunded (minus the 1 MV posting fee: 0.5 retired, 0.5 to ecosystem pool).')) return;
   try {
     setMuxi('Cancelling mission...');
     var res = await apiRequest('rpc/cancel_job_secure', {
@@ -3014,7 +3014,7 @@ function renderLedgerTab() {
 function renderLedgerContent(containerId) {
   var el = getEl(containerId);
   if (!el) return;
-  var types = [{k:'all',l:'All'},{k:'mint',l:'Mint'},{k:'burn',l:'Burn'},{k:'transfer',l:'Transfer'},{k:'escrow_lock',l:'Escrow Lock'},{k:'escrow_release',l:'Release'}];
+  var types = [{k:'all',l:'All'},{k:'mint',l:'Mint'},{k:'burn',l:'Retired'},{k:'transfer',l:'Transfer'},{k:'escrow_lock',l:'Escrow Lock'},{k:'escrow_release',l:'Release'}];
   var btns = types.map(function(t) {
     return '<button onclick="state.ledgerFilter=\'' + t.k + '\';loadPublicEvents()" class="btn-pill ' + (state.ledgerFilter === t.k ? 'btn-pill-accent' : 'btn-pill-ghost') + '">' + t.l + '</button>';
   }).join('');
@@ -3054,7 +3054,7 @@ async function computeNetworkStats() {
     if (rpcRes && rpcRes.ok) {
       var stats = await rpcRes.json();
       if (stats && stats.cap) {
-        function fmtNum(n) { n = Number(n) || 0; return n >= 1000000 ? (n/1000000).toFixed(1) + 'M' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(Math.round(n)); }
+        function fmtNum(n) { n = Number(n) || 0; if (n === 10000000) return '10M'; return n >= 1000000 ? n.toLocaleString() : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(Math.round(n)); }
         ['stat-minted', 'pub-minted'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(stats.minted); });
         ['stat-escrowed', 'pub-escrowed'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(stats.escrowed); });
         ['stat-burned', 'pub-burned'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(stats.burned); });
@@ -3085,7 +3085,7 @@ async function computeNetworkStats() {
     if (circulating < 0) circulating = 0;
     var available = TOTAL_CAP - minted;
     if (available < 0) available = 0;
-    function fmtNum(n) { return n >= 1000000 ? (n/1000000).toFixed(1) + 'M' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(Math.round(n)); }
+    function fmtNum(n) { if (n === 10000000) return '10M'; return n >= 1000000 ? n.toLocaleString() : n >= 1000 ? (n/1000).toFixed(1) + 'K' : String(Math.round(n)); }
     ['stat-minted', 'pub-minted'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(minted); });
     ['stat-escrowed', 'pub-escrowed'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(escrowed); });
     ['stat-burned', 'pub-burned'].forEach(function(id) { var el = getEl(id); if (el) el.textContent = fmtNum(burned); });
@@ -4532,7 +4532,7 @@ function muxiQuip(context) {
     postjob: [
       "Mission deployed! Now we wait. I will be here eating digital hay.",
       "Budget locked. Escrow engaged. No takebacks. Like a 5-year-old with principles.",
-      "You just retired 1 MV from circulation on the posting fee. Think of it as feeding me."
+      "The 1 MV posting fee just split: half retired from circulation, half to the ecosystem pool. Think of it as feeding me AND the network."
     ],
     apply: [
       "Application submitted. Now go do something else while they decide.",
@@ -5479,7 +5479,7 @@ function openFAQModal() {
     { q: 'Is MUVR safe? What about my location?', a: 'Safety is our top priority. On MUVR GO, your exact location is NEVER shown to other users. All operatives appear at approximate areas (~500m fuzzy radius). No names or personal info are visible on the map. You control when you\'re visible — toggle to HIDDEN to disappear instantly.' },
     { q: 'Is MUVR an employer?', a: 'No. MUVR is a technology marketplace only. All operatives are independent contractors who control their own schedule, rates, methods, and clients. MUVR does not set rates, require hours, or control how work is performed. You are responsible for your own taxes, insurance, and compliance.' },
     { q: 'How is MUVR different from TaskRabbit / Uber / Fiverr?', a: '0% commission on operative earnings (they charge 15-30%). Instant payment via escrow (not 3-7 days). AI agents as first-class operatives. P2P credit exchange. Public transparent ledger. Rank and reputation system with XP. And it works for physical labor, digital work, caregiving, Web3, and volunteer missions — all in one platform.' },
-    { q: 'What is the public ledger?', a: 'The public ledger is a transparent, real-time feed of all MV activity on the network. It shows mints, burns, escrow locks, releases, and transfers — but only with anonymous aliases (like muvr_48af24), never real names or emails. Anyone can verify the network\'s health and activity.' },
+    { q: 'What is the public ledger?', a: 'The public ledger is a transparent, real-time feed of all MV activity on the network. It shows issuances, retirements, escrow locks, releases, tips, and transfers — but only with anonymous aliases (like muvr_48af24), never real names or emails. Anyone can verify the network\'s health and activity.' },
     { q: 'Can I volunteer on MUVR?', a: 'Yes. Post a mission with the "Volunteer (0 MV)" category. Operatives can accept volunteer missions to build reputation, earn XP, and give back to their community — all while climbing the ranks.' },
     { q: 'Who operates MUVR?', a: 'MUVR is operated by TransBid LLC, a Delaware limited liability company (USA). For legal questions, contact legal@transbid.live.' }
   ];
