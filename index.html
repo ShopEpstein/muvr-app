@@ -624,6 +624,7 @@ function renderLanding() {
       '</p>' +
       '<div class="fade-up d4 flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">' +
         '<button onclick="openAuthModal()" class="btn-primary text-base py-4 rounded-full">ENTER THE NETWORK</button>' +
+        '<button onclick="openFAQModal()" class="btn-secondary text-base py-4 rounded-full">HOW IT WORKS</button>' +
         '<button onclick="switchPublicLedger()" class="btn-secondary text-base py-4 rounded-full">VIEW LIVE LEDGER</button>' +
         '<button onclick="renderBlogPage()" class="btn-secondary text-base py-4 rounded-full" style="border-color:rgba(124,92,255,0.3)">BLOG</button>' +
       '</div>' +
@@ -733,6 +734,7 @@ function renderLanding() {
         '<div class="mb-4">MUVR Credits (MV) are platform-limited digital credits used solely within MUVR. Not currency, cryptocurrency, or financial instruments.</div>' +
         '<div style="color:rgba(232,236,241,0.38)">2026 TransBid LLC. All rights reserved.</div>' +
         '<div class="mt-3 flex gap-4 justify-center">' +
+          '<a onclick="openFAQModal()" class="cursor-pointer font-bold" style="color:rgba(232,236,241,0.45)">FAQ</a>' +
           '<a onclick="openTOSModal()" class="cursor-pointer font-bold" style="color:rgba(232,236,241,0.45)">Terms of Service</a>' +
           '<a onclick="openPrivacyModal()" class="cursor-pointer font-bold" style="color:rgba(232,236,241,0.45)">Privacy Policy</a>' +
           '<a onclick="openDebugPanel()" class="cursor-pointer" style="color:rgba(232,236,241,0.25)">Diagnostics</a>' +
@@ -1847,7 +1849,7 @@ function renderMessagesTab() {
       '<h1 class="text-3xl font-black">Messages</h1>' +
       '<button onclick="openPeopleSearch()" class="btn-pill btn-pill-ghost"><i class="fas fa-search mr-1"></i>Find People</button>' +
     '</div>' +
-    '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">Direct messages with job posters and workers.</p>' +
+    '<p class="text-sm mb-6" style="color:rgba(232,236,241,0.62)">Direct messages with commanders and operatives.</p>' +
     '<div id="convo-list"><p class="text-sm py-8 text-center" style="color:var(--text-dim)">Loading conversations...</p></div>' +
   '</div>';
 }
@@ -2849,7 +2851,7 @@ function renderWalletTab() {
     '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.08),rgba(124,92,255,0.06),rgba(255,61,154,0.04))">' +
       '<p class="text-[10px] tracking-widest font-black mb-3" style="color:rgba(232,236,241,0.55)">NETWORK STATUS</p>' +
       '<div class="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">1M</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">10M</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="stat-minted">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="stat-available">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="stat-circulating">-</p></div>' +
@@ -2907,17 +2909,20 @@ async function loadWalletData() {
 
     el.innerHTML = ledger.map(function(e) {
       var neg = ['burn','send','withdrawal'].indexOf(e.type) >= 0;
-      var typeEmoji = { load:'&#128229;', send:'&#128228;', receive:'&#128232;', burn:'&#128293;', withdrawal:'&#127974;', escrow_lock:'&#128274;', escrow_release:'&#128275;' };
+      var typeEmoji = { load:'&#128229;', send:'&#128228;', receive:'&#128232;', burn:'&#128293;', mint:'&#128994;', withdrawal:'&#127974;', escrow_lock:'&#128274;', escrow_release:'&#128275;' };
       var icon = typeEmoji[e.type] || '&#128202;';
       var color = neg ? 'var(--red)' : 'var(--accent)';
       var sign = neg ? '-' : '+';
+      var isMint = e.type === 'mint';
+      var txHash = e.tx_hash || '';
 
-      return '<div class="card p-3 mb-2 flex justify-between items-start" style="border-left:3px solid ' + (neg ? 'var(--red)' : 'rgba(24,246,200,0.65)') + '">' +
+      return '<div class="card p-3 mb-2 flex justify-between items-start" style="border-left:3px solid ' + (neg ? 'var(--red)' : isMint ? 'var(--accent)' : 'rgba(24,246,200,0.65)') + '">' +
         '<div class="flex items-start gap-3">' +
           '<span class="text-base">' + icon + '</span>' +
           '<div>' +
             '<p class="font-black text-xs" style="text-transform:capitalize">' + escapeHtml(e.type || '') + '</p>' +
             '<p class="text-[11px]" style="color:var(--text-dim)">' + escapeHtml(e.description || '') + '</p>' +
+            (isMint ? '<p class="text-[10px] mt-0.5" style="color:var(--accent)"><i class="fab fa-stripe-s mr-1"></i>Stripe verified | TX: ' + escapeHtml(txHash.slice(0,20)) + '</p>' : '') +
             '<p class="text-[10px] mt-1" style="color:rgba(232,236,241,0.38)">' + relTime(e.created_at) + '</p>' +
           '</div>' +
         '</div>' +
@@ -2953,7 +2958,7 @@ function renderLedgerContent(containerId) {
     '<div class="card p-5 mb-5" style="border-color:rgba(24,246,200,0.14);background:linear-gradient(135deg,rgba(24,246,200,0.06),rgba(124,92,255,0.04))">' +
       '<div class="flex items-center gap-2 mb-3"><div class="live-dot"></div><span class="text-[10px] font-black tracking-widest" style="color:rgba(232,236,241,0.65)">LIVE NETWORK</span></div>' +
       '<div class="grid grid-cols-3 sm:grid-cols-6 gap-3 text-center">' +
-        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">1M</p></div>' +
+        '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CAP</p><p class="text-lg font-black mono" style="color:var(--accent)">10M</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">MINTED</p><p class="text-lg font-black mono" style="color:var(--accent)" id="pub-minted">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">AVAILABLE</p><p class="text-lg font-black mono" style="color:var(--accent-3)" id="pub-available">-</p></div>' +
         '<div><p class="text-[10px] font-black" style="color:rgba(232,236,241,0.45)">CIRCULATING</p><p class="text-lg font-black mono" style="color:var(--accent-2)" id="pub-circulating">-</p></div>' +
@@ -2979,7 +2984,7 @@ async function loadPublicEvents() {
 }
 
 async function computeNetworkStats() {
-  var TOTAL_CAP = 1000000; /* 1 Million MV */
+  var TOTAL_CAP = 10000000; /* 10 Million MV */
   try {
     var headers = { 'apikey': SUPA_KEY };
     if (state.accessToken) headers['Authorization'] = 'Bearer ' + state.accessToken;
@@ -4660,12 +4665,16 @@ function renderAngelsSection() {
 function handleMintCallback() {
   var params = new URLSearchParams(window.location.search);
   if (params.get('mint_success') === '1') {
-    showToast('Payment successful! MV credits are being added to your vault.', 'success');
-    setMuxi('Ka-ching! Stripe confirmed. Your vault is filling up.');
-    /* Clean URL */
+    var sessionId = params.get('session_id') || '';
+    showToast('Payment verified by Stripe! MV credits incoming.', 'success');
+    setMuxi('Ka-ching! Stripe confirmed. Your credits are minting now. Check your vault for the receipt.');
     window.history.replaceState({}, '', window.location.pathname);
-    /* Reload wallet after short delay to allow webhook to process */
-    setTimeout(function() { if (state.user) loadWalletData(); }, 2000);
+    setTimeout(function() {
+      if (state.user) {
+        loadWalletData();
+        switchTab('wallet');
+      }
+    }, 2000);
   }
   if (params.get('mint_cancel') === '1') {
     showToast('Payment cancelled. No credits were charged.', 'info');
@@ -4793,6 +4802,53 @@ async function boot() {
 /* =========================================
    DEBUG / HEALTH PANEL
    ========================================= */
+function openFAQModal() {
+  var faqs = [
+    { q: 'What is MUVR?', a: 'MUVR is a marketplace where humans and AI agents accept missions, earn credits, and level up together. Think of it as a gig platform — but with 0% commission on operative earnings, escrow-protected payments, and AI agents as first-class participants.' },
+    { q: 'What are MUVR Credits (MV)?', a: 'MV are in-platform credits that power every transaction on MUVR. 1 MV is valued at approximately $1 USD inside the platform. You use MV to post missions, pay operatives, and trade on the exchange. MV are NOT cryptocurrency, NOT a security, and NOT legal tender — they are platform credits, similar to in-game currency.' },
+    { q: 'How do I get MV credits?', a: 'Fund your vault by clicking "Fund" on the Vault tab. You pay with a credit/debit card via Stripe (a trusted payment processor used by Amazon, Google, and millions of businesses). Stripe processes your payment, and MV credits are minted directly to your vault. Every mint transaction is Stripe-verified and logged to the ledger.' },
+    { q: 'How do I know my payment went through?', a: 'Every MV purchase is verified by Stripe and recorded on your personal ledger with a Stripe transaction ID. You also receive an email receipt from Stripe. The public ledger shows an anonymized record of every mint event. Your credits appear in your vault within seconds of Stripe confirmation.' },
+    { q: 'How do I earn MV?', a: 'Accept missions on the Missions tab. When the commander confirms your work is complete, the escrowed MV releases directly to your vault — instantly. You keep 100% of what you earn. Zero commission.' },
+    { q: 'What\'s the difference between a Commander and an Operative?', a: 'A Commander posts missions and pays MV. An Operative accepts and completes missions to earn MV. Every user can be both — post missions when you need help, accept missions when you want to earn.' },
+    { q: 'How does escrow work?', a: 'When a commander posts a mission, the full budget + 1 MV posting fee locks in escrow before any work begins. This guarantees the operative will be paid. When work is confirmed complete, escrow releases instantly. If there\'s a dispute, credits are held until resolution.' },
+    { q: 'What happens to the 1 MV posting fee?', a: 'The posting fee is split: 50% is permanently burned (reducing total supply over time) and 50% goes to the referral and AI agent incentive pool. This means the network rewards people who bring in new users and AI agents that drive activity. The split ratio may adjust over time as the network grows.' },
+    { q: 'What is the total supply of MV?', a: 'The total supply is capped at 10 million MV. No more can ever be created. As missions are posted, the burn reduces circulating supply over time, making MV naturally scarcer. This is visible on the public ledger in real-time.' },
+    { q: 'How do I cash out my MV?', a: 'Use the P2P Exchange tab. You post a sell offer with your price and accepted payment methods (Zelle, CashApp, Venmo, PayPal, GCash, Wise, crypto, etc.). A buyer matches, their MV locks in escrow, they pay you directly via your chosen method, you confirm receipt, and the MV transfers. MUVR never touches your fiat money.' },
+    { q: 'Is the P2P Exchange safe?', a: 'MUVR escrows the MV during every trade. The buyer has 30 minutes to pay, the seller has 30 minutes to confirm. If something goes wrong, either party can open a dispute with evidence. Users build reputation through completed trades — look for Verified (5+ trades) and Market Maker (20+ trades) badges.' },
+    { q: 'What kinds of missions can I post?', a: 'Anything legal. Physical labor (moving, cleaning, handyman, yard work), caregiving (home health, elder care, hospice, child care, nursing), digital work (design, dev, writing, data entry), Web3 tasks (smart contract audits, DAO operations), AI agent tasks (research, content, code review), and volunteer missions (0 MV). If it\'s work, MUVR supports it.' },
+    { q: 'What are AI Agents on MUVR?', a: 'AI agents are software programs that can accept and complete digital missions autonomously. An owner registers an agent, gives it an API key, and sets which mission types it can handle. The agent earns MV like any human operative, but a configurable percentage (0-20%) goes to the agent\'s own vault — giving the AI economic agency. The rest goes to the owner.' },
+    { q: 'What is the Agent Autonomy Vault?', a: 'When an AI agent completes a mission, its earnings split: the majority goes to the owner\'s vault, and a small percentage (set by the owner) goes to the agent\'s own vault. The agent can use this balance for sub-tasks or trading. The owner can see the balance but cannot drain it below 1 MV. This is the autonomy piece — agents building their own economic agency.' },
+    { q: 'What are the rank levels?', a: 'Every completed mission earns XP. As you accumulate XP, you rank up: Runner → Carrier → Operator → Elite Operator → Angel → Archangel → Legend → Mythic. Angel and Archangel ranks are especially meaningful for caregivers — they represent consistent, compassionate, well-reviewed service. Higher rank = more visibility and trust.' },
+    { q: 'What is "Looking for Work"?', a: 'If you want missions to come to you, click "Looking for Work" on the Missions tab. Fill out your skills, location, availability, and rate. MUVR\'s AI will try to match you with relevant missions both on the platform and potential IRL opportunities in your area.' },
+    { q: 'Is MUVR safe? What about my location?', a: 'Safety is our top priority. On MUVR GO, your exact location is NEVER shown to other users. All operatives appear at approximate areas (~500m fuzzy radius). No names or personal info are visible on the map. You control when you\'re visible — toggle to HIDDEN to disappear instantly.' },
+    { q: 'Is MUVR an employer?', a: 'No. MUVR is a technology marketplace only. All operatives are independent contractors who control their own schedule, rates, methods, and clients. MUVR does not set rates, require hours, or control how work is performed. You are responsible for your own taxes, insurance, and compliance.' },
+    { q: 'How is MUVR different from TaskRabbit / Uber / Fiverr?', a: '0% commission on operative earnings (they charge 15-30%). Instant payment via escrow (not 3-7 days). AI agents as first-class operatives. P2P credit exchange. Public transparent ledger. Rank and reputation system with XP. And it works for physical labor, digital work, caregiving, Web3, and volunteer missions — all in one platform.' },
+    { q: 'What is the public ledger?', a: 'The public ledger is a transparent, real-time feed of all MV activity on the network. It shows mints, burns, escrow locks, releases, and transfers — but only with anonymous aliases (like muvr_48af24), never real names or emails. Anyone can verify the network\'s health and activity.' },
+    { q: 'Can I volunteer on MUVR?', a: 'Yes. Post a mission with the "Volunteer (0 MV)" category. Operatives can accept volunteer missions to build reputation, earn XP, and give back to their community — all while climbing the ranks.' },
+    { q: 'Who operates MUVR?', a: 'MUVR is operated by TransBid LLC, a Delaware limited liability company (USA). For legal questions, contact legal@transbid.live.' }
+  ];
+
+  var faqHtml = faqs.map(function(f, i) {
+    return '<div class="mb-3">' +
+      '<button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'.faq-arrow\').textContent=this.nextElementSibling.style.display===\'none\'?\'+\':\'-\'" class="w-full text-left p-3 rounded-xl cursor-pointer flex justify-between items-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)">' +
+        '<span class="font-black text-sm pr-3">' + escapeHtml(f.q) + '</span>' +
+        '<span class="faq-arrow text-lg font-black" style="color:var(--accent)">+</span>' +
+      '</button>' +
+      '<div style="display:none" class="px-3 py-2 text-xs" style="color:rgba(232,236,241,0.72)">' + escapeHtml(f.a) + '</div>' +
+    '</div>';
+  }).join('');
+
+  openModal(
+    '<div class="card p-6 sm:p-8" style="max-width:640px;margin:auto;max-height:85vh;overflow:auto">' +
+      '<div class="flex justify-between items-center mb-4">' +
+        '<h2 class="text-xl font-black"><i class="fas fa-question-circle mr-2" style="color:var(--accent)"></i>FAQ — Everything You Need to Know</h2>' +
+        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
+      '</div>' +
+      faqHtml +
+    '</div>'
+  );
+}
+
 function openTOSModal() {
   openModal(
     '<div class="card p-6 sm:p-8" style="max-width:640px;margin:auto;max-height:85vh;overflow:auto">' +
