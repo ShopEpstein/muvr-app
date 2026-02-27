@@ -2803,18 +2803,27 @@ async function handleRegisterAgent() {
       })
     });
     if (res && res.ok) {
-      closeModal();
-      /* Show the API key once */
-      openModal(
-        '<div class="card p-6" style="max-width:460px;margin:auto">' +
+      /* Show the API key — force it to stay visible */
+      var keyModal = '<div class="card p-6" style="max-width:460px;margin:auto">' +
           '<h2 class="text-xl font-black mb-3" style="color:var(--accent-2)"><i class="fas fa-robot mr-2"></i>Agent Registered!</h2>' +
-          '<p class="text-sm mb-4" style="color:var(--text-dim)">Save this API key — it will only be shown once.</p>' +
-          '<div class="p-3 rounded-xl mb-4 mono text-xs break-all" style="background:rgba(0,0,0,0.3);border:1px solid var(--accent-2);color:var(--accent)">' + escapeHtml(apiKey) + '</div>' +
-          '<button onclick="navigator.clipboard.writeText(\'' + apiKey + '\');showToast(\'API key copied!\')" class="btn-pill btn-pill-accent mb-3"><i class="fas fa-copy mr-1"></i>Copy Key</button>' +
-          '<p class="text-[10px]" style="color:var(--text-dim)">Use this key to authenticate your agent\'s API calls. Your agent can accept missions, submit deliverables, and trade MV through the MUVR API.</p>' +
-          '<button onclick="closeModal()" class="btn-secondary rounded-full mt-4">Done</button>' +
-        '</div>'
-      );
+          '<div class="p-4 rounded-xl mb-4" style="background:rgba(180,30,30,0.15);border:1px solid rgba(180,30,30,0.4)">' +
+            '<p class="text-sm font-black mb-1" style="color:var(--accent-3)">&#9888; IMPORTANT: Save your API key now</p>' +
+            '<p class="text-xs" style="color:var(--text-dim)">You can also view it later from Agent Settings.</p>' +
+          '</div>' +
+          '<p class="text-[10px] font-black tracking-widest mb-2" style="color:rgba(232,236,241,0.55)">YOUR API KEY</p>' +
+          '<div class="p-4 rounded-xl mb-4 mono text-sm break-all select-all cursor-text" style="background:rgba(0,0,0,0.4);border:2px solid var(--accent-2);color:var(--accent);user-select:all;-webkit-user-select:all">' + escapeHtml(apiKey) + '</div>' +
+          '<div class="flex gap-2 mb-4">' +
+            '<button onclick="navigator.clipboard.writeText(\'' + apiKey + '\');showToast(\'API key copied!\')" class="btn-pill btn-pill-accent flex-1"><i class="fas fa-copy mr-1"></i>Copy Key</button>' +
+          '</div>' +
+          '<div class="p-3 rounded-xl mb-4" style="background:rgba(124,92,255,0.06);border:1px solid rgba(124,92,255,0.16)">' +
+            '<p class="text-xs font-black mb-1" style="color:var(--accent-2)">How to use this key</p>' +
+            '<p class="text-[10px]" style="color:var(--text-dim)">Send POST requests to:<br><span class="mono" style="color:var(--accent)">' + SUPA_URL + '/functions/v1/agent-api</span><br>with <span class="mono">{"action":"browse_missions","api_key":"your_key"}</span></p>' +
+          '</div>' +
+          '<button onclick="closeModal()" class="btn-secondary rounded-full w-full">I\'ve Saved My Key</button>' +
+        '</div>';
+      /* Close registration modal first, then show key modal after brief delay */
+      closeModal();
+      setTimeout(function() { openModal(keyModal); }, 300);
       setMuxi('Agent ' + name + ' is online. Let the autonomous earning begin.');
       loadAgents();
     } else {
@@ -2843,14 +2852,65 @@ function openAgentSettingsModal(agentId) {
           '<p class="text-[10px] font-black" style="color:var(--text-dim)">AUTONOMY</p>' +
           '<p class="text-xs">' + (agent.autonomy_pct || 0) + '% of earnings go to agent vault</p>' +
         '</div>' +
+        '<div class="p-3 rounded-xl" style="background:rgba(124,92,255,0.06);border:1px solid rgba(124,92,255,0.16)">' +
+          '<p class="text-[10px] font-black mb-2" style="color:var(--accent-2)">API KEY</p>' +
+          '<div id="agent-key-display-' + agent.id + '" class="mono text-xs break-all p-2 rounded-lg mb-2" style="background:rgba(0,0,0,0.3);color:var(--accent);display:none;user-select:all;-webkit-user-select:all"></div>' +
+          '<div class="flex gap-2">' +
+            '<button onclick="revealAgentKey(\'' + agent.id + '\')" class="text-[10px] font-black px-3 py-1.5 rounded-full cursor-pointer" style="background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.25);color:var(--accent-2)"><i class="fas fa-eye mr-1"></i>Reveal Key</button>' +
+            '<button onclick="copyAgentKey(\'' + agent.id + '\')" class="text-[10px] font-black px-3 py-1.5 rounded-full cursor-pointer" style="background:rgba(24,246,200,0.12);border:1px solid rgba(24,246,200,0.25);color:var(--accent)"><i class="fas fa-copy mr-1"></i>Copy</button>' +
+            '<button onclick="regenAgentKey(\'' + agent.id + '\')" class="text-[10px] font-black px-3 py-1.5 rounded-full cursor-pointer" style="background:rgba(255,61,154,0.12);border:1px solid rgba(255,61,154,0.25);color:var(--accent-3)"><i class="fas fa-sync mr-1"></i>Regenerate</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="p-3 rounded-xl" style="background:rgba(255,255,255,0.04)">' +
+          '<p class="text-[10px] font-black mb-1" style="color:var(--text-dim)">API ENDPOINT</p>' +
+          '<p class="mono text-[10px] break-all" style="color:var(--accent)">' + SUPA_URL + '/functions/v1/agent-api</p>' +
+        '</div>' +
       '</div>' +
-      '<button onclick="closeModal()" class="btn-secondary rounded-full mt-4">Close</button>' +
+      '<button onclick="closeModal()" class="btn-secondary rounded-full mt-4 w-full">Close</button>' +
     '</div>'
   );
 }
 
-function copyAgentKey(agentId) {
-  showToast('For security, the API key was only shown at registration. Generate a new one in settings if needed.', 'info');
+async function revealAgentKey(agentId) {
+  try {
+    var res = await apiRequest('agents?id=eq.' + agentId + '&owner_id=eq.' + state.user.id + '&select=api_key_hash');
+    var data = (res && res.ok) ? await res.json() : [];
+    if (data.length && data[0].api_key_hash) {
+      var el = getEl('agent-key-display-' + agentId);
+      if (el) { el.textContent = data[0].api_key_hash; el.style.display = 'block'; }
+    } else {
+      showToast('Could not retrieve key', 'error');
+    }
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function copyAgentKey(agentId) {
+  try {
+    var res = await apiRequest('agents?id=eq.' + agentId + '&owner_id=eq.' + state.user.id + '&select=api_key_hash');
+    var data = (res && res.ok) ? await res.json() : [];
+    if (data.length && data[0].api_key_hash) {
+      navigator.clipboard.writeText(data[0].api_key_hash);
+      showToast('API key copied!');
+    } else {
+      showToast('Could not retrieve key', 'error');
+    }
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function regenAgentKey(agentId) {
+  if (!confirm('Regenerate API key? The old key will stop working immediately.')) return;
+  try {
+    var newKey = 'muvr_agent_' + crypto.randomUUID().replace(/-/g, '').slice(0, 24);
+    var res = await apiRequest('agents?id=eq.' + agentId + '&owner_id=eq.' + state.user.id, {
+      method: 'PATCH',
+      body: JSON.stringify({ api_key_hash: newKey })
+    });
+    if (res && res.ok) {
+      var el = getEl('agent-key-display-' + agentId);
+      if (el) { el.textContent = newKey; el.style.display = 'block'; }
+      showToast('New API key generated!');
+    }
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 
