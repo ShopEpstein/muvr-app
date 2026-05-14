@@ -44,7 +44,7 @@ function renderOnboardingCard() {
     '<p class="text-xs mb-4" style="color:var(--text-dim)">Workers keep 100%. Zero commission. The more missions complete, the more credits retire, the scarcer MV becomes.</p>' +
     '<div class="flex gap-3">' +
       '<button onclick="dismissOnboarding()" class="btn-pill btn-pill-accent" data-testid="button-browse-missions">Browse Missions</button>' +
-      '<button onclick="dismissOnboarding();switchTab('exchange')" class="btn-pill btn-pill-ghost" data-testid="button-goto-exchange">Go to Exchange</button>' +
+      '<button onclick="dismissOnboarding();switchTab(\'exchange\')" class="btn-pill btn-pill-ghost" data-testid="button-goto-exchange">Go to Exchange</button>' +
     '</div>' +
   '</div>';
 }
