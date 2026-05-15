@@ -900,11 +900,182 @@ function renderMyListingsGrid() {
           '<p class="text-[10px] mb-3" style="color:var(--text-dim)">' + relTime(l.created_at) + ' &middot; ' + escapeHtml(l.category || '') + '</p>' +
           '<div class="flex gap-2">' +
             '<button onclick="openListingDetail(\'' + l.id + '\')" class="btn-sm flex-1">View</button>' +
+            (l.status === 'active' ? '<button onclick="openEditListingModal(\'' + l.id + '\')" class="btn-sm">Edit</button>' : '') +
             (l.status === 'active' ? '<button onclick="deactivateListing(\'' + l.id + '\')" class="btn-sm" style="color:var(--red)">Remove</button>' : '') +
           '</div>' +
         '</div>';
       }).join('') +
     '</div>';
+}
+
+function openEditListingModal(listingId) {
+  var l = (state.myListings || []).find(function(x) { return x.id === listingId; });
+  if (!l) return showToast('Listing not found', 'error');
+
+  const cats  = ['electronics','gaming','collectibles','sneakers','clothing','home','tools','phones','computers','digital','art','other'];
+  const conds = ['New','Like New','Good','Fair','For Parts'];
+  const existingUrls = l.media_urls || [];
+
+  openModal(`
+    <h2 style="margin-bottom:18px;font-size:1.25rem;">✏️ Edit Listing</h2>
+
+    <!-- MEDIA -->
+    <div style="margin-bottom:18px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:8px;">Photos & Videos <span style="color:var(--accent)">(up to 8 images + 1 video)</span></label>
+      <div id="media-drop-zone"
+        ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+        ondragleave="this.style.borderColor='rgba(255,255,255,.15)'"
+        ondrop="handleMediaDrop(event)"
+        style="border:2px dashed rgba(255,255,255,.15);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;"
+        onclick="document.getElementById('media-file-input').click()">
+        <div style="font-size:1.6rem;margin-bottom:4px;">📷</div>
+        <div style="font-size:.85rem;color:var(--text-dim);">Add more photos or drag & drop</div>
+        <input id="media-file-input" type="file" multiple accept="image/*,video/mp4,video/quicktime,video/webm"
+          style="display:none;" onchange="handleMediaSelect(this.files)">
+      </div>
+      <div id="media-upload-progress" style="display:none;margin-top:10px;">
+        <div style="font-size:.82rem;color:var(--text-dim);margin-bottom:6px;" id="media-upload-status">Uploading...</div>
+        <div style="background:rgba(255,255,255,.08);border-radius:6px;height:6px;overflow:hidden;">
+          <div id="media-progress-bar" style="height:6px;background:var(--accent);width:0%;transition:width .3s;border-radius:6px;"></div>
+        </div>
+      </div>
+      <div id="media-preview-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+      <input type="hidden" id="listing-media-urls" value="${escapeHtml(JSON.stringify(existingUrls))}">
+    </div>
+
+    <!-- TITLE -->
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Title *</label>
+      <input id="list-title" class="field" maxlength="80" value="${escapeHtml(l.title || '')}">
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Description</label>
+      <textarea id="list-desc" class="field" rows="3" maxlength="1000" style="resize:vertical;">${escapeHtml(l.description || '')}</textarea>
+    </div>
+
+    <!-- CATEGORY + CONDITION -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div>
+        <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Category</label>
+        <select id="list-cat" class="field">
+          ${cats.map(c => `<option value="${c}" ${c === l.category ? 'selected' : ''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Condition</label>
+        <select id="list-cond" class="field">
+          ${conds.map(c => `<option value="${c}" ${c === l.condition ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    <!-- PRICE + QUANTITY -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div>
+        <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Price (MV)</label>
+        <input id="list-price" class="field" type="number" min="1" value="${l.price_mv || ''}">
+      </div>
+      <div>
+        <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Quantity</label>
+        <input id="list-qty" class="field" type="number" min="1" value="${l.quantity || 1}">
+      </div>
+    </div>
+
+    <!-- LOCATION -->
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Location</label>
+      <input id="list-location" class="field" placeholder="City, State" value="${escapeHtml(l.location_city || '')}">
+    </div>
+
+    <!-- DELIVERY OPTIONS -->
+    <div style="margin-bottom:18px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:8px;">Delivery Options</label>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem;">
+          <input type="checkbox" id="del-ship" style="accent-color:var(--accent)" ${l.ships ? 'checked' : ''}> Ships nationally
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem;">
+          <input type="checkbox" id="del-local" style="accent-color:var(--accent)" ${l.local_pickup ? 'checked' : ''}> Local pickup
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem;">
+          <input type="checkbox" id="del-muvr" style="accent-color:var(--accent)" ${l.muvr_delivery ? 'checked' : ''}> MUVR delivery
+        </label>
+      </div>
+    </div>
+
+    <!-- TAGS -->
+    <div style="margin-bottom:18px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Tags <span style="color:var(--text-dim);font-size:.78rem;">(comma separated)</span></label>
+      <input id="list-tags" class="field" placeholder="pokemon, charizard, psa10" value="${escapeHtml(l.tags || '')}">
+    </div>
+
+    <button class="btn-primary w-full" onclick="handleUpdateListing('${listingId}')" style="margin-top:4px;">
+      Save Changes
+    </button>
+  `, { wide: true });
+
+  // Pre-populate the preview grid with existing photos
+  if (existingUrls.length > 0) renderMediaPreview(existingUrls);
+}
+
+async function handleUpdateListing(listingId) {
+  const title    = (document.getElementById('list-title')?.value || '').trim();
+  const desc     = (document.getElementById('list-desc')?.value || '').trim();
+  const cat      = document.getElementById('list-cat')?.value;
+  const cond     = document.getElementById('list-cond')?.value;
+  const price    = parseInt(document.getElementById('list-price')?.value || '0');
+  const qty      = parseInt(document.getElementById('list-qty')?.value || '1');
+  const location = (document.getElementById('list-location')?.value || '').trim();
+  const tagRaw   = (document.getElementById('list-tags')?.value || '').trim();
+  const delShip  = document.getElementById('del-ship')?.checked;
+  const delLocal = document.getElementById('del-local')?.checked;
+  const delMuvr  = document.getElementById('del-muvr')?.checked;
+
+  let mediaUrls = [];
+  try { mediaUrls = JSON.parse(document.getElementById('listing-media-urls')?.value || '[]'); } catch(e) {}
+
+  if (!title) return showToast('Title is required', 'error');
+  if (!price || price < 1) return showToast('Set a price in MV', 'error');
+
+  const tags = tagRaw ? tagRaw.split(',').map(t => t.trim()).filter(Boolean).join(',') : null;
+
+  const payload = {
+    title,
+    description:  desc || null,
+    category:     cat,
+    condition:    cond,
+    price_mv:     price,
+    quantity:     qty > 0 ? qty : 1,
+    location_city:location || null,
+    tags,
+    media_urls:   mediaUrls,
+    ships:        delShip  || false,
+    local_pickup: delLocal || false,
+    muvr_delivery:delMuvr  || false,
+  };
+
+  const btn = document.querySelector('[onclick="handleUpdateListing(\'' + listingId + '\')"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+  const res = await apiRequest('marketplace_listings?id=eq.' + listingId, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+    headers: { 'Prefer': 'return=minimal' }
+  });
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
+
+  if (res && (res.ok || res.status === 204)) {
+    showToast('Listing updated!', 'success');
+    closeModal();
+    loadMyMarketListings();
+    loadMarketListings();
+  } else {
+    var err = ''; try { err = await res.text(); } catch(e2) {}
+    showToast('Error saving: ' + (err || 'unknown'), 'error');
+  }
 }
 
 async function deactivateListing(listingId) {
