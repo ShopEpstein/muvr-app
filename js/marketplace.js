@@ -208,67 +208,41 @@ function renderMarketGrid() {
 }
 
 function renderMarketCard(l) {
-  var cat       = l.category || 'other';
-  var color     = MARKET_CAT_COLORS[cat] || '#9ca3af';
-  var cond      = l.condition || 'Good';
-  var cs        = MARKET_CONDITION_COLORS[cond] || MARKET_CONDITION_COLORS['Good'];
-  var price     = Number(l.price_mv || 0);
-  var rating    = Number(l.seller_rating || 0);
-  var saved     = (state.savedListings || []).indexOf(l.id) >= 0;
+  const price = l.price_mv ? `${l.price_mv} MV` : 'Free';
+  const cond = l.condition || '';
+  const cat = getMarketCatIcon(l.category);
+  const saved = (state.savedListings || []).includes(l.id);
 
-  return '<div class="card card-interactive p-0 overflow-hidden" style="cursor:pointer" onclick="openListingDetail(\'' + l.id + '\')">' +
+  // Media: use first image/video thumbnail, fallback to icon
+  let mediaSrc = null;
+  if (l.media_urls && l.media_urls.length > 0) {
+    mediaSrc = l.media_urls[0];
+  }
 
-    /* Image placeholder */
-    '<div style="height:150px;background:linear-gradient(135deg,' + color + '18,' + color + '05);' +
-      'display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-      '<i class="fas ' + getMarketCatIcon(cat) + '" style="font-size:44px;color:' + color + ';opacity:0.55"></i>' +
+  const mediaHtml = mediaSrc
+    ? `<div class="market-card-img" style="position:relative;width:100%;height:140px;overflow:hidden;border-radius:10px 10px 0 0;background:#0a0d1a;">
+        ${mediaSrc.match(/\.(mp4|webm|mov)$/i)
+          ? `<video src="${mediaSrc}" style="width:100%;height:140px;object-fit:cover;" muted playsinline preload="metadata"></video>
+             <div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);border-radius:6px;padding:2px 7px;font-size:11px;color:#fff;">▶ Video</div>`
+          : `<img src="${mediaSrc}" alt="${escapeHtml(l.title)}" style="width:100%;height:140px;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:140px;font-size:2rem;\\'><i class=\\'fas ${cat}\\'></i></div>'">`
+        }
+        ${(l.media_urls.length > 1) ? `<div style="position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.65);border-radius:5px;padding:1px 6px;font-size:10px;color:#ccc;">+${l.media_urls.length - 1}</div>` : ''}
+       </div>`
+    : `<div style="display:flex;align-items:center;justify-content:center;height:100px;font-size:2.2rem;"><i class="fas ${cat}"></i></div>`;
 
-      /* Top-left badges */
-      '<div style="position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:4px">' +
-        '<span style="font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;background:' + cs.bg + ';color:' + cs.color + ';border:1px solid ' + cs.color + '40">' + escapeHtml(cond) + '</span>' +
-        (l.muvr_delivery ? '<span style="font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;background:rgba(124,92,255,0.2);color:#a78bfa;border:1px solid rgba(124,92,255,0.3)"><i class="fas fa-motorcycle mr-1"></i>MUVR</span>' : '') +
-        (l.is_agent     ? '<span style="font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;background:rgba(24,246,200,0.12);color:var(--accent);border:1px solid rgba(24,246,200,0.3)"><i class="fas fa-robot mr-1"></i>Agent</span>' : '') +
-      '</div>' +
-
-      /* Save / heart */
-      '<button onclick="event.stopPropagation();toggleSaveListing(\'' + l.id + '\')" ' +
-        'style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);border:none;' +
-        'color:' + (saved ? '#FF3D9A' : 'rgba(232,236,241,0.55)') + ';' +
-        'width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;display:grid;place-items:center" title="Save">' +
-        '<i class="fas fa-heart"></i>' +
-      '</button>' +
-    '</div>' +
-
-    /* Body */
-    '<div class="p-3">' +
-      '<h3 class="font-black text-sm line-clamp-2 mb-1">' + escapeHtml(l.title || 'Untitled') + '</h3>' +
-
-      '<div class="flex items-center justify-between mb-2">' +
-        '<span class="text-base font-black" style="color:var(--accent)">' + mvLabel(price.toLocaleString()) + '</span>' +
-        (Number(l.quantity || 1) > 1 ? '<span class="text-[10px]" style="color:var(--text-dim)">\xd7' + l.quantity + ' avail</span>' : '') +
-      '</div>' +
-
-      '<div class="flex items-center justify-between">' +
-        '<div class="flex items-center gap-1">' +
-          '<span class="text-[10px] truncate" style="color:var(--text-dim);max-width:100px">' + escapeHtml(l.seller_name || 'Anonymous') + '</span>' +
-          (rating > 0 ? '<span class="text-[10px]" style="color:#fbbf24">★ ' + rating.toFixed(1) + '</span>' : '') +
-        '</div>' +
-        '<div style="color:rgba(232,236,241,0.35);font-size:10px;display:flex;gap:6px">' +
-          (l.local_pickup  ? '<i class="fas fa-handshake" title="Local Pickup"></i>' : '') +
-          (l.ships         ? '<i class="fas fa-box" title="Ships"></i>' : '') +
-          (l.muvr_delivery ? '<i class="fas fa-motorcycle" title="MUVR Delivery"></i>' : '') +
-        '</div>' +
-      '</div>' +
-
-      '<div class="flex items-center justify-between mt-2">' +
-        (l.location_city
-          ? '<span class="text-[10px]" style="color:var(--text-dim)"><i class="fas fa-location-dot mr-1"></i>' + escapeHtml(l.location_city) + (l.location_state ? ', ' + escapeHtml(l.location_state) : '') + '</span>'
-          : '<span></span>') +
-        '<span class="text-[10px]" style="color:var(--text-dim)">' + relTime(l.created_at) + '</span>' +
-      '</div>' +
-    '</div>' +
-
-  '</div>';
+  return `<div class="card card-interactive p-0" style="cursor:pointer;overflow:hidden;" onclick="openListingDetail('${l.id}')">
+    ${mediaHtml}
+    <div class="p-3">
+      <div style="font-weight:700;font-size:.97rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(l.title)}</div>
+      <div style="font-size:.82rem;color:var(--text-dim);margin-bottom:6px;">${escapeHtml(cond)} ${cond && l.location_city ? '· ' : ''}${escapeHtml(l.location_city || '')}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="color:var(--accent);font-weight:800;font-size:1rem;">${price}</span>
+        <button onclick="event.stopPropagation();toggleSaveListing('${l.id}')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="${saved ? 'Unsave' : 'Save'}">
+          ${saved ? '🔖' : '🤍'}
+        </button>
+      </div>
+    </div>
+  </div>`;
 }
 
 /* =============================================================================
@@ -279,7 +253,7 @@ async function loadMarketListings() {
     var catQ = (state.marketFilter && state.marketFilter !== 'all') ? '&category=eq.' + state.marketFilter : '';
     var res = await apiRequest(
       'marketplace_listings?status=eq.active&order=created_at.desc&limit=60' + catQ +
-      '&select=id,title,description,category,condition,price_mv,quantity,seller_id,seller_name,seller_rating,location_city,location_state,local_pickup,ships,muvr_delivery,is_agent,tags,created_at'
+      '&select=id,title,description,category,condition,price_mv,quantity,seller_id,seller_name,seller_rating,location_city,location_state,local_pickup,ships,muvr_delivery,is_agent,tags,media_urls,created_at'
     );
     state.marketListings = (res && res.ok) ? await res.json() : [];
   } catch(e) {
@@ -341,16 +315,16 @@ async function openListingDetail(listingId) {
   openModal(
     '<div class="card p-0 overflow-hidden" style="max-width:540px;margin:auto">' +
 
-    /* Hero image area */
-    '<div style="height:200px;background:linear-gradient(135deg,' + color + '15,' + color + '05);' +
-      'display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-      '<i class="fas ' + getMarketCatIcon(cat) + '" style="font-size:60px;color:' + color + ';opacity:0.5"></i>' +
-      '<div style="position:absolute;top:10px;left:10px;display:flex;gap:5px;flex-wrap:wrap">' +
+    /* Hero image / gallery */
+    renderListingMediaGallery(listing) +
+
+    '<div style="position:relative;padding:0 20px 4px">' +
+      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">' +
         '<span style="font-size:9px;font-weight:900;padding:3px 8px;border-radius:99px;background:rgba(24,246,200,0.15);color:var(--accent);border:1px solid rgba(24,246,200,0.3)"><i class="fas fa-shield-halved mr-1"></i>Escrow</span>' +
         '<span style="font-size:9px;font-weight:900;padding:3px 8px;border-radius:99px;background:rgba(255,61,154,0.15);color:#FF3D9A;border:1px solid rgba(255,61,154,0.3)"><i class="fas fa-tag mr-1"></i>0% Fees</span>' +
         (listing.muvr_delivery ? '<span style="font-size:9px;font-weight:900;padding:3px 8px;border-radius:99px;background:rgba(124,92,255,0.2);color:#a78bfa;border:1px solid rgba(124,92,255,0.3)"><i class="fas fa-motorcycle mr-1"></i>MUVR Delivery</span>' : '') +
       '</div>' +
-      '<button onclick="closeModal()" class="close-btn" style="position:absolute;top:10px;right:12px">&times;</button>' +
+      '<button onclick="closeModal()" class="close-btn" style="position:absolute;top:-8px;right:12px">&times;</button>' +
     '</div>' +
 
     '<div class="p-5">' +
@@ -524,152 +498,353 @@ function toggleSaveListing(listingId) {
 function openListItemModal() {
   if (!state.user) { openAuthModal(); return; }
 
-  openModal(
-    '<div class="card p-6 overflow-y-auto" style="max-width:520px;margin:auto;max-height:90vh">' +
-      '<div class="flex justify-between items-center mb-5">' +
-        '<div>' +
-          '<h2 class="text-xl font-black">List an Item</h2>' +
-          '<p class="text-xs mt-0.5" style="color:var(--text-dim)">Zero seller fees &middot; Escrow protected</p>' +
-        '</div>' +
-        '<button onclick="closeModal()" class="close-btn">&times;</button>' +
-      '</div>' +
+  const cats = ['electronics','gaming','collectibles','sneakers','clothing',
+                 'home','tools','phones','computers','digital','art','other'];
+  const conds = ['New','Like New','Good','Fair','For Parts'];
 
-      '<div class="mb-3">' +
-        '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">Title *</label>' +
-        '<input id="list-title" type="text" placeholder="What are you selling?" class="field" maxlength="120">' +
-      '</div>' +
+  openModal(`
+    <h2 style="margin-bottom:18px;font-size:1.25rem;">📦 List an Item</h2>
 
-      '<div class="mb-3">' +
-        '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">Description</label>' +
-        '<textarea id="list-desc" rows="3" placeholder="Describe the item — condition details, dimensions, what\'s included..." class="field" style="resize:none" maxlength="1000"></textarea>' +
-      '</div>' +
+    <!-- MEDIA UPLOAD -->
+    <div style="margin-bottom:18px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:8px;">Photos & Videos <span style="color:var(--accent)">(up to 8 images + 1 video)</span></label>
 
-      '<div class="grid grid-cols-2 gap-3 mb-3">' +
-        '<div>' +
-          '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">Category *</label>' +
-          '<select id="list-cat" class="field">' +
-            MARKET_CATEGORIES.filter(function(c) { return c.k !== 'all'; }).map(function(c) {
-              return '<option value="' + c.k + '">' + c.l + '</option>';
-            }).join('') +
-          '</select>' +
-        '</div>' +
-        '<div>' +
-          '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">Condition *</label>' +
-          '<select id="list-condition" class="field">' +
-            MARKET_CONDITIONS.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('') +
-          '</select>' +
-        '</div>' +
-      '</div>' +
+      <div id="media-drop-zone"
+        ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+        ondragleave="this.style.borderColor='rgba(255,255,255,.15)'"
+        ondrop="handleMediaDrop(event)"
+        style="border:2px dashed rgba(255,255,255,.15);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;"
+        onclick="document.getElementById('media-file-input').click()">
+        <div style="font-size:2rem;margin-bottom:6px;">📷</div>
+        <div style="font-size:.9rem;color:var(--text-dim);">Drag & drop or tap to upload</div>
+        <div style="font-size:.75rem;color:var(--text-dim);margin-top:4px;">JPG, PNG, WEBP, GIF, MP4, MOV · Max 50MB per file</div>
+        <input id="media-file-input" type="file" multiple accept="image/*,video/mp4,video/quicktime,video/webm"
+          style="display:none;" onchange="handleMediaSelect(this.files)">
+      </div>
 
-      '<div class="grid grid-cols-2 gap-3 mb-3">' +
-        '<div>' +
-          '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">Price (MV) *</label>' +
-          '<input id="list-price" type="number" min="1" step="1" placeholder="e.g. 25" class="field">' +
-        '</div>' +
-        '<div>' +
-          '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">Quantity</label>' +
-          '<input id="list-qty" type="number" min="1" step="1" value="1" class="field">' +
-        '</div>' +
-      '</div>' +
+      <!-- Upload progress -->
+      <div id="media-upload-progress" style="display:none;margin-top:10px;">
+        <div style="font-size:.82rem;color:var(--text-dim);margin-bottom:6px;" id="media-upload-status">Uploading...</div>
+        <div style="background:rgba(255,255,255,.08);border-radius:6px;height:6px;overflow:hidden;">
+          <div id="media-progress-bar" style="height:6px;background:var(--accent);width:0%;transition:width .3s;border-radius:6px;"></div>
+        </div>
+      </div>
 
-      '<div class="grid grid-cols-2 gap-3 mb-3">' +
-        '<div>' +
-          '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">City</label>' +
-          '<input id="list-city" type="text" placeholder="City" class="field">' +
-        '</div>' +
-        '<div>' +
-          '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">State</label>' +
-          '<input id="list-state" type="text" placeholder="VA" class="field" maxlength="2">' +
-        '</div>' +
-      '</div>' +
+      <!-- Preview grid -->
+      <div id="media-preview-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+      <input type="hidden" id="listing-media-urls" value="[]">
+    </div>
 
-      '<div class="mb-4">' +
-        '<label class="text-xs font-black mb-2 block" style="color:var(--text-mid)">Delivery Options *</label>' +
-        '<div class="flex flex-wrap gap-4">' +
-          '<label class="flex items-center gap-2 cursor-pointer text-sm font-bold"><input type="checkbox" id="list-pickup"> Local Pickup</label>' +
-          '<label class="flex items-center gap-2 cursor-pointer text-sm font-bold"><input type="checkbox" id="list-ships"> I\'ll Ship</label>' +
-          '<label class="flex items-center gap-2 cursor-pointer text-sm font-bold" style="color:var(--accent)"><input type="checkbox" id="list-muvr-del"><i class="fas fa-motorcycle"></i>MUVR Delivery</label>' +
-        '</div>' +
-      '</div>' +
+    <!-- TITLE -->
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Title *</label>
+      <input id="list-title" class="field" placeholder="What are you selling?" maxlength="80">
+    </div>
 
-      '<div class="mb-5">' +
-        '<label class="text-xs font-black mb-1 block" style="color:var(--text-mid)">Tags <span style="opacity:0.5">(comma-separated)</span></label>' +
-        '<input id="list-tags" type="text" placeholder="vintage, rare, bundle" class="field">' +
-      '</div>' +
+    <!-- DESCRIPTION -->
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Description</label>
+      <textarea id="list-desc" class="field" rows="3" placeholder="Describe condition, specs, history..." maxlength="1000" style="resize:vertical;"></textarea>
+    </div>
 
-      '<div class="p-3 rounded-xl mb-4 text-xs" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.15);color:var(--text-mid);line-height:1.6">' +
-        '<i class="fas fa-info-circle mr-1" style="color:var(--accent)"></i>' +
-        'MUVR charges <strong style="color:var(--accent)">0% seller fees</strong>. Buyers pay in MV credits held in escrow until delivery is confirmed.' +
-      '</div>' +
+    <!-- CATEGORY + CONDITION -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div>
+        <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Category *</label>
+        <select id="list-cat" class="field">
+          ${cats.map(c => `<option value="${c}">${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Condition *</label>
+        <select id="list-cond" class="field">
+          ${conds.map(c => `<option value="${c}">${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
 
-      '<button onclick="handlePostListing()" class="btn-primary rounded-full" data-testid="btn-post-listing"><i class="fas fa-store mr-2"></i>Post Listing</button>' +
-    '</div>',
-    { width: 'max-w-lg' }
-  );
+    <!-- PRICE + QUANTITY -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div>
+        <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Price (MV) *</label>
+        <input id="list-price" class="field" type="number" min="1" placeholder="e.g. 25">
+      </div>
+      <div>
+        <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Quantity</label>
+        <input id="list-qty" class="field" type="number" min="1" value="1">
+      </div>
+    </div>
+
+    <!-- LOCATION -->
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Location</label>
+      <input id="list-location" class="field" placeholder="City, State">
+    </div>
+
+    <!-- DELIVERY OPTIONS -->
+    <div style="margin-bottom:18px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:8px;">Delivery Options</label>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem;">
+          <input type="checkbox" id="del-ship" style="accent-color:var(--accent)"> Ships nationally
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem;">
+          <input type="checkbox" id="del-local" style="accent-color:var(--accent)"> Local pickup
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.9rem;">
+          <input type="checkbox" id="del-muvr" style="accent-color:var(--accent)"> MUVR delivery
+        </label>
+      </div>
+    </div>
+
+    <!-- TAGS -->
+    <div style="margin-bottom:18px;">
+      <label style="font-size:.85rem;color:var(--text-dim);display:block;margin-bottom:4px;">Tags <span style="color:var(--text-dim);font-size:.78rem;">(comma separated)</span></label>
+      <input id="list-tags" class="field" placeholder="pokemon, charizard, psa10">
+    </div>
+
+    <button class="btn-primary w-full" onclick="handlePostListing()" style="margin-top:4px;">
+      Post Listing
+    </button>
+  `, { wide: true });
 }
 
 async function handlePostListing() {
-  var title   = ((getEl('list-title')     || {}).value || '').trim();
-  var desc    = ((getEl('list-desc')      || {}).value || '').trim();
-  var cat     =  (getEl('list-cat')       || {}).value || '';
-  var cond    =  (getEl('list-condition') || {}).value || 'Good';
-  var price   = parseInt((getEl('list-price') || {}).value || '0', 10);
-  var qty     = parseInt((getEl('list-qty')   || {}).value || '1', 10);
-  var city    = ((getEl('list-city')  || {}).value || '').trim();
-  var stAbbr  = ((getEl('list-state') || {}).value || '').trim().toUpperCase();
-  var pickup  = !!(getEl('list-pickup') || {}).checked;
-  var ships   = !!(getEl('list-ships')  || {}).checked;
-  var muvrDel = !!(getEl('list-muvr-del') || {}).checked;
-  var tags    = ((getEl('list-tags') || {}).value || '').trim();
+  const title    = (document.getElementById('list-title')?.value || '').trim();
+  const desc     = (document.getElementById('list-desc')?.value || '').trim();
+  const cat      = document.getElementById('list-cat')?.value;
+  const cond     = document.getElementById('list-cond')?.value;
+  const price    = parseInt(document.getElementById('list-price')?.value || '0');
+  const qty      = parseInt(document.getElementById('list-qty')?.value || '1');
+  const location = (document.getElementById('list-location')?.value || '').trim();
+  const tagRaw   = (document.getElementById('list-tags')?.value || '').trim();
+  const delShip  = document.getElementById('del-ship')?.checked;
+  const delLocal = document.getElementById('del-local')?.checked;
+  const delMuvr  = document.getElementById('del-muvr')?.checked;
 
-  if (!title)              return showToast('Enter a title', 'error');
-  if (!cat)                return showToast('Select a category', 'error');
-  if (!price || price < 1) return showToast('Enter a price in MV (minimum 1)', 'error');
-  if (!pickup && !ships && !muvrDel) return showToast('Select at least one delivery option', 'error');
+  let mediaUrls = [];
+  try { mediaUrls = JSON.parse(document.getElementById('listing-media-urls')?.value || '[]'); } catch(e) {}
 
-  var btn = document.querySelector('[data-testid="btn-post-listing"]');
+  if (!title) { showToast('Title is required', 'error'); return; }
+  if (!cat)   { showToast('Category is required', 'error'); return; }
+  if (!price || price < 1) { showToast('Set a price in MV', 'error'); return; }
+
+  const tags = tagRaw ? tagRaw.split(',').map(t => t.trim()).filter(Boolean).join(',') : null;
+
+  const payload = {
+    seller_id:    state.user.id,
+    seller_name:  (state.profile && (state.profile.full_name || state.profile.username)) || state.user.email,
+    seller_rating:(state.profile && state.profile.rating) || null,
+    title,
+    description:  desc || null,
+    category:     cat,
+    condition:    cond,
+    price_mv:     price,
+    quantity:     qty > 0 ? qty : 1,
+    location_city:location || null,
+    tags,
+    media_urls:   mediaUrls,
+    ships:            delShip  || false,
+    local_pickup:     delLocal || false,
+    muvr_delivery:    delMuvr  || false,
+    status:       'active',
+  };
+
+  const btn = document.querySelector('[onclick="handlePostListing()"]');
   if (btn) { btn.disabled = true; btn.textContent = 'Posting...'; }
   setMuxi('Listing your item on MUVR Market...');
 
-  try {
-    var payload = {
-      seller_id:     state.user.id,
-      seller_name:   (state.profile && (state.profile.full_name || state.profile.username)) || state.user.email,
-      seller_rating: (state.profile && state.profile.rating) || null,
-      title:         title,
-      description:   desc || null,
-      category:      cat,
-      condition:     cond,
-      price_mv:      price,
-      quantity:      qty > 0 ? qty : 1,
-      location_city: city || null,
-      location_state:stAbbr || null,
-      local_pickup:  pickup,
-      ships:         ships,
-      muvr_delivery: muvrDel,
-      tags:          tags || null,
-      status:        'active'
-    };
+  const res = await apiRequest('marketplace_listings', { method: 'POST', body: JSON.stringify(payload) });
 
-    var res = await apiRequest('marketplace_listings', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
+  if (btn) { btn.disabled = false; btn.textContent = 'Post Listing'; }
 
-    if (res && res.ok) {
-      closeModal();
-      showToast('Listed! Your item is live on MUVR Market.', 'success');
-      setMuxi('Zero fees. Escrow on every deal. Your listing is live!');
-      burstConfetti();
-      loadMarketListings();
-    } else {
-      var err = ''; try { err = await res.text(); } catch(e2) {}
-      showToast('Error posting: ' + (err || 'unknown'), 'error');
-      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-store mr-2"></i>Post Listing'; }
+  if (res && res.ok) {
+    showToast('Listing posted!', 'success');
+    setMuxi('Zero fees. Escrow on every deal. Your listing is live!');
+    burstConfetti();
+    closeModal();
+    loadMarketListings();
+  } else {
+    var err = ''; try { err = await res.text(); } catch(e2) {}
+    showToast('Error posting: ' + (err || 'unknown'), 'error');
+  }
+}
+
+// ─────────────────────────────────────────────
+// MEDIA UPLOAD HELPERS
+// ─────────────────────────────────────────────
+function handleMediaDrop(event) {
+  event.preventDefault();
+  const zone = document.getElementById('media-drop-zone');
+  if (zone) zone.style.borderColor = 'rgba(255,255,255,.15)';
+  handleMediaSelect(event.dataTransfer.files);
+}
+
+async function handleMediaSelect(files) {
+  if (!files || files.length === 0) return;
+
+  const MAX_IMAGES = 8;
+  const MAX_VIDEO = 1;
+  const MAX_SIZE_MB = 50;
+
+  let uploadedUrls = [];
+  try { uploadedUrls = JSON.parse(document.getElementById('listing-media-urls').value || '[]'); } catch(e) {}
+
+  const currentImages = uploadedUrls.filter(u => !u.match(/\.(mp4|webm|mov)$/i));
+  const currentVideos = uploadedUrls.filter(u => u.match(/\.(mp4|webm|mov)$/i));
+
+  const progressWrap = document.getElementById('media-upload-progress');
+  const progressBar  = document.getElementById('media-progress-bar');
+  const statusEl     = document.getElementById('media-upload-status');
+
+  if (progressWrap) progressWrap.style.display = 'block';
+
+  const toUpload = Array.from(files);
+  let uploaded = 0;
+
+  for (const file of toUpload) {
+    const isVideo = file.type.startsWith('video/');
+    const isImage = file.type.startsWith('image/');
+
+    if (!isImage && !isVideo) { showToast(`${file.name}: unsupported type`, 'error'); continue; }
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) { showToast(`${file.name}: exceeds 50MB limit`, 'error'); continue; }
+    if (isImage && currentImages.length >= MAX_IMAGES) { showToast(`Max ${MAX_IMAGES} images allowed`, 'error'); continue; }
+    if (isVideo && currentVideos.length >= MAX_VIDEO) { showToast('Only 1 video allowed per listing', 'error'); continue; }
+
+    if (statusEl) statusEl.textContent = `Uploading ${file.name}...`;
+
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `listings/${state.user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+
+      const { data, error } = await sb.storage
+        .from('marketplace-media')
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+
+      if (error) { showToast(`Upload failed: ${error.message}`, 'error'); continue; }
+
+      const { data: urlData } = sb.storage.from('marketplace-media').getPublicUrl(path);
+      const publicUrl = urlData.publicUrl;
+
+      uploadedUrls.push(publicUrl);
+      if (isVideo) currentVideos.push(publicUrl); else currentImages.push(publicUrl);
+
+      uploaded++;
+    } catch (err) {
+      showToast(`Upload error: ${err.message}`, 'error');
     }
-  } catch(e) {
-    showToast('Error: ' + (e.message || ''), 'error');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-store mr-2"></i>Post Listing'; }
+
+    const pct = Math.round((uploaded / toUpload.length) * 100);
+    if (progressBar) progressBar.style.width = pct + '%';
+  }
+
+  const urlInput = document.getElementById('listing-media-urls');
+  if (urlInput) urlInput.value = JSON.stringify(uploadedUrls);
+
+  renderMediaPreview(uploadedUrls);
+
+  if (progressWrap) progressWrap.style.display = 'none';
+  if (uploaded > 0) showToast(`${uploaded} file${uploaded > 1 ? 's' : ''} uploaded`, 'success');
+}
+
+function renderMediaPreview(urls) {
+  const grid = document.getElementById('media-preview-grid');
+  if (!grid) return;
+
+  if (urls.length === 0) { grid.innerHTML = ''; return; }
+
+  grid.innerHTML = urls.map((url, i) => {
+    const isVideo = url.match(/\.(mp4|webm|mov)$/i);
+    const thumb = isVideo
+      ? `<video src="${url}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;" muted preload="metadata"></video>
+         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.3rem;">▶</div>`
+      : `<img src="${url}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;" alt="media ${i+1}">`;
+
+    return `<div style="position:relative;width:72px;height:72px;flex-shrink:0;">
+      ${thumb}
+      <button onclick="removeMediaUrl(${i})"
+        style="position:absolute;top:-6px;right:-6px;background:var(--red);border:none;border-radius:50%;
+               width:20px;height:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+               font-size:11px;color:#fff;font-weight:700;line-height:1;">✕</button>
+      ${i === 0 ? `<div style="position:absolute;bottom:2px;left:2px;background:var(--accent);border-radius:3px;padding:0 4px;font-size:9px;color:#000;font-weight:700;">MAIN</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function removeMediaUrl(index) {
+  const urlInput = document.getElementById('listing-media-urls');
+  if (!urlInput) return;
+
+  let urls = [];
+  try { urls = JSON.parse(urlInput.value); } catch(e) {}
+
+  const removed = urls[index];
+  urls.splice(index, 1);
+  urlInput.value = JSON.stringify(urls);
+  renderMediaPreview(urls);
+
+  // Delete from Supabase Storage
+  if (removed && removed.includes('marketplace-media')) {
+    try {
+      const path = removed.split('/marketplace-media/')[1];
+      if (path) await sb.storage.from('marketplace-media').remove([path]);
+    } catch(e) { /* non-critical */ }
+  }
+}
+
+function renderListingMediaGallery(l) {
+  if (!l.media_urls || l.media_urls.length === 0) {
+    return `<div style="display:flex;align-items:center;justify-content:center;height:180px;font-size:3rem;background:rgba(255,255,255,.04);border-radius:12px;margin-bottom:16px;">
+      <i class="fas ${getMarketCatIcon(l.category || 'other')}"></i>
+    </div>`;
+  }
+
+  const urls = l.media_urls;
+  const mainId = `gallery-main-${l.id}`;
+
+  const mainMedia = urls[0].match(/\.(mp4|webm|mov)$/i)
+    ? `<video id="${mainId}" src="${urls[0]}" controls style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;background:#000;"></video>`
+    : `<img id="${mainId}" src="${urls[0]}" style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;background:rgba(0,0,0,.3);" alt="${escapeHtml(l.title)}">`;
+
+  const thumbs = urls.length > 1
+    ? `<div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto;padding-bottom:4px;">
+        ${urls.map((url, i) => {
+          const isVid = url.match(/\.(mp4|webm|mov)$/i);
+          return `<div onclick="switchGalleryMain('${mainId}','${url}',${isVid ? 'true' : 'false'})"
+            style="flex-shrink:0;width:60px;height:60px;border-radius:8px;overflow:hidden;cursor:pointer;
+                   border:2px solid ${i===0?'var(--accent)':'transparent'};transition:border-color .15s;"
+            id="thumb-${l.id}-${i}">
+            ${isVid
+              ? `<video src="${url}" style="width:60px;height:60px;object-fit:cover;" muted preload="metadata"></video>`
+              : `<img src="${url}" style="width:60px;height:60px;object-fit:cover;" alt="thumb ${i+1}" loading="lazy">`}
+          </div>`;
+        }).join('')}
+       </div>`
+    : '';
+
+  return `<div style="margin-bottom:16px;">${mainMedia}${thumbs}</div>`;
+}
+
+// Gallery switcher (called from thumbnail clicks)
+function switchGalleryMain(mainId, url, isVideo) {
+  const el = document.getElementById(mainId);
+  if (!el) return;
+
+  const parent = el.parentElement;
+  if (isVideo) {
+    const vid = document.createElement('video');
+    vid.id = mainId; vid.src = url; vid.controls = true;
+    vid.style.cssText = el.style.cssText;
+    parent.replaceChild(vid, el);
+  } else {
+    if (el.tagName === 'VIDEO') {
+      const img = document.createElement('img');
+      img.id = mainId; img.src = url; img.alt = '';
+      img.style.cssText = el.style.cssText;
+      parent.replaceChild(img, el);
+    } else {
+      el.src = url;
+    }
   }
 }
 
