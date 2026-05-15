@@ -346,116 +346,52 @@ function openSendModal() {
 
 function openLoadModal() {
   if (!state.user) { openAuthModal(); return; }
-
   openModal(`
     <h2 style="margin-bottom:6px;font-size:1.2rem;">💳 Add MV Credits</h2>
     <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:20px;">1 MV = $1.00 USD · Credits never expire</p>
-
-    <!-- Quick amounts -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">
       ${[10,25,50,100].map(a => `
-        <button onclick="setMintAmount(${a})"
-          id="mint-quick-${a}"
+        <button onclick="setMintAmount(${a})" id="mint-quick-${a}"
           style="padding:10px 4px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);
                  background:rgba(255,255,255,.04);cursor:pointer;font-weight:700;
-                 color:var(--text-bright);font-size:.95rem;transition:all .15s;"
-          onmouseover="this.style.borderColor='var(--accent)'"
-          onmouseout="this.style.borderColor='rgba(255,255,255,.12)'">
+                 color:var(--text-bright);font-size:.95rem;transition:all .15s;">
           ${a} MV<br><span style="font-size:.72rem;font-weight:400;color:var(--text-dim)">$${a}</span>
         </button>`).join('')}
     </div>
-
-    <!-- Custom amount -->
     <div style="margin-bottom:18px;">
       <label style="font-size:.83rem;color:var(--text-dim);display:block;margin-bottom:6px;">Custom amount (MV)</label>
       <input id="mint-amount" class="input-field" type="number" min="1" max="10000"
-        placeholder="Enter amount" oninput="updateMintPreview()"
-        style="font-size:1.1rem;font-weight:700;">
+        placeholder="Enter amount" oninput="updateMintPreview()" style="font-size:1.1rem;font-weight:700;">
       <div id="mint-preview" style="margin-top:6px;font-size:.82rem;color:var(--text-dim);"></div>
     </div>
-
-    <!-- Payment method toggle -->
-    <div style="margin-bottom:18px;">
-      <label style="font-size:.83rem;color:var(--text-dim);display:block;margin-bottom:8px;">Payment method</label>
-      <div style="display:flex;gap:8px;">
-        <button id="pay-card-btn" onclick="setPayMethod('card')"
-          style="flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--accent);
-                 background:rgba(24,246,200,.08);cursor:pointer;color:var(--accent);font-weight:700;font-size:.9rem;">
-          💳 Card / Bank
-        </button>
-        <button id="pay-crypto-btn" onclick="setPayMethod('crypto')"
-          style="flex:1;padding:10px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);
-                 background:rgba(255,255,255,.04);cursor:pointer;color:var(--text-dim);font-weight:700;font-size:.9rem;">
-          🪙 Crypto (USDC)
-        </button>
-      </div>
-    </div>
-
-    <!-- Card CTA -->
-    <div id="pay-card-section">
-      <button class="btn-primary w-full" onclick="initSquareMint()" id="square-pay-btn" style="font-size:1rem;">
-        Continue to Payment →
-      </button>
-      <div style="margin-top:10px;text-align:center;font-size:.75rem;color:var(--text-dim);">
-        Powered by Square · Secured with TLS · No card stored on MUVR
-      </div>
-    </div>
-
-    <!-- Crypto CTA (placeholder until Privy integrated) -->
-    <div id="pay-crypto-section" style="display:none;">
-      <div style="background:rgba(124,92,255,.08);border:1.5px solid rgba(124,92,255,.25);
-                  border-radius:12px;padding:16px;text-align:center;">
-        <div style="font-size:1.5rem;margin-bottom:8px;">🔜</div>
-        <div style="font-weight:700;margin-bottom:4px;">USDC on Base — Coming Soon</div>
-        <div style="font-size:.82rem;color:var(--text-dim);">Connect your wallet to mint MV with USDC.<br>Zero gas fees on Base network.</div>
-      </div>
+    <button class="btn-primary w-full" onclick="initSquareMint()" id="square-pay-btn" style="font-size:1rem;">
+      Continue to Payment →
+    </button>
+    <div style="margin-top:10px;text-align:center;font-size:.75rem;color:var(--text-dim);">
+      Powered by Square · Secured with TLS · No card stored on MUVR
     </div>
   `);
-
-  // Default selection
-  window._mintPayMethod = 'card';
 }
 
-async function initSquareMint(amount) {
-  const mv = amount || parseInt(document.getElementById('mint-amount')?.value || '0');
-
-  if (!mv || mv < 1) {
-    showToast('Enter an amount to continue', 'error');
-    return;
-  }
-  if (mv > 10000) {
-    showToast('Maximum single purchase is 10,000 MV', 'error');
-    return;
-  }
-
+async function initSquareMint() {
+  const mv = parseInt(document.getElementById('mint-amount')?.value || '0');
+  if (!mv || mv < 1) { showToast('Enter an amount to continue', 'error'); return; }
+  if (mv > 10000) { showToast('Maximum single purchase is 10,000 MV', 'error'); return; }
   const btn = document.getElementById('square-pay-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Redirecting to Square...'; }
-
   try {
-    // Detect env: use sandbox if on localhost or vercel preview
-    const isLocal = location.hostname === 'localhost' || location.hostname.includes('vercel.app');
-    const env = isLocal ? 'sandbox' : 'production';
-
     const res = await fetch(`${SUPA_URL}/functions/v1/create-checkout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${state.accessToken}`,
       },
-      body: JSON.stringify({ amount_mv: mv, env }),
+      body: JSON.stringify({ amount_mv: mv }),
     });
-
     const data = await res.json();
-
-    if (!res.ok || data.error) {
-      throw new Error(data.error || 'Checkout failed');
-    }
-
+    if (!res.ok || data.error) throw new Error(data.error || 'Checkout failed');
     if (!data.url) throw new Error('No checkout URL returned');
-
-    // Redirect to Square hosted checkout
     window.location.href = data.url;
-
   } catch (err) {
     showToast(`Payment error: ${err.message}`, 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Continue to Payment →'; }
@@ -479,28 +415,6 @@ function updateMintPreview() {
   el.textContent = `You'll receive ${val} MV · Charged $${val}.00 USD`;
 }
 
-function setPayMethod(method) {
-  window._mintPayMethod = method;
-  const cardBtn    = document.getElementById('pay-card-btn');
-  const cryptoBtn  = document.getElementById('pay-crypto-btn');
-  const cardSec    = document.getElementById('pay-card-section');
-  const cryptoSec  = document.getElementById('pay-crypto-section');
-
-  const activeStyle   = 'border:1.5px solid var(--accent);background:rgba(24,246,200,.08);color:var(--accent);';
-  const inactiveStyle = 'border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--text-dim);';
-
-  if (method === 'card') {
-    if (cardBtn)   cardBtn.style.cssText   += activeStyle;
-    if (cryptoBtn) cryptoBtn.style.cssText += inactiveStyle;
-    if (cardSec)   cardSec.style.display   = 'block';
-    if (cryptoSec) cryptoSec.style.display = 'none';
-  } else {
-    if (cryptoBtn) cryptoBtn.style.cssText += activeStyle;
-    if (cardBtn)   cardBtn.style.cssText   += inactiveStyle;
-    if (cryptoSec) cryptoSec.style.display = 'block';
-    if (cardSec)   cardSec.style.display   = 'none';
-  }
-}
 
 function openCashoutModal() {
   openModal(
