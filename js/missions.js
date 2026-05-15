@@ -416,7 +416,7 @@ function renderMyGigsView() {
         /* Count deliverables for this job */
         var delivCount = (state.deliverables || []).filter(function(d) { return d.job_id === job.id; }).length;
 
-        return '<div class="card p-5 mb-3">' +
+        return '<div class="card p-5 mb-3 cursor-pointer" onclick="openWorkerJobModal(\'' + job.id + '\')">' +
           '<div class="flex items-start justify-between mb-2">' +
             '<div class="flex-1 mr-3">' +
               '<h3 class="font-black text-sm">' + escapeHtml(job.title) + '</h3>' +
@@ -432,13 +432,7 @@ function renderMyGigsView() {
 
           '<div class="flex items-center justify-between pt-3" style="border-top:1px solid rgba(255,255,255,0.06)">' +
             '<span class="text-sm font-black" style="color:var(--accent)">' + Number(job.budget_mv || 0) + ' <span style="color:var(--accent)">MV</span></span>' +
-            '<div class="flex gap-2 flex-wrap justify-end">' +
-              '<button onclick="startConvoFromJob(\'' + job.id + '\',\'' + job.poster_id + '\')" class="btn-pill btn-pill-ghost text-xs"><i class="fas fa-comment mr-1"></i>Message</button>' +
-              (canStart ? '<button onclick="workerStartJob(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-play mr-1"></i>Go Active</button>' : '') +
-              (job.status === 'in_progress' ? '<button onclick="openWorkerJobModal(\'' + job.id + '\')" class="btn-pill btn-pill-accent text-xs"><i class="fas fa-tasks mr-1"></i>Update / Deliver</button>' : '') +
-              (isComplete ? '<span class="text-[10px] font-black" style="color:var(--yellow)"><i class="fas fa-hourglass-half mr-1"></i>Awaiting payment</span>' : '') +
-              (isPaid ? '<span class="text-[10px] font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid</span>' : '') +
-            '</div>' +
+            '<span class="text-[10px] font-black" style="color:var(--text-dim)">Tap to manage <i class="fas fa-chevron-right ml-1"></i></span>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -566,7 +560,14 @@ async function openWorkerJobModal(jobId) {
         '</div>' +
       '</div>' +
 
-      /* Mark complete */
+      /* Status-based action panel */
+      (job.status === 'awarded' ?
+        '<div class="mt-3 p-4 rounded-xl" style="background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.20)">' +
+          '<p class="text-xs font-black mb-1" style="color:var(--yellow)"><i class="fas fa-trophy mr-1"></i>You have been deployed on this mission!</p>' +
+          '<p class="text-[11px] mb-3" style="color:var(--text-dim)">Click Go Active when you begin work. The poster will be notified.</p>' +
+          '<button onclick="closeModal();workerStartJob(\'' + job.id + '\')" class="btn-primary rounded-full"><i class="fas fa-play mr-2"></i>Go Active</button>' +
+        '</div>' : '') +
+
       (job.status === 'in_progress' ?
         '<div class="mt-3 p-4 rounded-xl" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.20)">' +
           '<p class="text-xs font-black mb-2"><i class="fas fa-flag-checkered mr-1"></i>Ready to submit final work?</p>' +
@@ -582,8 +583,10 @@ async function openWorkerJobModal(jobId) {
 
       (job.status === 'paid' ?
         '<div class="p-4 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
-          '<p class="text-xs font-black" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid! This job is complete.</p>' +
-          '<div class="mt-2"><button onclick="openTipModal(\'' + job.id + '\')" class="btn-pill btn-pill-ghost text-xs" data-testid="button-tip-poster"><i class="fas fa-gift mr-1"></i>Send Thanks (Tip)</button></div>' +
+          '<p class="text-xs font-black mb-3" style="color:var(--accent)"><i class="fas fa-check-double mr-1"></i>Paid! This mission is complete.</p>' +
+          '<div class="flex gap-2 flex-wrap">' +
+            '<button onclick="openTipModal(\'' + job.id + '\')" class="btn-pill btn-pill-ghost text-xs" data-testid="button-tip-poster"><i class="fas fa-gift mr-1"></i>Send Thanks</button>' +
+          '</div>' +
         '</div>' : '') +
 
     '</div>',
@@ -814,7 +817,8 @@ async function openJobManageModal(jobId) {
     } else if (job.status === 'awarded') {
       actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.20)">' +
         '<p class="text-xs font-black" style="color:var(--yellow)"><i class="fas fa-info-circle mr-1"></i>Waiting for worker to start</p>' +
-        '<p class="text-[11px] mt-1" style="color:var(--text-dim)">The worker has been notified. Once they begin, status moves to In Progress.</p>' +
+        '<p class="text-[11px] mt-1 mb-3" style="color:var(--text-dim)">The worker has been notified. Once they begin, status moves to In Progress.</p>' +
+        '<button onclick="cancelJob(\'' + jobId + '\')" class="text-xs font-black py-1" style="color:var(--red)"><i class="fas fa-times mr-1"></i>Cancel mission & refund escrow</button>' +
       '</div>';
     } else if (job.status === 'completed') {
       actionsHtml = '<div class="mt-4 p-4 rounded-xl" style="background:rgba(24,246,200,0.08);border:1px solid rgba(24,246,200,0.20)">' +
