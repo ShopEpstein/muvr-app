@@ -1,6 +1,7 @@
 /* =============================================================================
    MARKETPLACE — js/marketplace.js
    eBay-style P2P goods marketplace. Zero seller fees. MV escrow.
+   v2
 ============================================================================= */
 
 /* Extend state with marketplace properties */
