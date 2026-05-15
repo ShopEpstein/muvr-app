@@ -24,13 +24,12 @@ serve(async (req) => {
     const body = await req.text()
     const event = JSON.parse(body)
 
-    // ── Optional: verify Square webhook signature ──────────────
-    // Uncomment when you add SQUARE_WEBHOOK_SIGNATURE_KEY secret
-    // const sigKey = Deno.env.get('SQUARE_WEBHOOK_SIGNATURE_KEY')!
-    // const sigHeader = req.headers.get('x-square-hmacsha256-signature') || ''
-    // const url = `https://cfenkstusggrcthehffn.supabase.co/functions/v1/square-webhook`
-    // const expected = await hmac('sha256', sigKey, url + body, 'utf8', 'base64')
-    // if (sigHeader !== expected) throw new Error('Invalid webhook signature')
+    // ── Verify Square webhook signature ───────────────────────
+    const sigKey = Deno.env.get('SQUARE_WEBHOOK_SIGNATURE_KEY')!
+    const sigHeader = req.headers.get('x-square-hmacsha256-signature') || ''
+    const url = `https://cfenkstusggrcthehffn.supabase.co/functions/v1/square-webhook`
+    const expected = await hmac('sha256', sigKey, url + body, 'utf8', 'base64')
+    if (sigHeader !== expected) throw new Error('Invalid webhook signature')
 
     const sb = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -38,7 +37,8 @@ serve(async (req) => {
     )
 
     // ── Handle payment.completed ───────────────────────────────
-    if (event.type === 'payment.completed') {
+    if (event.type === 'payment.updated' &&
+        event.data?.object?.payment?.status === 'COMPLETED') {
       const payment = event.data?.object?.payment
       if (!payment) throw new Error('No payment object in event')
 
@@ -100,7 +100,8 @@ serve(async (req) => {
     }
 
     // ── Handle payment.failed ──────────────────────────────────
-    if (event.type === 'payment.failed') {
+    if (event.type === 'payment.updated' &&
+        event.data?.object?.payment?.status === 'FAILED') {
       const payment = event.data?.object?.payment
       const orderId = payment?.order_id
 
