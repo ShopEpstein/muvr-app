@@ -254,6 +254,7 @@ function renderApp() {
           '<button onclick="switchTab(\'jobs\')" class="app-tab active" data-tab="jobs"><i class="fas fa-crosshairs mr-1"></i>Missions</button>' +
           '<button onclick="switchTab(\'messages\')" class="app-tab" data-tab="messages"><i class="fas fa-satellite-dish mr-1"></i>Comms</button>' +
           '<button onclick="switchTab(\'map\')" class="app-tab" data-tab="map"><i class="fas fa-location-crosshairs mr-1"></i>MUVR GO</button>' +
+          '<button onclick="switchTab(\'market\')" class="app-tab" data-tab="market"><i class="fas fa-store mr-1"></i>Market</button>' +
           '<button onclick="switchTab(\'wallet\')" class="app-tab" data-tab="wallet"><i class="fas fa-vault mr-1"></i>Vault</button>' +
           '<button onclick="switchTab(\'exchange\')" class="app-tab" data-tab="exchange"><i class="fas fa-arrow-right-arrow-left mr-1"></i>Exchange</button>' +
           '<button onclick="switchTab(\'ledger\')" class="app-tab" data-tab="ledger"><i class="fas fa-scroll mr-1"></i>Ledger</button>' +
@@ -275,12 +276,13 @@ function switchTab(name) {
   document.querySelectorAll('.app-tab').forEach(function(b) { b.classList.remove('active'); });
   document.querySelectorAll('[data-tab="' + name + '"]').forEach(function(b) { b.classList.add('active'); });
 
-  var seoMap = { jobs:'jobs', messages:'messages', map:'map', wallet:'vault', exchange:'exchange', ledger:'vault', profile:'dossier' };
+  var seoMap = { jobs:'jobs', messages:'messages', map:'map', market:'market', wallet:'vault', exchange:'exchange', ledger:'vault', profile:'dossier' };
   setSEOTitle(seoMap[name] || 'jobs');
 
   if (name === 'jobs') { renderJobsTab(); loadJobsSafe(); loadBrowseOperatives().then(function() { var el = getEl('browse-operatives'); if (el) el.innerHTML = renderBrowseOperativesInner(); }); loadUnreadCounts(); }
   else if (name === 'messages') { renderMessagesTab(); loadConversations(); }
   else if (name === 'map') renderMapTab();
+  else if (name === 'market') { renderMarketTab(); loadMarketListings(); }
   else if (name === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); loadLockups(); loadNetworkHealth(); loadRetirementRate(); }
   else if (name === 'exchange') { renderExchangeTab(); loadP2POffers(); }
   else if (name === 'ledger') { renderLedgerTab(); loadPublicEvents(); }
