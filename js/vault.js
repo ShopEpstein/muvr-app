@@ -345,85 +345,160 @@ function openSendModal() {
 }
 
 function openLoadModal() {
-  var stripeKey = window.STRIPE_PK || null;
-  var hasStripe = !!stripeKey;
+  if (!state.user) { openAuthModal(); return; }
 
-  var tiles = [5, 10, 25, 50, 100, 250].map(function(n) {
-    var onclick = 'initStripeMint(' + n + ')';
-    return '<button onclick="' + onclick + '" class="btn-secondary py-4 text-center rounded-2xl hover:border-[rgba(24,246,200,0.35)] transition-all" style="position:relative;overflow:hidden">' +
-      '<div class="text-lg font-black">$' + n + '</div>' +
-      '<div class="text-xs font-black mt-1" style="color:var(--accent)">' + n + ' MV</div>' +
-      (hasStripe ? '<div class="text-[9px] mt-1" style="color:var(--text-dim)">Stripe</div>' : '') +
-    '</button>';
-  }).join('');
+  openModal(`
+    <h2 style="margin-bottom:6px;font-size:1.2rem;">💳 Add MV Credits</h2>
+    <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:20px;">1 MV = $1.00 USD · Credits never expire</p>
 
-  openModal(
-    '<div class="card p-6" style="max-width:440px;margin:auto">' +
-      '<div class="flex justify-between items-center mb-3"><h2 class="text-xl font-black"><i class="fas fa-vault mr-2" style="color:var(--accent)"></i>Fund Vault</h2><button onclick="closeModal()" class="close-btn">&times;</button></div>' +
-      '<p class="text-sm mb-4" style="color:var(--text-dim)">Select an amount to add to your vault. 1 MV = $1 USD reference value.</p>' +
-      '<div class="grid grid-cols-3 gap-3 mb-4">' + tiles + '</div>' +
+    <!-- Quick amounts -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">
+      ${[10,25,50,100].map(a => `
+        <button onclick="setMintAmount(${a})"
+          id="mint-quick-${a}"
+          style="padding:10px 4px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);
+                 background:rgba(255,255,255,.04);cursor:pointer;font-weight:700;
+                 color:var(--text-bright);font-size:.95rem;transition:all .15s;"
+          onmouseover="this.style.borderColor='var(--accent)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.12)'">
+          ${a} MV<br><span style="font-size:.72rem;font-weight:400;color:var(--text-dim)">$${a}</span>
+        </button>`).join('')}
+    </div>
 
-      /* Custom amount */
-      '<div class="flex gap-2 mb-4">' +
-        '<input id="custom-mint-amount" type="number" min="1" max="10000" placeholder="Custom amount" class="field flex-1">' +
-        '<button onclick="' + (hasStripe ? 'initStripeMint(parseInt(getEl(\'custom-mint-amount\').value))' : 'initStripeMint(parseInt(getEl(\'custom-mint-amount\').value))') + '" class="btn-pill btn-pill-accent">Fund</button>' +
-      '</div>' +
+    <!-- Custom amount -->
+    <div style="margin-bottom:18px;">
+      <label style="font-size:.83rem;color:var(--text-dim);display:block;margin-bottom:6px;">Custom amount (MV)</label>
+      <input id="mint-amount" class="input-field" type="number" min="1" max="10000"
+        placeholder="Enter amount" oninput="updateMintPreview()"
+        style="font-size:1.1rem;font-weight:700;">
+      <div id="mint-preview" style="margin-top:6px;font-size:.82rem;color:var(--text-dim);"></div>
+    </div>
 
-      (hasStripe ?
-        '<div class="flex items-center gap-2 p-3 rounded-xl mb-3" style="background:rgba(24,246,200,0.06);border:1px solid rgba(24,246,200,0.16)">' +
-          '<i class="fas fa-lock text-xs" style="color:var(--accent)"></i>' +
-          '<span class="text-[11px] font-bold" style="color:var(--accent)">Payments secured by Stripe</span>' +
-        '</div>' :
-        '<div class="flex items-center gap-2 p-3 rounded-xl mb-3" style="background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.16)">' +
-          '<i class="fas fa-flask text-xs" style="color:var(--yellow)"></i>' +
-          '<span class="text-[11px] font-bold" style="color:var(--yellow)">Payment rails being configured. Earn MV by completing missions or buy on the P2P Exchange.</span>' +
-        '</div>'
-      ) +
+    <!-- Payment method toggle -->
+    <div style="margin-bottom:18px;">
+      <label style="font-size:.83rem;color:var(--text-dim);display:block;margin-bottom:8px;">Payment method</label>
+      <div style="display:flex;gap:8px;">
+        <button id="pay-card-btn" onclick="setPayMethod('card')"
+          style="flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--accent);
+                 background:rgba(24,246,200,.08);cursor:pointer;color:var(--accent);font-weight:700;font-size:.9rem;">
+          💳 Card / Bank
+        </button>
+        <button id="pay-crypto-btn" onclick="setPayMethod('crypto')"
+          style="flex:1;padding:10px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);
+                 background:rgba(255,255,255,.04);cursor:pointer;color:var(--text-dim);font-weight:700;font-size:.9rem;">
+          🪙 Crypto (USDC)
+        </button>
+      </div>
+    </div>
 
-      '<div class="text-[10px]" style="color:var(--text-dim)">' +
-        '<strong>Legal:</strong> MUVR Credits (MV) are in-platform credits for marketplace use only. Not legal tender, not a security, not a cryptocurrency. 1 MV = $1 USD intended internal pricing equivalence, subject to Terms.' +
-      '</div>' +
-    '</div>'
-  );
+    <!-- Card CTA -->
+    <div id="pay-card-section">
+      <button class="btn-primary w-full" onclick="initSquareMint()" id="square-pay-btn" style="font-size:1rem;">
+        Continue to Payment →
+      </button>
+      <div style="margin-top:10px;text-align:center;font-size:.75rem;color:var(--text-dim);">
+        Powered by Square · Secured with TLS · No card stored on MUVR
+      </div>
+    </div>
+
+    <!-- Crypto CTA (placeholder until Privy integrated) -->
+    <div id="pay-crypto-section" style="display:none;">
+      <div style="background:rgba(124,92,255,.08);border:1.5px solid rgba(124,92,255,.25);
+                  border-radius:12px;padding:16px;text-align:center;">
+        <div style="font-size:1.5rem;margin-bottom:8px;">🔜</div>
+        <div style="font-weight:700;margin-bottom:4px;">USDC on Base — Coming Soon</div>
+        <div style="font-size:.82rem;color:var(--text-dim);">Connect your wallet to mint MV with USDC.<br>Zero gas fees on Base network.</div>
+      </div>
+    </div>
+  `);
+
+  // Default selection
+  window._mintPayMethod = 'card';
 }
 
-/* Stripe Checkout integration - requires STRIPE_PK env var and Supabase Edge Function */
-async function initStripeMint(amount) {
-  amount = parseInt(amount);
-  if (!amount || amount < 1 || amount > 10000) { showToast('Enter an amount between 1 and 10,000', 'error'); return; }
-  if (!window.STRIPE_PK) { showToast('Payment rails not yet configured. Earn MV by completing missions or buy on the P2P Exchange.', 'info'); return; }
+async function initSquareMint(amount) {
+  const mv = amount || parseInt(document.getElementById('mint-amount')?.value || '0');
+
+  if (!mv || mv < 1) {
+    showToast('Enter an amount to continue', 'error');
+    return;
+  }
+  if (mv > 10000) {
+    showToast('Maximum single purchase is 10,000 MV', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('square-pay-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Redirecting to Square...'; }
 
   try {
-    setMuxi('Opening secure checkout for ' + amount + ' MV...');
-    /* Call Supabase Edge Function to create Stripe Checkout session */
-    var res = await fetch(SUPA_URL + '/functions/v1/create-checkout', {
+    // Detect env: use sandbox if on localhost or vercel preview
+    const isLocal = location.hostname === 'localhost' || location.hostname.includes('vercel.app');
+    const env = isLocal ? 'sandbox' : 'production';
+
+    const res = await fetch(`${SUPA_URL}/functions/v1/create-checkout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + state.accessToken
+        'Authorization': `Bearer ${state.accessToken}`,
       },
-      body: JSON.stringify({
-        amount_mv: amount,
-        success_url: window.location.origin + window.location.pathname + '?mint_success=1',
-        cancel_url: window.location.origin + window.location.pathname + '?mint_cancel=1'
-      })
+      body: JSON.stringify({ amount_mv: mv, env }),
     });
 
-    if (!res.ok) {
-      var errText = ''; try { errText = await res.text(); } catch(e) {}
-      throw new Error('Checkout failed: ' + (errText || res.status));
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Checkout failed');
     }
 
-    var data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      throw new Error('No checkout URL returned');
-    }
-  } catch(e) {
-    console.error('Stripe mint error:', e);
-    showToast('Payment setup failed: ' + (e.message || 'unknown error'), 'error');
-    setMuxi('Payment hiccup. Try again or contact support.');
+    if (!data.url) throw new Error('No checkout URL returned');
+
+    // Redirect to Square hosted checkout
+    window.location.href = data.url;
+
+  } catch (err) {
+    showToast(`Payment error: ${err.message}`, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Continue to Payment →'; }
+  }
+}
+
+function setMintAmount(amount) {
+  const input = document.getElementById('mint-amount');
+  if (input) { input.value = amount; updateMintPreview(); }
+  [10,25,50,100].forEach(a => {
+    const btn = document.getElementById(`mint-quick-${a}`);
+    if (btn) btn.style.borderColor = a === amount ? 'var(--accent)' : 'rgba(255,255,255,.12)';
+  });
+}
+
+function updateMintPreview() {
+  const val = parseInt(document.getElementById('mint-amount')?.value || '0');
+  const el  = document.getElementById('mint-preview');
+  if (!el) return;
+  if (!val || val < 1) { el.textContent = ''; return; }
+  el.textContent = `You'll receive ${val} MV · Charged $${val}.00 USD`;
+}
+
+function setPayMethod(method) {
+  window._mintPayMethod = method;
+  const cardBtn    = document.getElementById('pay-card-btn');
+  const cryptoBtn  = document.getElementById('pay-crypto-btn');
+  const cardSec    = document.getElementById('pay-card-section');
+  const cryptoSec  = document.getElementById('pay-crypto-section');
+
+  const activeStyle   = 'border:1.5px solid var(--accent);background:rgba(24,246,200,.08);color:var(--accent);';
+  const inactiveStyle = 'border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--text-dim);';
+
+  if (method === 'card') {
+    if (cardBtn)   cardBtn.style.cssText   += activeStyle;
+    if (cryptoBtn) cryptoBtn.style.cssText += inactiveStyle;
+    if (cardSec)   cardSec.style.display   = 'block';
+    if (cryptoSec) cryptoSec.style.display = 'none';
+  } else {
+    if (cryptoBtn) cryptoBtn.style.cssText += activeStyle;
+    if (cardBtn)   cardBtn.style.cssText   += inactiveStyle;
+    if (cryptoSec) cryptoSec.style.display = 'block';
+    if (cardSec)   cardSec.style.display   = 'none';
   }
 }
 
