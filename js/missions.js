@@ -930,11 +930,20 @@ async function awardJob(jobId, applicationId, workerId) {
 /* Worker starts the job (updates to in_progress) */
 async function workerStartJob(jobId) {
   try {
-    var res = await apiRequest('jobs?id=eq.' + jobId + '&status=eq.awarded', { method: 'PATCH', body: JSON.stringify({ status: 'in_progress' }) });
-    var data = null; try { data = await res.json(); } catch(e) {}
-    if (!data || (Array.isArray(data) && data.length === 0)) { showToast('Job may have already been started', 'info'); loadMyGigs(); return; }
+    var res = await apiRequest('jobs?id=eq.' + jobId + '&status=eq.awarded', {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'in_progress' }),
+      headers: { 'Prefer': 'return=minimal' }
+    });
+    if (!res || !(res.ok || res.status === 204)) {
+      showToast('Job may have already been started', 'info');
+      loadMyGigs();
+      return;
+    }
     await apiRequest('applications?job_id=eq.' + jobId + '&worker_id=eq.' + state.user.id + '&status=eq.accepted', {
-      method: 'PATCH', body: JSON.stringify({ status: 'in_progress' })
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'in_progress' }),
+      headers: { 'Prefer': 'return=minimal' }
     });
     showToast('Job started! Keep the poster updated.');
     setMuxi('Let\'s get this bread. You got this!');
