@@ -299,11 +299,11 @@ async function loadNetworkHealth() {
 
       var indicator = getEl('health-indicator');
       var status = getEl('health-status');
-      var healthy = h.ledger_audit && h.ledger_audit.healthy;
-      if (indicator) indicator.style.background = healthy ? 'var(--accent)' : 'var(--red)';
+      var hasDiscrepancy = h.ledger_audit && h.ledger_audit.discrepancy > 0;
+      if (indicator) indicator.style.background = hasDiscrepancy ? 'var(--red)' : 'var(--accent)';
       if (status) {
-        status.textContent = healthy ? 'Ledger Healthy' : 'Discrepancy Detected';
-        status.style.color = healthy ? 'var(--accent)' : 'var(--red)';
+        status.textContent = hasDiscrepancy ? 'Discrepancy Detected' : 'Ledger Healthy';
+        status.style.color = hasDiscrepancy ? 'var(--red)' : 'var(--accent)';
       }
     }
   } catch(e) { console.warn('Network health load failed:', e); }
