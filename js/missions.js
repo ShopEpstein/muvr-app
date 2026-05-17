@@ -818,6 +818,7 @@ async function openJobManageModal(jobId) {
       actionsHtml = '<div class="mt-4 p-3 rounded-xl" style="background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.20)">' +
         '<p class="text-xs font-black" style="color:var(--yellow)"><i class="fas fa-info-circle mr-1"></i>Waiting for worker to start</p>' +
         '<p class="text-[11px] mt-1 mb-3" style="color:var(--text-dim)">The worker has been notified. Once they begin, status moves to In Progress.</p>' +
+        (delivs.length > 0 ? '<button onclick="posterApproveAndRelease(\'' + jobId + '\')" class="btn-primary rounded-full mb-3"><i class="fas fa-check-circle mr-2"></i>Approve deliverables & release ' + Number(job.budget_mv || 0) + ' MV</button>' : '') +
         '<button onclick="cancelJob(\'' + jobId + '\')" class="text-xs font-black py-1" style="color:var(--red)"><i class="fas fa-times mr-1"></i>Cancel mission & refund escrow</button>' +
       '</div>';
     } else if (job.status === 'completed') {
@@ -997,6 +998,20 @@ async function workerMarkComplete(jobId) {
 /* Poster approves completion and releases escrow */
 async function posterMarkComplete(jobId) {
   if (!confirm('Approve this work and release escrow payout to the operative?')) return;
+  try {
+    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'completed' }) });
+    await apiRequest('applications?job_id=eq.' + jobId + '&status=eq.in_progress', { method: 'PATCH', body: JSON.stringify({ status: 'completed' }) });
+  } catch(e) {}
+  await releaseEscrow(jobId);
+}
+
+/* Poster approves deliverables on an awarded job (worker skipped formal start) */
+async function posterApproveAndRelease(jobId) {
+  if (!confirm('Approve the submitted deliverables and release payment to the worker?')) return;
+  try {
+    await apiRequest('jobs?id=eq.' + jobId, { method: 'PATCH', body: JSON.stringify({ status: 'completed' }) });
+    await apiRequest('applications?job_id=eq.' + jobId + '&status=in.(accepted,in_progress)', { method: 'PATCH', body: JSON.stringify({ status: 'completed' }) });
+  } catch(e) {}
   await releaseEscrow(jobId);
 }
 
@@ -1033,8 +1048,13 @@ async function releaseEscrow(jobId) {
       loadMyGigs();
       if (state.currentTab === 'wallet') { renderWalletTab(); loadWalletData(); computeNetworkStats(); }
     } else {
-      var errText = ''; try { errText = await res.text(); } catch(e) {}
-      showToast('Error releasing escrow: ' + (errText || 'unknown'), 'error');
+      var errMsg = 'unknown error';
+      try {
+        var errBody = await res.text();
+        try { var errJson = JSON.parse(errBody); errMsg = errJson.message || errJson.error || errBody; }
+        catch(pe) { errMsg = errBody || errMsg; }
+      } catch(e) {}
+      showToast('Error releasing escrow: ' + errMsg, 'error');
     }
   } catch(e) { showToast('Error releasing escrow: ' + (e.message || ''), 'error'); console.error('releaseEscrow error:', e); }
 }
@@ -1048,13 +1068,19 @@ async function cancelJob(jobId) {
       method: 'POST',
       body: JSON.stringify({ p_poster_id: state.user.id, p_job_id: jobId })
     });
-    if (res && res.ok) {
+    if (!res) { showToast('Connection error — please try again', 'error'); return; }
+    if (res.ok) {
       closeModal(); showToast('Mission cancelled. Budget refunded to your vault.');
       setMuxi('No worries. That MV is back in your wallet.');
       loadProfileSafe(); loadMyGigs(); loadJobsSafe();
     } else {
-      var errText = ''; try { errText = await res.text(); } catch(e) {}
-      showToast('Error cancelling: ' + (errText || 'unknown'), 'error');
+      var errMsg = 'unknown error';
+      try {
+        var errBody = await res.text();
+        try { var errJson = JSON.parse(errBody); errMsg = errJson.message || errJson.error || errBody; }
+        catch(pe) { errMsg = errBody || errMsg; }
+      } catch(e) {}
+      showToast('Cancel failed: ' + errMsg, 'error');
     }
   } catch(e) { showToast('Error cancelling gig: ' + (e.message || ''), 'error'); console.error('cancelJob error:', e); }
 }
