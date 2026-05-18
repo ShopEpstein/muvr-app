@@ -1020,7 +1020,7 @@ async function releaseEscrow(jobId) {
     setMuxi('Releasing escrow...');
     var res = await apiRequest('rpc/release_escrow_secure', {
       method: 'POST',
-      body: JSON.stringify({ p_poster_id: state.user.id, p_job_id: jobId })
+      body: JSON.stringify({ p_job_id: jobId })
     });
     if (res && res.ok) {
       var job = state.myGigs.find(function(j) { return j.id === jobId; });
@@ -1066,7 +1066,7 @@ async function cancelJob(jobId) {
     setMuxi('Cancelling mission...');
     var res = await apiRequest('rpc/cancel_job_secure', {
       method: 'POST',
-      body: JSON.stringify({ p_poster_id: state.user.id, p_job_id: jobId })
+      body: JSON.stringify({ p_job_id: jobId })
     });
     if (!res) { showToast('Connection error — please try again', 'error'); return; }
     if (res.ok) {
